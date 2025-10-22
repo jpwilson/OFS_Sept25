@@ -60,11 +60,32 @@ function Login() {
     }
   }
 
-  // Demo accounts for easy testing
+  // Demo accounts for easy testing - All 20 users
   const demoAccounts = [
-    { email: 'sarah@example.com', password: 'password123', name: 'Sarah Wilson' },
-    { email: 'michael@example.com', password: 'password123', name: 'Michael Chen' },
-    { email: 'emma@example.com', password: 'password123', name: 'Emma Rodriguez' }
+    // Wilson Family
+    { email: 'sarah@wilson.com', password: 'password123', name: 'Sarah Wilson' },
+    { email: 'tom@wilson.com', password: 'password123', name: 'Tom Wilson' },
+    { email: 'emma.w@wilson.com', password: 'password123', name: 'Emma Wilson' },
+    { email: 'jake@wilson.com', password: 'password123', name: 'Jake Wilson' },
+    // Chen Family
+    { email: 'michael@chen.com', password: 'password123', name: 'Michael Chen' },
+    { email: 'lisa@chen.com', password: 'password123', name: 'Lisa Chen' },
+    { email: 'david@chen.com', password: 'password123', name: 'David Chen' },
+    { email: 'mei@chen.com', password: 'password123', name: 'Mei Chen' },
+    { email: 'alex@chen.com', password: 'password123', name: 'Alex Chen' },
+    // Rodriguez Family
+    { email: 'emma.r@rodriguez.com', password: 'password123', name: 'Emma Rodriguez' },
+    { email: 'james@rodriguez.com', password: 'password123', name: 'James Rodriguez' },
+    { email: 'sofia@rodriguez.com', password: 'password123', name: 'Sofia Rodriguez' },
+    { email: 'carlos@rodriguez.com', password: 'password123', name: 'Carlos Rodriguez' },
+    { email: 'maria@rodriguez.com', password: 'password123', name: 'Maria Rodriguez' },
+    // Johnson Family
+    { email: 'robert@johnson.com', password: 'password123', name: 'Robert Johnson' },
+    { email: 'patricia@johnson.com', password: 'password123', name: 'Patricia Johnson' },
+    { email: 'jennifer@johnson.com', password: 'password123', name: 'Jennifer Johnson' },
+    { email: 'mark@johnson.com', password: 'password123', name: 'Mark Johnson' },
+    { email: 'linda@johnson.com', password: 'password123', name: 'Linda Johnson' },
+    { email: 'brian@johnson.com', password: 'password123', name: 'Brian Johnson' }
   ]
 
   const handleDemoLogin = (account) => {
@@ -171,8 +192,10 @@ function Login() {
                   type="button"
                   className={styles.demoButton}
                   onClick={() => handleDemoLogin(account)}
+                  title={`Email: ${account.email}`}
                 >
-                  {account.name}
+                  <div>{account.name}</div>
+                  <div style={{fontSize: '0.85em', opacity: 0.8}}>{account.email}</div>
                 </button>
               ))}
             </div>

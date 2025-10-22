@@ -13,7 +13,7 @@ router = APIRouter(prefix="/events", tags=["events"])
 @router.get("", response_model=List[EventResponse])
 def get_events(
     skip: int = 0,
-    limit: int = 20,
+    limit: int = 100,
     db: Session = Depends(get_db)
 ):
     events = db.query(Event).filter(Event.is_published == True).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
@@ -41,6 +41,7 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
 
     event.view_count += 1
     db.commit()
+    db.refresh(event)
 
     event_dict = {
         **event.__dict__,
@@ -158,3 +159,59 @@ def delete_event(
     db.commit()
 
     return {"message": "Event deleted"}
+
+@router.post("/{event_id}/comments")
+def add_comment(
+    event_id: int,
+    content: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from ..models.comment import Comment
+
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    comment = Comment(
+        event_id=event_id,
+        author_id=current_user.id,
+        content=content
+    )
+
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+
+    return {"id": comment.id, "content": comment.content, "created_at": comment.created_at}
+
+@router.post("/{event_id}/like")
+def add_like(
+    event_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from ..models.like import Like
+
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    # Check if already liked
+    existing_like = db.query(Like).filter(
+        Like.event_id == event_id,
+        Like.user_id == current_user.id
+    ).first()
+
+    if existing_like:
+        return {"message": "Already liked"}
+
+    like = Like(
+        event_id=event_id,
+        user_id=current_user.id
+    )
+
+    db.add(like)
+    db.commit()
+
+    return {"message": "Liked successfully"}
