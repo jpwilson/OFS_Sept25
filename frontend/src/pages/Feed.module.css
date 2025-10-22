@@ -2,6 +2,83 @@
   min-height: 100vh;
 }
 
+.header {
+  background: #1a1a1a;
+  padding: 24px 32px;
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dateSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+.dateSelector span {
+  font-size: 13px;
+  color: #999;
+}
+
+.dateSelector input {
+  padding: 6px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+}
+
+.filterButton {
+  padding: 10px 20px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filterButton:hover {
+  background: #333;
+  border-color: #667eea;
+}
+
+.filterButton.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
+.filterInfo {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #999;
+}
+
 .feed {
   max-width: 1100px;
   margin: 0 auto;

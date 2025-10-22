@@ -7,8 +7,8 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import styles from './Map.module.css'
-import { mockEventDetails } from '../data/mockEvents'
 import { useAuth } from '../context/AuthContext'
+import apiService from '../services/api'
 
 // Fix for default markers in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl
@@ -32,8 +32,13 @@ function Map() {
   const [zoom, setZoom] = useState(2)
 
   useEffect(() => {
-    // Load all events with location data
-    const eventsWithLocation = Object.values(mockEventDetails).filter(
+    loadEvents()
+  }, [])
+
+  const loadEvents = async () => {
+    const data = await apiService.getEvents()
+    // Filter only events with location data
+    const eventsWithLocation = data.filter(
       event => event.latitude && event.longitude
     )
     setEvents(eventsWithLocation)
@@ -44,7 +49,7 @@ function Map() {
       setCenter([eventsWithLocation[0].latitude, eventsWithLocation[0].longitude])
       setZoom(4)
     }
-  }, [])
+  }
 
   useEffect(() => {
     applyFilters()
@@ -174,6 +179,7 @@ function Map() {
           />
 
           <MarkerClusterGroup
+            key={`${filter}-${filteredEvents.length}`}
             chunkedLoading
             showCoverageOnHover={false}
             maxClusterRadius={80}

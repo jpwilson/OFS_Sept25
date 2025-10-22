@@ -1,0 +1,133 @@
+/Users/jpwilson/Documents/Projects/SGTG/OFS_claude/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+================================================================================
+DIVERSE SEED DATA GENERATOR
+Creating 20 users and 100 UNIQUE events
+================================================================================
+
+[1/4] Registering users...
+  ✓ Registered Sarah Wilson (@sarahw)
+  ✓ Registered Tom Wilson (@tomw)
+  ✓ Registered Emma Wilson (@emmaw)
+  ✓ Registered Jake Wilson (@jakew)
+  ✓ Registered Michael Chen (@michaelc)
+  ✓ Registered Lisa Chen (@lisac)
+  ✓ Registered David Chen (@davidc)
+  ✓ Registered Mei Chen (@meic)
+  ✓ Registered Alex Chen (@alexc)
+  ✓ Registered Emma Rodriguez (@emmar)
+  ✓ Registered James Rodriguez (@jamesr)
+  ✓ Registered Sofia Rodriguez (@sofiar)
+  ✓ Registered Carlos Rodriguez (@carlosr)
+  ✓ Registered Maria Rodriguez (@mariar)
+  ✓ Registered Robert Johnson (@robertj)
+  ✓ Registered Patricia Johnson (@patriciaj)
+  ✓ Registered Jennifer Johnson (@jenniferj)
+  ✓ Registered Mark Johnson (@markj)
+  ✓ Registered Linda Johnson (@lindaj)
+  ✓ Registered Brian Johnson (@brianj)
+
+[2/4] Creating 100 unique events...
+  ✓ Created 'Bathroom Spa Makeover' by sarahw
+  ✓ Created 'Tokyo Cherry Blossom Festival' by sarahw
+  ✓ Created 'Published My First Novel' by sarahw
+  ✓ Created 'Volunteered at Animal Shelter' by sarahw
+  ✓ Created 'Summit of Mount Rainier' by sarahw
+  ✓ Created 'Mountain Biking Moab Trails' by tomw
+  ✓ Created 'Our 25th Wedding Anniversary' by tomw
+  ✓ Created 'Rescued Baby Ducks' by tomw
+  ✓ Created 'Zip-lining Jungle Canopy Tour' by tomw
+  ✓ Created 'Paragliding Over the Alps' by tomw
+  ✓ Created 'Appalachian Trail Section Hike' by emmaw
+  ✓ Created 'Adopted Our Son' by emmaw
+  ✓ Created 'Stargazing at Dark Sky Park' by emmaw
+  ✓ Created 'Scuba Diving Great Barrier Reef' by emmaw
+  ✓ Created 'Adopted Our Rescue Dog Max' by emmaw
+  ✓ Created 'Emily's High School Graduation' by jakew
+  ✓ Created 'Little League Championship Win' by jakew
+  ✓ Created 'Morocco Sahara Desert Trek' by jakew
+  ✓ Created 'Rock Climbing in Joshua Tree' by jakew
+  ✓ Created 'Completed Half Marathon' by jakew
+  ✓ Created 'Solar Panel Installation' by michaelc
+  ✓ Created 'Kitchen Renovation Complete' by michaelc
+  ✓ Created 'Norwegian Fjords Road Trip' by michaelc
+  ✓ Created 'Smart Home Automation' by michaelc
+  ✓ Created 'Daughter's Wedding Day' by michaelc
+  ✓ Created 'School Play Opening Night' by lisac
+  ✓ Created 'Mastered Homemade Sourdough' by lisac
+  ✓ Created 'Surfing Lessons in Hawaii' by lisac
+  ✓ Created 'Our Baby's First Steps' by lisac
+  ✓ Created 'Outdoor Fire Pit Build' by lisac
+  ✓ Created 'Italian Cooking Class in Tuscany' by davidc
+  ✓ Created 'Jake's College Acceptance Party' by davidc
+  ✓ Created 'Kayaking the Florida Keys' by davidc
+  ✓ Created 'Emma's Dance Recital Success' by davidc
+  ✓ Created 'Finished Basement Game Room' by davidc
+  ✓ Created 'Backyard Garden Transformation' by meic
+  ✓ Created 'Swiss Alps Hiking Adventure' by meic
+  ✓ Created 'Master Bedroom Makeover' by meic
+  ✓ Created 'Dad Beats Cancer' by meic
+  ✓ Created 'Promotion to Senior Director' by meic
+  ✓ Created 'Twins' High School Graduation' by alexc
+  ✓ Created 'Australian Outback Adventure' by alexc
+  ✓ Created 'Grandma's 90th Birthday Celebration' by alexc
+  ✓ Created 'Earned My MBA' by alexc
+  ✓ Created 'Book Club Anniversary' by alexc
+  ✓ Created 'Baby Sophie's First Birthday' by emmar
+  ✓ Created 'Silver Anniversary Vow Renewal' by emmar
+  ✓ Created 'Custom Built-In Bookshelves' by emmar
+  ✓ Created 'Skiing the Rockies' by emmar
+  ✓ Created 'Dubai Modern Marvels Tour' by emmar
+  ✓ Created 'Built Custom Gaming PC' by jamesr
+  ✓ Created 'Luna the Cat Turns 5' by jamesr
+  ✓ Created 'Iceland Northern Lights Experience' by jamesr
+  ✓ Created 'Kids' First Camping Trip' by jamesr
+  ✓ Created 'Horseback Riding in Montana' by jamesr
+  ✓ Created 'Science Fair Blue Ribbon' by sofiar
+  ✓ Created 'Backpacking Through Southeast Asia' by sofiar
+  ✓ Created 'Costa Rica Rainforest Expedition' by sofiar
+  ✓ Created 'Exploring the Scottish Highlands' by sofiar
+  ✓ Created 'Photography Exhibition Opening' by sofiar
+  ✓ Created 'Home Office Renovation' by carlosr
+  ✓ Created 'Peru Machu Picchu Trek' by carlosr
+  ✓ Created 'Grand Canyon Rim-to-Rim Hike' by carlosr
+  ✓ Created 'Decluttered and Organized' by carlosr
+  ✓ Created 'Launched My Own Business' by carlosr
+  ✓ Created 'Portugal Porto Wine Tour' by mariar
+  ✓ Created 'European Adventure - Paris & Rome' by mariar
+  ✓ Created 'Guitar Performance at Open Mic' by mariar
+  ✓ Created 'Learned to Knit' by mariar
+  ✓ Created 'Grandpa Turns 100' by mariar
+  ✓ Created 'Canadian Rockies National Parks' by robertj
+  ✓ Created 'Cruise Through the Greek Islands' by robertj
+  ✓ Created 'Marathon Training Complete' by robertj
+  ✓ Created 'Koi Pond Construction' by robertj
+  ✓ Created 'Yellowstone Camping Trip' by robertj
+  ✓ Created 'Ireland's Wild Atlantic Way' by patriciaj
+  ✓ Created 'Vietnam Halong Bay Cruise' by patriciaj
+  ✓ Created 'Paying Off Our Mortgage' by patriciaj
+  ✓ Created 'Thanksgiving Feast Preparation' by patriciaj
+  ✓ Created 'Became U.S. Citizens' by patriciaj
+  ✓ Created 'Garage Woodshop Setup' by jenniferj
+  ✓ Created 'Max's First Beach Day' by jenniferj
+  ✓ Created 'BBQ Competition Success' by jenniferj
+  ✓ Created 'Fishing Trip in Alaska' by jenniferj
+  ✓ Created 'Patent Approval Celebration' by jenniferj
+  ✓ Created 'Road Trip Across New Zealand' by markj
+  ✓ Created 'Mom's Retirement Party' by markj
+  ✓ Created 'Farm-to-Table Dinner Party' by markj
+  ✓ Created 'Pottery Class Masterpiece' by markj
+  ✓ Created 'Planted an Orchard' by markj
+  ✓ Created 'Jordan Petra Discovery' by lindaj
+  ✓ Created 'Safari Adventure in Tanzania' by lindaj
+  ✓ Created 'Training Bella for Agility Competition' by lindaj
+  ✓ Created 'Built a Backyard Treehouse' by lindaj
+  ✓ Created 'Whitewater Rafting Colorado River' by lindaj
+Traceback (most recent call last):
+  File "/Users/jpwilson/Documents/Projects/SGTG/OFS_claude/backend/create_diverse_seed_data.py", line 1217, in <module>
+    main()
+  File "/Users/jpwilson/Documents/Projects/SGTG/OFS_claude/backend/create_diverse_seed_data.py", line 1197, in main
+    events = create_events(user_tokens)
+  File "/Users/jpwilson/Documents/Projects/SGTG/OFS_claude/backend/create_diverse_seed_data.py", line 1078, in create_events
+    template = shuffled_templates[template_idx].copy()
+IndexError: list index out of range

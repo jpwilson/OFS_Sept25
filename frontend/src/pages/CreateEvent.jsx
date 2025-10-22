@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/Toast'
+import apiService from '../services/api'
 import styles from './CreateEvent.module.css'
 
 function CreateEvent() {
@@ -28,29 +29,17 @@ function CreateEvent() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/v1/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          start_date: formData.start_date ? `${formData.start_date}T00:00:00` : '',
-          end_date: formData.end_date ? `${formData.end_date}T00:00:00` : formData.start_date ? `${formData.start_date}T00:00:00` : ''
-        })
+      const event = await apiService.createEvent({
+        ...formData,
+        start_date: formData.start_date ? `${formData.start_date}T00:00:00` : '',
+        end_date: formData.end_date ? `${formData.end_date}T00:00:00` : formData.start_date ? `${formData.start_date}T00:00:00` : ''
       })
 
-      if (response.ok) {
-        const event = await response.json()
-        showToast('Event created successfully!', 'success')
-        navigate(`/event/${event.id}`)
-      } else {
-        showToast('Failed to create event. Please try again.', 'error')
-        setIsSubmitting(false)
-      }
+      showToast('Event created successfully!', 'success')
+      navigate(`/event/${event.id}`)
     } catch (error) {
       console.error('Error creating event:', error)
-      showToast('An error occurred. Please try again.', 'error')
+      showToast(error.message || 'Failed to create event. Please try again.', 'error')
       setIsSubmitting(false)
     }
   }

@@ -3,19 +3,59 @@ import { Link } from 'react-router-dom'
 import styles from './Feed.module.css'
 import apiService from '../services/api'
 import { FeedSkeleton } from '../components/Skeleton'
+import { useAuth } from '../context/AuthContext'
 
 function Feed() {
+  const { user } = useAuth()
   const [events, setEvents] = useState([])
+  const [filteredEvents, setFilteredEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('all') // all, following, self
+  const [selectedDateRange, setSelectedDateRange] = useState({
+    start: '',
+    end: ''
+  })
 
   useEffect(() => {
     loadEvents()
   }, [])
 
+  useEffect(() => {
+    applyFilters()
+  }, [filter, selectedDateRange, events])
+
   async function loadEvents() {
     const data = await apiService.getEvents()
     setEvents(data)
+    setFilteredEvents(data)
     setLoading(false)
+  }
+
+  const applyFilters = () => {
+    let filtered = [...events]
+
+    // Apply person filter
+    if (filter === 'self' && user) {
+      filtered = filtered.filter(event => event.author_username === user.username)
+    } else if (filter === 'following') {
+      // Mock following list
+      const following = ['sarahw', 'michaelc']
+      filtered = filtered.filter(event => following.includes(event.author_username))
+    }
+
+    // Apply date filter
+    if (selectedDateRange.start) {
+      filtered = filtered.filter(event =>
+        new Date(event.start_date) >= new Date(selectedDateRange.start)
+      )
+    }
+    if (selectedDateRange.end) {
+      filtered = filtered.filter(event =>
+        new Date(event.end_date || event.start_date) <= new Date(selectedDateRange.end)
+      )
+    }
+
+    setFilteredEvents(filtered)
   }
 
   function formatDateRange(start, end) {
@@ -44,8 +84,54 @@ function Feed() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.pageTitle}>Event Feed</h1>
+
+        <div className={styles.filters}>
+          <div className={styles.dateSelector}>
+            <span>From:</span>
+            <input
+              type="date"
+              value={selectedDateRange.start}
+              onChange={(e) => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
+            />
+            <span>To:</span>
+            <input
+              type="date"
+              value={selectedDateRange.end}
+              onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
+            />
+          </div>
+
+          <button
+            className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            All Events
+          </button>
+          <button
+            className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
+            onClick={() => setFilter('following')}
+          >
+            Following
+          </button>
+          <button
+            className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
+            onClick={() => setFilter('self')}
+          >
+            My Events
+          </button>
+        </div>
+
+        {filteredEvents.length !== events.length && (
+          <div className={styles.filterInfo}>
+            Showing {filteredEvents.length} of {events.length} events
+          </div>
+        )}
+      </div>
+
       <div className={styles.feed}>
-        {events.map(event => (
+        {filteredEvents.map(event => (
           <Link to={`/event/${event.id}`} key={event.id} className={styles.eventCard}>
             <div
               className={styles.eventImage}
