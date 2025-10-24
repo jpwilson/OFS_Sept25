@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import apiService from '../services/api'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
 
@@ -10,43 +11,60 @@ function Profile() {
   const [profile, setProfile] = useState(null)
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
 
   const isOwnProfile = currentUser && currentUser.username === username
 
   useEffect(() => {
     loadProfile()
     loadUserEvents()
-  }, [username])
+    if (currentUser && !isOwnProfile) {
+      checkFollowStatus()
+    }
+  }, [username, currentUser])
 
   async function loadProfile() {
-    // Mock profile data for now
-    setProfile({
-      username: username,
-      full_name: username === 'sarahw' ? 'Sarah Wilson' :
-                 username === 'michaelc' ? 'Michael Chen' :
-                 username === 'emmar' ? 'Emma Rodriguez' : 'Unknown User',
-      bio: 'Adventurer, storyteller, and memory keeper. Sharing life\'s beautiful moments with family and friends.',
-      avatar_url: null,
-      event_count: 3,
-      joined_date: '2025-01-01'
-    })
+    const profileData = await apiService.getUserProfile(username)
+    setProfile(profileData)
   }
 
   async function loadUserEvents() {
     try {
-      const response = await fetch('/api/v1/events')
-      if (response.ok) {
-        const allEvents = await response.json()
-        // Filter events by username (mock filtering)
-        const userEvents = allEvents.filter(event =>
-          event.author_username === username || username === 'me'
-        )
-        setEvents(userEvents.slice(0, 6)) // Limit to 6 events for now
-      }
+      const allEvents = await apiService.getEvents()
+      const userEvents = allEvents.filter(event => event.author_username === username)
+      setEvents(userEvents)
     } catch (error) {
       console.error('Failed to load events:', error)
     }
     setLoading(false)
+  }
+
+  async function checkFollowStatus() {
+    try {
+      const result = await apiService.checkIfFollowing(username)
+      setIsFollowing(result.is_following)
+    } catch (error) {
+      console.error('Failed to check follow status:', error)
+    }
+  }
+
+  async function handleFollowToggle() {
+    if (followLoading) return
+
+    setFollowLoading(true)
+    try {
+      if (isFollowing) {
+        await apiService.unfollowUser(username)
+        setIsFollowing(false)
+      } else {
+        await apiService.followUser(username)
+        setIsFollowing(true)
+      }
+    } catch (error) {
+      console.error('Failed to toggle follow:', error)
+    }
+    setFollowLoading(false)
   }
 
   function formatDate(dateString) {
@@ -76,18 +94,28 @@ function Profile() {
           <p className={styles.username}>@{profile.username}</p>
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
           <div className={styles.stats}>
-            <span>{events.length} events</span>
+            <span>{profile.event_count || events.length} events</span>
             <span>·</span>
-            <span>Member since {formatDate(profile.joined_date)}</span>
+            <span>{profile.follower_count || 0} followers</span>
+            <span>·</span>
+            <span>{profile.following_count || 0} following</span>
           </div>
         </div>
-        {isOwnProfile && (
-          <div className={styles.actions}>
+        <div className={styles.actions}>
+          {isOwnProfile ? (
             <Link to="/create" className={styles.createButton}>
               Create Event
             </Link>
-          </div>
-        )}
+          ) : currentUser ? (
+            <button
+              className={`${styles.followButton} ${isFollowing ? styles.following : ''}`}
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+            >
+              {followLoading ? '...' : isFollowing ? 'Following' : 'Follow'}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <div className={styles.eventsSection}>

@@ -15,10 +15,19 @@ function Feed() {
     start: '',
     end: ''
   })
+  const [following, setFollowing] = useState([])
 
   useEffect(() => {
     loadEvents()
+    loadFollowing()
   }, [])
+
+  const loadFollowing = async () => {
+    if (user) {
+      const followingList = await apiService.getFollowing()
+      setFollowing(followingList.map(u => u.username))
+    }
+  }
 
   useEffect(() => {
     applyFilters()
@@ -38,8 +47,6 @@ function Feed() {
     if (filter === 'self' && user) {
       filtered = filtered.filter(event => event.author_username === user.username)
     } else if (filter === 'following') {
-      // Mock following list
-      const following = ['sarahw', 'michaelc']
       filtered = filtered.filter(event => following.includes(event.author_username))
     }
 
@@ -132,24 +139,32 @@ function Feed() {
 
       <div className={styles.feed}>
         {filteredEvents.map(event => (
-          <Link to={`/event/${event.id}`} key={event.id} className={styles.eventCard}>
-            <div
-              className={styles.eventImage}
-              style={{ backgroundImage: `url(${event.cover_image_url})` }}
-            >
-              <div className={styles.overlay}>
-                <h2 className={styles.title}>{event.title}</h2>
-                <div className={styles.meta}>
-                  <span>{event.author_full_name || event.author_username}</span>
-                  <span>·</span>
-                  <span>{formatDateRange(event.start_date, event.end_date)}</span>
-                  <span>·</span>
-                  <span>{event.location_name}</span>
+          <div key={event.id} className={styles.eventCard}>
+            <Link to={`/event/${event.id}`} className={styles.eventLink}>
+              <div
+                className={styles.eventImage}
+                style={{ backgroundImage: `url(${event.cover_image_url})` }}
+              >
+                <div className={styles.overlay}>
+                  <h2 className={styles.title}>{event.title}</h2>
+                  <div className={styles.meta}>
+                    <Link
+                      to={`/profile/${event.author_username}`}
+                      className={styles.authorLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {event.author_full_name || event.author_username}
+                    </Link>
+                    <span>·</span>
+                    <span>{formatDateRange(event.start_date, event.end_date)}</span>
+                    <span>·</span>
+                    <span>{event.location_name}</span>
+                  </div>
+                  <p className={styles.excerpt}>{event.description}</p>
                 </div>
-                <p className={styles.excerpt}>{event.description}</p>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
     </div>

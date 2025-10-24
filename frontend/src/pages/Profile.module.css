@@ -87,6 +87,46 @@
   transform: translateY(-1px);
 }
 
+.followButton {
+  padding: 10px 24px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.followButton:hover {
+  background: #5567d8;
+  transform: translateY(-1px);
+}
+
+.followButton.following {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.followButton.following:hover {
+  background: #fee;
+  color: #c33;
+  border-color: #c33;
+}
+
+.followButton.following:hover::after {
+  content: ' (Unfollow)';
+}
+
+.followButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .eventsSection {
   max-width: 900px;
   margin: 0 auto;

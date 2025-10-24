@@ -7,6 +7,7 @@ import Profile from './pages/Profile'
 import CreateEvent from './pages/CreateEvent'
 import Login from './pages/Login'
 import Map from './pages/Map'
+import Timeline from './pages/Timeline'
 import Layout from './components/Layout'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/create" element={<CreateEvent />} />
             <Route path="/map" element={<Map />} />
+            <Route path="/timeline" element={<Timeline />} />
           </Route>
         </Routes>
       </ToastProvider>

@@ -53,6 +53,75 @@ class ApiService {
       throw error
     }
   }
+
+  async getUserProfile(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}`)
+      if (!response.ok) throw new Error('Failed to fetch user profile')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      return null
+    }
+  }
+
+  async getFollowing() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/following`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch following')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching following:', error)
+      return []
+    }
+  }
+
+  async followUser(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/follow`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to follow user')
+      return await response.json()
+    } catch (error) {
+      console.error('Error following user:', error)
+      throw error
+    }
+  }
+
+  async unfollowUser(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/follow`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to unfollow user')
+      return await response.json()
+    } catch (error) {
+      console.error('Error unfollowing user:', error)
+      throw error
+    }
+  }
+
+  async checkIfFollowing(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/is-following`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) return { is_following: false }
+      return await response.json()
+    } catch (error) {
+      console.error('Error checking follow status:', error)
+      return { is_following: false }
+    }
+  }
 }
 
 export default new ApiService()

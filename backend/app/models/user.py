@@ -20,3 +20,17 @@ class User(Base):
     events = relationship("Event", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     likes = relationship("Like", back_populates="user")
+
+    # Follow relationships
+    following = relationship(
+        "Follow",
+        foreign_keys="Follow.follower_id",
+        back_populates="follower",
+        cascade="all, delete-orphan"
+    )
+    followers = relationship(
+        "Follow",
+        foreign_keys="Follow.following_id",
+        back_populates="following",
+        cascade="all, delete-orphan"
+    )

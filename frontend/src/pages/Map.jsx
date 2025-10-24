@@ -30,10 +30,19 @@ function Map() {
   const [timelineExpanded, setTimelineExpanded] = useState(true)
   const [center, setCenter] = useState([20, 0]) // World center
   const [zoom, setZoom] = useState(2)
+  const [following, setFollowing] = useState([])
 
   useEffect(() => {
     loadEvents()
+    loadFollowing()
   }, [])
+
+  const loadFollowing = async () => {
+    if (user) {
+      const followingList = await apiService.getFollowing()
+      setFollowing(followingList.map(u => u.username))
+    }
+  }
 
   const loadEvents = async () => {
     const data = await apiService.getEvents()
@@ -62,8 +71,6 @@ function Map() {
     if (filter === 'self' && user) {
       filtered = filtered.filter(event => event.author_username === user.username)
     } else if (filter === 'following') {
-      // Mock following list
-      const following = ['sarahw', 'michaelc']
       filtered = filtered.filter(event => following.includes(event.author_username))
     }
 
@@ -83,8 +90,8 @@ function Map() {
   }
 
   const getEventTimeline = () => {
-    // Return all filtered events sorted by date
-    return [...filteredEvents].sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+    // Return all filtered events sorted by date (oldest first for chronological timeline)
+    return [...filteredEvents].sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
   }
 
   const handleEventClick = (event) => {

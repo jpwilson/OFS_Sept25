@@ -158,3 +158,21 @@
   color: #ccc;
   max-width: 600px;
 }
+
+.eventLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.authorLink {
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.authorLink:hover {
+  color: #8a9ff8;
+  text-decoration: underline;
+}

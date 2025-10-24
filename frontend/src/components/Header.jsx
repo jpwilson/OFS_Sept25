@@ -19,6 +19,7 @@ function Header() {
       <nav className={styles.nav}>
         <Link to="/">Feed</Link>
         <Link to="/map">Map</Link>
+        <Link to="/timeline">Timeline</Link>
         <Link to="/create">Create</Link>
         {user ? (
           <>

@@ -53,6 +53,22 @@
 .author {
   display: flex;
   align-items: center;
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.author:hover {
+  color: #8a9ff8;
+}
+
+.author span {
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.author:hover span {
+  border-bottom-color: #8a9ff8;
 }
 
 .avatar {

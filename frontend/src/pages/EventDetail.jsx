@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -58,10 +58,10 @@ function EventDetail() {
         <div className={styles.heroOverlay}>
           <h1 className={styles.title}>{event.title}</h1>
           <div className={styles.meta}>
-            <div className={styles.author}>
+            <Link to={`/profile/${event.author_username}`} className={styles.author}>
               <div className={styles.avatar}></div>
               <span>{event.author_full_name || event.author_username}</span>
-            </div>
+            </Link>
             <span>·</span>
             <span>{formatDateRange(event.start_date, event.end_date)}</span>
             <span>·</span>
