@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 import apiService from '../services/api'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
@@ -8,6 +9,7 @@ import { ProfileSkeleton } from '../components/Skeleton'
 function Profile() {
   const { username } = useParams()
   const { user: currentUser } = useAuth()
+  const { showToast } = useToast()
   const [profile, setProfile] = useState(null)
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -57,12 +59,15 @@ function Profile() {
       if (isFollowing) {
         await apiService.unfollowUser(username)
         setIsFollowing(false)
+        showToast(`Unfollowed ${profile?.full_name || username}`, 'success')
       } else {
         await apiService.followUser(username)
         setIsFollowing(true)
+        showToast(`Following ${profile?.full_name || username}`, 'success')
       }
     } catch (error) {
       console.error('Failed to toggle follow:', error)
+      showToast('Failed to update follow status', 'error')
     }
     setFollowLoading(false)
   }

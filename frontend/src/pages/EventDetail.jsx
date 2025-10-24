@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -8,6 +9,7 @@ import { mockEventDetails } from '../data/mockEvents'
 function EventDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [comments, setComments] = useState([])
@@ -69,12 +71,15 @@ function EventDetail() {
     try {
       if (likeStats.is_liked) {
         await apiService.unlikeEvent(id)
+        showToast('Unliked event', 'success')
       } else {
         await apiService.likeEvent(id)
+        showToast('Liked event', 'success')
       }
       loadLikes()
     } catch (error) {
       console.error('Error toggling like:', error)
+      showToast('Failed to update like', 'error')
     }
   }
 
@@ -87,8 +92,10 @@ function EventDetail() {
       await apiService.createComment(id, newComment.trim())
       setNewComment('')
       loadComments()
+      showToast('Comment posted', 'success')
     } catch (error) {
       console.error('Error creating comment:', error)
+      showToast('Failed to post comment', 'error')
     }
     setCommentLoading(false)
   }
@@ -99,8 +106,10 @@ function EventDetail() {
     try {
       await apiService.deleteComment(id, commentId)
       loadComments()
+      showToast('Comment deleted', 'success')
     } catch (error) {
       console.error('Error deleting comment:', error)
+      showToast('Failed to delete comment', 'error')
     }
   }
 
