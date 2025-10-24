@@ -122,6 +122,108 @@ class ApiService {
       return { is_following: false }
     }
   }
+
+  // Comments
+  async getComments(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments`)
+      if (!response.ok) throw new Error('Failed to fetch comments')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching comments:', error)
+      return []
+    }
+  }
+
+  async createComment(eventId, content) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ content })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create comment')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating comment:', error)
+      throw error
+    }
+  }
+
+  async deleteComment(eventId, commentId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to delete comment')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting comment:', error)
+      throw error
+    }
+  }
+
+  // Likes
+  async getLikes(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
+        headers: this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch likes')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching likes:', error)
+      return { like_count: 0, is_liked: false, recent_likes: [] }
+    }
+  }
+
+  async likeEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to like event')
+      return await response.json()
+    } catch (error) {
+      console.error('Error liking event:', error)
+      throw error
+    }
+  }
+
+  async unlikeEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to unlike event')
+      return await response.json()
+    } catch (error) {
+      console.error('Error unliking event:', error)
+      throw error
+    }
+  }
+
+  async getAllLikes(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/likes/all`)
+      if (!response.ok) throw new Error('Failed to fetch all likes')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching all likes:', error)
+      return []
+    }
+  }
 }
 
 export default new ApiService()
