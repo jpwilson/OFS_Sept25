@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
@@ -20,7 +20,7 @@ class CommentResponse(BaseModel):
     author_id: int
     author_username: str
     author_full_name: str
-    author_avatar_url: str | None
+    author_avatar_url: Optional[str]
     content: str
     created_at: datetime
 

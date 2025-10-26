@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
@@ -17,7 +17,7 @@ class LikeResponse(BaseModel):
     user_id: int
     username: str
     full_name: str
-    avatar_url: str | None
+    avatar_url: Optional[str]
     created_at: datetime
 
     class Config:

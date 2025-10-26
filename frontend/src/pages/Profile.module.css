@@ -117,6 +117,26 @@
   border-color: #c33;
 }
 
+.logoutButton {
+  padding: 10px 24px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.logoutButton:hover {
+  background: #fee;
+  color: #e63946;
+  border-color: #e63946;
+  transform: translateY(-1px);
+}
+
 .followButton.following:hover::after {
   content: ' (Unfollow)';
 }
@@ -132,11 +152,80 @@
   margin: 0 auto;
 }
 
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .sectionTitle {
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 32px;
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.tab {
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.activeTab {
+  background: #667eea !important;
+  color: white !important;
+}
+
+.draftBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.draftCard {
+  opacity: 0.85;
+}
+
+.draftCard:hover {
+  opacity: 1;
+}
+
+.hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-tertiary);
 }
 
 .noEvents {
@@ -211,6 +300,72 @@
 .eventDate {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.trashBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.trashCard {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.trashCard:hover {
+  opacity: 1;
+  transform: none;
+}
+
+.trashActions {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.restoreButton,
+.permanentDeleteButton {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.restoreButton {
+  background: #667eea;
+  color: white;
+}
+
+.restoreButton:hover {
+  background: #5567d8;
+  transform: translateY(-1px);
+}
+
+.permanentDeleteButton {
+  background: var(--bg-primary);
+  color: #e63946;
+  border: 1px solid #e63946;
+}
+
+.permanentDeleteButton:hover {
+  background: #e63946;
+  color: white;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {

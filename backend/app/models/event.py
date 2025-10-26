@@ -8,6 +8,7 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    summary = Column(String, nullable=True)  # Short description for cards
     description = Column(String, nullable=True)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=True)
@@ -18,6 +19,7 @@ class Event(Base):
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     view_count = Column(Integer, default=0)
     is_published = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

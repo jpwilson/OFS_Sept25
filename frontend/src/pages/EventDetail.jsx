@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
+import { useConfirm } from '../components/ConfirmModal'
+import ImageGallery from '../components/ImageGallery'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
 
 function EventDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { confirm } = useConfirm()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [comments, setComments] = useState([])
@@ -19,6 +23,8 @@ function EventDetail() {
   const [showAllLikes, setShowAllLikes] = useState(false)
   const [allLikes, setAllLikes] = useState([])
 
+  const isAuthor = user && event && user.username === event.author_username
+
   useEffect(() => {
     loadEvent()
     loadComments()
@@ -26,6 +32,27 @@ function EventDetail() {
       loadLikes()
     }
   }, [id, user])
+
+  async function handleDelete() {
+    const confirmed = await confirm({
+      title: 'Move to Trash',
+      message: 'Move this event to trash? You can restore it later or delete it permanently.',
+      confirmText: 'Move to Trash',
+      cancelText: 'Cancel',
+      danger: false
+    })
+
+    if (!confirmed) return
+
+    try {
+      await apiService.deleteEvent(id)
+      showToast('Event moved to trash', 'success')
+      navigate('/profile/' + user.username, { state: { activeTab: 'trash' } })
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      showToast('Failed to delete event', 'error')
+    }
+  }
 
   async function loadEvent() {
     const data = await apiService.getEvent(id)
@@ -101,7 +128,15 @@ function EventDetail() {
   }
 
   async function handleDeleteComment(commentId) {
-    if (!confirm('Delete this comment?')) return
+    const confirmed = await confirm({
+      title: 'Delete Comment',
+      message: 'Are you sure you want to delete this comment?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      danger: true
+    })
+
+    if (!confirmed) return
 
     try {
       await apiService.deleteComment(id, commentId)
@@ -136,6 +171,41 @@ function EventDetail() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
+  // Extract all images from the event for the gallery
+  const allImages = useMemo(() => {
+    if (!event) return []
+
+    const images = []
+
+    // Add cover image
+    if (event.cover_image_url) {
+      images.push(event.cover_image_url)
+    }
+
+    // Add images from content blocks
+    if (event.content_blocks && event.content_blocks.length > 0) {
+      event.content_blocks.forEach(block => {
+        if (block.type === 'image' && block.media_url) {
+          images.push(block.media_url)
+        }
+      })
+    }
+
+    // Add images from rich HTML content
+    if ((!event.content_blocks || event.content_blocks.length === 0) && event.description) {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(event.description, 'text/html')
+      const imgElements = doc.querySelectorAll('img')
+      imgElements.forEach(img => {
+        if (img.src) {
+          images.push(img.src)
+        }
+      })
+    }
+
+    return images
+  }, [event])
+
   if (loading) {
     return <div className={styles.loading}>Loading...</div>
   }
@@ -151,7 +221,25 @@ function EventDetail() {
         style={{ backgroundImage: `url(${event.cover_image_url})` }}
       >
         <div className={styles.heroOverlay}>
-          <h1 className={styles.title}>{event.title}</h1>
+          <div className={styles.heroHeader}>
+            <h1 className={styles.title}>{event.title}</h1>
+            {isAuthor && (
+              <div className={styles.authorButtons}>
+                <button
+                  className={styles.editButton}
+                  onClick={() => navigate(`/event/${id}/edit`)}
+                >
+                  ✎ Edit
+                </button>
+                <button
+                  className={styles.deleteButton}
+                  onClick={handleDelete}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            )}
+          </div>
           <div className={styles.meta}>
             <Link to={`/profile/${event.author_username}`} className={styles.author}>
               <div className={styles.avatar}></div>
@@ -191,9 +279,19 @@ function EventDetail() {
         })}
 
         {(!event.content_blocks || event.content_blocks.length === 0) && (
-          <p className={styles.text}>{event.description}</p>
+          <div
+            className={styles.richContent}
+            dangerouslySetInnerHTML={{ __html: event.description }}
+          />
         )}
       </div>
+
+      {/* Image Gallery */}
+      {allImages.length > 0 && (
+        <div className={styles.gallerySection}>
+          <ImageGallery images={allImages} />
+        </div>
+      )}
 
       <div className={styles.interactions}>
         <div className={styles.likeSection}>

@@ -11,6 +11,7 @@ function Timeline() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all') // all, following, self
   const [following, setFollowing] = useState([])
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
 
   useEffect(() => {
     loadEvents()
@@ -82,28 +83,38 @@ function Timeline() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.pageTitle}>Timeline</h1>
-
-        <div className={styles.filters}>
+        <div className={styles.headerTop}>
+          <h1 className={styles.pageTitle}>Timeline</h1>
           <button
-            className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-            onClick={() => setFilter('all')}
+            className={styles.filterToggle}
+            onClick={() => setFiltersExpanded(!filtersExpanded)}
           >
-            All Events
-          </button>
-          <button
-            className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
-            onClick={() => setFilter('following')}
-          >
-            Following
-          </button>
-          <button
-            className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
-            onClick={() => setFilter('self')}
-          >
-            My Events
+            {filtersExpanded ? '▲ Hide Filters' : '▼ Show Filters'}
           </button>
         </div>
+
+        {filtersExpanded && (
+          <div className={styles.filters}>
+            <button
+              className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All Events
+            </button>
+            <button
+              className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
+              onClick={() => setFilter('following')}
+            >
+              Following
+            </button>
+            <button
+              className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
+              onClick={() => setFilter('self')}
+            >
+              My Events
+            </button>
+          </div>
+        )}
 
         {filteredEvents.length !== events.length && (
           <div className={styles.filterInfo}>

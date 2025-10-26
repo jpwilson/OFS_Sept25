@@ -1236,6 +1236,42 @@ def add_likes(events, user_tokens):
 
     print(f"  ✓ Added {likes_added} likes")
 
+def add_follows(user_tokens):
+    """
+    Create follow relationships between users
+    Each user will follow 3-7 random other users
+    """
+    print("\n" + "=" * 80)
+    print("Step 5: Creating Follow Relationships")
+    print("=" * 80)
+
+    usernames = list(user_tokens.keys())
+    follows_added = 0
+
+    for follower in usernames:
+        # Each user follows 3-7 random other users
+        num_to_follow = random.randint(3, 7)
+
+        # Get other users (not self)
+        others = [u for u in usernames if u != follower]
+        to_follow = random.sample(others, min(num_to_follow, len(others)))
+
+        for followee in to_follow:
+            token = user_tokens[follower]["token"]
+            headers = {"Authorization": f"Bearer {token}"}
+
+            try:
+                res = requests.post(
+                    f"{BASE_URL}/users/{followee}/follow",
+                    headers=headers
+                )
+                if res.status_code == 200:
+                    follows_added += 1
+            except Exception as e:
+                pass
+
+    print(f"  ✓ Added {follows_added} follow relationships")
+
 def main():
     # Step 1: Register users
     user_tokens = register_users()
@@ -1256,11 +1292,14 @@ def main():
     # Step 4: Add likes
     add_likes(events, user_tokens)
 
+    # Step 5: Add follow relationships
+    add_follows(user_tokens)
+
     print("\n" + "=" * 80)
     print(f"✅ SUCCESS! Created:")
     print(f"   - {len(user_tokens)} users")
     print(f"   - {len(events)} unique events (NO duplicates!)")
-    print(f"   - Comments and likes added")
+    print(f"   - Comments, likes, and follows added")
     print("=" * 80)
 
 if __name__ == "__main__":

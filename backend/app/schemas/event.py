@@ -21,6 +21,7 @@ class ContentBlockResponse(ContentBlockBase):
 
 class EventBase(BaseModel):
     title: str
+    summary: Optional[str] = None
     description: Optional[str] = None
     start_date: datetime
     end_date: Optional[datetime] = None
@@ -34,6 +35,7 @@ class EventCreate(EventBase):
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
+    summary: Optional[str] = None
     description: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None

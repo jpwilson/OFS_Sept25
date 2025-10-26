@@ -1,0 +1,143 @@
+.controls {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0 24px;
+}
+
+.viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.viewToggle:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.viewToggle.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+}
+
+.viewToggle svg {
+  flex-shrink: 0;
+}
+
+/* Grid View */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.gridItem {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* Square aspect ratio */
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
+}
+
+.gridItem:hover {
+  transform: scale(1.05);
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  z-index: 1;
+}
+
+.gridOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gridItem:hover .gridOverlay {
+  opacity: 1;
+}
+
+.gridOverlay svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .viewToggle {
+    font-size: 13px;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* Override lightbox styles for dark theme */
+:global(.yarl__root) {
+  --yarl__color_backdrop: rgba(0, 0, 0, 0.95);
+  --yarl__color_button: rgba(255, 255, 255, 0.8);
+  --yarl__color_button_active: #667eea;
+  --yarl__color_button_disabled: rgba(255, 255, 255, 0.3);
+}
+
+:global(.yarl__button) {
+  filter: none;
+  transition: all 0.2s ease;
+}
+
+:global(.yarl__button:hover) {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.1);
+}
+
+:global(.yarl__thumbnails_thumbnail) {
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+:global(.yarl__thumbnails_thumbnail:hover) {
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+:global(.yarl__thumbnails_thumbnail_active) {
+  border-color: #667eea !important;
+}
+
+:global(.yarl__slideshow_icon) {
+  color: white;
+}

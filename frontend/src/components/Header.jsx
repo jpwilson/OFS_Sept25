@@ -14,7 +14,7 @@ function Header() {
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
-        Our Family
+        Our Family Socials
       </Link>
       <nav className={styles.nav}>
         <Link to="/">Feed</Link>
@@ -22,12 +22,7 @@ function Header() {
         <Link to="/timeline">Timeline</Link>
         <Link to="/create">Create</Link>
         {user ? (
-          <>
-            <Link to={`/profile/${user.username}`}>Profile</Link>
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Logout
-            </button>
-          </>
+          <Link to={`/profile/${user.username}`}>Profile</Link>
         ) : (
           <Link to="/login">Login</Link>
         )}

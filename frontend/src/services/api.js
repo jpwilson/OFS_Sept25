@@ -34,9 +34,10 @@ class ApiService {
     }
   }
 
-  async createEvent(eventData) {
+  async createEvent(eventData, isPublished = true) {
     try {
-      const response = await fetch(`${API_BASE}/events`, {
+      const url = `${API_BASE}/events?is_published=${isPublished}`
+      const response = await fetch(url, {
         method: 'POST',
         headers: this.getAuthHeaders(),
         body: JSON.stringify(eventData)
@@ -50,6 +51,140 @@ class ApiService {
       return await response.json()
     } catch (error) {
       console.error('Error creating event:', error)
+      throw error
+    }
+  }
+
+  async updateEvent(eventId, eventData) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(eventData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating event:', error)
+      throw error
+    }
+  }
+
+  async getDrafts() {
+    try {
+      const response = await fetch(`${API_BASE}/events/drafts`, {
+        headers: this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch drafts')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching drafts:', error)
+      return []
+    }
+  }
+
+  async deleteEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to delete event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      throw error
+    }
+  }
+
+  async getTrash() {
+    try {
+      const response = await fetch(`${API_BASE}/events/trash`, {
+        headers: this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch trash')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching trash:', error)
+      return []
+    }
+  }
+
+  async restoreEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/restore`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to restore event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error restoring event:', error)
+      throw error
+    }
+  }
+
+  async permanentlyDeleteEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/permanent`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to permanently delete event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error permanently deleting event:', error)
+      throw error
+    }
+  }
+
+  async uploadImage(file) {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${API_BASE}/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to upload image')
+      }
+
+      const data = await response.json()
+      // Return full URL by prepending the API base
+      return {
+        ...data,
+        url: `http://localhost:8000${data.url}`
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
       throw error
     }
   }
