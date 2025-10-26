@@ -1,0 +1,199 @@
+.navigation {
+  width: 280px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  height: calc(100vh - 60px); /* Account for header */
+  position: sticky;
+  top: 60px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  z-index: 10;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.galleryButton {
+  width: calc(100% - 40px);
+  margin: 16px 20px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.galleryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sections {
+  padding: 8px 0;
+}
+
+.skipSection {
+  margin-bottom: 4px;
+}
+
+.skipButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-left: 4px solid transparent;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skipButton:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.skipButton.active {
+  border-left-color: #667eea;
+  color: #667eea;
+}
+
+.arrow {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+  display: inline-block;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.skipTitle {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.jumps {
+  padding-left: 20px;
+}
+
+.jumpButton {
+  width: 100%;
+  display: block;
+  padding: 10px 20px 10px 36px;
+  background: none;
+  border: none;
+  border-left: 4px solid transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.jumpButton:hover {
+  background: rgba(102, 126, 234, 0.08);
+  color: var(--text-primary);
+}
+
+.jumpButton.active {
+  border-left-color: #667eea;
+  color: #667eea;
+  font-weight: 500;
+}
+
+/* Scrollbar styling */
+.navigation::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navigation::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.navigation::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.navigation::-webkit-scrollbar-thumb:hover {
+  background: #667eea;
+}
+
+/* Mobile Navigation */
+@media (max-width: 1024px) {
+  .navigation {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .navigation.mobile {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 320px;
+    max-width: 85vw;
+    height: calc(100vh - 60px);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  .navigation.mobile.open {
+    left: 0;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

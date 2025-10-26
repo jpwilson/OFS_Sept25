@@ -8,10 +8,14 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import styles from './ImageGallery.module.css'
 
-function ImageGallery({ images, initialIndex = 0 }) {
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
-  const [viewMode, setViewMode] = useState('single') // 'single' or 'grid'
+  const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
+
+  // Use controlled viewMode if provided, otherwise use internal state
+  const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
+  const setViewMode = onViewModeChange || setInternalViewMode
 
   // Helper to get full URL or extract full size from image object
   const getFullUrl = (img) => {

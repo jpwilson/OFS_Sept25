@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import ImageGallery from '../components/ImageGallery'
+import EventNavigation from '../components/EventNavigation'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -22,8 +23,50 @@ function EventDetail() {
   const [likeStats, setLikeStats] = useState({ like_count: 0, is_liked: false, recent_likes: [] })
   const [showAllLikes, setShowAllLikes] = useState(false)
   const [allLikes, setAllLikes] = useState([])
+  const [sections, setSections] = useState([])
+  const [activeSection, setActiveSection] = useState(null)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [galleryViewMode, setGalleryViewMode] = useState('single')
+  const contentRef = useRef(null)
 
   const isAuthor = user && event && user.username === event.author_username
+
+  // Handle gallery button click from navigation
+  const handleGalleryClick = useCallback(() => {
+    // Set gallery to grid mode
+    setGalleryViewMode('grid')
+
+    // Scroll to gallery
+    setTimeout(() => {
+      const gallery = document.querySelector('[class*="gallerySection"]')
+      if (gallery) {
+        const offset = 80
+        const elementPosition = gallery.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - offset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+
+    // Close mobile menu if open
+    if (isMobile) {
+      setIsMobileNavOpen(false)
+    }
+  }, [isMobile])
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 1024)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     loadEvent()
@@ -206,6 +249,89 @@ function EventDetail() {
     return images
   }, [event])
 
+  // Parse headings from rich HTML content and generate sections
+  const parsedContent = useMemo(() => {
+    if (!event || !event.description) return { sections: [], html: '' }
+
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(event.description, 'text/html')
+    const headings = doc.querySelectorAll('h1, h2')
+
+    const sections = []
+    let currentSkip = null
+
+    headings.forEach((heading, index) => {
+      // Skip headings with empty or whitespace-only content
+      const title = heading.textContent.trim()
+      if (!title) return
+
+      const anchor = `section-${index}`
+      heading.id = anchor
+
+      if (heading.tagName === 'H1') {
+        currentSkip = {
+          id: anchor,
+          title: title,
+          jumps: []
+        }
+        sections.push(currentSkip)
+      } else if (heading.tagName === 'H2' && currentSkip) {
+        currentSkip.jumps.push({
+          id: anchor,
+          title: title
+        })
+      }
+    })
+
+    // Serialize the modified document back to HTML
+    const html = doc.body.innerHTML
+
+    return { sections, html }
+  }, [event])
+
+  // Update sections when content is parsed
+  useEffect(() => {
+    setSections(parsedContent.sections)
+  }, [parsedContent])
+
+  // Intersection Observer to track active section
+  useEffect(() => {
+    if (!parsedContent.sections || parsedContent.sections.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      {
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0
+      }
+    )
+
+    // Observe all heading elements
+    const allSectionIds = []
+    parsedContent.sections.forEach(skip => {
+      allSectionIds.push(skip.id)
+      skip.jumps.forEach(jump => {
+        allSectionIds.push(jump.id)
+      })
+    })
+
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      allSectionIds.forEach(id => {
+        const element = document.getElementById(id)
+        if (element) observer.observe(element)
+      })
+    }, 100)
+
+    return () => observer.disconnect()
+  }, [parsedContent])
+
   if (loading) {
     return <div className={styles.loading}>Loading...</div>
   }
@@ -253,7 +379,30 @@ function EventDetail() {
         </div>
       </div>
 
-      <div className={styles.content}>
+      <div className={styles.pageLayout}>
+        {sections.length > 0 && (
+          <EventNavigation
+            sections={sections}
+            activeSection={activeSection}
+            imageCount={allImages.length}
+            isMobile={isMobile}
+            isOpen={isMobileNavOpen}
+            onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            onGalleryClick={handleGalleryClick}
+          />
+        )}
+
+        <div className={styles.mainContent} ref={contentRef}>
+          {isMobile && sections.length > 0 && (
+            <button
+              className={styles.mobileMenuButton}
+              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            >
+              ☰ Table of Contents
+            </button>
+          )}
+
+          <div className={styles.content}>
         {event.content_blocks && event.content_blocks.map((block, index) => {
           if (block.type === 'text') {
             return (
@@ -281,7 +430,7 @@ function EventDetail() {
         {(!event.content_blocks || event.content_blocks.length === 0) && (
           <div
             className={styles.richContent}
-            dangerouslySetInnerHTML={{ __html: event.description }}
+            dangerouslySetInnerHTML={{ __html: parsedContent.html || event.description }}
           />
         )}
       </div>
@@ -289,7 +438,11 @@ function EventDetail() {
       {/* Image Gallery */}
       {allImages.length > 0 && (
         <div className={styles.gallerySection}>
-          <ImageGallery images={allImages} />
+          <ImageGallery
+            images={allImages}
+            viewMode={galleryViewMode}
+            onViewModeChange={setGalleryViewMode}
+          />
         </div>
       )}
 
@@ -414,6 +567,8 @@ function EventDetail() {
               </div>
             ))
           )}
+        </div>
+      </div>
         </div>
       </div>
     </div>
