@@ -1,0 +1,214 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 80px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.checkoutCard {
+  max-width: 700px;
+  width: 100%;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 48px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.header p {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.planSummary {
+  background: rgba(102, 126, 234, 0.05);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.planHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.planHeader h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.priceAmount {
+  font-size: 36px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.pricePeriod {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.planDesc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.features h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.features li {
+  padding: 10px 0;
+  color: var(--text-secondary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.features li::before {
+  content: '✓';
+  color: #667eea;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.paymentSection {
+  margin-bottom: 32px;
+  padding: 32px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.paymentSection h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.comingSoon {
+  font-size: 16px;
+  color: #FCD34D;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.placeholder {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.checkoutButton {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+
+.checkoutButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(102, 126, 234, 0.4);
+}
+
+.checkoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-tertiary);
+}
+
+.guarantee {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.guarantee p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .checkoutCard {
+    padding: 32px 24px;
+  }
+
+  .header h1 {
+    font-size: 26px;
+  }
+
+  .planSummary {
+    padding: 24px;
+  }
+
+  .planHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

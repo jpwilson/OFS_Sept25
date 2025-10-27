@@ -17,6 +17,7 @@
     "react": "^19.1.1",
     "react-datepicker": "^8.8.0",
     "react-dom": "^19.1.1",
+    "react-easy-crop": "^5.5.3",
     "react-leaflet": "^5.0.0",
     "react-leaflet-markercluster": "^5.0.0-rc.0",
     "react-router-dom": "^7.9.3",

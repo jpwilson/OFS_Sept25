@@ -198,9 +198,20 @@ function Profile() {
 
   return (
     <div className={styles.container}>
+      {/* Banner Section */}
+      {profile.banner_url && (
+        <div className={styles.bannerContainer}>
+          <img src={profile.banner_url} alt="Profile banner" className={styles.bannerImage} />
+        </div>
+      )}
+
       <div className={styles.profileHeader}>
         <div className={styles.avatar}>
-          {profile.full_name?.charAt(0).toUpperCase()}
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt={profile.full_name} className={styles.avatarImage} />
+          ) : (
+            profile.full_name?.charAt(0).toUpperCase()
+          )}
         </div>
         <div className={styles.profileInfo}>
           <h1 className={styles.name}>{profile.full_name}</h1>
@@ -227,6 +238,9 @@ function Profile() {
         <div className={styles.actions}>
           {isOwnProfile ? (
             <>
+              <Link to={`/profile/${username}/edit`} className={styles.editButton}>
+                Edit Profile
+              </Link>
               <button
                 onClick={handleShowRequests}
                 className={styles.requestsButton}
@@ -236,12 +250,6 @@ function Profile() {
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>
-              <button
-                onClick={handleLogout}
-                className={styles.logoutButton}
-              >
-                Logout
-              </button>
             </>
           ) : currentUser ? (
             <button
@@ -415,6 +423,15 @@ function Profile() {
         onClose={() => setShowRequestsModal(false)}
         onRequestHandled={handleRequestHandled}
       />
+
+      {/* Logout at bottom - only for own profile */}
+      {isOwnProfile && (
+        <div className={styles.footer}>
+          <button onClick={handleLogout} className={styles.footerLogoutButton}>
+            Logout
+          </button>
+        </div>
+      )}
     </div>
   )
 }

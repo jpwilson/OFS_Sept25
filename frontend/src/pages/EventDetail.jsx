@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
+import LoginPromptModal from '../components/LoginPromptModal'
 import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
 import EventMap from '../components/EventMap'
@@ -30,6 +31,8 @@ function EventDetail() {
   const [isMobile, setIsMobile] = useState(false)
   const [galleryViewMode, setGalleryViewMode] = useState('single')
   const [locations, setLocations] = useState([])
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -169,7 +172,11 @@ function EventDetail() {
   }
 
   async function handleLikeToggle() {
-    if (!user) return
+    if (!user) {
+      setLoginPromptAction('like this event')
+      setShowLoginPrompt(true)
+      return
+    }
 
     try {
       if (likeStats.is_liked) {
@@ -188,6 +195,11 @@ function EventDetail() {
 
   async function handleCommentSubmit(e) {
     e.preventDefault()
+    if (!user) {
+      setLoginPromptAction('comment on this event')
+      setShowLoginPrompt(true)
+      return
+    }
     if (!newComment.trim() || commentLoading) return
 
     setCommentLoading(true)
@@ -626,6 +638,13 @@ function EventDetail() {
       </div>
         </div>
       </div>
+
+      {/* Login Prompt Modal */}
+      <LoginPromptModal
+        isOpen={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        action={loginPromptAction}
+      />
     </div>
   )
 }

@@ -45,6 +45,20 @@ def create_event(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Check event limit for free users
+    if current_user.subscription_tier == 'free':
+        published_events_count = db.query(Event).filter(
+            Event.author_id == current_user.id,
+            Event.is_published == True,
+            Event.is_deleted == False
+        ).count()
+
+        if published_events_count >= 5:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Free plan limit reached. You can only create 5 events. Please upgrade to Premium for unlimited events."
+            )
+
     # Validate location count if multiple locations enabled
     if event_data.has_multiple_locations and event_data.description:
         is_valid, location_count = validate_location_count(event_data.description)

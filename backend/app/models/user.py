@@ -12,7 +12,9 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String, nullable=False)
     avatar_url = Column(String, nullable=True)
+    banner_url = Column(String, nullable=True)
     bio = Column(String, nullable=True)
+    subscription_tier = Column(String, default='free')  # 'free', 'premium', 'family'
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

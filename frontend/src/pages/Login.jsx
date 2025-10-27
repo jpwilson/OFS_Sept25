@@ -100,6 +100,11 @@ function Login() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.header}>
+        <Link to="/" className={styles.logo}>
+          Our Family Socials
+        </Link>
+      </div>
       <div className={styles.formWrapper}>
         <h1 className={styles.title}>
           {isRegistering ? 'Create Account' : 'Welcome Back'}

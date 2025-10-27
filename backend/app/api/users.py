@@ -1,12 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from pydantic import BaseModel
 from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.follow import Follow
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+    banner_url: Optional[str] = None
 
 @router.get("/{username}")
 def get_user_profile(
@@ -383,3 +390,34 @@ def get_follow_request_count(
     ).count()
 
     return {"count": count}
+
+@router.put("/me/profile")
+def update_profile(
+    profile_data: ProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update current user's profile"""
+    # Update only provided fields
+    if profile_data.full_name is not None:
+        current_user.full_name = profile_data.full_name
+    if profile_data.bio is not None:
+        current_user.bio = profile_data.bio
+    if profile_data.avatar_url is not None:
+        current_user.avatar_url = profile_data.avatar_url
+    if profile_data.banner_url is not None:
+        current_user.banner_url = profile_data.banner_url
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "bio": current_user.bio,
+        "avatar_url": current_user.avatar_url,
+        "banner_url": current_user.banner_url,
+        "created_at": current_user.created_at
+    }

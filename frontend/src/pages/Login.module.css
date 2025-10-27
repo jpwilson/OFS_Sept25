@@ -2,14 +2,42 @@
   min-height: 100vh;
   background: var(--bg-primary);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   padding: 20px;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 40px;
+  background: rgba(15, 20, 25, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .formWrapper {
   max-width: 400px;
   width: 100%;
+  margin: 0 auto;
+  margin-top: 100px;
 }
 
 .title {

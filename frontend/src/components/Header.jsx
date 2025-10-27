@@ -8,10 +8,15 @@ function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [requestCount, setRequestCount] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
     navigate('/')
+  }
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
   }
 
   useEffect(() => {
@@ -40,8 +45,21 @@ function Header() {
       <Link to="/" className={styles.logo}>
         Our Family Socials
       </Link>
+
+      {/* Hamburger button for mobile */}
+      <button
+        className={styles.hamburger}
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label="Toggle menu"
+      >
+        <span className={styles.hamburgerLine}></span>
+        <span className={styles.hamburgerLine}></span>
+        <span className={styles.hamburgerLine}></span>
+      </button>
+
+      {/* Desktop nav */}
       <nav className={styles.nav}>
-        <Link to="/">Feed</Link>
+        <Link to="/feed">Feed</Link>
         <Link to="/map">Map</Link>
         <Link to="/timeline">Timeline</Link>
         <Link to="/create">Create</Link>
@@ -56,6 +74,30 @@ function Header() {
           <Link to="/login">Login</Link>
         )}
       </nav>
+
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu}>
+          <nav className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
+            <Link to="/feed" onClick={closeMobileMenu}>Feed</Link>
+            <Link to="/map" onClick={closeMobileMenu}>Map</Link>
+            <Link to="/timeline" onClick={closeMobileMenu}>Timeline</Link>
+            <Link to="/create" onClick={closeMobileMenu}>Create</Link>
+            {user ? (
+              <span className={styles.profileLink}>
+                <Link to={`/profile/${user.username}`} onClick={closeMobileMenu}>
+                  Profile
+                </Link>
+                {requestCount > 0 && (
+                  <span className={styles.badge}>{requestCount}</span>
+                )}
+              </span>
+            ) : (
+              <Link to="/login" onClick={closeMobileMenu}>Login</Link>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

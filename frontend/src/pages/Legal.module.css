@@ -1,0 +1,122 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-bottom: 80px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  padding: 20px 40px;
+  background: rgba(15, 20, 25, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 40px;
+}
+
+.content h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.lastUpdated {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 48px;
+}
+
+.content section {
+  margin-bottom: 48px;
+}
+
+.content h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.content p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.content ul {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.content li {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.actions {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-color);
+}
+
+.backButton {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  background: var(--bg-tertiary);
+  border-color: #667eea;
+  color: #667eea;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 40px 20px;
+  }
+
+  .content h1 {
+    font-size: 36px;
+  }
+
+  .content h2 {
+    font-size: 24px;
+  }
+
+  .header {
+    padding: 16px 20px;
+  }
+}

@@ -359,6 +359,27 @@ class ApiService {
     }
   }
 
+  // Profile Update
+  async updateProfile(profileData) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/profile`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update profile')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      throw error
+    }
+  }
+
   // Comments
   async getComments(eventId) {
     try {

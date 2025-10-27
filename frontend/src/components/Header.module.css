@@ -4,7 +4,7 @@
   padding: 20px 28px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -21,6 +21,27 @@
   background-clip: text;
   font-family: 'Georgia', 'Times New Roman', serif;
   transition: all 0.3s ease;
+  z-index: 101;
+}
+
+/* Hamburger button - hidden on desktop */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 101;
+}
+
+.hamburgerLine {
+  width: 24px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
 }
 
 .nav {
@@ -36,6 +57,90 @@
 
 .nav a:hover {
   color: var(--text-primary);
+}
+
+/* Mobile menu overlay */
+.mobileMenuOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 99;
+  animation: fadeIn 0.2s ease;
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  background: var(--bg-secondary);
+  padding: 80px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+  animation: slideInRight 0.3s ease;
+}
+
+.mobileMenu a {
+  font-size: 18px;
+  color: var(--text-primary);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: color 0.2s;
+}
+
+.mobileMenu a:hover {
+  color: #667eea;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .header {
+    padding: 16px 20px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  /* Show hamburger on mobile */
+  .hamburger {
+    display: flex;
+  }
+
+  /* Hide desktop nav on mobile */
+  .nav {
+    display: none;
+  }
+
+  /* Show mobile menu overlay on mobile */
+  .mobileMenuOverlay {
+    display: block;
+  }
 }
 
 .profileLink {
