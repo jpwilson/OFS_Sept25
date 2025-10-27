@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..core.database import Base
@@ -9,6 +9,7 @@ class Follow(Base):
     id = Column(Integer, primary_key=True, index=True)
     follower_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     following_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String, default="pending", nullable=False)  # 'pending', 'approved', 'rejected'
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships

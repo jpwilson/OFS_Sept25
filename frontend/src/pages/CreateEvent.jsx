@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
@@ -6,6 +6,10 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import apiService from '../services/api'
 import RichTextEditor from '../components/RichTextEditor'
+import LocationSelectionModal from '../components/LocationSelectionModal'
+import LocationAutocomplete from '../components/LocationAutocomplete'
+import GPSExtractionModal from '../components/GPSExtractionModal'
+import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
 function CreateEvent() {
@@ -18,7 +22,10 @@ function CreateEvent() {
     start_date: '',
     end_date: '',
     location_name: '',
-    cover_image_url: ''
+    latitude: null,
+    longitude: null,
+    cover_image_url: '',
+    has_multiple_locations: false
   })
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
@@ -26,11 +33,40 @@ function CreateEvent() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState('')
+  const [showLocationModal, setShowLocationModal] = useState(false)
+  const [allLocations, setAllLocations] = useState([])
+  const [selectedLocations, setSelectedLocations] = useState([])
+  const [pendingPublish, setPendingPublish] = useState(true)
+  const [showGPSModal, setShowGPSModal] = useState(false)
+  const [gpsExtractionEnabled, setGPSExtractionEnabled] = useState(false)
+  const [gpsLocations, setGpsLocations] = useState([])
+
+  // Check GPS extraction preference on component mount
+  useEffect(() => {
+    const preference = localStorage.getItem('gpsExtractionPreference')
+    if (preference === 'enabled') {
+      setGPSExtractionEnabled(true)
+    }
+  }, [])
+
+  const handleGPSExtracted = (gpsData) => {
+    setGpsLocations(prev => [...prev, gpsData])
+    console.log('GPS data extracted:', gpsData)
+  }
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    })
+  }
+
+  const handleLocationSelect = (location) => {
+    setFormData({
+      ...formData,
+      location_name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude
     })
   }
 
@@ -87,13 +123,29 @@ function CreateEvent() {
       return
     }
 
+    // Only validate locations if has_multiple_locations is checked
+    if (formData.has_multiple_locations) {
+      const validation = await validateLocationCount(formData.description)
+
+      if (!validation.isValid) {
+        // More than 20 locations - show selection modal
+        setAllLocations(validation.locations)
+        setPendingPublish(isPublished)
+        setShowLocationModal(true)
+        showToast(`Found ${validation.count} locations. Please select up to ${validation.maxLocations}.`, 'error')
+        return
+      }
+    }
+
+    // Proceed with submission
     setIsSubmitting(true)
 
     try {
       const event = await apiService.createEvent({
         ...formData,
         start_date: formData.start_date ? `${formData.start_date}T00:00:00` : '',
-        end_date: formData.end_date ? `${formData.end_date}T00:00:00` : formData.start_date ? `${formData.start_date}T00:00:00` : ''
+        end_date: formData.end_date ? `${formData.end_date}T00:00:00` : formData.start_date ? `${formData.start_date}T00:00:00` : '',
+        gps_locations: gpsLocations
       }, isPublished)
 
       showToast(isPublished ? 'Event published successfully!' : 'Draft saved successfully!', 'success')
@@ -113,8 +165,33 @@ function CreateEvent() {
     }
   }
 
+  const handleLocationConfirm = (selectedLocs) => {
+    setSelectedLocations(selectedLocs)
+    // TODO: In the future, we'll need to remove unselected location markers from the HTML
+    // For now, we'll just store the selection and show a warning
+    showToast(`${selectedLocs.length} locations selected. Note: You'll need to manually remove extra location markers from your content.`, 'success')
+    setShowLocationModal(false)
+  }
+
   const handleSaveDraft = (e) => {
     handleSubmit(e, false)
+  }
+
+  const handleMultipleLocationsChange = (e) => {
+    const isChecked = e.target.checked
+    setFormData({ ...formData, has_multiple_locations: isChecked })
+
+    // Show GPS extraction modal if checking the box and modal hasn't been dismissed
+    if (isChecked) {
+      const modalDismissed = localStorage.getItem('gpsExtractionModalDismissed')
+      if (!modalDismissed) {
+        setShowGPSModal(true)
+      }
+    }
+  }
+
+  const handleGPSExtractionResponse = (enabled) => {
+    setGPSExtractionEnabled(enabled)
   }
 
   return (
@@ -136,12 +213,34 @@ function CreateEvent() {
             />
           </div>
 
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.has_multiple_locations}
+                onChange={handleMultipleLocationsChange}
+                className={styles.checkbox}
+              />
+              <span>This event involves multiple locations (e.g., travel itinerary, road trip)</span>
+            </label>
+            {formData.has_multiple_locations && (
+              <p className={styles.hint}>
+                You can add up to 20 location markers in your content using the location pin button in the editor toolbar.
+                {gpsExtractionEnabled && ' GPS data will be automatically extracted from uploaded photos.'}
+              </p>
+            )}
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="description">Event Story</label>
             <RichTextEditor
               content={formData.description}
               onChange={(html) => setFormData({ ...formData, description: html })}
               placeholder="Share your experience... Add text, images, and tell your story in a beautiful magazine-style layout."
+              eventStartDate={formData.start_date}
+              eventEndDate={formData.end_date}
+              onGPSExtracted={handleGPSExtracted}
+              gpsExtractionEnabled={gpsExtractionEnabled && formData.has_multiple_locations}
             />
             <span className={styles.hint}>
               Use the toolbar to format text, add headings, and insert images. Your content will be displayed like a blog post.
@@ -184,14 +283,15 @@ function CreateEvent() {
 
           <div className={styles.formGroup}>
             <label htmlFor="location_name">Location</label>
-            <input
-              type="text"
-              id="location_name"
-              name="location_name"
-              value={formData.location_name}
-              onChange={handleChange}
-              placeholder="Where did this happen?"
+            <LocationAutocomplete
+              onSelect={handleLocationSelect}
+              placeholder="Search for a location..."
             />
+            {formData.location_name && (
+              <span className={styles.hint}>
+                Selected: {formData.location_name}
+              </span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -242,6 +342,19 @@ function CreateEvent() {
           </div>
         </form>
       </div>
+
+      <LocationSelectionModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        locations={allLocations}
+        onConfirm={handleLocationConfirm}
+      />
+
+      <GPSExtractionModal
+        isOpen={showGPSModal}
+        onClose={() => setShowGPSModal(false)}
+        onEnable={handleGPSExtractionResponse}
+      />
     </div>
   )
 }

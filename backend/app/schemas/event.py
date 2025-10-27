@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
+from .event_location import EventLocation
 
 class ContentBlockBase(BaseModel):
     type: str
@@ -19,6 +20,12 @@ class ContentBlockResponse(ContentBlockBase):
     class Config:
         from_attributes = True
 
+class GPSLocation(BaseModel):
+    latitude: float
+    longitude: float
+    timestamp: Optional[str] = None
+    image_url: Optional[str] = None
+
 class EventBase(BaseModel):
     title: str
     summary: Optional[str] = None
@@ -29,9 +36,10 @@ class EventBase(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     cover_image_url: Optional[str] = None
+    has_multiple_locations: bool = False
 
 class EventCreate(EventBase):
-    pass
+    gps_locations: Optional[List[GPSLocation]] = []
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
@@ -43,7 +51,9 @@ class EventUpdate(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     cover_image_url: Optional[str] = None
+    has_multiple_locations: Optional[bool] = None
     is_published: Optional[bool] = None
+    gps_locations: Optional[List[GPSLocation]] = []
 
 class EventResponse(EventBase):
     id: int
@@ -57,6 +67,7 @@ class EventResponse(EventBase):
     created_at: datetime
     updated_at: datetime
     content_blocks: List[ContentBlockResponse] = []
+    locations: List[EventLocation] = []
 
     class Config:
         from_attributes = True

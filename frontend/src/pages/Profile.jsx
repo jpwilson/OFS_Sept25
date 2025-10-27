@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
+import FollowListModal from '../components/FollowListModal'
+import FollowRequestsModal from '../components/FollowRequestsModal'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
 
@@ -22,6 +24,10 @@ function Profile() {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, or trash
+  const [showFollowModal, setShowFollowModal] = useState(false)
+  const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
+  const [showRequestsModal, setShowRequestsModal] = useState(false)
+  const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'approved'
 
   const isOwnProfile = currentUser && currentUser.username === username
 
@@ -75,6 +81,7 @@ function Profile() {
     try {
       const result = await apiService.checkIfFollowing(username)
       setIsFollowing(result.is_following)
+      setFollowStatus(result.status) // 'pending', 'approved', or null
     } catch (error) {
       console.error('Failed to check follow status:', error)
     }
@@ -85,20 +92,44 @@ function Profile() {
 
     setFollowLoading(true)
     try {
-      if (isFollowing) {
+      if (isFollowing || followStatus === 'pending') {
+        // Unfollow or cancel pending request
         await apiService.unfollowUser(username)
         setIsFollowing(false)
+        setFollowStatus(null)
         showToast(`Unfollowed ${profile?.full_name || username}`, 'success')
       } else {
-        await apiService.followUser(username)
-        setIsFollowing(true)
-        showToast(`Following ${profile?.full_name || username}`, 'success')
+        // Send follow request
+        const result = await apiService.followUser(username)
+        setFollowStatus('pending')
+        showToast(`Follow request sent to ${profile?.full_name || username}`, 'success')
       }
+      // Reload profile to update counts
+      await loadProfile()
     } catch (error) {
       console.error('Failed to toggle follow:', error)
       showToast('Failed to update follow status', 'error')
     }
     setFollowLoading(false)
+  }
+
+  function handleShowFollowers() {
+    setFollowModalType('followers')
+    setShowFollowModal(true)
+  }
+
+  function handleShowFollowing() {
+    setFollowModalType('following')
+    setShowFollowModal(true)
+  }
+
+  function handleShowRequests() {
+    setShowRequestsModal(true)
+  }
+
+  async function handleRequestHandled() {
+    // Reload profile to update follower counts
+    await loadProfile()
   }
 
   async function handleRestore(eventId) {
@@ -178,14 +209,30 @@ function Profile() {
           <div className={styles.stats}>
             <span>{profile.event_count || events.length} events</span>
             <span>·</span>
-            <span>{profile.follower_count || 0} followers</span>
+            <button
+              className={styles.statButton}
+              onClick={handleShowFollowers}
+            >
+              {profile.follower_count || 0} followers
+            </button>
             <span>·</span>
-            <span>{profile.following_count || 0} following</span>
+            <button
+              className={styles.statButton}
+              onClick={handleShowFollowing}
+            >
+              {profile.following_count || 0} following
+            </button>
           </div>
         </div>
         <div className={styles.actions}>
           {isOwnProfile ? (
             <>
+              <button
+                onClick={handleShowRequests}
+                className={styles.requestsButton}
+              >
+                Follow Requests
+              </button>
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>
@@ -198,11 +245,16 @@ function Profile() {
             </>
           ) : currentUser ? (
             <button
-              className={`${styles.followButton} ${isFollowing ? styles.following : ''}`}
+              className={`${styles.followButton} ${
+                isFollowing ? styles.following :
+                followStatus === 'pending' ? styles.requested : ''
+              }`}
               onClick={handleFollowToggle}
               disabled={followLoading}
             >
-              {followLoading ? '...' : isFollowing ? 'Following' : 'Follow'}
+              {followLoading ? '...' :
+               isFollowing ? 'Following' :
+               followStatus === 'pending' ? 'Requested' : 'Follow'}
             </button>
           ) : null}
         </div>
@@ -350,6 +402,19 @@ function Profile() {
           )
         )}
       </div>
+
+      <FollowListModal
+        isOpen={showFollowModal}
+        onClose={() => setShowFollowModal(false)}
+        username={username}
+        type={followModalType}
+      />
+
+      <FollowRequestsModal
+        isOpen={showRequestsModal}
+        onClose={() => setShowRequestsModal(false)}
+        onRequestHandled={handleRequestHandled}
+      />
     </div>
   )
 }

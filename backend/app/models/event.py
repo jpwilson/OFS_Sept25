@@ -16,6 +16,7 @@ class Event(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     cover_image_url = Column(String, nullable=True)
+    has_multiple_locations = Column(Boolean, default=False)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     view_count = Column(Integer, default=0)
     is_published = Column(Boolean, default=False)
@@ -27,3 +28,4 @@ class Event(Base):
     content_blocks = relationship("ContentBlock", back_populates="event", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="event", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
+    locations = relationship("EventLocation", back_populates="event", cascade="all, delete-orphan")

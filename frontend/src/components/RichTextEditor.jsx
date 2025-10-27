@@ -6,10 +6,13 @@ import { useCallback, useState } from 'react'
 import styles from './RichTextEditor.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
+import { LocationMarker } from '../extensions/LocationMarker'
+import LocationPicker from './LocationPicker'
 
-function RichTextEditor({ content, onChange, placeholder = "Tell your story..." }) {
+function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false }) {
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [showLocationPicker, setShowLocationPicker] = useState(false)
   const { showToast } = useToast()
 
   const editor = useEditor({
@@ -57,7 +60,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story..." 
       }),
       Placeholder.configure({
         placeholder
-      })
+      }),
+      LocationMarker
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
@@ -83,13 +87,27 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story..." 
 
     try {
       const result = await apiService.uploadImage(file)
+
+      // Extract GPS data if enabled and available
+      if (gpsExtractionEnabled && onGPSExtracted && result.metadata?.gps) {
+        const gpsData = result.metadata.gps
+        const dateTaken = result.metadata.date_taken
+
+        onGPSExtracted({
+          latitude: gpsData.latitude,
+          longitude: gpsData.longitude,
+          timestamp: dateTaken,
+          image_url: result.url
+        })
+      }
+
       return result.url
     } catch (error) {
       console.error('Error uploading image:', error)
       showToast('Failed to upload image. Please try again.', 'error')
       return null
     }
-  }, [showToast])
+  }, [showToast, gpsExtractionEnabled, onGPSExtracted])
 
   const addImage = useCallback(async () => {
     if (!editor) return
@@ -165,6 +183,17 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story..." 
 
     setIsUploading(false)
   }, [editor, uploadImage, showToast])
+
+  const handleLocationSelect = useCallback((locationData) => {
+    if (!editor) return
+
+    editor.chain().focus().insertContent({
+      type: 'locationMarker',
+      attrs: locationData
+    }).run()
+
+    showToast('Location marker added', 'success')
+  }, [editor, showToast])
 
   if (!editor) {
     return null
@@ -256,6 +285,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story..." 
           >
             {isUploading ? 'Uploading...' : '📷 Image'}
           </button>
+          <button
+            type="button"
+            onClick={() => setShowLocationPicker(true)}
+            title="Add Location Marker"
+            className={styles.locationButton}
+          >
+            📍 Location
+          </button>
         </div>
 
         <div className={styles.buttonGroup}>
@@ -297,6 +334,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story..." 
           💡 Images appear smaller during editing but will display full-size in the published event
         </div>
       </div>
+
+      <LocationPicker
+        isOpen={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onSelect={handleLocationSelect}
+        eventStartDate={eventStartDate}
+        eventEndDate={eventEndDate}
+      />
     </div>
   )
 }

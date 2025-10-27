@@ -230,6 +230,24 @@
   margin-bottom: 8px;
 }
 
+.popupLocationNumber {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.popupDate {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
 .popupDescription {
   font-size: 13px;
   color: var(--text-secondary);

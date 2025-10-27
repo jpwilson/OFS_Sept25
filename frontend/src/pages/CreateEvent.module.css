@@ -325,6 +325,41 @@
   box-shadow: none;
 }
 
+.checkboxGroup {
+  margin-bottom: 24px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkboxLabel span {
+  flex: 1;
+}
+
+.checkboxGroup .hint {
+  margin-left: 32px;
+  margin-top: 12px;
+  padding: 12px;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  border-radius: 4px;
+}
+
 @media (max-width: 768px) {
   .formRow {
     flex-direction: column;

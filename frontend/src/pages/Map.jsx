@@ -46,7 +46,7 @@ function Map() {
 
   const loadEvents = async () => {
     const data = await apiService.getEvents()
-    // Filter only events with location data
+    // Filter only events with main location data (one pin per event)
     const eventsWithLocation = data.filter(
       event => event.latitude && event.longitude
     )
@@ -226,9 +226,6 @@ function Map() {
                   <div className={styles.popupTitle}>{event.title}</div>
                   <div className={styles.popupMeta}>
                     {event.author_full_name} • {event.location_name}
-                  </div>
-                  <div className={styles.popupDescription}>
-                    {event.description}
                   </div>
                   <Link to={`/event/${event.id}`} className={styles.viewButton}>
                     View Event

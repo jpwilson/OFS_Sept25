@@ -258,6 +258,107 @@ class ApiService {
     }
   }
 
+  async getUserFollowers(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/followers`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch followers')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching followers:', error)
+      return []
+    }
+  }
+
+  async getUserFollowing(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/following`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch following')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching following:', error)
+      return []
+    }
+  }
+
+  // Follow Requests
+  async getFollowRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/follow-requests`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch follow requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching follow requests:', error)
+      return []
+    }
+  }
+
+  async acceptFollowRequest(requestId) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/follow-requests/${requestId}/accept`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to accept follow request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error accepting follow request:', error)
+      throw error
+    }
+  }
+
+  async rejectFollowRequest(requestId) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/follow-requests/${requestId}/reject`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to reject follow request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error rejecting follow request:', error)
+      throw error
+    }
+  }
+
+  async getSentFollowRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/follow-requests/sent`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch sent follow requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching sent follow requests:', error)
+      return []
+    }
+  }
+
+  async getFollowRequestCount() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/follow-requests/count`, {
+        headers: this.getAuthHeaders()
+      })
+
+      if (!response.ok) return { count: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching follow request count:', error)
+      return { count: 0 }
+    }
+  }
+
   // Comments
   async getComments(eventId) {
     try {
@@ -357,6 +458,82 @@ class ApiService {
     } catch (error) {
       console.error('Error fetching all likes:', error)
       return []
+    }
+  }
+
+  // Location methods
+  async getEventLocations(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations`)
+      if (!response.ok) throw new Error('Failed to fetch locations')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching locations:', error)
+      return []
+    }
+  }
+
+  async extractLocationsFromImages(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations/extract-from-images`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to extract locations')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error extracting locations from images:', error)
+      throw error
+    }
+  }
+
+  async createEventLocation(eventId, locationData) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(locationData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create location')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating location:', error)
+      throw error
+    }
+  }
+
+  async deleteEventLocation(eventId, locationId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations/${locationId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete location')
+      return true
+    } catch (error) {
+      console.error('Error deleting location:', error)
+      throw error
+    }
+  }
+
+  async reorderEventLocations(eventId, locationIds) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations/reorder`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(locationIds)
+      })
+      if (!response.ok) throw new Error('Failed to reorder locations')
+      return await response.json()
+    } catch (error) {
+      console.error('Error reordering locations:', error)
+      throw error
     }
   }
 }

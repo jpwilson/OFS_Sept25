@@ -5,6 +5,9 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import apiService from '../services/api'
 import RichTextEditor from '../components/RichTextEditor'
+import LocationSelectionModal from '../components/LocationSelectionModal'
+import LocationAutocomplete from '../components/LocationAutocomplete'
+import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
 function EditEvent() {
@@ -19,7 +22,10 @@ function EditEvent() {
     start_date: '',
     end_date: '',
     location_name: '',
-    cover_image_url: ''
+    latitude: null,
+    longitude: null,
+    cover_image_url: '',
+    has_multiple_locations: false
   })
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
@@ -28,6 +34,10 @@ function EditEvent() {
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState('')
   const [isPublished, setIsPublished] = useState(false)
+  const [showLocationModal, setShowLocationModal] = useState(false)
+  const [allLocations, setAllLocations] = useState([])
+  const [selectedLocations, setSelectedLocations] = useState([])
+  const [pendingPublish, setPendingPublish] = useState(true)
 
   useEffect(() => {
     loadEvent()
@@ -49,7 +59,10 @@ function EditEvent() {
         start_date: event.start_date ? event.start_date.split('T')[0] : '',
         end_date: event.end_date ? event.end_date.split('T')[0] : '',
         location_name: event.location_name || '',
-        cover_image_url: event.cover_image_url || ''
+        latitude: event.latitude || null,
+        longitude: event.longitude || null,
+        cover_image_url: event.cover_image_url || '',
+        has_multiple_locations: event.has_multiple_locations || false
       })
 
       if (event.start_date) {
@@ -72,6 +85,15 @@ function EditEvent() {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    })
+  }
+
+  const handleLocationSelect = (location) => {
+    setFormData({
+      ...formData,
+      location_name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude
     })
   }
 
@@ -121,6 +143,21 @@ function EditEvent() {
 
   const handleSubmit = async (e, shouldPublish) => {
     e.preventDefault()
+
+    // Only validate locations if has_multiple_locations is checked
+    if (formData.has_multiple_locations) {
+      const validation = await validateLocationCount(formData.description)
+
+      if (!validation.isValid) {
+        // More than 20 locations - show selection modal
+        setAllLocations(validation.locations)
+        setPendingPublish(shouldPublish !== undefined ? shouldPublish : isPublished)
+        setShowLocationModal(true)
+        showToast(`Found ${validation.count} locations. Please select up to ${validation.maxLocations}.`, 'error')
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -144,6 +181,14 @@ function EditEvent() {
       showToast(error.message || 'Failed to update event. Please try again.', 'error')
       setIsSubmitting(false)
     }
+  }
+
+  const handleLocationConfirm = (selectedLocs) => {
+    setSelectedLocations(selectedLocs)
+    // TODO: In the future, we'll need to remove unselected location markers from the HTML
+    // For now, we'll just store the selection and show a warning
+    showToast(`${selectedLocs.length} locations selected. Note: You'll need to manually remove extra location markers from your content.`, 'success')
+    setShowLocationModal(false)
   }
 
   const handleSaveDraft = (e) => {
@@ -199,12 +244,31 @@ function EditEvent() {
             </span>
           </div>
 
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.has_multiple_locations}
+                onChange={(e) => setFormData({ ...formData, has_multiple_locations: e.target.checked })}
+                className={styles.checkbox}
+              />
+              <span>This event involves multiple locations (e.g., travel itinerary, road trip)</span>
+            </label>
+            {formData.has_multiple_locations && (
+              <p className={styles.hint}>
+                You can add up to 20 location markers in your content using the location pin button in the editor toolbar.
+              </p>
+            )}
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="description">Event Story</label>
             <RichTextEditor
               content={formData.description}
               onChange={(html) => setFormData({ ...formData, description: html })}
               placeholder="Share your experience... Add text, images, and tell your story in a beautiful magazine-style layout."
+              eventStartDate={formData.start_date}
+              eventEndDate={formData.end_date}
             />
             <span className={styles.hint}>
               Use the toolbar to format text, add headings, and insert images. Your content will be displayed like a blog post.
@@ -247,14 +311,15 @@ function EditEvent() {
 
           <div className={styles.formGroup}>
             <label htmlFor="location_name">Location</label>
-            <input
-              type="text"
-              id="location_name"
-              name="location_name"
-              value={formData.location_name}
-              onChange={handleChange}
-              placeholder="Where did this happen?"
+            <LocationAutocomplete
+              onSelect={handleLocationSelect}
+              placeholder="Search for a location..."
             />
+            {formData.location_name && (
+              <span className={styles.hint}>
+                Selected: {formData.location_name}
+              </span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -305,6 +370,13 @@ function EditEvent() {
           </div>
         </form>
       </div>
+
+      <LocationSelectionModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        locations={allLocations}
+        onConfirm={handleLocationConfirm}
+      />
     </div>
   )
 }

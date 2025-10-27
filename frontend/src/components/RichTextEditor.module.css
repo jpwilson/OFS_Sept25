@@ -59,6 +59,10 @@
   min-width: auto !important;
 }
 
+.locationButton {
+  min-width: auto !important;
+}
+
 .editorWrapper {
   position: relative;
   transition: all 0.2s ease;

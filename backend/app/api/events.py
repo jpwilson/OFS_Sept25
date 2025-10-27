@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
+from ..models.event_location import EventLocation
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
+from ..utils.location_validator import validate_location_count, extract_location_markers
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -42,6 +45,15 @@ def create_event(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Validate location count if multiple locations enabled
+    if event_data.has_multiple_locations and event_data.description:
+        is_valid, location_count = validate_location_count(event_data.description)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Too many location markers. Found {location_count}, maximum allowed is 20. Please reduce the number of location markers in your content."
+            )
+
     # Use authenticated user as the event author
     event_dict = event_data.model_dump()
     event = Event(
@@ -53,6 +65,47 @@ def create_event(
     db.add(event)
     db.commit()
     db.refresh(event)
+
+    # Extract and save location markers from HTML content if multiple locations enabled
+    if event.has_multiple_locations and event.description:
+        location_markers = extract_location_markers(event.description)
+        print(f"DEBUG: Extracted {len(location_markers)} location markers for event {event.id}")
+        for marker in location_markers:
+            event_location = EventLocation(
+                event_id=event.id,
+                location_name=marker['location_name'],
+                latitude=marker['latitude'],
+                longitude=marker['longitude'],
+                location_type='inline_marker',
+                timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
+                order_index=marker['order_index']
+            )
+            db.add(event_location)
+            print(f"DEBUG: Added location: {marker['location_name']}")
+
+        db.commit()
+        print(f"DEBUG: Committed {len(location_markers)} locations to database")
+    else:
+        print(f"DEBUG: Skipping location extraction - has_multiple_locations={event.has_multiple_locations}, has_description={bool(event.description)}")
+
+    # Save GPS-extracted locations from uploaded images
+    if event.has_multiple_locations and event_data.gps_locations:
+        print(f"DEBUG: Saving {len(event_data.gps_locations)} GPS-extracted locations")
+        for idx, gps_loc in enumerate(event_data.gps_locations):
+            event_location = EventLocation(
+                event_id=event.id,
+                location_name=f"Photo location {idx + 1}",
+                latitude=gps_loc.latitude,
+                longitude=gps_loc.longitude,
+                location_type='exif',
+                timestamp=datetime.fromisoformat(gps_loc.timestamp) if gps_loc.timestamp else None,
+                order_index=idx
+            )
+            db.add(event_location)
+            print(f"DEBUG: Added GPS location: {gps_loc.latitude}, {gps_loc.longitude}")
+
+        db.commit()
+        print(f"DEBUG: Committed {len(event_data.gps_locations)} GPS locations to database")
 
     event_dict = {
         **event.__dict__,
@@ -153,11 +206,50 @@ def update_event(
     if event.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    for key, value in event_data.model_dump(exclude_unset=True).items():
+    # Validate location count if multiple locations enabled
+    # Check both the new value (if set) and existing event value
+    update_dict = event_data.model_dump(exclude_unset=True)
+    has_multiple = update_dict.get('has_multiple_locations', event.has_multiple_locations)
+    description = update_dict.get('description', event.description)
+
+    if has_multiple and description:
+        is_valid, location_count = validate_location_count(description)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Too many location markers. Found {location_count}, maximum allowed is 20. Please reduce the number of location markers in your content."
+            )
+
+    for key, value in update_dict.items():
         setattr(event, key, value)
 
     db.commit()
     db.refresh(event)
+
+    # Re-extract and save location markers from HTML content if multiple locations enabled
+    if event.has_multiple_locations and event.description:
+        # Delete existing inline_marker locations for this event
+        db.query(EventLocation).filter(
+            EventLocation.event_id == event.id,
+            EventLocation.location_type == 'inline_marker'
+        ).delete()
+
+        # Extract and add new locations
+        location_markers = extract_location_markers(event.description)
+        for marker in location_markers:
+            event_location = EventLocation(
+                event_id=event.id,
+                location_name=marker['location_name'],
+                latitude=marker['latitude'],
+                longitude=marker['longitude'],
+                location_type='inline_marker',
+                timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
+                order_index=marker['order_index']
+            )
+            db.add(event_location)
+
+        db.commit()
+        db.refresh(event)  # Refresh to get updated locations with timestamps
 
     event_dict = {
         **event.__dict__,
@@ -242,7 +334,9 @@ def permanently_delete_event(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Permanently delete event from trash"""
+    """Permanently delete event from trash and cleanup associated images"""
+    from ..utils.image_cleanup import cleanup_event_images
+
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if not event:
@@ -254,10 +348,19 @@ def permanently_delete_event(
     if not event.is_deleted:
         raise HTTPException(status_code=400, detail="Event must be in trash before permanent deletion")
 
+    # Clean up image files before deleting database record
+    cleanup_result = cleanup_event_images(event)
+    print(f"Image cleanup for event {event_id}: {cleanup_result['files_deleted']} files deleted, {cleanup_result['files_not_found']} not found")
+
+    # Delete database record (SQLAlchemy will cascade delete related records)
     db.delete(event)
     db.commit()
 
-    return {"message": "Event permanently deleted"}
+    return {
+        "message": "Event permanently deleted",
+        "images_deleted": cleanup_result['files_deleted'],
+        "images_not_found": cleanup_result['files_not_found']
+    }
 
 @router.post("/{event_id}/comments")
 def add_comment(

@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react'
 import styles from './EventNavigation.module.css'
 
-function EventNavigation({ sections, activeSection, imageCount, isMobile, isOpen, onToggle, onGalleryClick }) {
+function EventNavigation({ sections, activeSection, imageCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onMapClick }) {
   const [expanded, setExpanded] = useState(() => {
-    // Auto-expand all sections by default
+    // Collapse all sections by default
     const initialState = {}
     sections.forEach(skip => {
-      initialState[skip.id] = true
+      initialState[skip.id] = false
     })
     return initialState
   })
@@ -51,6 +51,12 @@ function EventNavigation({ sections, activeSection, imageCount, isMobile, isOpen
       <div className={styles.header}>
         <h3 className={styles.title}>Contents</h3>
       </div>
+
+      {locationCount > 0 && onMapClick && (
+        <button className={styles.mapButton} onClick={onMapClick}>
+          🗺️ View journey map
+        </button>
+      )}
 
       {imageCount > 0 && onGalleryClick && (
         <button className={styles.galleryButton} onClick={onGalleryClick}>

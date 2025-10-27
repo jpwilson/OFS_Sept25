@@ -5,6 +5,7 @@ import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
+import EventMap from '../components/EventMap'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -28,7 +29,9 @@ function EventDetail() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [galleryViewMode, setGalleryViewMode] = useState('single')
+  const [locations, setLocations] = useState([])
   const contentRef = useRef(null)
+  const mapRef = useRef(null)
 
   const isAuthor = user && event && user.username === event.author_username
 
@@ -58,6 +61,25 @@ function EventDetail() {
     }
   }, [isMobile])
 
+  // Handle map button click from navigation
+  const handleMapClick = useCallback(() => {
+    if (mapRef.current) {
+      const offset = 80
+      const elementPosition = mapRef.current.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - offset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+
+    // Close mobile menu if open
+    if (isMobile) {
+      setIsMobileNavOpen(false)
+    }
+  }, [isMobile])
+
   // Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => {
@@ -71,6 +93,7 @@ function EventDetail() {
   useEffect(() => {
     loadEvent()
     loadComments()
+    loadLocations()
     if (user) {
       loadLikes()
     }
@@ -106,6 +129,16 @@ function EventDetail() {
       setEvent(data)
     }
     setLoading(false)
+  }
+
+  async function loadLocations() {
+    try {
+      const data = await apiService.getEventLocations(id)
+      setLocations(data || [])
+    } catch (error) {
+      console.error('Error loading locations:', error)
+      setLocations([])
+    }
   }
 
   function getMockEvent(eventId) {
@@ -385,10 +418,12 @@ function EventDetail() {
             sections={sections}
             activeSection={activeSection}
             imageCount={allImages.length}
+            locationCount={locations.length}
             isMobile={isMobile}
             isOpen={isMobileNavOpen}
             onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
             onGalleryClick={handleGalleryClick}
+            onMapClick={handleMapClick}
           />
         )}
 
@@ -434,6 +469,26 @@ function EventDetail() {
           />
         )}
       </div>
+
+      {/* Journey Map */}
+      {locations.length > 0 && (
+        <div className={styles.mapSection} ref={mapRef}>
+          <div className={styles.mapContainer}>
+            <div className={styles.mapFadeOverlay}></div>
+            <EventMap locations={locations} />
+            <div className={styles.mapTitleOverlay}>
+              <h2 className={styles.mapTitle}>Journey Map</h2>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Button */}
+      {allImages.length > 0 && (
+        <button className={styles.galleryButton} onClick={handleGalleryClick}>
+          📷 View all {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
+        </button>
+      )}
 
       {/* Image Gallery */}
       {allImages.length > 0 && (
