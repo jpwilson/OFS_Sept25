@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from .core.config import settings
 from .core.database import engine, Base
 from .api import auth, events, users, comments, likes, upload, locations, geocoding
@@ -33,8 +34,11 @@ app.include_router(upload.router, prefix=settings.API_V1_STR)
 app.include_router(locations.router, prefix=settings.API_V1_STR)
 app.include_router(geocoding.router, prefix=settings.API_V1_STR)
 
-# Mount static files for serving uploaded images
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Mount static files for serving uploaded images (only if directory exists)
+# In production (Vercel), files will be served from Supabase Storage instead
+upload_dir = Path(settings.UPLOAD_DIR)
+if upload_dir.exists() and upload_dir.is_dir():
+    app.mount("/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
 
 @app.get("/")
 def read_root():
