@@ -1,6 +1,7 @@
 import { mockEventsForFeed } from '../data/mockEvents'
 
-const API_BASE = '/api/v1'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE = `${API_URL}/api/v1`
 
 class ApiService {
   getAuthHeaders() {
@@ -178,10 +179,10 @@ class ApiService {
       }
 
       const data = await response.json()
-      // Return full URL by prepending the API base
+      // Return full URL by prepending the API URL
       return {
         ...data,
-        url: `http://localhost:8000${data.url}`
+        url: `${API_URL}${data.url}`
       }
     } catch (error) {
       console.error('Error uploading image:', error)
