@@ -1,7 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext()
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Temporary hardcoded URL for production - TODO: fix environment variable loading
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : 'https://ofs-sept25.vercel.app'
 
 export function useAuth() {
   return useContext(AuthContext)
