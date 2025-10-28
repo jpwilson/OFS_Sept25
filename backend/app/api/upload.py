@@ -7,21 +7,29 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import io
 from datetime import datetime
+from ..core.config import settings
 
 router = APIRouter(tags=["upload"])
 
 # Create uploads directory if it doesn't exist
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+# Read from settings to support both local (./uploads) and Vercel (/tmp/uploads)
+UPLOAD_DIR = Path(settings.UPLOAD_DIR)
 
 # Create subdirectories for different sizes
 THUMB_DIR = UPLOAD_DIR / "thumbnails"
 MEDIUM_DIR = UPLOAD_DIR / "medium"
 FULL_DIR = UPLOAD_DIR / "full"
 
-THUMB_DIR.mkdir(exist_ok=True)
-MEDIUM_DIR.mkdir(exist_ok=True)
-FULL_DIR.mkdir(exist_ok=True)
+# Try to create directories, but don't fail if we can't (Vercel may create them automatically)
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    THUMB_DIR.mkdir(parents=True, exist_ok=True)
+    MEDIUM_DIR.mkdir(parents=True, exist_ok=True)
+    FULL_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    # On Vercel's serverless environment, /tmp may have different permissions
+    # Directories will be created when first write occurs
+    pass
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
