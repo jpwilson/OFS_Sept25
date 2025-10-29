@@ -19,25 +19,27 @@ def get_events(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    # Simplified query - just get basic event data
-    events = db.query(Event).filter(
+    from sqlalchemy.orm import selectinload
+
+    # Use selectinload instead of joinedload - better for one-to-many relationships
+    events = db.query(Event).options(
+        selectinload(Event.author),
+        selectinload(Event.content_blocks)
+    ).filter(
         Event.is_published == True,
         Event.is_deleted == False
     ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
 
     response = []
     for event in events:
-        # Manually fetch related data to avoid relationship loading issues
-        author = db.query(User).filter(User.id == event.author_id).first()
-
         event_dict = {
             **event.__dict__,
-            "author_username": author.username if author else "unknown",
-            "author_full_name": author.full_name if author else None,
-            "like_count": 0,
-            "comment_count": 0,
-            "content_blocks": [],
-            "locations": []
+            "author_username": event.author.username,
+            "author_full_name": event.author.full_name,
+            "like_count": 0,  # TODO: Add later
+            "comment_count": 0,  # TODO: Add later
+            "content_blocks": event.content_blocks,
+            "locations": []  # TODO: Add later
         }
         response.append(EventResponse.model_validate(event_dict))
 
