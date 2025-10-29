@@ -143,17 +143,27 @@ def create_event(
     # Refresh event to get updated locations
     db.refresh(event)
 
-    event_dict = {
-        **event.__dict__,
-        "author_username": event.author.username,
-        "author_full_name": event.author.full_name,
-        "like_count": 0,
-        "comment_count": 0,
-        "content_blocks": [],
-        "locations": event.locations
-    }
+    try:
+        event_dict = {
+            **event.__dict__,
+            "author_username": event.author.username,
+            "author_full_name": event.author.full_name,
+            "like_count": 0,
+            "comment_count": 0,
+            "content_blocks": [],
+            "locations": event.locations if event.locations else []
+        }
 
-    return EventResponse.model_validate(event_dict)
+        print(f"DEBUG: Building response for event {event.id} with {len(event.locations) if event.locations else 0} locations")
+        return EventResponse.model_validate(event_dict)
+    except Exception as e:
+        print(f"ERROR: Failed to build event response: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create event response: {str(e)}"
+        )
 
 @router.get("/drafts", response_model=List[EventResponse])
 def get_user_drafts(
