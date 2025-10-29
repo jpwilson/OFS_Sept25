@@ -19,49 +19,25 @@ def get_events(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    try:
-        print(f"DEBUG: Fetching events with skip={skip}, limit={limit}")
-        from sqlalchemy.orm import joinedload
-        events = db.query(Event).options(
-            joinedload(Event.locations)
-        ).filter(
-            Event.is_published == True,
-            Event.is_deleted == False
-        ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+    events = db.query(Event).filter(
+        Event.is_published == True,
+        Event.is_deleted == False
+    ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
 
-        print(f"DEBUG: Found {len(events)} events")
-        response = []
-        for i, event in enumerate(events):
-            try:
-                print(f"DEBUG: Processing event {i+1}/{len(events)}: id={event.id}, title={event.title}")
-                event_dict = {
-                    **event.__dict__,
-                    "author_username": event.author.username,
-                    "author_full_name": event.author.full_name,
-                    "like_count": len(event.likes),
-                    "comment_count": len(event.comments),
-                    "content_blocks": event.content_blocks,
-                    "locations": event.locations if event.locations else []
-                }
-                response.append(EventResponse.model_validate(event_dict))
-                print(f"DEBUG: Successfully processed event {event.id}")
-            except Exception as e:
-                print(f"ERROR: Failed to process event {event.id}: {e}")
-                import traceback
-                traceback.print_exc()
-                # Skip this event and continue
-                continue
+    response = []
+    for event in events:
+        event_dict = {
+            **event.__dict__,
+            "author_username": event.author.username,
+            "author_full_name": event.author.full_name,
+            "like_count": len(event.likes),
+            "comment_count": len(event.comments),
+            "content_blocks": event.content_blocks,
+            "locations": []  # Temporarily disabled to get feed working
+        }
+        response.append(EventResponse.model_validate(event_dict))
 
-        print(f"DEBUG: Successfully built response with {len(response)} events")
-        return response
-    except Exception as e:
-        print(f"ERROR: Failed to fetch events: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch events: {str(e)}"
-        )
+    return response
 
 @router.post("", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(
