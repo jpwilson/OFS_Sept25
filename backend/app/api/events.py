@@ -19,7 +19,14 @@ def get_events(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    events = db.query(Event).filter(
+    from sqlalchemy.orm import joinedload
+
+    events = db.query(Event).options(
+        joinedload(Event.author),
+        joinedload(Event.likes),
+        joinedload(Event.comments),
+        joinedload(Event.content_blocks)
+    ).filter(
         Event.is_published == True,
         Event.is_deleted == False
     ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
