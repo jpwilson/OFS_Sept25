@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './LocationAutocomplete.module.css';
 
+// Use same API URL logic as AuthContext
+const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? 'https://ofs-sept25.vercel.app'
+  : 'http://localhost:8000';
+
 const LocationAutocomplete = ({ onSelect, placeholder = "Search for a location..." }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -40,7 +45,7 @@ const LocationAutocomplete = ({ onSelect, placeholder = "Search for a location..
     debounceTimer.current = setTimeout(async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/geocoding/search?query=${encodeURIComponent(query)}&limit=5`
+          `${API_URL}/api/v1/geocoding/search?query=${encodeURIComponent(query)}&limit=5`
         );
 
         if (!response.ok) throw new Error('Search failed');
