@@ -19,31 +19,54 @@ def get_events(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    from sqlalchemy.orm import selectinload
+    try:
+        from sqlalchemy.orm import selectinload
 
-    # Use selectinload instead of joinedload - better for one-to-many relationships
-    events = db.query(Event).options(
-        selectinload(Event.author),
-        selectinload(Event.content_blocks)
-    ).filter(
-        Event.is_published == True,
-        Event.is_deleted == False
-    ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+        print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}")
 
-    response = []
-    for event in events:
-        event_dict = {
-            **event.__dict__,
-            "author_username": event.author.username,
-            "author_full_name": event.author.full_name,
-            "like_count": 0,  # TODO: Add later
-            "comment_count": 0,  # TODO: Add later
-            "content_blocks": event.content_blocks,
-            "locations": []  # TODO: Add later
-        }
-        response.append(EventResponse.model_validate(event_dict))
+        # Use selectinload instead of joinedload - better for one-to-many relationships
+        events = db.query(Event).options(
+            selectinload(Event.author),
+            selectinload(Event.content_blocks)
+        ).filter(
+            Event.is_published == True,
+            Event.is_deleted == False
+        ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
 
-    return response
+        print(f"[EVENTS] Found {len(events)} events")
+
+        response = []
+        for i, event in enumerate(events):
+            try:
+                print(f"[EVENTS] Processing event {i+1}: id={event.id}, title={event.title}")
+                event_dict = {
+                    **event.__dict__,
+                    "author_username": event.author.username,
+                    "author_full_name": event.author.full_name,
+                    "like_count": 0,  # TODO: Add later
+                    "comment_count": 0,  # TODO: Add later
+                    "content_blocks": event.content_blocks,
+                    "locations": []  # TODO: Add later
+                }
+                response.append(EventResponse.model_validate(event_dict))
+                print(f"[EVENTS] Successfully processed event {event.id}")
+            except Exception as e:
+                print(f"[EVENTS] ERROR processing event {event.id}: {e}")
+                import traceback
+                traceback.print_exc()
+                # Skip this event and continue
+                continue
+
+        print(f"[EVENTS] Returning {len(response)} events")
+        return response
+    except Exception as e:
+        print(f"[EVENTS] FATAL ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch events: {str(e)}"
+        )
 
 @router.post("", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(
