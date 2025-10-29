@@ -140,13 +140,17 @@ def create_event(
             # Continue without GPS locations rather than failing the entire event creation
             db.rollback()
 
+    # Refresh event to get updated locations
+    db.refresh(event)
+
     event_dict = {
         **event.__dict__,
         "author_username": event.author.username,
         "author_full_name": event.author.full_name,
         "like_count": 0,
         "comment_count": 0,
-        "content_blocks": []
+        "content_blocks": [],
+        "locations": event.locations
     }
 
     return EventResponse.model_validate(event_dict)
