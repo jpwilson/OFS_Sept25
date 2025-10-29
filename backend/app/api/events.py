@@ -24,10 +24,9 @@ def get_events(
 
         print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}")
 
-        # Use selectinload instead of joinedload - better for one-to-many relationships
+        # Use selectinload to load authors. Skip content_blocks - they have schema issues
         events = db.query(Event).options(
-            selectinload(Event.author),
-            selectinload(Event.content_blocks)
+            selectinload(Event.author)
         ).filter(
             Event.is_published == True,
             Event.is_deleted == False
@@ -45,7 +44,7 @@ def get_events(
                     "author_full_name": event.author.full_name,
                     "like_count": 0,  # TODO: Add later
                     "comment_count": 0,  # TODO: Add later
-                    "content_blocks": event.content_blocks,
+                    "content_blocks": [],  # Empty - content is in description field
                     "locations": []  # TODO: Add later
                 }
                 response.append(EventResponse.model_validate(event_dict))
@@ -218,7 +217,7 @@ def get_user_drafts(
             "author_full_name": event.author.full_name,
             "like_count": len(event.likes),
             "comment_count": len(event.comments),
-            "content_blocks": event.content_blocks,
+            "content_blocks": [],  # Empty - content is in description field
             "locations": event.locations if event.locations else []
         }
         response.append(EventResponse.model_validate(event_dict))
@@ -247,7 +246,7 @@ def get_user_trash(
             "author_full_name": event.author.full_name,
             "like_count": len(event.likes),
             "comment_count": len(event.comments),
-            "content_blocks": event.content_blocks,
+            "content_blocks": [],  # Empty - content is in description field
             "locations": event.locations if event.locations else []
         }
         response.append(EventResponse.model_validate(event_dict))
