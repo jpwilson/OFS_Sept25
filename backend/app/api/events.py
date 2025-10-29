@@ -21,7 +21,10 @@ def get_events(
 ):
     try:
         print(f"DEBUG: Fetching events with skip={skip}, limit={limit}")
-        events = db.query(Event).filter(
+        from sqlalchemy.orm import joinedload
+        events = db.query(Event).options(
+            joinedload(Event.locations)
+        ).filter(
             Event.is_published == True,
             Event.is_deleted == False
         ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
@@ -193,7 +196,10 @@ def get_user_drafts(
     db: Session = Depends(get_db)
 ):
     """Get current user's draft events"""
-    drafts = db.query(Event).filter(
+    from sqlalchemy.orm import joinedload
+    drafts = db.query(Event).options(
+        joinedload(Event.locations)
+    ).filter(
         Event.author_id == current_user.id,
         Event.is_published == False,
         Event.is_deleted == False
@@ -220,7 +226,10 @@ def get_user_trash(
     db: Session = Depends(get_db)
 ):
     """Get current user's deleted events (trash)"""
-    trash = db.query(Event).filter(
+    from sqlalchemy.orm import joinedload
+    trash = db.query(Event).options(
+        joinedload(Event.locations)
+    ).filter(
         Event.author_id == current_user.id,
         Event.is_deleted == True
     ).order_by(Event.updated_at.desc()).all()
@@ -242,7 +251,10 @@ def get_user_trash(
 
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, db: Session = Depends(get_db)):
-    event = db.query(Event).filter(Event.id == event_id).first()
+    from sqlalchemy.orm import joinedload
+    event = db.query(Event).options(
+        joinedload(Event.locations)
+    ).filter(Event.id == event_id).first()
 
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
