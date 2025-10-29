@@ -421,3 +421,60 @@ def update_profile(
         "banner_url": current_user.banner_url,
         "created_at": current_user.created_at
     }
+
+@router.get("/{username}/events")
+def get_user_events(
+    username: str,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
+):
+    """Get a user's published events by username"""
+    from ..models.event import Event
+    from ..schemas.event import EventResponse
+    from sqlalchemy.orm import selectinload
+
+    # Get the user
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Get their published events
+    events = db.query(Event).options(
+        selectinload(Event.author)
+    ).filter(
+        Event.author_id == user.id,
+        Event.is_published == True,
+        Event.is_deleted == False
+    ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+
+    # Build response
+    response = []
+    for event in events:
+        event_dict = {
+            "id": event.id,
+            "title": event.title,
+            "summary": event.summary,
+            "description": event.description,
+            "start_date": event.start_date,
+            "end_date": event.end_date,
+            "location_name": event.location_name,
+            "latitude": event.latitude,
+            "longitude": event.longitude,
+            "cover_image_url": event.cover_image_url,
+            "has_multiple_locations": event.has_multiple_locations,
+            "author_id": event.author_id,
+            "author_username": event.author.username,
+            "author_full_name": event.author.full_name,
+            "view_count": event.view_count,
+            "is_published": event.is_published,
+            "created_at": event.created_at,
+            "updated_at": event.updated_at,
+            "like_count": 0,
+            "comment_count": 0,
+            "content_blocks": [],
+            "locations": []
+        }
+        response.append(EventResponse.model_validate(event_dict))
+
+    return response
