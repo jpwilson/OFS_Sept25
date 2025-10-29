@@ -106,32 +106,39 @@ def create_event(
     # Save GPS-extracted locations from uploaded images
     if event.has_multiple_locations and event_data.gps_locations:
         print(f"DEBUG: Saving {len(event_data.gps_locations)} GPS-extracted locations")
-        for idx, gps_loc in enumerate(event_data.gps_locations):
-            # Convert EXIF timestamp format (YYYY:MM:DD HH:MM:SS) to ISO format
-            timestamp = None
-            if gps_loc.timestamp:
-                try:
-                    # EXIF format: 2025:10:19 10:49:07 -> ISO: 2025-10-19T10:49:07
-                    exif_timestamp = gps_loc.timestamp.replace(':', '-', 2).replace(' ', 'T')
-                    timestamp = datetime.fromisoformat(exif_timestamp)
-                except (ValueError, AttributeError) as e:
-                    print(f"DEBUG: Failed to parse timestamp '{gps_loc.timestamp}': {e}")
-                    timestamp = None
+        try:
+            for idx, gps_loc in enumerate(event_data.gps_locations):
+                # Convert EXIF timestamp format (YYYY:MM:DD HH:MM:SS) to ISO format
+                timestamp = None
+                if gps_loc.timestamp:
+                    try:
+                        # EXIF format: 2025:10:19 10:49:07 -> ISO: 2025-10-19T10:49:07
+                        exif_timestamp = gps_loc.timestamp.replace(':', '-', 2).replace(' ', 'T')
+                        timestamp = datetime.fromisoformat(exif_timestamp)
+                    except (ValueError, AttributeError) as e:
+                        print(f"DEBUG: Failed to parse timestamp '{gps_loc.timestamp}': {e}")
+                        timestamp = None
 
-            event_location = EventLocation(
-                event_id=event.id,
-                location_name=f"Photo location {idx + 1}",
-                latitude=gps_loc.latitude,
-                longitude=gps_loc.longitude,
-                location_type='exif',
-                timestamp=timestamp,
-                order_index=idx
-            )
-            db.add(event_location)
-            print(f"DEBUG: Added GPS location: {gps_loc.latitude}, {gps_loc.longitude}")
+                event_location = EventLocation(
+                    event_id=event.id,
+                    location_name=f"Photo location {idx + 1}",
+                    latitude=gps_loc.latitude,
+                    longitude=gps_loc.longitude,
+                    location_type='exif',
+                    timestamp=timestamp,
+                    order_index=idx
+                )
+                db.add(event_location)
+                print(f"DEBUG: Added GPS location: {gps_loc.latitude}, {gps_loc.longitude}")
 
-        db.commit()
-        print(f"DEBUG: Committed {len(event_data.gps_locations)} GPS locations to database")
+            db.commit()
+            print(f"DEBUG: Committed {len(event_data.gps_locations)} GPS locations to database")
+        except Exception as e:
+            print(f"ERROR: Failed to save GPS locations: {e}")
+            import traceback
+            traceback.print_exc()
+            # Continue without GPS locations rather than failing the entire event creation
+            db.rollback()
 
     event_dict = {
         **event.__dict__,
