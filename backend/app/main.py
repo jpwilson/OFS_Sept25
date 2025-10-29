@@ -15,7 +15,8 @@ app = FastAPI(
 )
 
 # Configure CORS - origins can be set via CORS_ORIGINS environment variable
-origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else ["http://localhost:5173"]
+origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")] if settings.CORS_ORIGINS else ["http://localhost:5173"]
+print(f"CORS Origins configured: {origins}")  # Debug logging
 
 app.add_middleware(
     CORSMiddleware,
