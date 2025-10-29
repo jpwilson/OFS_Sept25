@@ -13,6 +13,33 @@ from ..utils.location_validator import validate_location_count, extract_location
 
 router = APIRouter(prefix="/events", tags=["events"])
 
+def build_event_dict(event):
+    """Helper to build event dict without SQLAlchemy internals"""
+    return {
+        "id": event.id,
+        "title": event.title,
+        "summary": event.summary,
+        "description": event.description,
+        "start_date": event.start_date,
+        "end_date": event.end_date,
+        "location_name": event.location_name,
+        "latitude": event.latitude,
+        "longitude": event.longitude,
+        "cover_image_url": event.cover_image_url,
+        "has_multiple_locations": event.has_multiple_locations,
+        "author_id": event.author_id,
+        "author_username": event.author.username,
+        "author_full_name": event.author.full_name,
+        "view_count": event.view_count,
+        "is_published": event.is_published,
+        "created_at": event.created_at,
+        "updated_at": event.updated_at,
+        "like_count": len(event.likes) if hasattr(event, 'likes') and event.likes else 0,
+        "comment_count": len(event.comments) if hasattr(event, 'comments') and event.comments else 0,
+        "content_blocks": [],  # Empty - content is in description field
+        "locations": event.locations if hasattr(event, 'locations') and event.locations else []
+    }
+
 @router.get("", response_model=List[EventResponse])
 def get_events(
     skip: int = 0,
@@ -38,10 +65,26 @@ def get_events(
         for i, event in enumerate(events):
             try:
                 print(f"[EVENTS] Processing event {i+1}: id={event.id}, title={event.title}")
+                # Explicitly map fields - don't use **event.__dict__ as it includes SQLAlchemy internals
                 event_dict = {
-                    **event.__dict__,
+                    "id": event.id,
+                    "title": event.title,
+                    "summary": event.summary,
+                    "description": event.description,
+                    "start_date": event.start_date,
+                    "end_date": event.end_date,
+                    "location_name": event.location_name,
+                    "latitude": event.latitude,
+                    "longitude": event.longitude,
+                    "cover_image_url": event.cover_image_url,
+                    "has_multiple_locations": event.has_multiple_locations,
+                    "author_id": event.author_id,
                     "author_username": event.author.username,
                     "author_full_name": event.author.full_name,
+                    "view_count": event.view_count,
+                    "is_published": event.is_published,
+                    "created_at": event.created_at,
+                    "updated_at": event.updated_at,
                     "like_count": 0,  # TODO: Add later
                     "comment_count": 0,  # TODO: Add later
                     "content_blocks": [],  # Empty - content is in description field
@@ -173,10 +216,26 @@ def create_event(
     db.refresh(event)
 
     try:
+        # Explicitly map fields - don't use **event.__dict__
         event_dict = {
-            **event.__dict__,
+            "id": event.id,
+            "title": event.title,
+            "summary": event.summary,
+            "description": event.description,
+            "start_date": event.start_date,
+            "end_date": event.end_date,
+            "location_name": event.location_name,
+            "latitude": event.latitude,
+            "longitude": event.longitude,
+            "cover_image_url": event.cover_image_url,
+            "has_multiple_locations": event.has_multiple_locations,
+            "author_id": event.author_id,
             "author_username": event.author.username,
             "author_full_name": event.author.full_name,
+            "view_count": event.view_count,
+            "is_published": event.is_published,
+            "created_at": event.created_at,
+            "updated_at": event.updated_at,
             "like_count": 0,
             "comment_count": 0,
             "content_blocks": [],
@@ -211,15 +270,7 @@ def get_user_drafts(
 
     response = []
     for event in drafts:
-        event_dict = {
-            **event.__dict__,
-            "author_username": event.author.username,
-            "author_full_name": event.author.full_name,
-            "like_count": len(event.likes),
-            "comment_count": len(event.comments),
-            "content_blocks": [],  # Empty - content is in description field
-            "locations": event.locations if event.locations else []
-        }
+        event_dict = build_event_dict(event)
         response.append(EventResponse.model_validate(event_dict))
 
     return response
@@ -240,15 +291,7 @@ def get_user_trash(
 
     response = []
     for event in trash:
-        event_dict = {
-            **event.__dict__,
-            "author_username": event.author.username,
-            "author_full_name": event.author.full_name,
-            "like_count": len(event.likes),
-            "comment_count": len(event.comments),
-            "content_blocks": [],  # Empty - content is in description field
-            "locations": event.locations if event.locations else []
-        }
+        event_dict = build_event_dict(event)
         response.append(EventResponse.model_validate(event_dict))
 
     return response
@@ -267,16 +310,7 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(event)
 
-    event_dict = {
-        **event.__dict__,
-        "author_username": event.author.username,
-        "author_full_name": event.author.full_name,
-        "like_count": len(event.likes),
-        "comment_count": len(event.comments),
-        "content_blocks": event.content_blocks,
-        "locations": event.locations if event.locations else []
-    }
-
+    event_dict = build_event_dict(event)
     return EventResponse.model_validate(event_dict)
 
 @router.put("/{event_id}", response_model=EventResponse)
@@ -339,16 +373,7 @@ def update_event(
         db.commit()
         db.refresh(event)  # Refresh to get updated locations with timestamps
 
-    event_dict = {
-        **event.__dict__,
-        "author_username": event.author.username,
-        "author_full_name": event.author.full_name,
-        "like_count": len(event.likes),
-        "comment_count": len(event.comments),
-        "content_blocks": event.content_blocks,
-        "locations": event.locations if event.locations else []
-    }
-
+    event_dict = build_event_dict(event)
     return EventResponse.model_validate(event_dict)
 
 @router.post("/{event_id}/content", response_model=ContentBlockResponse)
