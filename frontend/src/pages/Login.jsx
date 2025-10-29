@@ -4,6 +4,11 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import styles from './Login.module.css'
 
+// Use same API URL logic as AuthContext
+const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? 'https://ofs-sept25.vercel.app'
+  : 'http://localhost:8000'
+
 function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -31,7 +36,7 @@ function Login() {
 
     if (isRegistering) {
       // Handle registration
-      const result = await fetch('/api/v1/auth/register', {
+      const result = await fetch(`${API_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -69,7 +69,8 @@ def create_event(
             )
 
     # Use authenticated user as the event author
-    event_dict = event_data.model_dump()
+    # Exclude gps_locations from event creation as it's handled separately
+    event_dict = event_data.model_dump(exclude={'gps_locations'})
     event = Event(
         **event_dict,
         author_id=current_user.id,
@@ -106,13 +107,24 @@ def create_event(
     if event.has_multiple_locations and event_data.gps_locations:
         print(f"DEBUG: Saving {len(event_data.gps_locations)} GPS-extracted locations")
         for idx, gps_loc in enumerate(event_data.gps_locations):
+            # Convert EXIF timestamp format (YYYY:MM:DD HH:MM:SS) to ISO format
+            timestamp = None
+            if gps_loc.timestamp:
+                try:
+                    # EXIF format: 2025:10:19 10:49:07 -> ISO: 2025-10-19T10:49:07
+                    exif_timestamp = gps_loc.timestamp.replace(':', '-', 2).replace(' ', 'T')
+                    timestamp = datetime.fromisoformat(exif_timestamp)
+                except (ValueError, AttributeError) as e:
+                    print(f"DEBUG: Failed to parse timestamp '{gps_loc.timestamp}': {e}")
+                    timestamp = None
+
             event_location = EventLocation(
                 event_id=event.id,
                 location_name=f"Photo location {idx + 1}",
                 latitude=gps_loc.latitude,
                 longitude=gps_loc.longitude,
                 location_type='exif',
-                timestamp=datetime.fromisoformat(gps_loc.timestamp) if gps_loc.timestamp else None,
+                timestamp=timestamp,
                 order_index=idx
             )
             db.add(event_location)
