@@ -32,7 +32,8 @@ def get_events(
             "author_full_name": event.author.full_name,
             "like_count": len(event.likes),
             "comment_count": len(event.comments),
-            "content_blocks": event.content_blocks
+            "content_blocks": event.content_blocks,
+            "locations": event.locations if event.locations else []
         }
         response.append(EventResponse.model_validate(event_dict))
 
@@ -185,7 +186,8 @@ def get_user_drafts(
             "author_full_name": event.author.full_name,
             "like_count": len(event.likes),
             "comment_count": len(event.comments),
-            "content_blocks": event.content_blocks
+            "content_blocks": event.content_blocks,
+            "locations": event.locations if event.locations else []
         }
         response.append(EventResponse.model_validate(event_dict))
 
@@ -210,7 +212,8 @@ def get_user_trash(
             "author_full_name": event.author.full_name,
             "like_count": len(event.likes),
             "comment_count": len(event.comments),
-            "content_blocks": event.content_blocks
+            "content_blocks": event.content_blocks,
+            "locations": event.locations if event.locations else []
         }
         response.append(EventResponse.model_validate(event_dict))
 
@@ -233,7 +236,8 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
         "author_full_name": event.author.full_name,
         "like_count": len(event.likes),
         "comment_count": len(event.comments),
-        "content_blocks": event.content_blocks
+        "content_blocks": event.content_blocks,
+        "locations": event.locations if event.locations else []
     }
 
     return EventResponse.model_validate(event_dict)
@@ -304,7 +308,8 @@ def update_event(
         "author_full_name": event.author.full_name,
         "like_count": len(event.likes),
         "comment_count": len(event.comments),
-        "content_blocks": event.content_blocks
+        "content_blocks": event.content_blocks,
+        "locations": event.locations if event.locations else []
     }
 
     return EventResponse.model_validate(event_dict)
