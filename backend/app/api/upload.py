@@ -8,28 +8,17 @@ from PIL.ExifTags import TAGS, GPSTAGS
 import io
 from datetime import datetime
 from ..core.config import settings
+from supabase import create_client, Client
 
 router = APIRouter(tags=["upload"])
 
-# Create uploads directory if it doesn't exist
-# Read from settings to support both local (./uploads) and Vercel (/tmp/uploads)
-UPLOAD_DIR = Path(settings.UPLOAD_DIR)
-
-# Create subdirectories for different sizes
-THUMB_DIR = UPLOAD_DIR / "thumbnails"
-MEDIUM_DIR = UPLOAD_DIR / "medium"
-FULL_DIR = UPLOAD_DIR / "full"
-
-# Try to create directories, but don't fail if we can't (Vercel may create them automatically)
-try:
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    THUMB_DIR.mkdir(parents=True, exist_ok=True)
-    MEDIUM_DIR.mkdir(parents=True, exist_ok=True)
-    FULL_DIR.mkdir(parents=True, exist_ok=True)
-except OSError:
-    # On Vercel's serverless environment, /tmp may have different permissions
-    # Directories will be created when first write occurs
-    pass
+# Initialize Supabase client if credentials are available
+supabase_client: Optional[Client] = None
+if settings.SUPABASE_URL and settings.SUPABASE_KEY:
+    try:
+        supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+    except Exception as e:
+        print(f"Warning: Could not initialize Supabase client: {e}")
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -163,8 +152,14 @@ def resize_image(image: Image.Image, max_size: tuple, quality: int = 85) -> byte
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """
-    Upload an image file and return URLs for different sizes
+    Upload an image file to Supabase Storage and return URLs for different sizes
     """
+    if not supabase_client:
+        raise HTTPException(
+            status_code=500,
+            detail="Supabase storage not configured. Please set SUPABASE_URL and SUPABASE_KEY."
+        )
+
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in ALLOWED_EXTENSIONS:
@@ -194,38 +189,40 @@ async def upload_file(file: UploadFile = File(...)):
         # Extract EXIF metadata before resizing
         metadata = extract_exif_metadata(image)
 
-        # Save full-size version (optimized but not resized)
-        full_path = FULL_DIR / base_filename
-        full_bytes = resize_image(image, (4000, 4000), quality=90)  # Max 4000px, high quality
-        with open(full_path, "wb") as f:
-            f.write(full_bytes)
+        # Process and upload all image sizes to Supabase
+        sizes = {
+            "full": (resize_image(image, (4000, 4000), quality=90), f"full/{base_filename}"),
+            "medium": (resize_image(image, MEDIUM_SIZE, quality=85), f"medium/{base_filename}"),
+            "thumbnail": (resize_image(image, THUMBNAIL_SIZE, quality=80), f"thumbnails/{base_filename}")
+        }
 
-        # Save medium version
-        medium_path = MEDIUM_DIR / base_filename
-        medium_bytes = resize_image(image, MEDIUM_SIZE, quality=85)
-        with open(medium_path, "wb") as f:
-            f.write(medium_bytes)
+        urls = {}
+        for size_name, (image_bytes, storage_path) in sizes.items():
+            # Upload to Supabase Storage
+            result = supabase_client.storage.from_(settings.SUPABASE_BUCKET).upload(
+                path=storage_path,
+                file=image_bytes,
+                file_options={"content-type": "image/jpeg"}
+            )
 
-        # Save thumbnail version
-        thumb_path = THUMB_DIR / base_filename
-        thumb_bytes = resize_image(image, THUMBNAIL_SIZE, quality=80)
-        with open(thumb_path, "wb") as f:
-            f.write(thumb_bytes)
+            # Get public URL
+            url_result = supabase_client.storage.from_(settings.SUPABASE_BUCKET).get_public_url(storage_path)
+            urls[size_name] = url_result
 
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Error processing image: {str(e)}"
+            status_code=500,
+            detail=f"Error uploading image to storage: {str(e)}"
         )
 
     # Return URLs for all sizes plus metadata
     return {
         "filename": base_filename,
-        "url": f"/uploads/medium/{base_filename}",  # Default to medium
+        "url": urls["medium"],  # Default to medium
         "urls": {
-            "thumbnail": f"/uploads/thumbnails/{base_filename}",
-            "medium": f"/uploads/medium/{base_filename}",
-            "full": f"/uploads/full/{base_filename}"
+            "thumbnail": urls["thumbnail"],
+            "medium": urls["medium"],
+            "full": urls["full"]
         },
         "metadata": metadata
     }
