@@ -6,7 +6,7 @@ import styles from './Login.module.css'
 
 // Use same API URL logic as AuthContext
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? 'https://ofs-sept25-backend.vercel.app'
+  ? 'https://ofs-sept25.vercel.app'
   : 'http://localhost:8000'
 
 function Login() {

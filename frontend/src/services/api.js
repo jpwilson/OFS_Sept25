@@ -2,7 +2,7 @@ import { mockEventsForFeed } from '../data/mockEvents'
 
 // Temporary hardcoded URL for production - TODO: fix environment variable loading
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? 'https://ofs-sept25-backend.vercel.app'
+  ? 'https://ofs-sept25.vercel.app'
   : 'http://localhost:8000'
 const API_BASE = `${API_URL}/api/v1`
 
