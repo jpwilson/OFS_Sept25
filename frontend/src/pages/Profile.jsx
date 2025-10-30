@@ -46,6 +46,7 @@ function Profile() {
   async function loadProfile() {
     const profileData = await apiService.getUserProfile(username)
     setProfile(profileData)
+    setLoading(false)  // Set loading false only after profile loads
   }
 
   async function loadUserEvents() {
@@ -56,7 +57,6 @@ function Profile() {
     } catch (error) {
       console.error('Failed to load events:', error)
     }
-    setLoading(false)
   }
 
   async function loadDrafts() {
