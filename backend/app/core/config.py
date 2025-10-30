@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     SUPABASE_BUCKET: str = "event-images"
 
     # CORS Origins (comma-separated list of allowed origins)
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ofs-sept25-frontend.vercel.app"
 
     class Config:
         env_file = ".env"
