@@ -6,7 +6,8 @@ from .core.config import settings
 from .core.database import engine, Base
 from .api import auth, events, users, comments, likes, upload, locations, geocoding
 
-Base.metadata.create_all(bind=engine)
+# Tables are managed by migrations, not created on startup
+# Base.metadata.create_all(bind=engine)  # Removed to avoid connection exhaustion in serverless
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
