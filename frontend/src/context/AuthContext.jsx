@@ -4,7 +4,7 @@ const AuthContext = createContext()
 // Temporary hardcoded URL for production - TODO: fix environment variable loading
 const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8000'
-  : 'https://ofs-sept25.vercel.app'
+  : 'https://ofs-sept25-backend.vercel.app'
 
 export function useAuth() {
   return useContext(AuthContext)

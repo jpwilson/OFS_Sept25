@@ -2,7 +2,7 @@ import { mockEventsForFeed } from '../data/mockEvents'
 
 // Temporary hardcoded URL for production - TODO: fix environment variable loading
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? 'https://ofs-sept25.vercel.app'
+  ? 'https://ofs-sept25-backend.vercel.app'
   : 'http://localhost:8000'
 const API_BASE = `${API_URL}/api/v1`
 
@@ -182,11 +182,8 @@ class ApiService {
       }
 
       const data = await response.json()
-      // Return full URL by prepending the API URL
-      return {
-        ...data,
-        url: `${API_URL}${data.url}`
-      }
+      // Supabase Storage returns full public URLs, no need to prepend
+      return data
     } catch (error) {
       console.error('Error uploading image:', error)
       throw error
