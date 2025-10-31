@@ -14,11 +14,18 @@ router = APIRouter(tags=["upload"])
 
 # Initialize Supabase client if credentials are available
 supabase_client: Optional[Client] = None
+print(f"DEBUG: SUPABASE_URL={settings.SUPABASE_URL[:20]}... (len={len(settings.SUPABASE_URL)})")
+print(f"DEBUG: SUPABASE_KEY={'SET' if settings.SUPABASE_KEY else 'NOT SET'} (len={len(settings.SUPABASE_KEY)})")
+print(f"DEBUG: SUPABASE_BUCKET={settings.SUPABASE_BUCKET}")
+
 if settings.SUPABASE_URL and settings.SUPABASE_KEY:
     try:
         supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+        print(f"DEBUG: Supabase client initialized successfully")
     except Exception as e:
         print(f"Warning: Could not initialize Supabase client: {e}")
+else:
+    print(f"DEBUG: Supabase not initialized - missing URL or KEY")
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
