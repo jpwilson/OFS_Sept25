@@ -12,20 +12,21 @@ from supabase import create_client, Client
 
 router = APIRouter(tags=["upload"])
 
-# Initialize Supabase client if credentials are available
-supabase_client: Optional[Client] = None
-print(f"DEBUG: SUPABASE_URL={settings.SUPABASE_URL[:20]}... (len={len(settings.SUPABASE_URL)})")
-print(f"DEBUG: SUPABASE_KEY={'SET' if settings.SUPABASE_KEY else 'NOT SET'} (len={len(settings.SUPABASE_KEY)})")
-print(f"DEBUG: SUPABASE_BUCKET={settings.SUPABASE_BUCKET}")
+def get_supabase_client() -> Client:
+    """Get or create Supabase client (lazy initialization)"""
+    if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="Supabase storage not configured. Please set SUPABASE_URL and SUPABASE_KEY."
+        )
 
-if settings.SUPABASE_URL and settings.SUPABASE_KEY:
     try:
-        supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-        print(f"DEBUG: Supabase client initialized successfully")
+        return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
     except Exception as e:
-        print(f"Warning: Could not initialize Supabase client: {e}")
-else:
-    print(f"DEBUG: Supabase not initialized - missing URL or KEY")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to initialize Supabase client: {str(e)}"
+        )
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -161,11 +162,7 @@ async def upload_file(file: UploadFile = File(...)):
     """
     Upload an image file to Supabase Storage and return URLs for different sizes
     """
-    if not supabase_client:
-        raise HTTPException(
-            status_code=500,
-            detail="Supabase storage not configured. Please set SUPABASE_URL and SUPABASE_KEY."
-        )
+    supabase_client = get_supabase_client()
 
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
