@@ -21,7 +21,11 @@ def get_supabase_client() -> Client:
         )
 
     try:
-        return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+        # Create client with minimal options to avoid proxy argument error
+        return create_client(
+            supabase_url=settings.SUPABASE_URL,
+            supabase_key=settings.SUPABASE_KEY
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500,
