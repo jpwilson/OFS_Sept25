@@ -1,18 +1,24 @@
 """
-Utility functions for cleaning up image files from storage
+Utility functions for cleaning up image files from Supabase Storage
 """
 import os
 import re
 from pathlib import Path
 from html.parser import HTMLParser
 from typing import Set, List
+from supabase import create_client, Client
+from ..core.config import settings
 
 
-# Upload directories (must match upload.py)
-UPLOAD_DIR = Path("uploads")
-THUMB_DIR = UPLOAD_DIR / "thumbnails"
-MEDIUM_DIR = UPLOAD_DIR / "medium"
-FULL_DIR = UPLOAD_DIR / "full"
+def get_supabase_client() -> Client:
+    """Get Supabase client for storage operations"""
+    if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
+        raise Exception("Supabase not configured. Set SUPABASE_URL and SUPABASE_KEY.")
+
+    return create_client(
+        supabase_url=settings.SUPABASE_URL,
+        supabase_key=settings.SUPABASE_KEY
+    )
 
 
 class ImageExtractor(HTMLParser):
@@ -32,11 +38,12 @@ class ImageExtractor(HTMLParser):
 
 def extract_filename_from_url(url: str) -> str | None:
     """
-    Extract filename from upload URL
+    Extract filename from upload URL (supports both local and Supabase Storage URLs)
 
     Examples:
         /uploads/medium/abc123.jpg -> abc123.jpg
         http://localhost:8000/uploads/full/xyz789.jpg -> xyz789.jpg
+        https://xxx.supabase.co/storage/v1/object/public/event-images/medium/abc123.jpg -> abc123.jpg
 
     Args:
         url: Image URL (absolute or relative)
@@ -47,8 +54,14 @@ def extract_filename_from_url(url: str) -> str | None:
     if not url:
         return None
 
-    # Match pattern: /uploads/{size}/{filename}
+    # Match pattern: /uploads/{size}/{filename} (local uploads)
     match = re.search(r'/uploads/(?:thumbnails|medium|full)/([^/\?#]+)', url)
+    if match:
+        return match.group(1)
+
+    # Match pattern: Supabase Storage URL
+    # https://xxx.supabase.co/storage/v1/object/public/{bucket}/{size}/{filename}
+    match = re.search(r'/storage/v1/object/public/[^/]+/(?:thumbnails|medium|full)/([^/\?#]+)', url)
     if match:
         return match.group(1)
 
@@ -112,7 +125,7 @@ def get_all_event_image_filenames(event) -> Set[str]:
 
 def delete_image_files(filename: str) -> dict:
     """
-    Delete an image file from all size directories
+    Delete an image file from all size directories in Supabase Storage
 
     Args:
         filename: Image filename (e.g., 'abc123.jpg')
@@ -130,24 +143,32 @@ def delete_image_files(filename: str) -> dict:
         'errors': []
     }
 
-    directories = [
-        ('thumbnails', THUMB_DIR),
-        ('medium', MEDIUM_DIR),
-        ('full', FULL_DIR)
+    try:
+        supabase = get_supabase_client()
+    except Exception as e:
+        result['errors'].append(f"Failed to connect to Supabase: {str(e)}")
+        return result
+
+    # Storage paths in Supabase
+    storage_paths = [
+        f"thumbnails/{filename}",
+        f"medium/{filename}",
+        f"full/{filename}"
     ]
 
-    for dir_name, dir_path in directories:
-        file_path = dir_path / filename
-
-        if not file_path.exists():
-            result['not_found'].append(f"{dir_name}/{filename}")
-            continue
-
+    for storage_path in storage_paths:
         try:
-            file_path.unlink()
-            result['deleted'].append(f"{dir_name}/{filename}")
+            # Delete from Supabase Storage
+            supabase.storage.from_(settings.SUPABASE_BUCKET).remove([storage_path])
+            result['deleted'].append(storage_path)
         except Exception as e:
-            result['errors'].append(f"{dir_name}/{filename}: {str(e)}")
+            # If file doesn't exist, Supabase may throw an error or return success
+            # We'll treat errors as "not found" unless it's a different error
+            error_msg = str(e).lower()
+            if 'not found' in error_msg or 'does not exist' in error_msg:
+                result['not_found'].append(storage_path)
+            else:
+                result['errors'].append(f"{storage_path}: {str(e)}")
 
     return result
 
