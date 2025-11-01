@@ -328,9 +328,29 @@ def update_event(
     if event.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    # Get update data
+    update_dict = event_data.model_dump(exclude_unset=True)
+
+    # Check event limit for free users if publishing a draft
+    if current_user.subscription_tier == 'free':
+        # Check if this update is publishing a previously unpublished event
+        is_now_publishing = update_dict.get('is_published', False) and not event.is_published
+
+        if is_now_publishing:
+            published_events_count = db.query(Event).filter(
+                Event.author_id == current_user.id,
+                Event.is_published == True,
+                Event.is_deleted == False
+            ).count()
+
+            if published_events_count >= 5:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Free plan limit reached. You can only have 5 published events. Please upgrade to Premium for unlimited events."
+                )
+
     # Validate location count if multiple locations enabled
     # Check both the new value (if set) and existing event value
-    update_dict = event_data.model_dump(exclude_unset=True)
     has_multiple = update_dict.get('has_multiple_locations', event.has_multiple_locations)
     description = update_dict.get('description', event.description)
 
@@ -436,6 +456,20 @@ def restore_event(
 
     if event.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Check event limit for free users if restoring a published event
+    if current_user.subscription_tier == 'free' and event.is_published:
+        published_events_count = db.query(Event).filter(
+            Event.author_id == current_user.id,
+            Event.is_published == True,
+            Event.is_deleted == False
+        ).count()
+
+        if published_events_count >= 5:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Free plan limit reached. You can only have 5 published events. Please upgrade to Premium for unlimited events."
+            )
 
     event.is_deleted = False
     db.commit()
