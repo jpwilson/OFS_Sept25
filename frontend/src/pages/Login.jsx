@@ -4,21 +4,17 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import styles from './Login.module.css'
 
-// Use same API URL logic as AuthContext
-const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? 'https://ofs-sept25.vercel.app'
-  : 'http://localhost:8000'
-
 function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, register, resetPassword } = useAuth()
   const { showToast } = useToast()
   const [isRegistering, setIsRegistering] = useState(false)
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     username: '',
-    full_name: ''
+    displayName: ''
   })
   const [error, setError] = useState('')
 
@@ -34,23 +30,35 @@ function Login() {
     e.preventDefault()
     setError('')
 
-    if (isRegistering) {
-      // Handle registration
-      const result = await fetch(`${API_URL}/api/v1/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-
-      if (result.ok) {
-        const data = await result.json()
-        localStorage.setItem('token', data.access_token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        showToast('Account created successfully!', 'success')
-        window.location.href = '/'
+    if (isResettingPassword) {
+      // Handle password reset
+      const result = await resetPassword(formData.email)
+      if (result.success) {
+        showToast(result.message, 'success')
+        setIsResettingPassword(false)
+        setFormData({ ...formData, password: '' })
       } else {
-        setError('Registration failed. Email or username may already exist.')
-        showToast('Registration failed. Please try again.', 'error')
+        setError(result.error || 'Failed to send reset email')
+        showToast('Failed to send reset email', 'error')
+      }
+      return
+    }
+
+    if (isRegistering) {
+      // Handle registration with Supabase Auth
+      const result = await register(
+        formData.email,
+        formData.password,
+        formData.username,
+        formData.displayName
+      )
+
+      if (result.success) {
+        showToast(result.message || 'Account created! Please check your email to verify.', 'success')
+        // Don't auto-navigate - wait for email verification
+      } else {
+        setError(result.error || 'Registration failed')
+        showToast(result.error || 'Registration failed', 'error')
       }
     } else {
       // Handle login
@@ -59,48 +67,10 @@ function Login() {
         showToast('Welcome back!', 'success')
         navigate('/')
       } else {
-        setError('Invalid email or password')
-        showToast('Invalid credentials. Please try again.', 'error')
+        setError(result.error || 'Invalid email or password')
+        showToast('Invalid credentials', 'error')
       }
     }
-  }
-
-  // Demo accounts for easy testing - All 20 users
-  const demoAccounts = [
-    // Wilson Family
-    { email: 'sarah@wilson.com', password: 'password123', name: 'Sarah Wilson' },
-    { email: 'tom@wilson.com', password: 'password123', name: 'Tom Wilson' },
-    { email: 'emma.w@wilson.com', password: 'password123', name: 'Emma Wilson' },
-    { email: 'jake@wilson.com', password: 'password123', name: 'Jake Wilson' },
-    // Chen Family
-    { email: 'michael@chen.com', password: 'password123', name: 'Michael Chen' },
-    { email: 'lisa@chen.com', password: 'password123', name: 'Lisa Chen' },
-    { email: 'david@chen.com', password: 'password123', name: 'David Chen' },
-    { email: 'mei@chen.com', password: 'password123', name: 'Mei Chen' },
-    { email: 'alex@chen.com', password: 'password123', name: 'Alex Chen' },
-    // Rodriguez Family
-    { email: 'emma.r@rodriguez.com', password: 'password123', name: 'Emma Rodriguez' },
-    { email: 'james@rodriguez.com', password: 'password123', name: 'James Rodriguez' },
-    { email: 'sofia@rodriguez.com', password: 'password123', name: 'Sofia Rodriguez' },
-    { email: 'carlos@rodriguez.com', password: 'password123', name: 'Carlos Rodriguez' },
-    { email: 'maria@rodriguez.com', password: 'password123', name: 'Maria Rodriguez' },
-    // Johnson Family
-    { email: 'robert@johnson.com', password: 'password123', name: 'Robert Johnson' },
-    { email: 'patricia@johnson.com', password: 'password123', name: 'Patricia Johnson' },
-    { email: 'jennifer@johnson.com', password: 'password123', name: 'Jennifer Johnson' },
-    { email: 'mark@johnson.com', password: 'password123', name: 'Mark Johnson' },
-    { email: 'linda@johnson.com', password: 'password123', name: 'Linda Johnson' },
-    { email: 'brian@johnson.com', password: 'password123', name: 'Brian Johnson' }
-  ]
-
-  const handleDemoLogin = (account) => {
-    setFormData({
-      email: account.email,
-      password: account.password,
-      username: '',
-      full_name: ''
-    })
-    setIsRegistering(false)
   }
 
   return (
@@ -112,7 +82,7 @@ function Login() {
       </div>
       <div className={styles.formWrapper}>
         <h1 className={styles.title}>
-          {isRegistering ? 'Create Account' : 'Welcome Back'}
+          {isResettingPassword ? 'Reset Password' : isRegistering ? 'Create Account' : 'Welcome Back'}
         </h1>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -121,28 +91,32 @@ function Login() {
           {isRegistering && (
             <>
               <div className={styles.formGroup}>
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">Username (@handle)</label>
                 <input
                   type="text"
                   id="username"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Choose a username"
+                  placeholder="yourhandle"
                   required={isRegistering}
+                  pattern="[a-zA-Z0-9_]+"
+                  title="Username can only contain letters, numbers, and underscores"
                 />
+                <small>Your permanent @handle (cannot be changed later)</small>
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="full_name">Full Name</label>
+                <label htmlFor="displayName">Display Name</label>
                 <input
                   type="text"
-                  id="full_name"
-                  name="full_name"
-                  value={formData.full_name}
+                  id="displayName"
+                  name="displayName"
+                  value={formData.displayName}
                   onChange={handleChange}
-                  placeholder="Your full name"
+                  placeholder="Your Name"
                 />
+                <small>How your name appears (can be changed anytime)</small>
               </div>
             </>
           )}
@@ -160,57 +134,76 @@ function Login() {
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-          </div>
+          {!isResettingPassword && (
+            <div className={styles.formGroup}>
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+              {isRegistering && <small>Minimum 6 characters</small>}
+            </div>
+          )}
 
           <button type="submit" className={styles.submitButton}>
-            {isRegistering ? 'Create Account' : 'Sign In'}
+            {isResettingPassword ? 'Send Reset Link' : isRegistering ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
         <div className={styles.toggleSection}>
-          <p>
-            {isRegistering ? 'Already have an account?' : "Don't have an account?"}
-            <button
-              type="button"
-              className={styles.toggleButton}
-              onClick={() => setIsRegistering(!isRegistering)}
-            >
-              {isRegistering ? 'Sign In' : 'Sign Up'}
-            </button>
-          </p>
-        </div>
-
-        {!isRegistering && (
-          <div className={styles.demoSection}>
-            <h3>Demo Accounts</h3>
-            <p>Click to auto-fill:</p>
-            <div className={styles.demoAccounts}>
-              {demoAccounts.map((account, index) => (
+          {isResettingPassword ? (
+            <p>
+              Remember your password?
+              <button
+                type="button"
+                className={styles.toggleButton}
+                onClick={() => {
+                  setIsResettingPassword(false)
+                  setError('')
+                }}
+              >
+                Sign In
+              </button>
+            </p>
+          ) : (
+            <>
+              <p>
+                {isRegistering ? 'Already have an account?' : "Don't have an account?"}
                 <button
-                  key={index}
                   type="button"
-                  className={styles.demoButton}
-                  onClick={() => handleDemoLogin(account)}
-                  title={`Email: ${account.email}`}
+                  className={styles.toggleButton}
+                  onClick={() => {
+                    setIsRegistering(!isRegistering)
+                    setError('')
+                  }}
                 >
-                  <div>{account.name}</div>
-                  <div style={{fontSize: '0.85em', opacity: 0.8}}>{account.email}</div>
+                  {isRegistering ? 'Sign In' : 'Sign Up'}
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
+              </p>
+              {!isRegistering && (
+                <p>
+                  Forgot your password?
+                  <button
+                    type="button"
+                    className={styles.toggleButton}
+                    onClick={() => {
+                      setIsResettingPassword(true)
+                      setError('')
+                    }}
+                  >
+                    Reset Password
+                  </button>
+                </p>
+              )}
+            </>
+          )}
+        </div>
 
         <Link to="/" className={styles.backLink}>
           ← Back to Feed
