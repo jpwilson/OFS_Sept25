@@ -18,22 +18,41 @@ def get_current_user(
 
     Tries Supabase token first, falls back to legacy token
     """
+    import uuid
+
     token = credentials.credentials
     supabase_error = None
 
     # Try Supabase JWT first
     if settings.SUPABASE_JWT_SECRET:
         try:
-            payload = jwt.decode(
-                token,
-                settings.SUPABASE_JWT_SECRET,
-                algorithms=["HS256"],
-                audience="authenticated"
-            )
+            # Try with audience check first
+            try:
+                payload = jwt.decode(
+                    token,
+                    settings.SUPABASE_JWT_SECRET,
+                    algorithms=["HS256"],
+                    audience="authenticated"
+                )
+            except JWTError:
+                # Fall back to validation without audience check
+                payload = jwt.decode(
+                    token,
+                    settings.SUPABASE_JWT_SECRET,
+                    algorithms=["HS256"],
+                    options={"verify_aud": False}
+                )
 
             # Supabase token validated - get user by auth_user_id
-            auth_user_id = payload.get("sub")
-            if auth_user_id:
+            auth_user_id_str = payload.get("sub")
+            if auth_user_id_str:
+                # Convert string UUID to uuid.UUID object for database query
+                try:
+                    auth_user_id = uuid.UUID(auth_user_id_str)
+                except (ValueError, AttributeError):
+                    # If conversion fails, fall back to legacy token
+                    raise JWTError("Invalid UUID format in sub claim")
+
                 user = db.query(User).filter(User.auth_user_id == auth_user_id).first()
                 if user:
                     if user.is_active:

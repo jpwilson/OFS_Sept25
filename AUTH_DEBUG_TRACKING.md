@@ -81,30 +81,49 @@ Backend endpoint `/api/v1/auth/supabase/create-profile` returns 500 error, preve
 - Database: PostgreSQL → Supabase
 - Auth: Supabase Auth (built-in)
 
-## LIKELY FIX DEPLOYED ✅
+## REAL ROOT CAUSE FOUND! 🎯
 
-### The Issue (Root Cause)
-The `auth_user_id` column in our users table is defined as `UUID` type, but the backend was passing the JWT `sub` field (a string) directly without converting it to a UUID object.
+### Issue #1: UUID Conversion ✅ FIXED
+The `auth_user_id` was being passed as a string instead of UUID object.
+**Status:** Fixed in commit `801f7fc`
 
-PostgreSQL was rejecting the insert, causing a 500 error.
+### Issue #2: Database Schema Mismatch ⚠️ FIXING NOW
+**The REAL problem:** The `hashed_password` column in the database has a `NOT NULL` constraint, but we're trying to insert NULL for Supabase Auth users.
 
-### The Fix
-**Commit:** `801f7fc` - "Fix critical auth issues - add /me endpoint, improve UX, better error handling"
+**Error from logs:**
+```
+psycopg2.errors.NotNullViolation: null value in column "hashed_password" of relation "users" violates not-null constraint
+```
 
-Changes made:
-1. **Added explicit UUID conversion** - Converts `auth_user_id` string to `uuid.UUID` object before database insert
-2. **Added comprehensive logging** - Every step now logs with colored emoji indicators (🔵🟢🔴🟡)
-3. **Better error handling** - Full tracebacks are now printed to Vercel logs
-4. **Database rollback** - Prevents partial commits if profile creation fails
+**Why this happened:**
+- Python model says: `hashed_password = Column(String, nullable=True)`
+- Database schema says: `hashed_password NOT NULL`
+- When we try to insert NULL for Supabase users → PostgreSQL rejects it
 
-### Next Steps
-1. Wait for backend deployment (~2-3 min)
-2. Delete test user from Supabase Auth (if exists)
-3. Delete from our users table: `DELETE FROM users WHERE email = 'jeanpaulwilson@gmail.com';`
-4. Sign up fresh with Gmail
-5. Check Vercel backend logs for the new colored logging (🔵🟢🔴🟡)
-6. Profile should now be created successfully!
+**The Fix:**
+Run this SQL in Supabase to allow NULL values:
+```sql
+ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL;
+```
+
+### Issue #3: Database Schema Fixed ✅
+**Action taken:** Ran `ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL;`
+**Result:** Profile created successfully! User logged in! 🎉
+
+## REMAINING ISSUES ⚠️
+
+### Issue #4: 401 Errors After Login
+**Problem:** User can log in and view profile, but gets "User not found" when trying to create events.
+
+**Console shows:** Tons of 401 errors from `/api/v1/users/me` and other endpoints
+
+**Likely cause:** The Supabase token validation is failing on subsequent API calls. The `audience` claim might be wrong, or the token needs different validation.
+
+**Next steps:**
+1. Fix the Supabase JWT validation in `get_current_user`
+2. Remove or adjust the audience check
+3. Add better error logging
 
 ---
-**Last Updated:** 2025-11-04 2:14 PM CST
-**Status:** Waiting for deployment
+**Last Updated:** 2025-11-04 4:40 PM CST
+**Status:** Login works! But API calls fail with 401
