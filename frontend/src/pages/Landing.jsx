@@ -38,7 +38,7 @@ function Landing() {
 
           <div className={styles.navActions}>
             <Link to="/login" className={styles.navLogin}>Log in</Link>
-            <Link to="/login" className={styles.navSignup}>Sign up free</Link>
+            <Link to="/login?signup=true" className={styles.navSignup}>Sign up free</Link>
           </div>
 
           {/* Hamburger for Mobile */}
@@ -60,7 +60,7 @@ function Landing() {
               <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); }}>Features</a>
               <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log in</Link>
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Sign up free</Link>
+              <Link to="/login?signup=true" onClick={() => setMobileMenuOpen(false)}>Sign up free</Link>
             </div>
           </div>
         )}
@@ -78,7 +78,7 @@ function Landing() {
             See where they've been, relive the moments, and stay connected across any distance.
           </p>
           <div className={styles.heroButtons}>
-            <Link to="/login" className={styles.primaryBtn}>Start for free</Link>
+            <Link to="/login?signup=true" className={styles.primaryBtn}>Start for free</Link>
             <a href="#features" className={styles.secondaryBtn}>See how it works →</a>
           </div>
           <p className={styles.heroNote}>Free forever • 5 events included • No credit card</p>

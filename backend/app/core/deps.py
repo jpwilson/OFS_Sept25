@@ -19,6 +19,7 @@ def get_current_user(
     Tries Supabase token first, falls back to legacy token
     """
     token = credentials.credentials
+    supabase_error = None
 
     # Try Supabase JWT first
     if settings.SUPABASE_JWT_SECRET:
@@ -34,15 +35,37 @@ def get_current_user(
             auth_user_id = payload.get("sub")
             if auth_user_id:
                 user = db.query(User).filter(User.auth_user_id == auth_user_id).first()
-                if user and user.is_active:
-                    return user
-        except JWTError:
-            # Not a valid Supabase token, try legacy
+                if user:
+                    if user.is_active:
+                        return user
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Account is inactive"
+                        )
+                else:
+                    # Supabase token valid but user not found in our DB
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="User profile not found. Please complete registration."
+                    )
+        except HTTPException:
+            # Re-raise HTTP exceptions (user not found, account inactive)
+            raise
+        except JWTError as e:
+            # Not a valid Supabase token, save error and try legacy
+            supabase_error = str(e)
             pass
 
     # Fallback to legacy token validation
     payload = decode_token(token)
     if payload is None:
+        # Both Supabase and legacy validation failed
+        if supabase_error:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Token validation failed. Supabase error: {supabase_error}"
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"

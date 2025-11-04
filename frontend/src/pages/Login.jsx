@@ -1,14 +1,15 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import styles from './Login.module.css'
 
 function Login() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login, register, resetPassword } = useAuth()
   const { showToast } = useToast()
-  const [isRegistering, setIsRegistering] = useState(false)
+  const [isRegistering, setIsRegistering] = useState(searchParams.get('signup') === 'true')
   const [isResettingPassword, setIsResettingPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
