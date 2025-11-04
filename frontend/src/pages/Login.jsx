@@ -55,7 +55,10 @@ function Login() {
 
       if (result.success) {
         showToast(result.message || 'Account created! Please check your email to verify.', 'success')
-        // Don't auto-navigate - wait for email verification
+        // Clear form and switch to login mode
+        setFormData({ email: '', password: '', username: '', displayName: '' })
+        setIsRegistering(false)
+        setError('') // Clear any errors
       } else {
         setError(result.error || 'Registration failed')
         showToast(result.error || 'Registration failed', 'error')
