@@ -81,15 +81,30 @@ Backend endpoint `/api/v1/auth/supabase/create-profile` returns 500 error, preve
 - Database: PostgreSQL → Supabase
 - Auth: Supabase Auth (built-in)
 
-## Current State
-- Supabase Auth users table: Can have test users (currently deleted for fresh test)
-- Our users table: Empty except for demo users (testuser1-7, tom, sarah)
-- Last test user: jeanpaulwilson@gmail.com (deleted, about to recreate)
+## LIKELY FIX DEPLOYED ✅
 
-## Next Signup Attempt
-**Time:** In progress (user is signing up now)
-**Expected:** Backend will crash with 500 error again
-**Goal:** Capture the actual Python error traceback from Vercel logs
+### The Issue (Root Cause)
+The `auth_user_id` column in our users table is defined as `UUID` type, but the backend was passing the JWT `sub` field (a string) directly without converting it to a UUID object.
+
+PostgreSQL was rejecting the insert, causing a 500 error.
+
+### The Fix
+**Commit:** `801f7fc` - "Fix critical auth issues - add /me endpoint, improve UX, better error handling"
+
+Changes made:
+1. **Added explicit UUID conversion** - Converts `auth_user_id` string to `uuid.UUID` object before database insert
+2. **Added comprehensive logging** - Every step now logs with colored emoji indicators (🔵🟢🔴🟡)
+3. **Better error handling** - Full tracebacks are now printed to Vercel logs
+4. **Database rollback** - Prevents partial commits if profile creation fails
+
+### Next Steps
+1. Wait for backend deployment (~2-3 min)
+2. Delete test user from Supabase Auth (if exists)
+3. Delete from our users table: `DELETE FROM users WHERE email = 'jeanpaulwilson@gmail.com';`
+4. Sign up fresh with Gmail
+5. Check Vercel backend logs for the new colored logging (🔵🟢🔴🟡)
+6. Profile should now be created successfully!
 
 ---
-**Last Updated:** 2025-11-04 12:53 PM CST
+**Last Updated:** 2025-11-04 2:14 PM CST
+**Status:** Waiting for deployment
