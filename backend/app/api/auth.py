@@ -88,54 +88,112 @@ def create_supabase_profile(
     3. Frontend calls this endpoint to create profile in our database
     4. We link the profile to Supabase auth_user_id
     """
+    import uuid
+    import traceback
+
+    print("🔵 CREATE-PROFILE: Starting...")
+    print(f"🔵 Username: {profile_data.username}")
+    print(f"🔵 Display name: {profile_data.display_name}")
+
     # Validate Supabase token
     try:
+        print("🔵 Validating Supabase token...")
         payload = validate_supabase_token(profile_data.supabase_token)
-        auth_user_id = payload.get("sub")
+        auth_user_id_str = payload.get("sub")
         email = payload.get("email")
 
-        if not auth_user_id or not email:
+        print(f"🔵 Token valid! Auth user ID: {auth_user_id_str}")
+        print(f"🔵 Email: {email}")
+
+        if not auth_user_id_str or not email:
+            print("🔴 Missing sub or email in token")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid Supabase token"
+                detail="Invalid Supabase token - missing sub or email"
             )
+
+        # Convert string UUID to uuid.UUID object
+        try:
+            auth_user_id = uuid.UUID(auth_user_id_str)
+            print(f"🔵 Converted to UUID object: {auth_user_id}")
+        except ValueError as e:
+            print(f"🔴 Failed to convert auth_user_id to UUID: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid UUID format: {auth_user_id_str}"
+            )
+
     except HTTPException:
         raise
     except Exception as e:
+        print(f"🔴 Token validation error: {e}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Token validation failed: {str(e)}"
         )
 
     # Check if profile already exists
-    existing_user = db.query(User).filter(
-        (User.auth_user_id == auth_user_id) |
-        (User.email == email) |
-        (User.username == profile_data.username)
-    ).first()
+    try:
+        print("🔵 Checking if profile exists...")
+        existing_user = db.query(User).filter(
+            (User.auth_user_id == auth_user_id) |
+            (User.email == email) |
+            (User.username == profile_data.username)
+        ).first()
 
-    if existing_user:
-        if existing_user.auth_user_id == auth_user_id:
-            # Profile already exists for this Supabase user
-            return UserResponse.model_validate(existing_user)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email or username already registered"
-            )
+        print(f"🔵 Existing user query result: {existing_user is not None}")
+
+        if existing_user:
+            if existing_user.auth_user_id == auth_user_id:
+                # Profile already exists for this Supabase user
+                print("🟢 Profile already exists, returning existing user")
+                return UserResponse.model_validate(existing_user)
+            else:
+                print("🔴 Email or username already taken")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email or username already registered"
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"🔴 Database query error: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database query failed: {str(e)}"
+        )
 
     # Create new profile
-    user = User(
-        email=email,
-        username=profile_data.username,
-        display_name=profile_data.display_name or profile_data.username,
-        auth_user_id=auth_user_id,
-        hashed_password=None,  # No password for Supabase Auth users
-        subscription_tier='free'
-    )
+    try:
+        print("🔵 Creating new user profile...")
+        user = User(
+            email=email,
+            username=profile_data.username,
+            display_name=profile_data.display_name or profile_data.username,
+            auth_user_id=auth_user_id,
+            hashed_password=None,  # No password for Supabase Auth users
+            subscription_tier='free'
+        )
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        print("🔵 Adding user to session...")
+        db.add(user)
 
-    return UserResponse.model_validate(user)
+        print("🔵 Committing to database...")
+        db.commit()
+
+        print("🔵 Refreshing user object...")
+        db.refresh(user)
+
+        print(f"🟢 Profile created successfully! User ID: {user.id}")
+        return UserResponse.model_validate(user)
+
+    except Exception as e:
+        print(f"🔴 Failed to create profile: {e}")
+        print(traceback.format_exc())
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create profile: {str(e)}"
+        )
