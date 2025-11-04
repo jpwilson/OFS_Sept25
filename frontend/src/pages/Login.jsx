@@ -54,7 +54,7 @@ function Login() {
       )
 
       if (result.success) {
-        showToast(result.message || 'Account created! Please check your email to verify.', 'success')
+        showToast(result.message || 'Account created! Please check your email to verify.', 'success', 0)
         // Clear form and switch to login mode
         setFormData({ email: '', password: '', username: '', displayName: '' })
         setIsRegistering(false)

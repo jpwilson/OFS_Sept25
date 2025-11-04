@@ -15,6 +15,42 @@ class ProfileUpdate(BaseModel):
     avatar_url: Optional[str] = None
     banner_url: Optional[str] = None
 
+@router.get("/me")
+def get_current_user_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get the current authenticated user's profile"""
+    # Count events by this user
+    from ..models.event import Event
+    event_count = db.query(Event).filter(Event.author_id == current_user.id).count()
+
+    # Count followers and following (only approved)
+    follower_count = db.query(Follow).filter(
+        Follow.following_id == current_user.id,
+        Follow.status == "approved"
+    ).count()
+    following_count = db.query(Follow).filter(
+        Follow.follower_id == current_user.id,
+        Follow.status == "approved"
+    ).count()
+
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "display_name": current_user.display_name,
+        "bio": current_user.bio,
+        "avatar_url": current_user.avatar_url,
+        "banner_url": current_user.banner_url,
+        "subscription_tier": current_user.subscription_tier,
+        "event_count": event_count,
+        "follower_count": follower_count,
+        "following_count": following_count,
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else None
+    }
+
 @router.get("/{username}")
 def get_user_profile(
     username: str,

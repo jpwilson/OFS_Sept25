@@ -57,6 +57,13 @@ function AuthCallback() {
 
             if (!createProfileResponse.ok) {
               const errorData = await createProfileResponse.json()
+
+              // If profile already exists, that's fine - just redirect
+              if (errorData.detail?.includes('already exists') || errorData.detail?.includes('Username already taken')) {
+                navigate('/feed')
+                return
+              }
+
               throw new Error(errorData.detail || 'Failed to create profile')
             }
 

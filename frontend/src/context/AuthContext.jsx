@@ -182,6 +182,13 @@ export function AuthProvider({ children }) {
         message: 'Please check your email to verify your account. Check spam if you don\'t see it!'
       }
     } catch (error) {
+      // Handle specific Supabase errors
+      if (error.message?.includes('already registered') || error.message?.includes('already been registered')) {
+        return {
+          success: false,
+          error: 'This email is already registered. If you haven\'t verified your email yet, please check your inbox. Otherwise, try logging in.'
+        }
+      }
       return { success: false, error: error.message }
     }
   }
