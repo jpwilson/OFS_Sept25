@@ -90,6 +90,14 @@ export function AuthProvider({ children }) {
       })
 
       if (error) {
+        // Check if it's an email not confirmed error
+        if (error.message?.includes('Email not confirmed') || error.message?.includes('email_not_confirmed')) {
+          return {
+            success: false,
+            error: 'Please verify your email before logging in. Check your inbox for the confirmation link.'
+          }
+        }
+
         // Fallback to old auth for demo accounts
         return await loginLegacy(email, password)
       }
@@ -127,19 +135,23 @@ export function AuthProvider({ children }) {
 
   const register = async (email, password, username, displayName) => {
     try {
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth, storing username/displayName in metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            username: username,
+            display_name: displayName || username
+          }
         }
       })
 
       if (error) throw error
 
       if (data.session) {
-        // Create profile in our database
+        // Email confirmation disabled - create profile immediately
         const profileResponse = await fetch(`${API_URL}/api/v1/auth/supabase/create-profile`, {
           method: 'POST',
           headers: {
@@ -160,13 +172,14 @@ export function AuthProvider({ children }) {
         setUser(profile)
         return {
           success: true,
-          message: 'Please check your email to verify your account'
+          message: 'Account created successfully!'
         }
       }
 
+      // Email confirmation enabled - profile will be created after email is confirmed
       return {
         success: true,
-        message: 'Please check your email to verify your account'
+        message: 'Please check your email to verify your account. Check spam if you don\'t see it!'
       }
     } catch (error) {
       return { success: false, error: error.message }

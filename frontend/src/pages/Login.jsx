@@ -68,7 +68,7 @@ function Login() {
       const result = await login(formData.email, formData.password)
       if (result.success) {
         showToast('Welcome back!', 'success')
-        navigate('/')
+        navigate('/feed')
       } else {
         setError(result.error || 'Invalid email or password')
         showToast('Invalid credentials', 'error')
