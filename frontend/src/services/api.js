@@ -1,4 +1,5 @@
 import { mockEventsForFeed } from '../data/mockEvents'
+import { supabase } from '../lib/supabaseClient'
 
 // Temporary hardcoded URL for production - TODO: fix environment variable loading
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
@@ -7,11 +8,22 @@ const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'l
 const API_BASE = `${API_URL}/api/v1`
 
 class ApiService {
-  getAuthHeaders() {
-    const token = localStorage.getItem('token')
+  async getAuthHeaders() {
+    // Try to get Supabase session first
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (session?.access_token) {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    }
+
+    // Fallback to legacy token
+    const legacyToken = localStorage.getItem('token')
     return {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
+      ...(legacyToken && { 'Authorization': `Bearer ${legacyToken}` })
     }
   }
 
@@ -43,7 +55,7 @@ class ApiService {
       const url = `${API_BASE}/events?is_published=${isPublished}`
       const response = await fetch(url, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify(eventData)
       })
 
@@ -63,7 +75,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}`, {
         method: 'PUT',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify(eventData)
       })
 
@@ -82,7 +94,7 @@ class ApiService {
   async getDrafts() {
     try {
       const response = await fetch(`${API_BASE}/events/drafts`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to fetch drafts')
       return await response.json()
@@ -96,7 +108,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) {
@@ -114,7 +126,7 @@ class ApiService {
   async getTrash() {
     try {
       const response = await fetch(`${API_BASE}/events/trash`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to fetch trash')
       return await response.json()
@@ -128,7 +140,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/restore`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) {
@@ -147,7 +159,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/permanent`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) {
@@ -167,7 +179,10 @@ class ApiService {
       const formData = new FormData()
       formData.append('file', file)
 
-      const token = localStorage.getItem('token')
+      // Get token from Supabase session or legacy storage
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || localStorage.getItem('token')
+
       const response = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
         headers: {
@@ -204,7 +219,7 @@ class ApiService {
   async getFollowing() {
     try {
       const response = await fetch(`${API_BASE}/users/me/following`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to fetch following')
@@ -219,7 +234,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/follow`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to follow user')
@@ -234,7 +249,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/follow`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to unfollow user')
@@ -248,7 +263,7 @@ class ApiService {
   async checkIfFollowing(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/is-following`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) return { is_following: false }
@@ -262,7 +277,7 @@ class ApiService {
   async getUserFollowers(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/followers`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to fetch followers')
@@ -276,7 +291,7 @@ class ApiService {
   async getUserFollowing(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/following`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to fetch following')
@@ -291,7 +306,7 @@ class ApiService {
   async getFollowRequests() {
     try {
       const response = await fetch(`${API_BASE}/users/me/follow-requests`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to fetch follow requests')
@@ -306,7 +321,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/users/me/follow-requests/${requestId}/accept`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to accept follow request')
@@ -321,7 +336,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/users/me/follow-requests/${requestId}/reject`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to reject follow request')
@@ -335,7 +350,7 @@ class ApiService {
   async getSentFollowRequests() {
     try {
       const response = await fetch(`${API_BASE}/users/me/follow-requests/sent`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to fetch sent follow requests')
@@ -349,7 +364,7 @@ class ApiService {
   async getFollowRequestCount() {
     try {
       const response = await fetch(`${API_BASE}/users/me/follow-requests/count`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) return { count: 0 }
@@ -365,7 +380,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/users/me/profile`, {
         method: 'PUT',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify(profileData)
       })
 
@@ -397,7 +412,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/comments`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify({ content })
       })
 
@@ -417,7 +432,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/comments/${commentId}`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to delete comment')
@@ -432,7 +447,7 @@ class ApiService {
   async getLikes(eventId) {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to fetch likes')
       return await response.json()
@@ -446,7 +461,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to like event')
@@ -461,7 +476,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/likes`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
 
       if (!response.ok) throw new Error('Failed to unlike event')
@@ -499,7 +514,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/locations/extract-from-images`, {
         method: 'POST',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
       if (!response.ok) {
         const error = await response.json()
@@ -516,7 +531,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/locations`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify(locationData)
       })
       if (!response.ok) {
@@ -534,7 +549,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/locations/${locationId}`, {
         method: 'DELETE',
-        headers: this.getAuthHeaders()
+        headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to delete location')
       return true
@@ -548,7 +563,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/locations/reorder`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         body: JSON.stringify(locationIds)
       })
       if (!response.ok) throw new Error('Failed to reorder locations')

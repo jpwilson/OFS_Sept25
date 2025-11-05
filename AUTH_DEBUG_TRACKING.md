@@ -117,13 +117,34 @@ ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL;
 
 **Console shows:** Tons of 401 errors from `/api/v1/users/me` and other endpoints
 
-**Likely cause:** The Supabase token validation is failing on subsequent API calls. The `audience` claim might be wrong, or the token needs different validation.
+**Hypothesis:** The user profile might not actually exist in the database, OR the auth_user_id doesn't match between Supabase and our database.
+
+**Actions taken:**
+1. Added comprehensive logging to `get_current_user` in deps.py
+2. Logs will show:
+   - Token validation success/failure
+   - Auth user ID from token
+   - Database lookup results
+   - List of all users with auth_user_id for comparison
+
+**VERIFIED CHECKS (Don't ask again):**
+- ✅ SUPABASE_JWT_SECRET in Vercel matches Supabase Legacy JWT Secret (Nov 4, 7:55 PM)
+- ✅ User exists in database with auth_user_id: f1bd8581-bbfa-4536-9024-6741f7d42afdb
+- ✅ Colored logging works in backend
+
+**ROOT CAUSE FOUND:**
+- ❌ Frontend shows "Profile" but localStorage has NO SESSION
+- ❌ No access token stored
+- ❌ User appears logged in but isn't actually authenticated
+- ❌ API calls fail because there's no valid token to send
+
+**The Issue:** Session persistence is broken. After email confirmation, the session is created but not persisted in localStorage.
 
 **Next steps:**
-1. Fix the Supabase JWT validation in `get_current_user`
-2. Remove or adjust the audience check
-3. Add better error logging
+1. Fix session persistence in AuthCallback.jsx
+2. Ensure session is properly stored after email confirmation
+3. Add session refresh logic
 
 ---
-**Last Updated:** 2025-11-04 4:40 PM CST
-**Status:** Login works! But API calls fail with 401
+**Last Updated:** 2025-11-04 7:55 PM CST
+**Status:** Session persistence issue found - fixing now
