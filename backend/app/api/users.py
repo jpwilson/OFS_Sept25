@@ -434,18 +434,29 @@ def update_profile(
     db: Session = Depends(get_db)
 ):
     """Update current user's profile"""
+    print(f"🔵 PROFILE UPDATE: User {current_user.username} (ID: {current_user.id})")
+    print(f"🔵 Incoming data: full_name={profile_data.full_name}, bio={profile_data.bio}, avatar={profile_data.avatar_url}, banner={profile_data.banner_url}")
+    print(f"🔵 Current values: full_name={current_user.full_name}, bio={current_user.bio}, avatar={current_user.avatar_url}, banner={current_user.banner_url}")
+
     # Update only provided fields
     if profile_data.full_name is not None:
         current_user.full_name = profile_data.full_name
+        print(f"🔵 Updated full_name to: {profile_data.full_name}")
     if profile_data.bio is not None:
         current_user.bio = profile_data.bio
+        print(f"🔵 Updated bio to: {profile_data.bio}")
     if profile_data.avatar_url is not None:
         current_user.avatar_url = profile_data.avatar_url
+        print(f"🔵 Updated avatar_url to: {profile_data.avatar_url}")
     if profile_data.banner_url is not None:
         current_user.banner_url = profile_data.banner_url
+        print(f"🔵 Updated banner_url to: {profile_data.banner_url}")
 
     db.commit()
+    print(f"🟢 Committed to database")
+
     db.refresh(current_user)
+    print(f"🟢 After refresh: full_name={current_user.full_name}, bio={current_user.bio}, avatar={current_user.avatar_url}, banner={current_user.banner_url}")
 
     return {
         "id": current_user.id,

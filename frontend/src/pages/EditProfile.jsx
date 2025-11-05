@@ -131,12 +131,18 @@ function EditProfile() {
     setSaving(true)
 
     try {
+      console.log('🔵 PROFILE UPDATE: Starting save...')
+      console.log('🔵 Form data being sent:', formData)
+
       const updatedUser = await apiService.updateProfile(formData)
+
+      console.log('🟢 PROFILE UPDATE: Received response:', updatedUser)
+
       updateUser(updatedUser)
       showToast('Profile updated successfully', 'success')
       navigate(`/profile/${user.username}`)
     } catch (error) {
-      console.error('Update error:', error)
+      console.error('🔴 PROFILE UPDATE ERROR:', error)
       showToast(error.message || 'Failed to update profile', 'error')
     } finally {
       setSaving(false)
