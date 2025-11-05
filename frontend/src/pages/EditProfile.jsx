@@ -87,21 +87,9 @@ function EditProfile() {
     setCropperImage(null)
 
     try {
-      // Upload to backend
-      const formData = new FormData()
-      formData.append('file', croppedBlob, 'image.jpg')
-
-      const response = await fetch('/api/v1/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      })
-
-      if (!response.ok) throw new Error('Upload failed')
-
-      const data = await response.json()
+      // Upload using apiService (handles Supabase auth tokens correctly)
+      const file = new File([croppedBlob], 'image.jpg', { type: 'image/jpeg' })
+      const data = await apiService.uploadImage(file)
       const imageUrl = data.medium_url || data.full_url
 
       // Update preview and form data
