@@ -146,5 +146,28 @@ ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL;
 3. Add session refresh logic
 
 ---
-**Last Updated:** 2025-11-04 7:55 PM CST
-**Status:** Session persistence issue found - fixing now
+
+## ✅ RESOLVED!
+
+### Final Root Cause
+ApiService was looking for `localStorage.getItem('token')` but Supabase stores sessions in `sb-{project}-auth-token` key.
+
+### Fixes Applied
+1. **Commit 1b2645b** - Updated ApiService.getAuthHeaders() to get token from Supabase session
+2. **Commit 1931439** - Fixed EditProfile to use apiService instead of direct fetch
+
+### Files Fixed
+- ✅ `frontend/src/services/api.js` - Now gets token from Supabase session
+- ✅ `frontend/src/pages/EditProfile.jsx` - Now uses apiService for uploads
+
+### Verification
+- ✅ Login works
+- ✅ Event creation works
+- ✅ Avatar/banner uploads work
+- ✅ All authenticated endpoints work
+
+**See POST_MORTEM_AUTH_MIGRATION.md for full details**
+
+---
+**Last Updated:** 2025-11-04 8:15 PM CST
+**Status:** ✅ RESOLVED - Delete this file when stable
