@@ -90,20 +90,30 @@ function EditProfile() {
       // Upload using apiService (handles Supabase auth tokens correctly)
       const file = new File([croppedBlob], 'image.jpg', { type: 'image/jpeg' })
       const data = await apiService.uploadImage(file)
-      const imageUrl = data.medium_url || data.full_url
+
+      // Backend returns: { url: "...", urls: { medium: "...", full: "..." } }
+      const imageUrl = data.url || data.urls?.medium || data.urls?.full
+
+      console.log('🟢 IMAGE UPLOAD SUCCESS:', { imageUrl, fullResponse: data })
+
+      if (!imageUrl) {
+        throw new Error('No URL returned from upload')
+      }
 
       // Update preview and form data
       if (cropperType === 'avatar') {
         setAvatarPreview(imageUrl)
         setFormData(prev => ({ ...prev, avatar_url: imageUrl }))
+        console.log('✅ Avatar URL set to:', imageUrl)
         showToast('Avatar uploaded successfully', 'success')
       } else {
         setBannerPreview(imageUrl)
         setFormData(prev => ({ ...prev, banner_url: imageUrl }))
+        console.log('✅ Banner URL set to:', imageUrl)
         showToast('Banner uploaded successfully', 'success')
       }
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error('🔴 Upload error:', error)
       showToast('Failed to upload image', 'error')
     } finally {
       setUploading(false)
