@@ -19,13 +19,18 @@ def get_current_user(
     Tries Supabase token first, falls back to legacy token
     """
     import uuid
+    import traceback
 
     token = credentials.credentials
     supabase_error = None
 
+    print(f"🔵 GET_CURRENT_USER: Starting authentication")
+    print(f"🔵 Token length: {len(token)}")
+
     # Try Supabase JWT first
     if settings.SUPABASE_JWT_SECRET:
         try:
+            print("🔵 Trying Supabase JWT validation...")
             # Try with audience check first
             try:
                 payload = jwt.decode(
@@ -34,7 +39,9 @@ def get_current_user(
                     algorithms=["HS256"],
                     audience="authenticated"
                 )
-            except JWTError:
+                print("🟢 Token validated with audience check")
+            except JWTError as e:
+                print(f"🟡 Audience check failed: {e}, trying without audience...")
                 # Fall back to validation without audience check
                 payload = jwt.decode(
                     token,
@@ -42,27 +49,44 @@ def get_current_user(
                     algorithms=["HS256"],
                     options={"verify_aud": False}
                 )
+                print("🟢 Token validated without audience check")
 
             # Supabase token validated - get user by auth_user_id
             auth_user_id_str = payload.get("sub")
+            print(f"🔵 Auth user ID from token: {auth_user_id_str}")
+
             if auth_user_id_str:
                 # Convert string UUID to uuid.UUID object for database query
                 try:
                     auth_user_id = uuid.UUID(auth_user_id_str)
-                except (ValueError, AttributeError):
+                    print(f"🔵 Converted to UUID object: {auth_user_id}")
+                except (ValueError, AttributeError) as e:
+                    print(f"🔴 UUID conversion failed: {e}")
                     # If conversion fails, fall back to legacy token
                     raise JWTError("Invalid UUID format in sub claim")
 
+                print(f"🔵 Looking up user with auth_user_id: {auth_user_id}")
                 user = db.query(User).filter(User.auth_user_id == auth_user_id).first()
+
                 if user:
+                    print(f"🟢 User found! ID: {user.id}, Username: {user.username}, Email: {user.email}")
                     if user.is_active:
+                        print(f"🟢 User is active, returning user")
                         return user
                     else:
+                        print(f"🔴 User account is inactive")
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
                             detail="Account is inactive"
                         )
                 else:
+                    print(f"🔴 User NOT found with auth_user_id: {auth_user_id}")
+                    # Let's also check what users exist in the database
+                    all_users_with_auth = db.query(User).filter(User.auth_user_id != None).all()
+                    print(f"🔵 Total users with auth_user_id in database: {len(all_users_with_auth)}")
+                    for u in all_users_with_auth[:10]:  # Print first 10 users with auth_user_id
+                        print(f"  - User ID: {u.id}, Username: {u.username}, Email: {u.email}, auth_user_id: {u.auth_user_id}")
+
                     # Supabase token valid but user not found in our DB
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
