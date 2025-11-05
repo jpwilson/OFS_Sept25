@@ -82,6 +82,7 @@ def get_user_profile(
         "full_name": user.full_name,
         "bio": user.bio,
         "avatar_url": user.avatar_url,
+        "banner_url": user.banner_url,
         "event_count": event_count,
         "follower_count": follower_count,
         "following_count": following_count,
