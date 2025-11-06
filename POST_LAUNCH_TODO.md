@@ -1,28 +1,44 @@
 # Post-Launch TODO List
 
-**Status:** Pre-launch - Complete these after fixing profile edit bug
+**Status:** Pre-launch - Domain purchase required before launch
 
 ---
 
 ## 🚀 Pre-Launch Blockers
 
-### 1. Fix Profile Edit Bug ⚠️ IN PROGRESS
+### 1. ✅ Fix Profile Edit Bug - COMPLETED
 **Issue:** Can upload avatar/banner but profile changes (full_name, bio) don't persist
 
-**Status:** Debugging with comprehensive logging
-- Added frontend logging to EditProfile.jsx
-- Added backend logging to users.py update_profile endpoint
-- Next: Test and see what logs show
+**Resolution:**
+- Fixed upload response parsing (was looking for medium_url, should be url)
+- Added banner_url to GET /users/{username} endpoint response
+- Profile editing now fully functional:
+  - ✅ Full name editing
+  - ✅ Bio editing
+  - ✅ Avatar upload and display
+  - ✅ Banner upload and display
 
-**Testing steps:**
-1. Wait for deployment (~2-3 min)
-2. Go to /profile/jpwilson/edit
-3. Open browser console (F12)
-4. Make changes to profile (full name, bio, avatar, banner)
-5. Click "Save"
-6. Check console for logs
-7. Check Vercel backend logs
-8. Report what you see
+### 2. 🌐 Domain Purchase - REQUIRED FOR LAUNCH
+**Priority:** BLOCKING LAUNCH
+**Estimated Time:** 15-30 minutes
+
+**Tasks:**
+- [ ] Purchase domain from Domain.com (formerly Network Solutions)
+- [ ] Configure DNS to point to Vercel:
+  - Frontend: CNAME to `cname.vercel-dns.com`
+  - Add domain in Vercel project settings
+- [ ] Update CORS settings in backend to allow new domain
+- [ ] Update environment variables:
+  - `VITE_API_URL` in frontend
+  - `CORS_ORIGINS` in backend
+- [ ] Test SSL certificate auto-provisioning
+- [ ] Verify all pages load correctly on new domain
+
+**Suggested domains:**
+- ourfamilysocials.com
+- familysocials.com
+- familyevents.com
+- familymemories.com
 
 ---
 
@@ -92,7 +108,42 @@
 
 ---
 
-### 4. Super Users / Admin Panel
+### 4. GPS Extraction from Uploaded Images
+**Priority:** MEDIUM
+**Estimated Time:** 2-3 days
+**Status:** Partially implemented - Backend extracts GPS, frontend doesn't use it
+
+**Current State:**
+- ✅ Backend extracts GPS from image EXIF metadata (upload.py)
+- ✅ Backend returns GPS data in upload response: `{ metadata: { gps: { latitude, longitude } } }`
+- ❌ Frontend receives GPS data but doesn't store it
+- ❌ GPS data is not saved to event_locations table
+- ✅ Manual location markers work (LocationPicker component)
+
+**What Needs to be Implemented:**
+- [ ] Store GPS metadata when images are uploaded in RichTextEditor
+- [ ] Implement `extractLocationsFromImages()` in locationExtractor.js (currently returns empty array)
+- [ ] Link image URLs to their GPS coordinates
+- [ ] Add GPS locations to event_locations table when event is saved
+- [ ] Show GPS-extracted locations on event map
+- [ ] Add UI indicator to distinguish manual pins vs GPS-extracted locations
+
+**Files to Modify:**
+- `frontend/src/components/RichTextEditor.jsx` - Store GPS metadata when images upload
+- `frontend/src/utils/locationExtractor.js` - Implement extractLocationsFromImages()
+- `frontend/src/pages/CreateEvent.jsx` - Pass GPS locations to backend
+- `frontend/src/pages/EventDetail.jsx` - Display GPS-extracted locations on map
+
+**User Flow:**
+1. User uploads image with GPS data in event description
+2. Frontend stores image URL + GPS coordinates
+3. When saving event, GPS coordinates are added to event_locations table
+4. Event map shows both manual pins AND GPS-extracted locations
+5. User can click on GPS location to see which photo it came from
+
+---
+
+### 5. Super Users / Admin Panel
 **Priority:** LOW
 **Estimated Time:** 3-4 days
 
@@ -123,7 +174,7 @@
 
 ---
 
-### 5. TypeScript Migration
+### 6. TypeScript Migration
 **Priority:** LOW
 **Estimated Time:** 2-3 weeks
 
@@ -154,19 +205,22 @@
 
 **Before Launch:**
 1. ✅ Fix auth (DONE!)
-2. ⚠️ Fix profile edit bug (IN PROGRESS)
-3. ✅ Test event creation (WORKING!)
+2. ✅ Fix profile edit bug (DONE!)
+3. 🌐 Purchase domain (BLOCKING - Do this first!)
+4. 🚀 Configure DNS and deploy to custom domain
+5. 🧪 Test all features on production domain
 
 **After Launch (First Week):**
-1. Monitor for bugs
+1. Monitor for bugs and user issues
 2. Fix any critical issues users report
-3. Collect feedback
+3. Collect user feedback
+4. Ensure billing/subscriptions work smoothly
 
 **After Launch (First Month):**
-1. Stripe integration (HIGH - this makes money!)
-2. Better freemium limits enforcement
-3. Marketing/growth features
-4. Super admin panel (for moderation)
+1. **Stripe integration** (HIGH - Start making money! 💰)
+2. **Better freemium limits** (MEDIUM - Drive upgrades)
+3. **GPS extraction from images** (MEDIUM - Cool feature, user delight)
+4. **Super admin panel** (LOW - Only when you need to moderate)
 
 **Later (Month 2+):**
 1. TypeScript migration (if still needed)
