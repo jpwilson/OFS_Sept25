@@ -15,6 +15,26 @@ router = APIRouter(prefix="/events", tags=["events"])
 
 def build_event_dict(event):
     """Helper to build event dict without SQLAlchemy internals"""
+    # Serialize locations properly (manual pins + GPS-extracted from images)
+    locations = []
+    if hasattr(event, 'locations') and event.locations:
+        for loc in event.locations:
+            locations.append({
+                "id": loc.id,
+                "event_id": loc.event_id,
+                "location_name": loc.location_name,
+                "latitude": loc.latitude,
+                "longitude": loc.longitude,
+                "location_type": loc.location_type,  # 'manual', 'exif', 'inline_marker'
+                "timestamp": loc.timestamp.isoformat() if loc.timestamp else None,
+                "order_index": loc.order_index,
+                "section_id": loc.section_id,
+                "section_title": loc.section_title,
+                "additional_data": loc.additional_data,
+                "created_at": loc.created_at.isoformat() if loc.created_at else None,
+                "updated_at": loc.updated_at.isoformat() if loc.updated_at else None
+            })
+
     return {
         "id": event.id,
         "title": event.title,
@@ -37,7 +57,7 @@ def build_event_dict(event):
         "like_count": len(event.likes) if hasattr(event, 'likes') and event.likes else 0,
         "comment_count": len(event.comments) if hasattr(event, 'comments') and event.comments else 0,
         "content_blocks": [],  # Empty - content is in description field
-        "locations": event.locations if hasattr(event, 'locations') and event.locations else []
+        "locations": locations  # Properly serialized locations
     }
 
 @router.get("", response_model=List[EventResponse])
@@ -66,11 +86,13 @@ def get_events(
             try:
                 print(f"[EVENTS] Processing event {i+1}: id={event.id}, title={event.title}")
                 # Explicitly map fields - don't use **event.__dict__ as it includes SQLAlchemy internals
+                # NOTE: Don't include description in list view - it can be huge (rich text HTML + images)
+                # Description is only loaded in detail view to keep payload small
                 event_dict = {
                     "id": event.id,
                     "title": event.title,
                     "summary": event.summary,
-                    "description": event.description,
+                    "description": "",  # Empty in list view - loaded in detail view only
                     "start_date": event.start_date,
                     "end_date": event.end_date,
                     "location_name": event.location_name,
@@ -88,7 +110,7 @@ def get_events(
                     "like_count": 0,  # TODO: Add later
                     "comment_count": 0,  # TODO: Add later
                     "content_blocks": [],  # Empty - content is in description field
-                    "locations": []  # TODO: Add later
+                    "locations": []  # Empty in list view - loaded in detail view
                 }
                 response.append(EventResponse.model_validate(event_dict))
                 print(f"[EVENTS] Successfully processed event {event.id}")
