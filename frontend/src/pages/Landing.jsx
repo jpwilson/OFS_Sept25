@@ -347,7 +347,7 @@ function Landing() {
         <div className={styles.pricingContent}>
           <h2 className={styles.sectionTitle}>Simple, transparent pricing</h2>
           <p className={styles.sectionSubtitle}>
-            Start for free. Upgrade when you need more.
+            Start for free. Upgrade when you need more. Only published events count towards your limit—drafts and deleted events are free!
           </p>
 
           {/* Billing Toggle */}
@@ -440,6 +440,16 @@ function Landing() {
                 Choose Family
               </Link>
             </div>
+          </div>
+
+          {/* Link to detailed pricing */}
+          <div className={styles.pricingFooter}>
+            <p className={styles.pricingNote}>
+              <strong>Need more details?</strong> Drafts and deleted events don't count towards your limit.
+            </p>
+            <Link to="/pricing" className={styles.viewComparisonLink}>
+              See detailed feature comparison →
+            </Link>
           </div>
         </div>
       </section>

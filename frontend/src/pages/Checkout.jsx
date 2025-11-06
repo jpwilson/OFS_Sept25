@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import styles from './Checkout.module.css'
@@ -9,6 +9,7 @@ function Checkout() {
   const [searchParams] = useSearchParams()
   const plan = searchParams.get('plan') || 'premium'
   const [loading, setLoading] = useState(false)
+  const [billingPeriod, setBillingPeriod] = useState('annual') // 'monthly' or 'annual'
 
   useEffect(() => {
     if (!user) {
@@ -20,7 +21,9 @@ function Checkout() {
   const plans = {
     premium: {
       name: 'Premium',
-      price: '$9',
+      monthlyPrice: '$12',
+      annualPrice: '$9',
+      annualTotal: '$108',
       description: 'For families who share everything',
       features: [
         'Unlimited events',
@@ -33,7 +36,9 @@ function Checkout() {
     },
     family: {
       name: 'Family',
-      price: '$19',
+      monthlyPrice: '$24',
+      annualPrice: '$19',
+      annualTotal: '$228',
       description: 'For larger families',
       features: [
         'Everything in Premium',
@@ -47,6 +52,10 @@ function Checkout() {
   }
 
   const selectedPlan = plans[plan] || plans.premium
+  const currentPrice = billingPeriod === 'annual' ? selectedPlan.annualPrice : selectedPlan.monthlyPrice
+  const billingNote = billingPeriod === 'annual'
+    ? `Billed annually at ${selectedPlan.annualTotal}/year (save 25%)`
+    : 'Billed monthly'
 
   const handleCheckout = async () => {
     setLoading(true)
@@ -78,11 +87,28 @@ function Checkout() {
           <div className={styles.planHeader}>
             <h2>{selectedPlan.name} Plan</h2>
             <div className={styles.price}>
-              <span className={styles.priceAmount}>{selectedPlan.price}</span>
+              <span className={styles.priceAmount}>{currentPrice}</span>
               <span className={styles.pricePeriod}>/month</span>
             </div>
           </div>
           <p className={styles.planDesc}>{selectedPlan.description}</p>
+
+          {/* Billing period toggle */}
+          <div className={styles.billingToggle}>
+            <button
+              className={`${styles.toggleButton} ${billingPeriod === 'monthly' ? styles.active : ''}`}
+              onClick={() => setBillingPeriod('monthly')}
+            >
+              Monthly
+            </button>
+            <button
+              className={`${styles.toggleButton} ${billingPeriod === 'annual' ? styles.active : ''}`}
+              onClick={() => setBillingPeriod('annual')}
+            >
+              Annual <span className={styles.saveBadge}>Save 25%</span>
+            </button>
+          </div>
+          <p className={styles.billingNote}>{billingNote}</p>
 
           <div className={styles.features}>
             <h3>What's included:</h3>
@@ -110,7 +136,7 @@ function Checkout() {
             onClick={handleCheckout}
             disabled={loading}
           >
-            {loading ? 'Processing...' : `Subscribe to ${selectedPlan.name} - ${selectedPlan.price}/mo`}
+            {loading ? 'Processing...' : `Subscribe to ${selectedPlan.name} - ${currentPrice}/mo`}
           </button>
           <button
             className={styles.cancelButton}

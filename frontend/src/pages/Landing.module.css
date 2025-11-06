@@ -1101,6 +1101,44 @@
   box-shadow: 0 6px 28px rgba(102, 126, 234, 0.4);
 }
 
+/* Pricing Footer */
+.pricingFooter {
+  margin-top: 60px;
+  text-align: center;
+  padding-top: 40px;
+  border-top: 1px solid #374151;
+}
+
+.pricingNote {
+  font-size: 16px;
+  color: #9CA3AF;
+  margin-bottom: 20px;
+}
+
+.pricingNote strong {
+  color: #F9FAFB;
+}
+
+.viewComparisonLink {
+  display: inline-block;
+  padding: 12px 28px;
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.viewComparisonLink:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .hero,

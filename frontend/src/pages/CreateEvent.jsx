@@ -9,6 +9,7 @@ import RichTextEditor from '../components/RichTextEditor'
 import LocationSelectionModal from '../components/LocationSelectionModal'
 import LocationAutocomplete from '../components/LocationAutocomplete'
 import GPSExtractionModal from '../components/GPSExtractionModal'
+import UpgradeModal from '../components/UpgradeModal'
 import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
@@ -40,6 +41,7 @@ function CreateEvent() {
   const [showGPSModal, setShowGPSModal] = useState(false)
   const [gpsExtractionEnabled, setGPSExtractionEnabled] = useState(false)
   const [gpsLocations, setGpsLocations] = useState([])
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Check GPS extraction preference on component mount
   useEffect(() => {
@@ -160,8 +162,17 @@ function CreateEvent() {
     } catch (error) {
       console.error('Error creating event:', error)
       const errorMessage = error.message || 'Failed to create event. Please try again.'
-      showToast(errorMessage, 'error')
-      setIsSubmitting(false)
+
+      // Check if it's a free plan limit error
+      if (errorMessage.includes('Free plan limit reached') || errorMessage.includes('limit reached')) {
+        // User hit their 5-event limit - show upgrade modal
+        setShowUpgradeModal(true)
+        setIsSubmitting(false)
+      } else {
+        // Other error - show toast
+        showToast(errorMessage, 'error')
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -175,6 +186,16 @@ function CreateEvent() {
 
   const handleSaveDraft = (e) => {
     handleSubmit(e, false)
+  }
+
+  const handleUpgradeModalSaveAsDraft = () => {
+    setShowUpgradeModal(false)
+    // Automatically save as draft
+    handleSubmit(new Event('submit'), false)
+  }
+
+  const handleUpgradeModalClose = () => {
+    setShowUpgradeModal(false)
   }
 
   const handleMultipleLocationsChange = (e) => {
@@ -354,6 +375,12 @@ function CreateEvent() {
         isOpen={showGPSModal}
         onClose={() => setShowGPSModal(false)}
         onEnable={handleGPSExtractionResponse}
+      />
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={handleUpgradeModalClose}
+        onSaveAsDraft={handleUpgradeModalSaveAsDraft}
       />
     </div>
   )

@@ -13,6 +13,7 @@ import Login from './pages/Login'
 import Map from './pages/Map'
 import Timeline from './pages/Timeline'
 import Checkout from './pages/Checkout'
+import PricingPage from './pages/PricingPage'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Contact from './pages/Contact'
@@ -35,6 +36,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />

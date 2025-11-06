@@ -6,6 +6,8 @@ import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import FollowRequestsModal from '../components/FollowRequestsModal'
+import UpgradeRibbon from '../components/UpgradeRibbon'
+import PremiumBadge from '../components/PremiumBadge'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
 
@@ -206,13 +208,15 @@ function Profile() {
       )}
 
       <div className={styles.profileHeader}>
-        <div className={styles.avatar}>
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.full_name} className={styles.avatarImage} />
-          ) : (
-            profile.full_name?.charAt(0).toUpperCase()
-          )}
-        </div>
+        <PremiumBadge subscriptionTier={profile.subscription_tier || currentUser?.subscription_tier}>
+          <div className={styles.avatar}>
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.full_name} className={styles.avatarImage} />
+            ) : (
+              profile.full_name?.charAt(0).toUpperCase()
+            )}
+          </div>
+        </PremiumBadge>
         <div className={styles.profileInfo}>
           <h1 className={styles.name}>{profile.full_name}</h1>
           <p className={styles.username}>@{profile.username}</p>
@@ -267,6 +271,11 @@ function Profile() {
           ) : null}
         </div>
       </div>
+
+      {/* Show upgrade ribbon if user is at limit (5/5 events) */}
+      {isOwnProfile && currentUser?.subscription_tier === 'free' && events.length >= 5 && (
+        <UpgradeRibbon eventCount={events.length} limit={5} />
+      )}
 
       <div className={styles.eventsSection}>
         <div className={styles.sectionHeader}>

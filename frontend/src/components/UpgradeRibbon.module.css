@@ -1,0 +1,132 @@
+.ribbon {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ribbon:hover {
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+  transform: translateY(-2px);
+}
+
+.ribbonContent {
+  color: #78350f;
+}
+
+.mainText {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.icon {
+  font-size: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.text {
+  flex: 1;
+}
+
+.upgradeButtonCompact {
+  background: white;
+  color: #f59e0b;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upgradeButtonCompact:hover {
+  background: #fffbeb;
+  transform: scale(1.05);
+}
+
+.expandedContent {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.message {
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #78350f;
+}
+
+.upgradeButton {
+  display: inline-block;
+  background: white;
+  color: #f59e0b;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.upgradeButton:hover {
+  background: #fffbeb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ribbon {
+    padding: 14px 16px;
+  }
+
+  .mainText {
+    font-size: 14px;
+  }
+
+  .upgradeButtonCompact {
+    padding: 6px 16px;
+    font-size: 13px;
+  }
+}
