@@ -1,9 +1,8 @@
 import { mockEventsForFeed } from '../data/mockEvents'
 import { supabase } from '../lib/supabaseClient'
 
-// Temporary hardcoded URL for production - TODO: fix environment variable loading
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? 'https://ofs-sept25.vercel.app'
+  ? (import.meta.env.VITE_API_URL || 'https://api.ourfamilysocials.com')
   : 'http://localhost:8000'
 const API_BASE = `${API_URL}/api/v1`
 

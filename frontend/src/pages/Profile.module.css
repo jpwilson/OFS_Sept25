@@ -35,6 +35,45 @@
   text-align: center;
 }
 
+.avatarContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tierBadge {
+  margin-top: 12px;
+}
+
+.tierBadge span {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.freeTier {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+  border: 1.5px solid rgba(156, 163, 175, 0.3);
+}
+
+.premiumTier {
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+  border: 1.5px solid rgba(102, 126, 234, 0.4);
+}
+
+.familyTier {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+}
+
 .avatar {
   width: 140px;
   height: 140px;

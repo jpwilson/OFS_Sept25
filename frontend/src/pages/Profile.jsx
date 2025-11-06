@@ -208,15 +208,24 @@ function Profile() {
       )}
 
       <div className={styles.profileHeader}>
-        <PremiumBadge subscriptionTier={profile.subscription_tier || currentUser?.subscription_tier}>
-          <div className={styles.avatar}>
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt={profile.full_name} className={styles.avatarImage} />
-            ) : (
-              profile.full_name?.charAt(0).toUpperCase()
-            )}
-          </div>
-        </PremiumBadge>
+        <div className={styles.avatarContainer}>
+          <PremiumBadge subscriptionTier={profile.subscription_tier || currentUser?.subscription_tier}>
+            <div className={styles.avatar}>
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt={profile.full_name} className={styles.avatarImage} />
+              ) : (
+                profile.full_name?.charAt(0).toUpperCase()
+              )}
+            </div>
+          </PremiumBadge>
+          {isOwnProfile && (
+            <div className={styles.tierBadge}>
+              {profile.subscription_tier === 'free' && <span className={styles.freeTier}>Free Plan</span>}
+              {profile.subscription_tier === 'premium' && <span className={styles.premiumTier}>Premium</span>}
+              {profile.subscription_tier === 'family' && <span className={styles.familyTier}>Family</span>}
+            </div>
+          )}
+        </div>
         <div className={styles.profileInfo}>
           <h1 className={styles.name}>{profile.full_name}</h1>
           <p className={styles.username}>@{profile.username}</p>

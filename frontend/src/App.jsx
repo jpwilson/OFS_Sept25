@@ -36,11 +36,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
             <Route element={<Layout />}>
+              <Route path="/pricing" element={<PricingPage />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/event/:id/edit" element={<EditEvent />} />

@@ -59,6 +59,21 @@
   color: var(--text-primary);
 }
 
+.premiumLink {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #78350f !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  transition: all 0.2s !important;
+}
+
+.premiumLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+}
+
 /* Mobile menu overlay */
 .mobileMenuOverlay {
   display: none;

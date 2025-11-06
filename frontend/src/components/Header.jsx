@@ -59,6 +59,9 @@ function Header() {
 
       {/* Desktop nav */}
       <nav className={styles.nav}>
+        {user && user.subscription_tier === 'free' && (
+          <Link to="/pricing" className={styles.premiumLink}>Go Premium</Link>
+        )}
         <Link to="/feed">Feed</Link>
         <Link to="/map">Map</Link>
         <Link to="/timeline">Timeline</Link>
@@ -79,6 +82,9 @@ function Header() {
       {mobileMenuOpen && (
         <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu}>
           <nav className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
+            {user && user.subscription_tier === 'free' && (
+              <Link to="/pricing" className={styles.premiumLink} onClick={closeMobileMenu}>Go Premium</Link>
+            )}
             <Link to="/feed" onClick={closeMobileMenu}>Feed</Link>
             <Link to="/map" onClick={closeMobileMenu}>Map</Link>
             <Link to="/timeline" onClick={closeMobileMenu}>Timeline</Link>

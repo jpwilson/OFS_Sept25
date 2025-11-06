@@ -5,7 +5,7 @@ const AuthContext = createContext()
 
 const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8000'
-  : 'https://ofs-sept25.vercel.app'
+  : import.meta.env.VITE_API_URL || 'https://api.ourfamilysocials.com'
 
 export function useAuth() {
   return useContext(AuthContext)
