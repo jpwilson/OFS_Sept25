@@ -137,7 +137,27 @@ function EventDetail() {
   async function loadLocations() {
     try {
       const data = await apiService.getEventLocations(id)
-      setLocations(data || [])
+      const eventLocations = data || []
+
+      // Add primary event location as the first location (if it exists)
+      // This is the location from the "Location" field in the event form
+      if (event?.latitude && event?.longitude && event?.location_name) {
+        const primaryLocation = {
+          id: 'primary',
+          event_id: event.id,
+          location_name: event.location_name,
+          latitude: event.latitude,
+          longitude: event.longitude,
+          location_type: 'primary',
+          order_index: -1, // First location
+          timestamp: event.start_date,
+          section_id: null,
+          section_title: 'Event Start'
+        }
+        setLocations([primaryLocation, ...eventLocations])
+      } else {
+        setLocations(eventLocations)
+      }
     } catch (error) {
       console.error('Error loading locations:', error)
       setLocations([])

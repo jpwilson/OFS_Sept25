@@ -23,6 +23,17 @@ const createNumberedIcon = (number) => {
   });
 };
 
+// Custom primary location icon (start point)
+const createPrimaryIcon = () => {
+  return L.divIcon({
+    className: 'primary-marker',
+    html: `<div class="primary-marker-inner">🏁</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+  });
+};
+
 // Component to fit map bounds to all markers
 function FitBounds({ locations }) {
   const map = useMap();
@@ -94,28 +105,34 @@ function EventMap({ locations, onLocationClick }) {
         )}
 
         {/* Numbered markers for each location */}
-        {locations.map((location, index) => (
-          <Marker
-            key={location.id}
-            position={[location.latitude, location.longitude]}
-            icon={createNumberedIcon(index + 1)}
-            eventHandlers={{
-              click: () => handleMarkerClick(location, index)
-            }}
-          >
-            <Popup>
-              <div className={styles.popup}>
-                <div className={styles.popupNumber}>Location {index + 1}</div>
-                <div className={styles.popupName}>{location.location_name}</div>
-                {location.timestamp && (
-                  <div className={styles.popupDate}>
-                    {new Date(location.timestamp).toLocaleDateString()}
-                  </div>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {locations.map((location, index) => {
+          const isPrimary = location.location_type === 'primary'
+          const markerIcon = isPrimary ? createPrimaryIcon() : createNumberedIcon(index)
+          const locationLabel = isPrimary ? 'Event Start' : `Location ${index}`
+
+          return (
+            <Marker
+              key={location.id}
+              position={[location.latitude, location.longitude]}
+              icon={markerIcon}
+              eventHandlers={{
+                click: () => handleMarkerClick(location, index)
+              }}
+            >
+              <Popup>
+                <div className={styles.popup}>
+                  <div className={styles.popupNumber}>{locationLabel}</div>
+                  <div className={styles.popupName}>{location.location_name}</div>
+                  {location.timestamp && (
+                    <div className={styles.popupDate}>
+                      {new Date(location.timestamp).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          )
+        })}
       </MapContainer>
 
       <style>{`
@@ -141,6 +158,32 @@ function EventMap({ locations, onLocationClick }) {
         }
 
         .numbered-marker-inner::after {
+          content: '';
+          transform: rotate(45deg);
+        }
+
+        .primary-marker {
+          background: transparent;
+          border: none;
+        }
+
+        .primary-marker-inner {
+          width: 36px;
+          height: 36px;
+          border-radius: 50% 50% 50% 0;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          font-weight: 600;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: rotate(-45deg);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+          border: 3px solid white;
+        }
+
+        .primary-marker-inner::after {
           content: '';
           transform: rotate(45deg);
         }
