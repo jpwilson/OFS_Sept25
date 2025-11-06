@@ -109,37 +109,40 @@
 ---
 
 ### 4. GPS Extraction from Uploaded Images
-**Priority:** MEDIUM
-**Estimated Time:** 2-3 days
-**Status:** Partially implemented - Backend extracts GPS, frontend doesn't use it
+**Priority:** MEDIUM (VERIFY IT'S WORKING)
+**Estimated Time:** Testing + minor fixes (30 min)
+**Status:** ✅ FULLY IMPLEMENTED - Was broken by 413 error + serialization bug, now fixed
 
-**Current State:**
+**Implementation Details:**
 - ✅ Backend extracts GPS from image EXIF metadata (upload.py)
-- ✅ Backend returns GPS data in upload response: `{ metadata: { gps: { latitude, longitude } } }`
-- ❌ Frontend receives GPS data but doesn't store it
-- ❌ GPS data is not saved to event_locations table
-- ✅ Manual location markers work (LocationPicker component)
+- ✅ Backend returns GPS data: `{ metadata: { gps: { latitude, longitude }, date_taken: "..." } }`
+- ✅ Frontend receives and stores GPS data (RichTextEditor.jsx:92-102)
+- ✅ GPS data collected in `gpsLocations` state (CreateEvent.jsx:53)
+- ✅ GPS data sent to backend on event creation (CreateEvent.jsx:148)
+- ✅ Backend saves GPS locations to event_locations table (events.py:200-229)
+  - location_type: 'exif' (distinguishes from 'manual' and 'inline_marker')
+  - Includes timestamp from EXIF data
+  - Auto-named: "Photo location 1", "Photo location 2", etc.
+- ✅ Detail view loads locations (events.py:305)
+- ✅ Locations properly serialized (events.py:16-36)
 
-**What Needs to be Implemented:**
-- [ ] Store GPS metadata when images are uploaded in RichTextEditor
-- [ ] Implement `extractLocationsFromImages()` in locationExtractor.js (currently returns empty array)
-- [ ] Link image URLs to their GPS coordinates
-- [ ] Add GPS locations to event_locations table when event is saved
-- [ ] Show GPS-extracted locations on event map
-- [ ] Add UI indicator to distinguish manual pins vs GPS-extracted locations
+**What Was Broken:**
+1. 413 error prevented events from loading (FIXED ✅)
+2. Location serialization was broken (FIXED ✅)
 
-**Files to Modify:**
-- `frontend/src/components/RichTextEditor.jsx` - Store GPS metadata when images upload
-- `frontend/src/utils/locationExtractor.js` - Implement extractLocationsFromImages()
-- `frontend/src/pages/CreateEvent.jsx` - Pass GPS locations to backend
-- `frontend/src/pages/EventDetail.jsx` - Display GPS-extracted locations on map
+**To Test:**
+1. Go to Create Event
+2. Check "This event has multiple locations"
+3. Enable GPS extraction in modal
+4. Upload photo with GPS data (e.g., iPhone photo with location services on)
+5. Publish event
+6. Check event detail page - GPS location should appear on map
+7. Check database: `SELECT * FROM event_locations WHERE location_type = 'exif';`
 
-**User Flow:**
-1. User uploads image with GPS data in event description
-2. Frontend stores image URL + GPS coordinates
-3. When saving event, GPS coordinates are added to event_locations table
-4. Event map shows both manual pins AND GPS-extracted locations
-5. User can click on GPS location to see which photo it came from
+**If Still Not Working:**
+- Check browser console for GPS extraction logs
+- Check Vercel backend logs for "DEBUG: Saving X GPS-extracted locations"
+- Verify image actually has GPS data (many screenshots/edited images don't)
 
 ---
 
