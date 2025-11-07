@@ -2,7 +2,7 @@ import { mockEventsForFeed } from '../data/mockEvents'
 import { supabase } from '../lib/supabaseClient'
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? (import.meta.env.VITE_API_URL || 'https://api.ourfamilysocials.com')
+  ? (import.meta.env.VITE_API_URL || 'https://ofs-sept25.vercel.app')
   : 'http://localhost:8000'
 const API_BASE = `${API_URL}/api/v1`
 
