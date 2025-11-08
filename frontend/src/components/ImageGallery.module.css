@@ -1,7 +1,9 @@
 .controls {
   display: flex;
   justify-content: center;
+  gap: 12px;
   margin: 32px 0 24px;
+  flex-wrap: wrap;
 }
 
 .viewToggle {
@@ -33,6 +35,39 @@
 }
 
 .viewToggle svg {
+  flex-shrink: 0;
+}
+
+/* Caption Toggle */
+.captionToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.captionToggle:hover {
+  border-color: #764ba2;
+  background: rgba(118, 75, 162, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.captionToggle.active {
+  border-color: #764ba2;
+  background: rgba(118, 75, 162, 0.15);
+  color: #764ba2;
+}
+
+.captionToggle svg {
   flex-shrink: 0;
 }
 

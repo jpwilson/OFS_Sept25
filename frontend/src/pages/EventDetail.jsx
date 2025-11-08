@@ -32,6 +32,7 @@ function EventDetail() {
   const [isMobile, setIsMobile] = useState(false)
   const [galleryViewMode, setGalleryViewMode] = useState('single')
   const [locations, setLocations] = useState([])
+  const [eventImages, setEventImages] = useState([])
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const contentRef = useRef(null)
@@ -98,6 +99,7 @@ function EventDetail() {
     loadEvent()
     loadComments()
     loadLocations()
+    loadEventImages()
     if (user) {
       loadLikes()
     }
@@ -162,6 +164,16 @@ function EventDetail() {
     } catch (error) {
       console.error('Error loading locations:', error)
       setLocations([])
+    }
+  }
+
+  async function loadEventImages() {
+    try {
+      const images = await apiService.getEventImages(id)
+      setEventImages(images || [])
+    } catch (error) {
+      console.error('Error loading event images:', error)
+      setEventImages([])
     }
   }
 
@@ -299,18 +311,29 @@ function EventDetail() {
   const allImages = useMemo(() => {
     if (!event) return []
 
+    // Priority 1: Use event_images from database (new system with captions)
+    if (eventImages && eventImages.length > 0) {
+      return eventImages.map(img => ({
+        src: img.image_url,
+        caption: img.caption,
+        id: img.id,
+        alt: img.alt_text
+      }))
+    }
+
+    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
     const images = []
 
     // Add cover image
     if (event.cover_image_url) {
-      images.push(event.cover_image_url)
+      images.push({ src: event.cover_image_url, caption: null })
     }
 
-    // Add images from content blocks
+    // Add images from content blocks (old system)
     if (event.content_blocks && event.content_blocks.length > 0) {
       event.content_blocks.forEach(block => {
         if (block.type === 'image' && block.media_url) {
-          images.push(block.media_url)
+          images.push({ src: block.media_url, caption: block.caption || null })
         }
       })
     }
@@ -322,13 +345,13 @@ function EventDetail() {
       const imgElements = doc.querySelectorAll('img')
       imgElements.forEach(img => {
         if (img.src) {
-          images.push(img.src)
+          images.push({ src: img.src, caption: null })
         }
       })
     }
 
     return images
-  }, [event])
+  }, [event, eventImages])
 
   // Parse headings from rich HTML content and generate sections
   const parsedContent = useMemo(() => {
