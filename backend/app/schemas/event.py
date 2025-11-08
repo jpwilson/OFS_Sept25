@@ -28,6 +28,7 @@ class GPSLocation(BaseModel):
 
 class EventBase(BaseModel):
     title: str
+    short_title: Optional[str] = None
     summary: Optional[str] = None
     description: Optional[str] = None
     start_date: datetime
@@ -43,6 +44,7 @@ class EventCreate(EventBase):
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
+    short_title: Optional[str] = None
     summary: Optional[str] = None
     description: Optional[str] = None
     start_date: Optional[datetime] = None

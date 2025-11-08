@@ -8,6 +8,7 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    short_title = Column(String, nullable=True)  # Optional shortened title for mobile display
     summary = Column(String, nullable=True)  # Short description for cards
     description = Column(String, nullable=True)
     start_date = Column(DateTime, nullable=False)
@@ -29,3 +30,4 @@ class Event(Base):
     comments = relationship("Comment", back_populates="event", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
     locations = relationship("EventLocation", back_populates="event", cascade="all, delete-orphan")
+    images = relationship("EventImage", back_populates="event", cascade="all, delete-orphan")
