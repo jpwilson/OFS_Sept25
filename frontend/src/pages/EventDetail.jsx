@@ -7,6 +7,7 @@ import LoginPromptModal from '../components/LoginPromptModal'
 import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
 import EventMap from '../components/EventMap'
+import ShortLocation from '../components/ShortLocation'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -168,9 +169,24 @@ function EventDetail() {
     return mockEventDetails[eventId] || mockEventDetails[1]
   }
 
-  function formatDateRange(start, end) {
+  function formatDateRange(start, end, shortFormat = false) {
     const startDate = new Date(start)
     const endDate = new Date(end)
+
+    if (shortFormat) {
+      // Mobile short format: "Sept 24 - Oct 20, '25"
+      const startMonth = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      const endMonth = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      const year = `'${endDate.getFullYear().toString().slice(-2)}`
+
+      if (start === end || !end) {
+        return `${startMonth}, ${year}`
+      }
+
+      return `${startMonth} - ${endMonth}, ${year}`
+    }
+
+    // Desktop full format: "September 24 - October 20, 2025"
     const options = { month: 'long', day: 'numeric', year: 'numeric' }
 
     if (start === end || !end) {
@@ -413,7 +429,10 @@ function EventDetail() {
       >
         <div className={styles.heroOverlay}>
           <div className={styles.heroHeader}>
-            <h1 className={styles.title}>{event.title}</h1>
+            <h1 className={styles.title}>
+              <span className={styles.titleDesktop}>{event.title}</span>
+              <span className={styles.titleMobile}>{event.short_title || event.title}</span>
+            </h1>
             {isAuthor && (
               <div className={styles.authorButtons}>
                 <button
@@ -434,12 +453,14 @@ function EventDetail() {
           <div className={styles.meta}>
             <Link to={`/profile/${event.author_username}`} className={styles.author}>
               <div className={styles.avatar}></div>
-              <span>{event.author_full_name || event.author_username}</span>
+              <span className={styles.authorDesktop}>{event.author_full_name || event.author_username}</span>
+              <span className={styles.authorMobile}>@{event.author_username}</span>
             </Link>
             <span>·</span>
-            <span>{formatDateRange(event.start_date, event.end_date)}</span>
+            <span className={styles.dateDesktop}>{formatDateRange(event.start_date, event.end_date)}</span>
+            <span className={styles.dateMobile}>{formatDateRange(event.start_date, event.end_date, true)}</span>
             <span>·</span>
-            <span>{event.location_name}</span>
+            <ShortLocation locationName={event.location_name} maxWords={3} />
           </div>
         </div>
       </div>

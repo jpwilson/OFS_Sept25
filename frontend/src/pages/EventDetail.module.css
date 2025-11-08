@@ -799,4 +799,58 @@
     margin: 20px;
     font-size: 15px;
   }
+
+  /* Mobile: show short title */
+  .titleDesktop {
+    display: none;
+  }
+
+  .titleMobile {
+    display: inline;
+  }
+
+  /* Mobile: show username instead of full name */
+  .authorDesktop {
+    display: none;
+  }
+
+  .authorMobile {
+    display: inline;
+  }
+
+  /* Mobile: show short date format */
+  .dateDesktop {
+    display: none;
+  }
+
+  .dateMobile {
+    display: inline;
+  }
+}
+
+/* Desktop: show full title and full name */
+@media (min-width: 769px) {
+  .titleDesktop {
+    display: inline;
+  }
+
+  .titleMobile {
+    display: none;
+  }
+
+  .authorDesktop {
+    display: inline;
+  }
+
+  .authorMobile {
+    display: none;
+  }
+
+  .dateDesktop {
+    display: inline;
+  }
+
+  .dateMobile {
+    display: none;
+  }
 }

@@ -19,6 +19,7 @@ function CreateEvent() {
   const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: '',
+    short_title: '',
     description: '',
     start_date: '',
     end_date: '',
@@ -232,6 +233,27 @@ function CreateEvent() {
               placeholder="Give your event a memorable title"
               required
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="short_title">
+              Short Title (Optional)
+              <span className={styles.helpText} title="A shorter version of your title for mobile devices. If not provided, only the first 3 words of your title will be shown on mobile.">
+                ⓘ
+              </span>
+            </label>
+            <input
+              type="text"
+              id="short_title"
+              name="short_title"
+              value={formData.short_title}
+              onChange={handleChange}
+              placeholder="e.g., SA Sept '25"
+              maxLength={50}
+            />
+            <small className={styles.fieldHint}>
+              Used for cleaner display on mobile devices (e.g., "SA Sept '25" instead of "South Africa September-October 2025")
+            </small>
           </div>
 
           <div className={styles.checkboxGroup}>

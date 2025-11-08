@@ -204,6 +204,88 @@ class ApiService {
     }
   }
 
+  // Event Image methods (for caption system)
+  async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('event_id', eventId.toString())
+      if (caption) formData.append('caption', caption)
+      formData.append('order_index', orderIndex.toString())
+
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || localStorage.getItem('token')
+
+      const response = await fetch(`${API_BASE}/upload/event-image`, {
+        method: 'POST',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to upload event image')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error uploading event image:', error)
+      throw error
+    }
+  }
+
+  async getEventImages(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/upload/event-images/${eventId}`)
+      if (!response.ok) throw new Error('Failed to fetch event images')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching event images:', error)
+      return []
+    }
+  }
+
+  async deleteEventImage(imageId) {
+    try {
+      const response = await fetch(`${API_BASE}/upload/event-image/${imageId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to delete image')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting event image:', error)
+      throw error
+    }
+  }
+
+  async updateEventImageCaption(imageId, caption) {
+    try {
+      const response = await fetch(`${API_BASE}/upload/event-image/${imageId}`, {
+        method: 'PATCH',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ caption })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update caption')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating image caption:', error)
+      throw error
+    }
+  }
+
   async getUserProfile(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}`)
