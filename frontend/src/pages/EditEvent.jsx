@@ -39,6 +39,9 @@ function EditEvent() {
   const [allLocations, setAllLocations] = useState([])
   const [selectedLocations, setSelectedLocations] = useState([])
   const [pendingPublish, setPendingPublish] = useState(true)
+  const [captionsExpanded, setCaptionsExpanded] = useState(false)
+  const [imageCaptions, setImageCaptions] = useState({})
+  const [existingEventImages, setExistingEventImages] = useState([])
 
   useEffect(() => {
     loadEvent()
@@ -75,6 +78,25 @@ function EditEvent() {
       }
       setIsPublished(event.is_published)
       setPreviewUrl(event.cover_image_url || '')
+
+      // Load existing event images with captions
+      try {
+        const eventImages = await apiService.getEventImages(id)
+        setExistingEventImages(eventImages || [])
+
+        // Pre-populate imageCaptions state with existing captions
+        const captionMap = {}
+        eventImages.forEach(img => {
+          if (img.caption) {
+            captionMap[img.image_url] = img.caption
+          }
+        })
+        setImageCaptions(captionMap)
+      } catch (error) {
+        console.error('Error loading event images:', error)
+        // Non-critical, continue loading
+      }
+
       setLoading(false)
     } catch (error) {
       console.error('Error loading event:', error)
@@ -143,6 +165,27 @@ function EditEvent() {
     }
   }
 
+  // Extract image URLs from HTML content
+  const extractImagesFromContent = () => {
+    if (!formData.description) return []
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = formData.description
+    const imgElements = tempDiv.querySelectorAll('img')
+
+    return Array.from(imgElements).map(img => ({
+      url: img.src,
+      alt: img.alt || ''
+    }))
+  }
+
+  const handleCaptionChange = (imageUrl, caption) => {
+    setImageCaptions(prev => ({
+      ...prev,
+      [imageUrl]: caption
+    }))
+  }
+
   const handleSubmit = async (e, shouldPublish) => {
     e.preventDefault()
 
@@ -171,6 +214,37 @@ function EditEvent() {
       }
 
       const event = await apiService.updateEvent(id, updateData)
+
+      // Save/update image captions
+      const contentImages = extractImagesFromContent()
+      const captionPromises = contentImages.map((img, index) => {
+        const caption = imageCaptions[img.url]
+        const existingImage = existingEventImages.find(ei => ei.image_url === img.url)
+
+        if (caption && caption.trim()) {
+          if (existingImage) {
+            // Update existing caption if changed
+            if (existingImage.caption !== caption.trim()) {
+              return apiService.updateEventImageCaption(existingImage.id, caption.trim())
+            }
+          } else {
+            // Create new event image record
+            return apiService.createEventImage({
+              event_id: parseInt(id),
+              image_url: img.url,
+              caption: caption.trim(),
+              order_index: index,
+              alt_text: img.alt || null
+            })
+          }
+        } else if (existingImage && existingImage.caption) {
+          // Caption was removed, update to null
+          return apiService.updateEventImageCaption(existingImage.id, null)
+        }
+        return Promise.resolve()
+      })
+
+      await Promise.all(captionPromises)
 
       const action = shouldPublish !== undefined
         ? (shouldPublish ? 'published' : 'saved as draft')
@@ -379,6 +453,56 @@ function EditEvent() {
               </div>
             )}
           </div>
+
+          {/* Image Captions Section */}
+          {(() => {
+            const contentImages = extractImagesFromContent()
+            if (contentImages.length > 0) {
+              return (
+                <div className={styles.captionSection}>
+                  <button
+                    type="button"
+                    className={styles.captionToggle}
+                    onClick={() => setCaptionsExpanded(!captionsExpanded)}
+                  >
+                    <span className={styles.captionToggleIcon}>
+                      {captionsExpanded ? '▼' : '▶'}
+                    </span>
+                    <span>Image Captions (Optional)</span>
+                    <span className={styles.imageCount}>
+                      {contentImages.length} {contentImages.length === 1 ? 'image' : 'images'}
+                    </span>
+                  </button>
+
+                  {captionsExpanded && (
+                    <div className={styles.captionList}>
+                      {contentImages.map((img, index) => (
+                        <div key={img.url} className={styles.captionItem}>
+                          <div className={styles.captionThumbnail}>
+                            <img src={img.url} alt={img.alt || `Image ${index + 1}`} />
+                          </div>
+                          <div className={styles.captionInputWrapper}>
+                            <textarea
+                              className={styles.captionInput}
+                              value={imageCaptions[img.url] || ''}
+                              onChange={(e) => handleCaptionChange(img.url, e.target.value)}
+                              placeholder={`Caption for image ${index + 1} (e.g., "Sunset over Table Mountain from our hotel room")`}
+                              maxLength={200}
+                              rows={2}
+                            />
+                            <div className={styles.captionCharCount}>
+                              {(imageCaptions[img.url] || '').length}/200
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+            return null
+          })()}
 
           <div className={styles.actions}>
             <button type="button" className={styles.cancelButton} onClick={() => navigate(`/event/${id}`)}>
