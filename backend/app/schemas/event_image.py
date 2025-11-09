@@ -17,9 +17,13 @@ class EventImageBase(BaseModel):
 
 class EventImageCreate(BaseModel):
     event_id: int
+    image_url: str  # Required for metadata-only creation
     caption: Optional[str] = None
     order_index: int = 0
     alt_text: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    timestamp: Optional[datetime] = None
 
 class EventImageUpdate(BaseModel):
     caption: Optional[str] = None

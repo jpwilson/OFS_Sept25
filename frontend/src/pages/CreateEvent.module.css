@@ -384,6 +384,132 @@
   line-height: 1.4;
 }
 
+/* Image Caption Section */
+.captionSection {
+  margin-bottom: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.captionToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.captionToggle:hover {
+  background: var(--bg-tertiary);
+}
+
+.captionToggleIcon {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+}
+
+.imageCount {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  text-transform: none;
+  padding: 4px 12px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+}
+
+.captionList {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.captionItem {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.captionItem:hover {
+  border-color: rgba(102, 126, 234, 0.4);
+  background: var(--bg-tertiary);
+}
+
+.captionThumbnail {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.captionThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.captionInputWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.captionInput {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease;
+  min-height: 60px;
+}
+
+.captionInput:focus {
+  outline: none;
+  border-color: #764ba2;
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 2px rgba(118, 75, 162, 0.1);
+}
+
+.captionInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.captionCharCount {
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .formRow {
     flex-direction: column;

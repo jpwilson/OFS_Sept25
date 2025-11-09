@@ -286,6 +286,26 @@ class ApiService {
     }
   }
 
+  async createEventImage(imageData) {
+    try {
+      const response = await fetch(`${API_BASE}/upload/event-image-metadata`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(imageData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create event image metadata')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating event image metadata:', error)
+      throw error
+    }
+  }
+
   async getUserProfile(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}`)

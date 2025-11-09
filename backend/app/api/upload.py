@@ -429,3 +429,55 @@ async def update_event_image_caption(
     db.refresh(event_image)
 
     return event_image
+
+
+@router.post("/event-image-metadata", response_model=EventImageResponse)
+async def create_event_image_metadata(
+    image_data: EventImageCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Create an event_image record for an already-uploaded image
+    Used when images are uploaded via RichTextEditor and need captions added later
+    """
+    # Verify event exists and user has permission
+    event = db.query(Event).filter(Event.id == image_data.event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    if event.author_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to add images to this event"
+        )
+
+    # Check image limit based on subscription tier
+    existing_images_count = db.query(EventImage).filter(
+        EventImage.event_id == image_data.event_id
+    ).count()
+
+    max_images = 300 if current_user.subscription_tier in ['premium', 'family'] else 50
+    if existing_images_count >= max_images:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Image limit reached. {current_user.subscription_tier.title()} users can upload up to {max_images} images per event."
+        )
+
+    # Create event_image record
+    event_image = EventImage(
+        event_id=image_data.event_id,
+        image_url=image_data.image_url,
+        caption=image_data.caption,
+        order_index=image_data.order_index,
+        alt_text=image_data.alt_text,
+        latitude=image_data.latitude if hasattr(image_data, 'latitude') else None,
+        longitude=image_data.longitude if hasattr(image_data, 'longitude') else None,
+        timestamp=image_data.timestamp if hasattr(image_data, 'timestamp') else None
+    )
+
+    db.add(event_image)
+    db.commit()
+    db.refresh(event_image)
+
+    return event_image

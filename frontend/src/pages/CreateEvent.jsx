@@ -43,6 +43,8 @@ function CreateEvent() {
   const [gpsExtractionEnabled, setGPSExtractionEnabled] = useState(false)
   const [gpsLocations, setGpsLocations] = useState([])
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [captionsExpanded, setCaptionsExpanded] = useState(false)
+  const [imageCaptions, setImageCaptions] = useState({})
 
   // Check GPS extraction preference on component mount
   useEffect(() => {
@@ -55,6 +57,27 @@ function CreateEvent() {
   const handleGPSExtracted = (gpsData) => {
     setGpsLocations(prev => [...prev, gpsData])
     console.log('GPS data extracted:', gpsData)
+  }
+
+  // Extract image URLs from HTML content
+  const extractImagesFromContent = () => {
+    if (!formData.description) return []
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = formData.description
+    const imgElements = tempDiv.querySelectorAll('img')
+
+    return Array.from(imgElements).map(img => ({
+      url: img.src,
+      alt: img.alt || ''
+    }))
+  }
+
+  const handleCaptionChange = (imageUrl, caption) => {
+    setImageCaptions(prev => ({
+      ...prev,
+      [imageUrl]: caption
+    }))
   }
 
   const handleChange = (e) => {
@@ -150,6 +173,25 @@ function CreateEvent() {
         end_date: formData.end_date ? `${formData.end_date}T00:00:00` : formData.start_date ? `${formData.start_date}T00:00:00` : '',
         gps_locations: gpsLocations
       }, isPublished)
+
+      // Save image captions to event_images table
+      const contentImages = extractImagesFromContent()
+      const captionPromises = contentImages.map((img, index) => {
+        const caption = imageCaptions[img.url]
+        if (caption && caption.trim()) {
+          // Only save images that have captions
+          return apiService.createEventImage({
+            event_id: event.id,
+            image_url: img.url,
+            caption: caption.trim(),
+            order_index: index,
+            alt_text: img.alt || null
+          })
+        }
+        return Promise.resolve()
+      })
+
+      await Promise.all(captionPromises)
 
       showToast(isPublished ? 'Event published successfully!' : 'Draft saved successfully!', 'success')
 
@@ -371,6 +413,56 @@ function CreateEvent() {
               </div>
             )}
           </div>
+
+          {/* Image Captions Section */}
+          {(() => {
+            const contentImages = extractImagesFromContent()
+            if (contentImages.length > 0) {
+              return (
+                <div className={styles.captionSection}>
+                  <button
+                    type="button"
+                    className={styles.captionToggle}
+                    onClick={() => setCaptionsExpanded(!captionsExpanded)}
+                  >
+                    <span className={styles.captionToggleIcon}>
+                      {captionsExpanded ? '▼' : '▶'}
+                    </span>
+                    <span>Image Captions (Optional)</span>
+                    <span className={styles.imageCount}>
+                      {contentImages.length} {contentImages.length === 1 ? 'image' : 'images'}
+                    </span>
+                  </button>
+
+                  {captionsExpanded && (
+                    <div className={styles.captionList}>
+                      {contentImages.map((img, index) => (
+                        <div key={img.url} className={styles.captionItem}>
+                          <div className={styles.captionThumbnail}>
+                            <img src={img.url} alt={img.alt || `Image ${index + 1}`} />
+                          </div>
+                          <div className={styles.captionInputWrapper}>
+                            <textarea
+                              className={styles.captionInput}
+                              value={imageCaptions[img.url] || ''}
+                              onChange={(e) => handleCaptionChange(img.url, e.target.value)}
+                              placeholder={`Caption for image ${index + 1} (e.g., "Sunset over Table Mountain from our hotel room")`}
+                              maxLength={200}
+                              rows={2}
+                            />
+                            <div className={styles.captionCharCount}>
+                              {(imageCaptions[img.url] || '').length}/200
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+            return null
+          })()}
 
           <div className={styles.actions}>
             <button type="button" className={styles.cancelButton} onClick={() => navigate('/')}>
