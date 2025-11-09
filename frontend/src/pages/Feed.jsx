@@ -4,6 +4,7 @@ import styles from './Feed.module.css'
 import apiService from '../services/api'
 import { FeedSkeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
+import ShortLocation from '../components/ShortLocation'
 
 function Feed() {
   const { user } = useAuth()
@@ -41,6 +42,14 @@ function Feed() {
     }
 
     return ''
+  }
+
+  // Helper to shorten title to max 4 words
+  const getShortenedTitle = (title) => {
+    if (!title) return ''
+    const words = title.trim().split(/\s+/)
+    if (words.length <= 4) return title
+    return words.slice(0, 4).join(' ') + '...'
   }
 
   const loadFollowing = async () => {
@@ -205,7 +214,7 @@ function Feed() {
               style={{ backgroundImage: `url(${event.cover_image_url})` }}
             >
               <div className={styles.overlay}>
-                <h2 className={styles.title}>{event.title}</h2>
+                <h2 className={styles.title}>{getShortenedTitle(event.title)}</h2>
                 <div className={styles.meta}>
                   <Link
                     to={`/profile/${event.author_username}`}
@@ -217,7 +226,7 @@ function Feed() {
                   <span>·</span>
                   <span>{formatDateRange(event.start_date, event.end_date)}</span>
                   <span>·</span>
-                  <span>{event.location_name}</span>
+                  <ShortLocation locationName={event.location_name} maxWords={3} />
                 </div>
                 <p className={styles.excerpt}>{getExcerpt(event)}</p>
               </div>
