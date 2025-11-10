@@ -37,34 +37,38 @@ function EventDetail() {
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const contentRef = useRef(null)
   const mapRef = useRef(null)
+  const imageGalleryRef = useRef(null)
 
   const isAuthor = user && event && user.username === event.author_username
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
-    // Set gallery to grid mode
-    setGalleryViewMode('grid')
+    // Toggle between grid and single mode
+    const newMode = galleryViewMode === 'grid' ? 'single' : 'grid'
+    setGalleryViewMode(newMode)
 
-    // Scroll to gallery
-    setTimeout(() => {
-      const gallery = document.querySelector('[class*="gallerySection"]')
-      if (gallery) {
-        const offset = 80
-        const elementPosition = gallery.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - offset
+    // Only scroll to gallery when opening (switching to grid)
+    if (newMode === 'grid') {
+      setTimeout(() => {
+        const gallery = document.querySelector('[class*="gallerySection"]')
+        if (gallery) {
+          const offset = 80
+          const elementPosition = gallery.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        })
-      }
-    }, 100)
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+        }
+      }, 100)
+    }
 
     // Close mobile menu if open
     if (isMobile) {
       setIsMobileNavOpen(false)
     }
-  }, [isMobile])
+  }, [isMobile, galleryViewMode])
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -104,6 +108,44 @@ function EventDetail() {
       loadLikes()
     }
   }, [id, user])
+
+  // Make content images clickable to open lightbox
+  useEffect(() => {
+    if (!event || allImages.length === 0 || !imageGalleryRef.current) return
+
+    const handleImageClick = (e) => {
+      const img = e.target
+      if (img.tagName === 'IMG') {
+        e.preventDefault()
+        // Find the index of this image in allImages
+        const imageIndex = allImages.findIndex(image => {
+          const imageSrc = typeof image === 'string' ? image : image.src
+          return img.src === imageSrc
+        })
+
+        if (imageIndex !== -1 && imageGalleryRef.current) {
+          // Open lightbox at this image's position using the exposed method
+          imageGalleryRef.current.openLightbox(imageIndex)
+        }
+      }
+    }
+
+    // Attach click handlers to all images in rich content
+    const richContent = document.querySelector('[class*="richContent"]')
+    if (richContent) {
+      const images = richContent.querySelectorAll('img')
+      images.forEach(img => {
+        img.style.cursor = 'pointer'
+        img.addEventListener('click', handleImageClick)
+      })
+
+      return () => {
+        images.forEach(img => {
+          img.removeEventListener('click', handleImageClick)
+        })
+      }
+    }
+  }, [event, allImages])
 
   async function handleDelete() {
     const confirmed = await confirm({
@@ -562,7 +604,10 @@ function EventDetail() {
       {/* Gallery Button */}
       {allImages.length > 0 && (
         <button className={styles.galleryButton} onClick={handleGalleryClick}>
-          📷 View all {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
+          {galleryViewMode === 'grid'
+            ? 'Hide Grid'
+            : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
+          }
         </button>
       )}
 
@@ -570,6 +615,7 @@ function EventDetail() {
       {allImages.length > 0 && (
         <div className={styles.gallerySection}>
           <ImageGallery
+            ref={imageGalleryRef}
             images={allImages}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}

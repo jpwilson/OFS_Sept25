@@ -43,7 +43,7 @@ function CreateEvent() {
   const [gpsExtractionEnabled, setGPSExtractionEnabled] = useState(false)
   const [gpsLocations, setGpsLocations] = useState([])
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [captionsExpanded, setCaptionsExpanded] = useState(false)
+  const [captionsExpanded, setCaptionsExpanded] = useState(true) // Auto-expand on first publish
   const [imageCaptions, setImageCaptions] = useState({})
 
   // Check GPS extraction preference on component mount
