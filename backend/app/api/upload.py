@@ -243,7 +243,7 @@ async def upload_file(file: UploadFile = File(...)):
     }
 
 
-@router.post("/event-image", response_model=EventImageResponse)
+@router.post("/upload/event-image", response_model=EventImageResponse)
 async def upload_event_image(
     file: UploadFile = File(...),
     event_id: int = None,
@@ -332,7 +332,7 @@ async def upload_event_image(
     return event_image
 
 
-@router.delete("/event-image/{image_id}")
+@router.delete("/upload/event-image/{image_id}")
 async def delete_event_image(
     image_id: int,
     current_user: User = Depends(get_current_user),
@@ -383,7 +383,7 @@ async def delete_event_image(
     return {"message": "Image deleted successfully"}
 
 
-@router.get("/event-images/{event_id}", response_model=list[EventImageResponse])
+@router.get("/upload/event-images/{event_id}", response_model=list[EventImageResponse])
 async def get_event_images(
     event_id: int,
     db: Session = Depends(get_db)
@@ -398,7 +398,7 @@ async def get_event_images(
     return images
 
 
-@router.patch("/event-image/{image_id}", response_model=EventImageResponse)
+@router.patch("/upload/event-image/{image_id}", response_model=EventImageResponse)
 async def update_event_image_caption(
     image_id: int,
     caption: Optional[str] = None,
@@ -431,7 +431,7 @@ async def update_event_image_caption(
     return event_image
 
 
-@router.post("/event-image-metadata", response_model=EventImageResponse)
+@router.post("/upload/event-image-metadata", response_model=EventImageResponse)
 async def create_event_image_metadata(
     image_data: EventImageCreate,
     current_user: User = Depends(get_current_user),
