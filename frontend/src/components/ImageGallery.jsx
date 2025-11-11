@@ -97,25 +97,19 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
       {viewMode === 'grid' && (
         <div className={styles.grid}>
           {images.map((img, idx) => (
-            <div key={idx} className={styles.gridItemWrapper}>
-              <div
-                className={styles.gridItem}
-                onClick={() => openLightbox(idx)}
-                style={{
-                  backgroundImage: `url(${getThumbnailUrl(img)})`
-                }}
-              >
-                <div className={styles.gridOverlay}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                  </svg>
-                </div>
+            <div
+              key={idx}
+              className={styles.gridItem}
+              onClick={() => openLightbox(idx)}
+              style={{
+                backgroundImage: `url(${getThumbnailUrl(img)})`
+              }}
+            >
+              <div className={styles.gridOverlay}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
               </div>
-              {showCaptions && img.caption && (
-                <div className={styles.gridCaption}>
-                  {img.caption}
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -157,42 +151,6 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         render={{
           buttonPrev: slides.length <= 1 ? () => null : undefined,
           buttonNext: slides.length <= 1 ? () => null : undefined,
-          slide: ({ slide }) => {
-            const currentImage = images[index]
-            return (
-              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <img
-                  src={slide.src}
-                  alt={slide.alt || ''}
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: showCaptions && currentImage?.caption ? 'calc(100% - 80px)' : '100%',
-                    objectFit: 'contain'
-                  }}
-                />
-                {showCaptions && currentImage?.caption && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'rgba(0, 0, 0, 0.85)',
-                    color: 'white',
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    maxWidth: '80%',
-                    textAlign: 'center',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}>
-                    {currentImage.caption}
-                  </div>
-                )}
-              </div>
-            )
-          }
         }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
