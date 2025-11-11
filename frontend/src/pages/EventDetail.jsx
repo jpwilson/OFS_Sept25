@@ -314,28 +314,34 @@ function EventDetail() {
   const allImages = useMemo(() => {
     if (!event) return []
 
-    // Priority 1: Use event_images from database (new system with captions)
-    if (eventImages && eventImages.length > 0) {
-      return eventImages.map(img => ({
-        src: img.image_url,
-        caption: img.caption,
-        id: img.id,
-        alt: img.alt_text
-      }))
-    }
-
-    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
     const images = []
 
-    // Add cover image
+    // ALWAYS include cover image first if it exists
     if (event.cover_image_url) {
       images.push({ src: event.cover_image_url, caption: null })
     }
 
+    // Priority 1: Use event_images from database (new system with captions)
+    if (eventImages && eventImages.length > 0) {
+      eventImages.forEach(img => {
+        // Don't duplicate cover image if it's already in event_images
+        if (img.image_url !== event.cover_image_url) {
+          images.push({
+            src: img.image_url,
+            caption: img.caption,
+            id: img.id,
+            alt: img.alt_text
+          })
+        }
+      })
+      return images
+    }
+
+    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
     // Add images from content blocks (old system)
     if (event.content_blocks && event.content_blocks.length > 0) {
       event.content_blocks.forEach(block => {
-        if (block.type === 'image' && block.media_url) {
+        if (block.type === 'image' && block.media_url && block.media_url !== event.cover_image_url) {
           images.push({ src: block.media_url, caption: block.caption || null })
         }
       })
@@ -347,7 +353,7 @@ function EventDetail() {
       const doc = parser.parseFromString(event.description, 'text/html')
       const imgElements = doc.querySelectorAll('img')
       imgElements.forEach(img => {
-        if (img.src) {
+        if (img.src && img.src !== event.cover_image_url) {
           images.push({ src: img.src, caption: null })
         }
       })
