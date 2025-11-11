@@ -111,36 +111,47 @@ function EventDetail() {
 
   // Make content images clickable to open lightbox
   useEffect(() => {
-    if (!event || allImages.length === 0 || !imageGalleryRef.current) return
+    if (!event) return
 
     const handleImageClick = (e) => {
       const img = e.target
-      if (img.tagName === 'IMG') {
+      if (img.tagName === 'IMG' && imageGalleryRef.current && allImages.length > 0) {
         e.preventDefault()
-        // Find the index of this image in allImages
-        const imageIndex = allImages.findIndex(image => {
-          const imageSrc = typeof image === 'string' ? image : image.src
-          return img.src === imageSrc
-        })
+        try {
+          // Find the index of this image in allImages
+          const imageIndex = allImages.findIndex(image => {
+            const imageSrc = typeof image === 'string' ? image : image.src
+            return img.src === imageSrc
+          })
 
-        if (imageIndex !== -1 && imageGalleryRef.current) {
-          // Open lightbox at this image's position using the exposed method
-          imageGalleryRef.current.openLightbox(imageIndex)
+          if (imageIndex !== -1 && imageGalleryRef.current.openLightbox) {
+            imageGalleryRef.current.openLightbox(imageIndex)
+          }
+        } catch (error) {
+          console.error('Error opening lightbox:', error)
         }
       }
     }
 
-    // Attach click handlers to all images in rich content
-    const richContent = document.querySelector('[class*="richContent"]')
-    if (richContent) {
-      const images = richContent.querySelectorAll('img')
-      images.forEach(img => {
-        img.style.cursor = 'pointer'
-        img.addEventListener('click', handleImageClick)
-      })
-
-      return () => {
+    // Add small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      const richContent = document.querySelector('[class*="richContent"]')
+      if (richContent) {
+        const images = richContent.querySelectorAll('img')
         images.forEach(img => {
+          img.style.cursor = 'pointer'
+          img.addEventListener('click', handleImageClick)
+        })
+      }
+    }, 100)
+
+    return () => {
+      clearTimeout(timer)
+      const richContent = document.querySelector('[class*="richContent"]')
+      if (richContent) {
+        const images = richContent.querySelectorAll('img')
+        images.forEach(img => {
+          img.style.cursor = ''
           img.removeEventListener('click', handleImageClick)
         })
       }
