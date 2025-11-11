@@ -35,6 +35,8 @@ function EventDetail() {
   const [eventImages, setEventImages] = useState([])
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -314,24 +316,30 @@ function EventDetail() {
   const allImages = useMemo(() => {
     if (!event) return []
 
-    // Priority 1: Use event_images from database (new system with captions)
-    if (eventImages && eventImages.length > 0) {
-      return eventImages.map(img => ({
-        src: img.image_url,
-        caption: img.caption,
-        id: img.id,
-        alt: img.alt_text
-      }))
-    }
-
-    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
     const images = []
 
-    // Add cover image
+    // Always include cover image first if it exists
     if (event.cover_image_url) {
       images.push({ src: event.cover_image_url, caption: null })
     }
 
+    // Priority 1: Use event_images from database (new system with captions)
+    if (eventImages && eventImages.length > 0) {
+      eventImages.forEach(img => {
+        // Don't duplicate the cover image if it's already in event_images
+        if (img.image_url !== event.cover_image_url) {
+          images.push({
+            src: img.image_url,
+            caption: img.caption,
+            id: img.id,
+            alt: img.alt_text
+          })
+        }
+      })
+      return images
+    }
+
+    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
     // Add images from content blocks (old system)
     if (event.content_blocks && event.content_blocks.length > 0) {
       event.content_blocks.forEach(block => {
@@ -347,7 +355,7 @@ function EventDetail() {
       const doc = parser.parseFromString(event.description, 'text/html')
       const imgElements = doc.querySelectorAll('img')
       imgElements.forEach(img => {
-        if (img.src) {
+        if (img.src && img.src !== event.cover_image_url) {
           images.push({ src: img.src, caption: null })
         }
       })
@@ -355,6 +363,43 @@ function EventDetail() {
 
     return images
   }, [event, eventImages])
+
+  // Make article images clickable to open lightbox
+  useEffect(() => {
+    if (!contentRef.current || allImages.length === 0) return
+
+    const articleImages = contentRef.current.querySelectorAll('img')
+
+    const handleImageClick = (event) => {
+      const clickedSrc = event.target.src
+
+      // Find the index of this image in allImages
+      const imageIndex = allImages.findIndex(img => {
+        // Normalize URLs for comparison (handle different size paths)
+        const normalizedImgSrc = img.src.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+        const normalizedClickedSrc = clickedSrc.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+        return normalizedImgSrc === normalizedClickedSrc || img.src === clickedSrc
+      })
+
+      if (imageIndex !== -1) {
+        setLightboxIndex(imageIndex)
+        setLightboxOpen(true)
+      }
+    }
+
+    // Add click handlers to all article images
+    articleImages.forEach(img => {
+      img.style.cursor = 'pointer'
+      img.addEventListener('click', handleImageClick)
+    })
+
+    // Cleanup
+    return () => {
+      articleImages.forEach(img => {
+        img.removeEventListener('click', handleImageClick)
+      })
+    }
+  }, [allImages, event])
 
   // Parse headings from rich HTML content and generate sections
   const parsedContent = useMemo(() => {
@@ -579,6 +624,10 @@ function EventDetail() {
             images={allImages}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}
+            isOpen={lightboxOpen}
+            startIndex={lightboxIndex}
+            onOpenChange={setLightboxOpen}
+            onIndexChange={setLightboxIndex}
           />
         </div>
       )}

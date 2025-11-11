@@ -79,6 +79,12 @@
   margin-bottom: 40px;
 }
 
+.gridItemWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .gridItem {
   position: relative;
   width: 100%;
@@ -90,6 +96,17 @@
   overflow: hidden;
   transition: all 0.3s ease;
   border: 2px solid var(--border-color);
+}
+
+.gridCaption {
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .gridItem:hover {

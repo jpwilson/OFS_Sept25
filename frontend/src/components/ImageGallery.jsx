@@ -8,9 +8,9 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import styles from './ImageGallery.module.css'
 
-function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }) {
-  const [open, setOpen] = useState(false)
-  const [index, setIndex] = useState(initialIndex)
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, isOpen: controlledOpen, startIndex: controlledStartIndex, onOpenChange, onIndexChange }) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const [internalIndex, setInternalIndex] = useState(initialIndex)
   const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
   const [showCaptions, setShowCaptions] = useState(() => {
     // Load caption preference from localStorage
@@ -18,8 +18,15 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
     return saved === 'true'
   })
 
-  // Use controlled viewMode if provided, otherwise use internal state
+  // Use controlled props if provided, otherwise use internal state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const index = controlledStartIndex !== undefined ? controlledStartIndex : internalIndex
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
+
+  // Controlled mode: use callbacks to notify parent
+  // Uncontrolled mode: use internal state setters
+  const setOpen = onOpenChange || setInternalOpen
+  const setIndex = onIndexChange || setInternalIndex
   const setViewMode = onViewModeChange || setInternalViewMode
 
   // Helper to get full URL or extract full size from image object
@@ -97,19 +104,25 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
       {viewMode === 'grid' && (
         <div className={styles.grid}>
           {images.map((img, idx) => (
-            <div
-              key={idx}
-              className={styles.gridItem}
-              onClick={() => openLightbox(idx)}
-              style={{
-                backgroundImage: `url(${getThumbnailUrl(img)})`
-              }}
-            >
-              <div className={styles.gridOverlay}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
+            <div key={idx} className={styles.gridItemWrapper}>
+              <div
+                className={styles.gridItem}
+                onClick={() => openLightbox(idx)}
+                style={{
+                  backgroundImage: `url(${getThumbnailUrl(img)})`
+                }}
+              >
+                <div className={styles.gridOverlay}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
               </div>
+              {showCaptions && img.caption && (
+                <div className={styles.gridCaption}>
+                  {img.caption}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -151,6 +164,41 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         render={{
           buttonPrev: slides.length <= 1 ? () => null : undefined,
           buttonNext: slides.length <= 1 ? () => null : undefined,
+          slide: ({ slide }) => {
+            const currentImage = images[index]
+            return (
+              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <img
+                  src={slide.src}
+                  alt={slide.alt || ''}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: showCaptions && currentImage?.caption ? 'calc(100% - 80px)' : '100%',
+                    objectFit: 'contain'
+                  }}
+                />
+                {showCaptions && currentImage?.caption && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: 'white',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    maxWidth: '80%',
+                    textAlign: 'center',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    {currentImage.caption}
+                  </div>
+                )}
+              </div>
+            )
+          }
         }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
