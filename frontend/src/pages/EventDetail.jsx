@@ -42,29 +42,32 @@ function EventDetail() {
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
-    // Set gallery to grid mode
-    setGalleryViewMode('grid')
+    // Toggle between grid and single mode
+    const newMode = galleryViewMode === 'grid' ? 'single' : 'grid'
+    setGalleryViewMode(newMode)
 
-    // Scroll to gallery
-    setTimeout(() => {
-      const gallery = document.querySelector('[class*="gallerySection"]')
-      if (gallery) {
-        const offset = 80
-        const elementPosition = gallery.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - offset
+    // Only scroll to gallery when opening (switching to grid)
+    if (newMode === 'grid') {
+      setTimeout(() => {
+        const gallery = document.querySelector('[class*="gallerySection"]')
+        if (gallery) {
+          const offset = 80
+          const elementPosition = gallery.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        })
-      }
-    }, 100)
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+        }
+      }, 100)
+    }
 
     // Close mobile menu if open
     if (isMobile) {
       setIsMobileNavOpen(false)
     }
-  }, [isMobile])
+  }, [isMobile, galleryViewMode])
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -562,7 +565,10 @@ function EventDetail() {
       {/* Gallery Button */}
       {allImages.length > 0 && (
         <button className={styles.galleryButton} onClick={handleGalleryClick}>
-          📷 View all {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
+          {galleryViewMode === 'grid'
+            ? 'Hide Grid'
+            : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
+          }
         </button>
       )}
 

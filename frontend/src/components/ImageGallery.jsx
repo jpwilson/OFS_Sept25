@@ -76,33 +76,20 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
 
   return (
     <>
-      {/* Grid View Toggle */}
-      {images.length > 1 && (
+      {/* Caption Toggle */}
+      {hasCaptions && viewMode === 'grid' && (
         <div className={styles.controls}>
           <button
-            className={`${styles.viewToggle} ${viewMode === 'grid' ? styles.active : ''}`}
-            onClick={() => setViewMode(viewMode === 'grid' ? 'single' : 'grid')}
+            className={`${styles.captionToggle} ${showCaptions ? styles.active : ''}`}
+            onClick={toggleCaptions}
+            title={showCaptions ? 'Hide captions' : 'Show captions'}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3h18v18H3z"/>
+              <path d="M3 17h18M7 21v-4M17 21v-4"/>
             </svg>
-            {viewMode === 'grid' ? 'Hide Grid' : `View All ${images.length} Images`}
+            {showCaptions ? 'Hide Captions' : 'Show Captions'}
           </button>
-
-          {/* Caption Toggle */}
-          {hasCaptions && (
-            <button
-              className={`${styles.captionToggle} ${showCaptions ? styles.active : ''}`}
-              onClick={toggleCaptions}
-              title={showCaptions ? 'Hide captions' : 'Show captions'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3h18v18H3z"/>
-                <path d="M3 17h18M7 21v-4M17 21v-4"/>
-              </svg>
-              {showCaptions ? 'Hide Captions' : 'Show Captions'}
-            </button>
-          )}
         </div>
       )}
 
