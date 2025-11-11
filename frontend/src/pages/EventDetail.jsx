@@ -37,38 +37,34 @@ function EventDetail() {
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const contentRef = useRef(null)
   const mapRef = useRef(null)
-  const imageGalleryRef = useRef(null)
 
   const isAuthor = user && event && user.username === event.author_username
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
-    // Toggle between grid and single mode
-    const newMode = galleryViewMode === 'grid' ? 'single' : 'grid'
-    setGalleryViewMode(newMode)
+    // Set gallery to grid mode
+    setGalleryViewMode('grid')
 
-    // Only scroll to gallery when opening (switching to grid)
-    if (newMode === 'grid') {
-      setTimeout(() => {
-        const gallery = document.querySelector('[class*="gallerySection"]')
-        if (gallery) {
-          const offset = 80
-          const elementPosition = gallery.getBoundingClientRect().top
-          const offsetPosition = elementPosition + window.pageYOffset - offset
+    // Scroll to gallery
+    setTimeout(() => {
+      const gallery = document.querySelector('[class*="gallerySection"]')
+      if (gallery) {
+        const offset = 80
+        const elementPosition = gallery.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - offset
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          })
-        }
-      }, 100)
-    }
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
 
     // Close mobile menu if open
     if (isMobile) {
       setIsMobileNavOpen(false)
     }
-  }, [isMobile, galleryViewMode])
+  }, [isMobile])
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -108,55 +104,6 @@ function EventDetail() {
       loadLikes()
     }
   }, [id, user])
-
-  // Make content images clickable to open lightbox
-  useEffect(() => {
-    if (!event) return
-
-    const handleImageClick = (e) => {
-      const img = e.target
-      if (img.tagName === 'IMG' && imageGalleryRef.current && allImages.length > 0) {
-        e.preventDefault()
-        try {
-          // Find the index of this image in allImages
-          const imageIndex = allImages.findIndex(image => {
-            const imageSrc = typeof image === 'string' ? image : image.src
-            return img.src === imageSrc
-          })
-
-          if (imageIndex !== -1 && imageGalleryRef.current.openLightbox) {
-            imageGalleryRef.current.openLightbox(imageIndex)
-          }
-        } catch (error) {
-          console.error('Error opening lightbox:', error)
-        }
-      }
-    }
-
-    // Add small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      const richContent = document.querySelector('[class*="richContent"]')
-      if (richContent) {
-        const images = richContent.querySelectorAll('img')
-        images.forEach(img => {
-          img.style.cursor = 'pointer'
-          img.addEventListener('click', handleImageClick)
-        })
-      }
-    }, 100)
-
-    return () => {
-      clearTimeout(timer)
-      const richContent = document.querySelector('[class*="richContent"]')
-      if (richContent) {
-        const images = richContent.querySelectorAll('img')
-        images.forEach(img => {
-          img.style.cursor = ''
-          img.removeEventListener('click', handleImageClick)
-        })
-      }
-    }
-  }, [event, allImages])
 
   async function handleDelete() {
     const confirmed = await confirm({
@@ -615,10 +562,7 @@ function EventDetail() {
       {/* Gallery Button */}
       {allImages.length > 0 && (
         <button className={styles.galleryButton} onClick={handleGalleryClick}>
-          {galleryViewMode === 'grid'
-            ? 'Hide Grid'
-            : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
-          }
+          📷 View all {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
         </button>
       )}
 
@@ -626,7 +570,6 @@ function EventDetail() {
       {allImages.length > 0 && (
         <div className={styles.gallerySection}>
           <ImageGallery
-            ref={imageGalleryRef}
             images={allImages}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}

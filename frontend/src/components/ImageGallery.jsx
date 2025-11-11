@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from 'react'
+import { useState } from 'react'
 import Lightbox from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
@@ -8,7 +8,7 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import styles from './ImageGallery.module.css'
 
-const ImageGallery = forwardRef(({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }, ref) => {
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
   const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
@@ -70,31 +70,39 @@ const ImageGallery = forwardRef(({ images, initialIndex = 0, viewMode: controlle
     setOpen(true)
   }
 
-  // Expose openLightbox method to parent via ref
-  useImperativeHandle(ref, () => ({
-    openLightbox
-  }))
-
   if (images.length === 0) {
     return null
   }
 
   return (
     <>
-      {/* Caption Toggle */}
-      {hasCaptions && viewMode === 'grid' && (
+      {/* Grid View Toggle */}
+      {images.length > 1 && (
         <div className={styles.controls}>
           <button
-            className={`${styles.captionToggle} ${showCaptions ? styles.active : ''}`}
-            onClick={toggleCaptions}
-            title={showCaptions ? 'Hide captions' : 'Show captions'}
+            className={`${styles.viewToggle} ${viewMode === 'grid' ? styles.active : ''}`}
+            onClick={() => setViewMode(viewMode === 'grid' ? 'single' : 'grid')}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 3h18v18H3z"/>
-              <path d="M3 17h18M7 21v-4M17 21v-4"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/>
             </svg>
-            {showCaptions ? 'Hide Captions' : 'Show Captions'}
+            {viewMode === 'grid' ? 'Hide Grid' : `View All ${images.length} Images`}
           </button>
+
+          {/* Caption Toggle */}
+          {hasCaptions && (
+            <button
+              className={`${styles.captionToggle} ${showCaptions ? styles.active : ''}`}
+              onClick={toggleCaptions}
+              title={showCaptions ? 'Hide captions' : 'Show captions'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3h18v18H3z"/>
+                <path d="M3 17h18M7 21v-4M17 21v-4"/>
+              </svg>
+              {showCaptions ? 'Hide Captions' : 'Show Captions'}
+            </button>
+          )}
         </div>
       )}
 
@@ -164,8 +172,6 @@ const ImageGallery = forwardRef(({ images, initialIndex = 0, viewMode: controlle
       />
     </>
   )
-})
-
-ImageGallery.displayName = 'ImageGallery'
+}
 
 export default ImageGallery
