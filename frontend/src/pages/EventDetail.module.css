@@ -229,13 +229,6 @@
   background-size: cover;
   background-position: center;
   margin-bottom: 20px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.image:hover {
-  transform: scale(1.01);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 }
 
 .caption {

@@ -35,24 +35,10 @@ function EventDetail() {
   const [eventImages, setEventImages] = useState([])
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
-  const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
   const isAuthor = user && event && user.username === event.author_username
-
-  // Handle in-event image click to open lightbox
-  const handleImageClick = useCallback((imageUrl) => {
-    // Find the index of this image in allImages array
-    const imageIndex = allImages.findIndex(img => {
-      const imgSrc = typeof img === 'string' ? img : (img.src || img.url)
-      return imgSrc === imageUrl
-    })
-
-    if (imageIndex !== -1) {
-      setLightboxState({ open: true, index: imageIndex })
-    }
-  }, [allImages])
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
@@ -111,33 +97,6 @@ function EventDetail() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  // Make rich HTML images clickable (event delegation)
-  useEffect(() => {
-    if (!contentRef.current) return
-
-    const handleRichImageClick = (e) => {
-      // Check if click was on an img element
-      if (e.target.tagName === 'IMG') {
-        const imgSrc = e.target.src
-        handleImageClick(imgSrc)
-      }
-    }
-
-    const contentElement = contentRef.current
-    contentElement.addEventListener('click', handleRichImageClick)
-
-    // Also add cursor pointer style to all images in rich content
-    const images = contentElement.querySelectorAll('.richContent img')
-    images.forEach(img => {
-      img.style.cursor = 'pointer'
-      img.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
-    })
-
-    return () => {
-      contentElement.removeEventListener('click', handleRichImageClick)
-    }
-  }, [handleImageClick, parsedContent])
 
   useEffect(() => {
     loadEvent()
@@ -569,14 +528,6 @@ function EventDetail() {
                 <div
                   className={styles.image}
                   style={{ backgroundImage: `url(${block.media_url})` }}
-                  onClick={() => handleImageClick(block.media_url)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      handleImageClick(block.media_url)
-                    }
-                  }}
                 ></div>
                 {block.caption && (
                   <div className={styles.caption}>{block.caption}</div>
@@ -625,8 +576,6 @@ function EventDetail() {
             images={allImages}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}
-            externalOpen={lightboxState}
-            onExternalOpenChange={setLightboxState}
           />
         </div>
       )}

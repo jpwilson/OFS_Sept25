@@ -4,19 +4,13 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
 import Zoom from "yet-another-react-lightbox/plugins/zoom"
-import Captions from "yet-another-react-lightbox/plugins/captions"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
-import "yet-another-react-lightbox/plugins/captions.css"
 import styles from './ImageGallery.module.css'
 
-function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, externalOpen, onExternalOpenChange }) {
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
-
-  // Handle external trigger to open lightbox
-  const actualOpen = externalOpen !== undefined ? externalOpen.open : open
-  const actualIndex = externalOpen !== undefined ? externalOpen.index : index
   const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
   const [showCaptions, setShowCaptions] = useState(() => {
     // Load caption preference from localStorage
@@ -68,24 +62,12 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   const slides = images.map(img => ({
     src: getFullUrl(img),
     alt: typeof img === 'object' ? (img.alt || img.caption || '') : '',
-    description: showCaptions && typeof img === 'object' && img.caption ? img.caption : undefined
+    title: showCaptions && img.caption ? img.caption : undefined
   }))
 
   const openLightbox = (imageIndex) => {
-    if (onExternalOpenChange) {
-      onExternalOpenChange({ open: true, index: imageIndex })
-    } else {
-      setIndex(imageIndex)
-      setOpen(true)
-    }
-  }
-
-  const closeLightbox = () => {
-    if (onExternalOpenChange) {
-      onExternalOpenChange({ open: false, index: 0 })
-    } else {
-      setOpen(false)
-    }
+    setIndex(imageIndex)
+    setOpen(true)
   }
 
   if (images.length === 0) {
@@ -135,15 +117,11 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
 
       {/* Lightbox */}
       <Lightbox
-        open={actualOpen}
-        close={closeLightbox}
+        open={open}
+        close={() => setOpen(false)}
         slides={slides}
-        index={actualIndex}
-        plugins={[Captions, Thumbnails, Slideshow, Fullscreen, Zoom]}
-        captions={{
-          showToggle: true,
-          descriptionTextAlign: 'center'
-        }}
+        index={index}
+        plugins={[Thumbnails, Slideshow, Fullscreen, Zoom]}
         thumbnails={{
           position: "bottom",
           width: 120,
@@ -168,13 +146,7 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
           closeOnBackdropClick: true
         }}
         on={{
-          view: ({ index: currentIndex }) => {
-            if (onExternalOpenChange) {
-              onExternalOpenChange({ open: true, index: currentIndex })
-            } else {
-              setIndex(currentIndex)
-            }
-          }
+          view: ({ index: currentIndex }) => setIndex(currentIndex)
         }}
         render={{
           buttonPrev: slides.length <= 1 ? () => null : undefined,
