@@ -8,9 +8,13 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import styles from './ImageGallery.module.css'
 
-function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange }) {
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, lightboxOpen, lightboxIndex, onLightboxChange }) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
+
+  // Use external lightbox control if provided
+  const actualOpen = lightboxOpen !== undefined ? lightboxOpen : open
+  const actualIndex = lightboxIndex !== undefined ? lightboxIndex : index
   const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
   const [showCaptions, setShowCaptions] = useState(() => {
     // Load caption preference from localStorage
@@ -66,8 +70,20 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   }))
 
   const openLightbox = (imageIndex) => {
-    setIndex(imageIndex)
-    setOpen(true)
+    if (onLightboxChange) {
+      onLightboxChange({ open: true, index: imageIndex })
+    } else {
+      setIndex(imageIndex)
+      setOpen(true)
+    }
+  }
+
+  const closeLightbox = () => {
+    if (onLightboxChange) {
+      onLightboxChange({ open: false, index: 0 })
+    } else {
+      setOpen(false)
+    }
   }
 
   if (images.length === 0) {
@@ -117,10 +133,10 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
 
       {/* Lightbox */}
       <Lightbox
-        open={open}
-        close={() => setOpen(false)}
+        open={actualOpen}
+        close={closeLightbox}
         slides={slides}
-        index={index}
+        index={actualIndex}
         plugins={[Thumbnails, Slideshow, Fullscreen, Zoom]}
         thumbnails={{
           position: "bottom",
@@ -146,7 +162,13 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
           closeOnBackdropClick: true
         }}
         on={{
-          view: ({ index: currentIndex }) => setIndex(currentIndex)
+          view: ({ index: currentIndex }) => {
+            if (onLightboxChange) {
+              onLightboxChange({ open: true, index: currentIndex })
+            } else {
+              setIndex(currentIndex)
+            }
+          }
         }}
         render={{
           buttonPrev: slides.length <= 1 ? () => null : undefined,

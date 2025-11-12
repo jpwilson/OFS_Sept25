@@ -35,6 +35,7 @@ function EventDetail() {
   const [eventImages, setEventImages] = useState([])
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
+  const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -68,6 +69,19 @@ function EventDetail() {
       setIsMobileNavOpen(false)
     }
   }, [isMobile, galleryViewMode])
+
+  // Handle image click - simple function without useCallback to avoid circular deps
+  function handleImageClick(imageUrl) {
+    // Find the image index in allImages
+    const imageIndex = allImages.findIndex(img => {
+      const imgSrc = typeof img === 'string' ? img : (img.src || img.url)
+      return imgSrc === imageUrl
+    })
+
+    if (imageIndex !== -1) {
+      setLightboxState({ open: true, index: imageIndex })
+    }
+  }
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -527,7 +541,8 @@ function EventDetail() {
               <div key={index} className={styles.imageBlock}>
                 <div
                   className={styles.image}
-                  style={{ backgroundImage: `url(${block.media_url})` }}
+                  style={{ backgroundImage: `url(${block.media_url})`, cursor: 'pointer' }}
+                  onClick={() => handleImageClick(block.media_url)}
                 ></div>
                 {block.caption && (
                   <div className={styles.caption}>{block.caption}</div>
@@ -576,6 +591,9 @@ function EventDetail() {
             images={allImages}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}
+            lightboxOpen={lightboxState.open}
+            lightboxIndex={lightboxState.index}
+            onLightboxChange={setLightboxState}
           />
         </div>
       )}
