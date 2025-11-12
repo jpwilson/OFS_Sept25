@@ -35,6 +35,27 @@ def build_event_dict(event):
                 "updated_at": loc.updated_at.isoformat() if loc.updated_at else None
             })
 
+    # Serialize event_images (for captions)
+    images = []
+    if hasattr(event, 'images') and event.images:
+        for img in event.images:
+            images.append({
+                "id": img.id,
+                "event_id": img.event_id,
+                "image_url": img.image_url,
+                "caption": img.caption,
+                "latitude": img.latitude,
+                "longitude": img.longitude,
+                "timestamp": img.timestamp.isoformat() if img.timestamp else None,
+                "order_index": img.order_index,
+                "alt_text": img.alt_text,
+                "width": img.width,
+                "height": img.height,
+                "file_size": img.file_size,
+                "created_at": img.created_at.isoformat() if img.created_at else None,
+                "updated_at": img.updated_at.isoformat() if img.updated_at else None
+            })
+
     return {
         "id": event.id,
         "title": event.title,
@@ -57,7 +78,8 @@ def build_event_dict(event):
         "like_count": len(event.likes) if hasattr(event, 'likes') and event.likes else 0,
         "comment_count": len(event.comments) if hasattr(event, 'comments') and event.comments else 0,
         "content_blocks": [],  # Empty - content is in description field
-        "locations": locations  # Properly serialized locations
+        "locations": locations,  # Properly serialized locations
+        "event_images": images  # Include event_images with captions
     }
 
 @router.get("", response_model=List[EventResponse])
@@ -322,7 +344,8 @@ def get_user_trash(
 def get_event(event_id: int, db: Session = Depends(get_db)):
     from sqlalchemy.orm import joinedload
     event = db.query(Event).options(
-        joinedload(Event.locations)
+        joinedload(Event.locations),
+        joinedload(Event.images)  # Load event_images relationship
     ).filter(Event.id == event_id).first()
 
     if not event:

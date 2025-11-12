@@ -102,7 +102,6 @@ function EventDetail() {
     loadEvent()
     loadComments()
     loadLocations()
-    loadEventImages()
     if (user) {
       loadLikes()
     }
@@ -136,6 +135,8 @@ function EventDetail() {
       setEvent(getMockEvent(id))
     } else {
       setEvent(data)
+      // Load event_images from the event response (consolidated API call)
+      setEventImages(data.event_images || [])
     }
     setLoading(false)
   }
@@ -167,16 +168,6 @@ function EventDetail() {
     } catch (error) {
       console.error('Error loading locations:', error)
       setLocations([])
-    }
-  }
-
-  async function loadEventImages() {
-    try {
-      const images = await apiService.getEventImages(id)
-      setEventImages(images || [])
-    } catch (error) {
-      console.error('Error loading event images:', error)
-      setEventImages([])
     }
   }
 

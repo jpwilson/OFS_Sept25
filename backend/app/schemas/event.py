@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 from .event_location import EventLocation
+from .event_image import EventImageResponse
 
 class ContentBlockBase(BaseModel):
     type: str
@@ -70,6 +71,7 @@ class EventResponse(EventBase):
     updated_at: datetime
     content_blocks: List[ContentBlockResponse] = []
     locations: List[EventLocation] = []
+    event_images: List[EventImageResponse] = []  # Include images with captions
 
     class Config:
         from_attributes = True
