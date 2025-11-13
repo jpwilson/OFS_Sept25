@@ -36,8 +36,17 @@ function EventDetail() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
+  const [showCaptions, setShowCaptions] = useState(() => {
+    const saved = localStorage.getItem('showImageCaptions')
+    return saved === 'true'
+  })
   const contentRef = useRef(null)
   const mapRef = useRef(null)
+
+  // Save caption preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('showImageCaptions', showCaptions)
+  }, [showCaptions])
 
   const isAuthor = user && event && user.username === event.author_username
 
@@ -83,9 +92,9 @@ function EventDetail() {
     }
   }
 
-  // Make rich HTML images clickable with event delegation
+  // Make rich HTML images clickable with event delegation and add captions
   useEffect(() => {
-    if (!contentRef.current) return
+    if (!contentRef.current || !eventImages.length) return
 
     const handleClick = (e) => {
       // Check if click was on an img element
@@ -98,16 +107,45 @@ function EventDetail() {
     const content = contentRef.current
     content.addEventListener('click', handleClick)
 
-    // Add cursor pointer style to all images
+    // Add cursor pointer style to all images and insert captions
     const images = content.querySelectorAll('img')
     images.forEach(img => {
       img.style.cursor = 'pointer'
+
+      // Find matching caption from eventImages
+      const matchingImage = eventImages.find(ei => img.src.includes(ei.image_url) || ei.image_url.includes(img.src))
+
+      if (matchingImage && matchingImage.caption) {
+        // Check if caption already exists
+        let captionDiv = img.nextElementSibling
+        if (!captionDiv || !captionDiv.classList.contains('image-caption')) {
+          // Create caption div
+          captionDiv = document.createElement('div')
+          captionDiv.classList.add('image-caption')
+          captionDiv.style.fontSize = '14px'
+          captionDiv.style.color = '#888'
+          captionDiv.style.fontStyle = 'italic'
+          captionDiv.style.textAlign = 'center'
+          captionDiv.style.marginTop = '8px'
+          captionDiv.style.marginBottom = '20px'
+          captionDiv.textContent = matchingImage.caption
+
+          // Insert after image
+          img.parentNode.insertBefore(captionDiv, img.nextSibling)
+        }
+
+        // Show/hide based on showCaptions state
+        captionDiv.style.display = showCaptions ? 'block' : 'none'
+      }
     })
 
     return () => {
       content.removeEventListener('click', handleClick)
+      // Clean up caption divs
+      const captions = content.querySelectorAll('.image-caption')
+      captions.forEach(cap => cap.remove())
     }
-  }, [event]) // Re-run when event changes
+  }, [event, eventImages, showCaptions]) // Re-run when event, eventImages, or showCaptions changes
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -570,7 +608,7 @@ function EventDetail() {
                   style={{ backgroundImage: `url(${block.media_url})`, cursor: 'pointer' }}
                   onClick={() => handleImageClick(block.media_url)}
                 ></div>
-                {block.caption && (
+                {showCaptions && block.caption && (
                   <div className={styles.caption}>{block.caption}</div>
                 )}
               </div>
@@ -602,12 +640,21 @@ function EventDetail() {
 
       {/* Gallery Button */}
       {allImages.length > 0 && (
-        <button className={styles.galleryButton} onClick={handleGalleryClick}>
-          {galleryViewMode === 'grid'
-            ? 'Hide Grid'
-            : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
-          }
-        </button>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
+          <button className={styles.galleryButton} onClick={handleGalleryClick}>
+            {galleryViewMode === 'grid'
+              ? 'Hide Grid'
+              : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
+            }
+          </button>
+          <button
+            className={styles.galleryButton}
+            onClick={() => setShowCaptions(!showCaptions)}
+            style={{ opacity: showCaptions ? 1 : 0.6 }}
+          >
+            {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
+          </button>
+        </div>
       )}
 
       {/* Image Gallery */}
@@ -620,6 +667,7 @@ function EventDetail() {
             lightboxOpen={lightboxState.open}
             lightboxIndex={lightboxState.index}
             onLightboxChange={setLightboxState}
+            showCaptions={showCaptions}
           />
         </div>
       )}

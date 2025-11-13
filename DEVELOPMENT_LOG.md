@@ -207,5 +207,31 @@ at index-C6UPhhYQ.js:48:72485
 
 ---
 
-**Last Updated:** November 11, 2025 11:59 PM CST
-**Next Update:** After Phase 1 completion
+## Progress Log
+
+### Phase 1: Clickable Images ✅ COMPLETE
+**Date:** November 12, 2025
+**Commits:** df531b0, 4ae3bb8
+**Status:** ✅ Working in production
+
+**What we did:**
+1. Added external lightbox control to ImageGallery component
+2. Added `handleImageClick(imageUrl)` function in EventDetail (simple function, not useCallback)
+3. Made content_blocks images clickable with inline onClick
+4. Made rich HTML images clickable with event delegation
+5. Added cursor pointer styling to all images
+
+**Key insight:** Event delegation with `useEffect` that only depends on `[event]` avoids circular dependencies
+
+**Testing:**
+- ✅ Build successful locally
+- ✅ Deployed to production
+- ✅ Images are clickable
+- ✅ Lightbox opens at correct image
+- ✅ No console errors
+- ✅ No black screen issues
+
+---
+
+**Last Updated:** November 12, 2025 12:10 AM CST
+**Next Update:** After Phase 2 completion (lightbox captions)

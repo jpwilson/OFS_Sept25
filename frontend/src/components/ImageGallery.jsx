@@ -4,11 +4,13 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
 import Zoom from "yet-another-react-lightbox/plugins/zoom"
+import Captions from "yet-another-react-lightbox/plugins/captions"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
+import "yet-another-react-lightbox/plugins/captions.css"
 import styles from './ImageGallery.module.css'
 
-function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, lightboxOpen, lightboxIndex, onLightboxChange }) {
+function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, lightboxOpen, lightboxIndex, onLightboxChange, showCaptions = false }) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
 
@@ -16,11 +18,6 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   const actualOpen = lightboxOpen !== undefined ? lightboxOpen : open
   const actualIndex = lightboxIndex !== undefined ? lightboxIndex : index
   const [internalViewMode, setInternalViewMode] = useState('single') // 'single' or 'grid'
-  const [showCaptions, setShowCaptions] = useState(() => {
-    // Load caption preference from localStorage
-    const saved = localStorage.getItem('showImageCaptions')
-    return saved === 'true'
-  })
 
   // Use controlled viewMode if provided, otherwise use internal state
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
@@ -52,13 +49,6 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
     return img.urls?.thumbnail || img.url || img
   }
 
-  // Toggle caption visibility
-  const toggleCaptions = () => {
-    const newValue = !showCaptions
-    setShowCaptions(newValue)
-    localStorage.setItem('showImageCaptions', newValue.toString())
-  }
-
   // Check if any images have captions
   const hasCaptions = images.some(img => img.caption)
 
@@ -66,7 +56,7 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   const slides = images.map(img => ({
     src: getFullUrl(img),
     alt: typeof img === 'object' ? (img.alt || img.caption || '') : '',
-    title: showCaptions && img.caption ? img.caption : undefined
+    description: typeof img === 'object' && img.caption ? img.caption : undefined
   }))
 
   const openLightbox = (imageIndex) => {
@@ -92,23 +82,6 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
 
   return (
     <>
-      {/* Caption Toggle */}
-      {hasCaptions && viewMode === 'grid' && (
-        <div className={styles.controls}>
-          <button
-            className={`${styles.captionToggle} ${showCaptions ? styles.active : ''}`}
-            onClick={toggleCaptions}
-            title={showCaptions ? 'Hide captions' : 'Show captions'}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 3h18v18H3z"/>
-              <path d="M3 17h18M7 21v-4M17 21v-4"/>
-            </svg>
-            {showCaptions ? 'Hide Captions' : 'Show Captions'}
-          </button>
-        </div>
-      )}
-
       {/* Grid View */}
       {viewMode === 'grid' && (
         <div className={styles.grid}>
@@ -137,7 +110,12 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         close={closeLightbox}
         slides={slides}
         index={actualIndex}
-        plugins={[Thumbnails, Slideshow, Fullscreen, Zoom]}
+        plugins={[Captions, Thumbnails, Slideshow, Fullscreen, Zoom]}
+        captions={{
+          showToggle: false,
+          descriptionTextAlign: 'center',
+          descriptionMaxLines: 3
+        }}
         thumbnails={{
           position: "bottom",
           width: 120,
@@ -154,6 +132,10 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         zoom={{
           maxZoomPixelRatio: 3,
           scrollToZoom: true
+        }}
+        carousel={{
+          // Show/hide captions based on parent state
+          finite: false
         }}
         animation={{
           fade: 300
@@ -176,7 +158,8 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
-          thumbnailsContainer: { backgroundColor: "rgba(0, 0, 0, 0.8)" }
+          thumbnailsContainer: { backgroundColor: "rgba(0, 0, 0, 0.8)" },
+          captionsContainer: showCaptions ? {} : { display: 'none' }
         }}
       />
     </>
