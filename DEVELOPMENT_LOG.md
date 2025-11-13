@@ -233,5 +233,32 @@ at index-C6UPhhYQ.js:48:72485
 
 ---
 
-**Last Updated:** November 12, 2025 12:10 AM CST
-**Next Update:** After Phase 2 completion (lightbox captions)
+### Phase 2: Caption Display & Toggle ✅ COMPLETE
+**Date:** November 12, 2025
+**Commit:** 3044d3c
+**Status:** ✅ Working in production
+
+**What we did:**
+1. Added showCaptions state with localStorage persistence in EventDetail
+2. Added "💬 Show/Hide Captions" toggle button (next to gallery button)
+3. Made rich HTML image captions appear below images using DOM manipulation
+4. Made content_blocks captions toggleable (previously always shown)
+5. Added Captions plugin to lightbox
+6. Single toggle controls ALL captions (in-event + lightbox)
+
+**Key features:**
+- User preference saved to localStorage
+- DOM manipulation to insert captions after rich HTML images
+- Matches images to captions by URL from eventImages array
+- Captions styled consistently (14px, #888, italic, centered)
+- Lightbox uses Captions plugin with description field
+
+**Testing:**
+- ✅ Build successful locally (no duplicate styles warning after fix)
+- ✅ Deployed to production
+- 🔄 Awaiting user testing
+
+---
+
+**Last Updated:** November 12, 2025 12:25 AM CST
+**Next Update:** After user testing Phase 2
