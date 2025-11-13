@@ -83,6 +83,32 @@ function EventDetail() {
     }
   }
 
+  // Make rich HTML images clickable with event delegation
+  useEffect(() => {
+    if (!contentRef.current) return
+
+    const handleClick = (e) => {
+      // Check if click was on an img element
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault()
+        handleImageClick(e.target.src)
+      }
+    }
+
+    const content = contentRef.current
+    content.addEventListener('click', handleClick)
+
+    // Add cursor pointer style to all images
+    const images = content.querySelectorAll('img')
+    images.forEach(img => {
+      img.style.cursor = 'pointer'
+    })
+
+    return () => {
+      content.removeEventListener('click', handleClick)
+    }
+  }, [event]) // Re-run when event changes
+
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
     if (mapRef.current) {
