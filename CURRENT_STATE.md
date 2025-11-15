@@ -4,13 +4,15 @@
 **Status:** Production - Live at ourfamilysocials.com
 **Purpose:** Private social network for families to share life events, photos, and memories
 
+**⚠️ IMPORTANT:** This document should be updated whenever significant changes are made to the codebase.
+
 ---
 
 ## 🚀 Quick Start for New Claude Sessions
 
 This document provides everything you need to know to continue development without breaking existing functionality.
 
-**Key principle:** This is a WORKING production app with real users. Always test locally, build before pushing, and implement changes incrementally.
+**Key principle:** This is a WORKING production app with real users. Test frontend builds before pushing, and implement changes incrementally.
 
 ---
 
@@ -60,12 +62,19 @@ This document provides everything you need to know to continue development witho
 
 ## 🗄️ Database Setup (CRITICAL)
 
-**IMPORTANT:** We do NOT use local SQLite for development!
+**IMPORTANT:** The ONLY source of truth is the Supabase PostgreSQL database!
 
-- **Production:** PostgreSQL on Supabase
-- **Local SQLite:** EXISTS but only to start FastAPI server - NOT used for data
-- **Schema Changes:** Provide SQL commands - user runs them in Supabase dashboard
-- **No Migration Files:** User manages schema directly in Supabase
+- **Production Database:** PostgreSQL on Supabase - THIS IS THE REAL DATABASE
+- **Local SQLite:** Not used at all (may exist as legacy artifact)
+- **Migration Files:** Legacy artifacts - DO NOT USE - they don't reflect actual database state
+- **Schema Changes:** User runs SQL directly in Supabase dashboard when needed
+- **How to add tables/columns:** Provide SQL commands for user to run in Supabase SQL editor
+
+**Example:** If you need to add a column:
+```sql
+-- Provide this SQL to user, they run it in Supabase
+ALTER TABLE events ADD COLUMN new_field TEXT;
+```
 
 ### Connection Pool Details
 - Using **Session mode** pooler (port 5432)
@@ -131,12 +140,21 @@ OFS_claude/
 
 ## ⚠️ Critical Patterns to Follow
 
-### 1. ALWAYS Test Build Locally Before Pushing
+### 1. ALWAYS Test Frontend Build Before Pushing
+**What this means:** Run the Vite build command to check for bundling errors BEFORE pushing to GitHub.
+
 ```bash
 cd frontend
 npm run build
 ```
-If build fails locally, it will fail in production. Circular dependencies cause "Cannot access 'X' before initialization" errors.
+
+**Why:** If the build fails locally, it will fail in Vercel production too. This catches:
+- Circular dependencies ("Cannot access 'X' before initialization")
+- Import errors
+- Duplicate props (e.g., two `styles=` attributes)
+- TypeScript errors (if using TS)
+
+**You are NOT running the full app locally** - just checking that the frontend code bundles correctly.
 
 ### 2. Avoid Circular Dependencies
 ❌ **BAD:**
@@ -203,11 +221,11 @@ const actualOpen = lightboxOpen !== undefined ? lightboxOpen : open
 
 ## 🚫 Common Pitfalls (DON'T DO THESE)
 
-### 1. Don't Assume Local Database is in Sync
-The local SQLite database is NOT used. All data is in Supabase production database.
+### 1. Don't Trust Migration Files
+Migration files in `/backend/migrations/` are legacy artifacts. The ONLY source of truth is what's actually in the Supabase database right now. If you need to change the schema, provide SQL for the user to run in Supabase.
 
 ### 2. Don't Use Multiple API Calls Per Page
-This exhausts the connection pool. Consolidate related data.
+This exhausts the connection pool (max 3-5 connections). Consolidate related data.
 
 ❌ BAD:
 ```javascript
@@ -217,17 +235,17 @@ const images = await apiService.getEventImages(id) // Separate call!
 
 ✅ GOOD:
 ```javascript
-const event = await apiService.getEvent(id) // Includes event_images
+const event = await apiService.getEvent(id) // Already includes event_images
 ```
 
-### 3. Don't Use Transaction Mode Pooler
-We tried switching from Session to Transaction mode on Nov 11. Backend crashed with no useful logs. Stick with Session mode.
+### 3. Don't Switch to Transaction Mode Pooler
+We tried this on Nov 11. Backend crashed with "Python process exited" and no useful logs. Stick with Session mode (port 5432).
 
-### 4. Don't Implement Features Without Testing Build
-Multiple times we pushed code that built locally but broke in production due to bundling issues. ALWAYS `npm run build` first.
+### 4. Don't Push Without Testing Frontend Build
+Run `npm run build` in the frontend directory BEFORE pushing. This catches bundling errors that will break production.
 
 ### 5. Don't Create Complex Hook Dependencies
-Keep functions simple. Use regular functions instead of useCallback when possible.
+Keep functions simple. Use regular functions instead of useCallback when possible to avoid circular dependencies.
 
 ---
 
@@ -255,29 +273,39 @@ Keep functions simple. Use regular functions instead of useCallback when possibl
 
 1. **Read DEVELOPMENT_LOG.md** - See what we tried and what worked/failed
 2. **Check commit history** - Recent patterns and approaches
-3. **Test locally first** - Always `npm run build` before pushing
-4. **Implement incrementally** - One feature at a time, test in production
-5. **Document lessons learned** - Update DEVELOPMENT_LOG.md
+3. **Test frontend build** - Run `npm run build` to catch bundling errors
+4. **Implement incrementally** - One feature at a time, test in production after each
+5. **Document lessons learned** - Update DEVELOPMENT_LOG.md and CURRENT_STATE.md
 
 ### Example: Adding a New Feature
 ```bash
-# 1. Make code changes
-# 2. Test build
-cd frontend && npm run build
+# 1. Make code changes in your editor
 
-# 3. If successful, commit
+# 2. Test that frontend builds without errors
+cd frontend
+npm run build
+# ↑ This just checks for build errors, doesn't run the app
+
+# 3. If build successful, commit
+cd ..
 git add <files>
 git commit -m "Clear description of what changed"
 
-# 4. Push to GitHub (triggers Vercel deploy)
+# 4. Push to GitHub (triggers Vercel auto-deploy)
 git push origin main
 
-# 5. Wait 2-3 mins for Vercel deploy
-# 6. Test in production
+# 5. Wait 2-3 minutes for Vercel to deploy
+
+# 6. Test in production at ourfamilysocials.com
+# Hard refresh browser (Cmd+Shift+R) to clear cache
+
 # 7. If broken, revert immediately:
 git revert HEAD --no-edit
 git push origin main
+# ↑ This creates a new commit that undoes the last one
 ```
+
+**Note:** We test in production because there's no local dev environment with the Supabase database.
 
 ---
 
@@ -370,6 +398,32 @@ When you start working on this project:
 
 ---
 
+## 🔄 Updating This Document
+
+**This document should be updated when:**
+- Major features are added/changed
+- Architecture changes (new services, database changes, etc.)
+- New patterns are established
+- Critical bugs are discovered and fixed
+- Deployment process changes
+
+**How to update:**
+1. Edit CURRENT_STATE.md with new information
+2. Update the "Last Updated" date at the top
+3. Commit with message like: "Update CURRENT_STATE.md - [what changed]"
+
+**Don't worry about:**
+- Minor bug fixes
+- Small UI tweaks
+- Code refactoring that doesn't change behavior
+
+The goal is to keep this accurate enough to be useful, not to document every single change.
+
+---
+
 **Created:** November 12, 2025
+**Last Major Update:** November 12, 2025
 **Author:** Claude Code
 **Purpose:** Onboarding document for future Claude sessions
+
+**Next Claude:** Start here, then read DEVELOPMENT_LOG.md for recent detailed work.
