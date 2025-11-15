@@ -384,46 +384,57 @@ function EventDetail() {
     if (!event) return []
 
     const images = []
+    const imageUrls = new Set() // Track unique image URLs to avoid duplicates
 
-    // ALWAYS include cover image first if it exists
-    if (event.cover_image_url) {
-      images.push({ src: event.cover_image_url, caption: null })
+    // Helper to normalize URLs for comparison (handle /full/, /medium/, /thumbnails/ variations)
+    const normalizeUrl = (url) => {
+      if (!url) return ''
+      return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
     }
 
-    // Priority 1: Use event_images from database (new system with captions)
+    // Helper to add image if not duplicate
+    const addImage = (src, caption = null, id = null, alt = null) => {
+      const normalizedUrl = normalizeUrl(src)
+      if (!imageUrls.has(normalizedUrl)) {
+        imageUrls.add(normalizedUrl)
+        images.push({ src, caption, id, alt })
+      }
+    }
+
+    // 1. ALWAYS include cover image first if it exists
+    if (event.cover_image_url) {
+      addImage(event.cover_image_url, null)
+    }
+
+    // 2. Add images from event_images table (these have captions)
     if (eventImages && eventImages.length > 0) {
       eventImages.forEach(img => {
-        // Don't duplicate cover image if it's already in event_images
-        if (img.image_url !== event.cover_image_url) {
-          images.push({
-            src: img.image_url,
-            caption: img.caption,
-            id: img.id,
-            alt: img.alt_text
-          })
-        }
+        addImage(img.image_url, img.caption, img.id, img.alt_text)
       })
-      return images
     }
 
-    // Priority 2: Fallback to HTML parsing (backwards compatibility for old events)
-    // Add images from content blocks (old system)
+    // 3. Add images from content blocks (old system - backwards compatibility)
     if (event.content_blocks && event.content_blocks.length > 0) {
       event.content_blocks.forEach(block => {
-        if (block.type === 'image' && block.media_url && block.media_url !== event.cover_image_url) {
-          images.push({ src: block.media_url, caption: block.caption || null })
+        if (block.type === 'image' && block.media_url) {
+          addImage(block.media_url, block.caption || null)
         }
       })
     }
 
-    // Add images from rich HTML content
-    if ((!event.content_blocks || event.content_blocks.length === 0) && event.description) {
+    // 4. Parse rich HTML content and add any images not already included
+    // This catches images added to the editor that don't have captions
+    if (event.description) {
       const parser = new DOMParser()
       const doc = parser.parseFromString(event.description, 'text/html')
       const imgElements = doc.querySelectorAll('img')
       imgElements.forEach(img => {
-        if (img.src && img.src !== event.cover_image_url) {
-          images.push({ src: img.src, caption: null })
+        if (img.src) {
+          // Try to find matching caption from eventImages
+          const matchingImage = eventImages?.find(ei =>
+            normalizeUrl(img.src) === normalizeUrl(ei.image_url)
+          )
+          addImage(img.src, matchingImage?.caption || null, matchingImage?.id, matchingImage?.alt_text)
         }
       })
     }
