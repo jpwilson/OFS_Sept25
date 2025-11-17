@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = ""
     SUPABASE_BUCKET: str = "event-images"
 
+    # Video settings
+    SUPABASE_VIDEO_BUCKET: str = "event-videos"
+    MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB
+    MAX_VIDEO_DURATION: int = 120  # 2 minutes in seconds
+    ALLOWED_VIDEO_FORMATS: list = [".mp4", ".mov", ".avi", ".webm"]
+
     # Supabase Auth (for authentication)
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_JWT_SECRET: str = ""

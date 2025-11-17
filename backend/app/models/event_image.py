@@ -20,6 +20,10 @@ class EventImage(Base):
     width = Column(Integer, nullable=True)  # Image dimensions
     height = Column(Integer, nullable=True)
     file_size = Column(Integer, nullable=True)  # In bytes
+    # Video support
+    media_type = Column(String(10), default='image', nullable=False)  # 'image' or 'video'
+    duration_seconds = Column(Integer, nullable=True)  # Video duration
+    video_thumbnail_url = Column(Text, nullable=True)  # Thumbnail for video preview
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

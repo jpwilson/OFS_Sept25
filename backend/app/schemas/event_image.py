@@ -14,6 +14,10 @@ class EventImageBase(BaseModel):
     width: Optional[int] = None
     height: Optional[int] = None
     file_size: Optional[int] = None
+    # Video fields
+    media_type: str = 'image'  # 'image' or 'video'
+    duration_seconds: Optional[int] = None
+    video_thumbnail_url: Optional[str] = None
 
 class EventImageCreate(BaseModel):
     event_id: int
@@ -24,6 +28,10 @@ class EventImageCreate(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     timestamp: Optional[datetime] = None
+    # Video fields
+    media_type: str = 'image'
+    duration_seconds: Optional[int] = None
+    video_thumbnail_url: Optional[str] = None
 
 class EventImageUpdate(BaseModel):
     caption: Optional[str] = None
