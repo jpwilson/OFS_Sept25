@@ -204,6 +204,36 @@ class ApiService {
     }
   }
 
+  async uploadVideo(file) {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      // Get token from Supabase session or legacy storage
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || localStorage.getItem('token')
+
+      const response = await fetch(`${API_BASE}/upload/video`, {
+        method: 'POST',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to upload video')
+      }
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('Error uploading video:', error)
+      throw error
+    }
+  }
+
   // Event Image methods (for caption system)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
     try {

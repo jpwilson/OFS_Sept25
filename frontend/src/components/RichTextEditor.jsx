@@ -7,6 +7,7 @@ import styles from './RichTextEditor.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
 import { LocationMarker } from '../extensions/LocationMarker'
+import { VideoNode } from '../extensions/VideoNode'
 import LocationPicker from './LocationPicker'
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false }) {
@@ -58,6 +59,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         inline: false,
         allowBase64: true
       }),
+      VideoNode,
       Placeholder.configure({
         placeholder
       }),
@@ -131,6 +133,50 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     input.click()
   }, [editor, uploadImage, showToast])
+
+  const uploadVideo = useCallback(async (file) => {
+    if (!file.type.startsWith('video/')) {
+      showToast('Please select a video file', 'error')
+      return null
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      showToast('Video must be smaller than 100MB', 'error')
+      return null
+    }
+
+    try {
+      const result = await apiService.uploadVideo(file)
+      return result.url
+    } catch (error) {
+      console.error('Error uploading video:', error)
+      showToast('Failed to upload video. Please try again.', 'error')
+      return null
+    }
+  }, [showToast])
+
+  const addVideo = useCallback(async () => {
+    if (!editor) return
+
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'video/*'
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        setIsUploading(true)
+        const url = await uploadVideo(file)
+        if (url) {
+          editor.chain().focus().setVideo({ src: url }).run()
+          showToast('Video uploaded successfully', 'success')
+        }
+        setIsUploading(false)
+      }
+    }
+
+    input.click()
+  }, [editor, uploadVideo, showToast])
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault()
@@ -284,6 +330,15 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
             className={styles.imageButton}
           >
             {isUploading ? 'Uploading...' : '📷 Image'}
+          </button>
+          <button
+            type="button"
+            onClick={addVideo}
+            disabled={isUploading}
+            title="Add Video"
+            className={styles.videoButton}
+          >
+            {isUploading ? 'Uploading...' : '📹 Video'}
           </button>
           <button
             type="button"
