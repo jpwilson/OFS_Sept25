@@ -204,30 +204,43 @@ class ApiService {
     }
   }
 
-  async uploadVideo(file) {
+  async uploadVideo(file, onProgress) {
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      // Upload directly to Supabase Storage (bypass backend to avoid Vercel 4.5MB limit)
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
 
-      // Get token from Supabase session or legacy storage
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token || localStorage.getItem('token')
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('event-videos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+          onUploadProgress: (progress) => {
+            if (onProgress) {
+              const percent = (progress.loaded / progress.total) * 100
+              onProgress(percent)
+            }
+          }
+        })
 
-      const response = await fetch(`${API_BASE}/upload/video`, {
-        method: 'POST',
-        headers: {
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        },
-        body: formData
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to upload video')
+      if (error) {
+        console.error('Supabase upload error:', error)
+        throw new Error(error.message || 'Failed to upload video to storage')
       }
 
-      const data = await response.json()
-      return data
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('event-videos')
+        .getPublicUrl(fileName)
+
+      return {
+        url: publicUrl,
+        filename: fileName,
+        file_size: file.size,
+        format: fileExt
+      }
     } catch (error) {
       console.error('Error uploading video:', error)
       throw error

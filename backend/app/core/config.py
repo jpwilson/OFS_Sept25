@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     SUPABASE_JWT_SECRET: str = ""
 
     # CORS Origins (comma-separated list of allowed origins)
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ofs-sept25-frontend.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ofs-sept25-frontend.vercel.app,https://www.ourfamilysocials.com,https://ourfamilysocials.com"
 
     class Config:
         env_file = ".env"

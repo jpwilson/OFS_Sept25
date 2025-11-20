@@ -14,6 +14,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadType, setUploadType] = useState('') // 'image' or 'video'
   const { showToast } = useToast()
 
   const editor = useEditor({
@@ -146,11 +148,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
 
     try {
-      const result = await apiService.uploadVideo(file)
+      setUploadProgress(0)
+      const result = await apiService.uploadVideo(file, (progress) => {
+        setUploadProgress(Math.round(progress))
+      })
       return result.url
     } catch (error) {
       console.error('Error uploading video:', error)
-      showToast('Failed to upload video. Please try again.', 'error')
+      showToast(`Failed to upload video: ${error.message}`, 'error')
       return null
     }
   }, [showToast])
@@ -166,12 +171,19 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       const file = e.target.files[0]
       if (file) {
         setIsUploading(true)
+        setUploadType('video')
+        setUploadProgress(0)
+
         const url = await uploadVideo(file)
+
         if (url) {
           editor.chain().focus().setVideo({ src: url }).run()
           showToast('Video uploaded successfully', 'success')
         }
+
         setIsUploading(false)
+        setUploadType('')
+        setUploadProgress(0)
       }
     }
 
@@ -247,6 +259,42 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
   return (
     <div className={styles.container}>
+      {/* Upload progress indicator - fixed position, always visible */}
+      {isUploading && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: '#000',
+          color: '#fff',
+          padding: '16px 24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          zIndex: 9999,
+          minWidth: '280px'
+        }}>
+          <div style={{ marginBottom: '8px', fontWeight: '600' }}>
+            {uploadType === 'video' ? '📹 Uploading video...' : '📷 Uploading image...'}
+          </div>
+          <div style={{
+            background: '#333',
+            height: '8px',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              background: 'linear-gradient(90deg, #4CAF50, #8BC34A)',
+              height: '100%',
+              width: `${uploadProgress}%`,
+              transition: 'width 0.3s ease'
+            }} />
+          </div>
+          <div style={{ marginTop: '8px', fontSize: '14px', color: '#aaa' }}>
+            {uploadProgress}% complete
+          </div>
+        </div>
+      )}
+
       <div className={styles.menuBar}>
         <div className={styles.buttonGroup}>
           <button
