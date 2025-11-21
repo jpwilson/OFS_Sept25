@@ -205,17 +205,15 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     setVideoTasks(prev => [...prev, newTask])
 
     try {
-      // Step 1: Process video (extract thumbnail & compress)
+      // Step 1: Extract thumbnail only (skip compression - too slow!)
       updateTask(taskId, { status: 'compressing', progress: 0 })
 
-      const result = await processVideo(file, {
-        onCompressionProgress: (progress) => {
-          updateTask(taskId, { progress })
-        },
-      })
+      // Extract thumbnail
+      const { extractThumbnail } = await import('../utils/videoCompression')
+      const thumbnail = await extractThumbnail(file)
 
       // Step 2: Upload thumbnail first
-      const thumbnailFile = new File([result.thumbnail], `${taskId}-thumb.jpg`, { type: 'image/jpeg' })
+      const thumbnailFile = new File([thumbnail], `${taskId}-thumb.jpg`, { type: 'image/jpeg' })
       const thumbnailResult = await apiService.uploadImage(thumbnailFile)
 
       updateTask(taskId, {
@@ -224,9 +222,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         progress: 0,
       })
 
-      // Step 3: Upload compressed video
-      const videoFile = new File([result.compressedVideo], file.name, { type: 'video/mp4' })
-      const videoResult = await apiService.uploadVideo(videoFile, (progress) => {
+      // Step 3: Upload original video (no compression)
+      const videoResult = await apiService.uploadVideo(file, (progress) => {
         updateTask(taskId, { progress })
       })
 
@@ -241,12 +238,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       editor.chain().focus().setVideo({ src: videoResult.url }).run()
 
       // Show success message
-      if (result.compressionSkipped) {
-        showToast('Video uploaded successfully (compression skipped - file uploaded as-is)', 'warning')
-      } else {
-        const savings = Math.round((1 - result.compressedSize / result.originalSize) * 100)
-        showToast(`Video uploaded and compressed successfully (${savings}% smaller)`, 'success')
-      }
+      showToast('Video uploaded successfully', 'success')
 
     } catch (error) {
       console.error('Video upload failed:', error)
