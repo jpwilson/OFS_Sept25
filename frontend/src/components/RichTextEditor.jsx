@@ -239,7 +239,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
       // Insert video into editor
       editor.chain().focus().setVideo({ src: videoResult.url }).run()
-      showToast('Video uploaded and compressed successfully', 'success')
+
+      // Show success message
+      if (result.compressionSkipped) {
+        showToast('Video uploaded successfully (compression skipped - file uploaded as-is)', 'warning')
+      } else {
+        const savings = Math.round((1 - result.compressedSize / result.originalSize) * 100)
+        showToast(`Video uploaded and compressed successfully (${savings}% smaller)`, 'success')
+      }
 
     } catch (error) {
       console.error('Video upload failed:', error)

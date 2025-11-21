@@ -18,15 +18,32 @@ async function getFFmpeg() {
 
   if (!ffmpegLoaded) {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
+      // Use jsdelivr CDN which is more reliable
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm'
+
       await ffmpegInstance.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       })
+
+      console.log('FFmpeg loaded successfully')
       ffmpegLoaded = true
     } catch (error) {
       console.error('Failed to load FFmpeg:', error)
-      throw new Error('Failed to initialize video processor')
+
+      // Try fallback with direct URLs (no toBlobURL)
+      try {
+        console.log('Trying fallback FFmpeg loading...')
+        await ffmpegInstance.load({
+          coreURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js',
+          wasmURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.wasm',
+        })
+        console.log('FFmpeg loaded via fallback')
+        ffmpegLoaded = true
+      } catch (fallbackError) {
+        console.error('Fallback FFmpeg loading also failed:', fallbackError)
+        throw new Error('Failed to initialize video processor. Please check your internet connection.')
+      }
     }
   }
 
@@ -118,9 +135,17 @@ export async function compressVideo(file, onProgress) {
     // Get video metadata
     const metadata = await getVideoMetadata(file)
 
-    // If video is already low quality (below 720p), skip compression
+    // If video is already low quality (below 720p) or small file, skip compression
     if (metadata.height <= 720 && metadata.width <= 1280) {
       console.log('Video already at acceptable quality, skipping compression')
+      if (onProgress) onProgress(100)
+      return file
+    }
+
+    // If file is already small, skip compression
+    if (file.size < 50 * 1024 * 1024) { // < 50MB
+      console.log('Video already small enough, skipping compression')
+      if (onProgress) onProgress(100)
       return file
     }
 
@@ -180,7 +205,7 @@ export async function compressVideo(file, onProgress) {
 /**
  * Full video processing pipeline
  * 1. Extract thumbnail
- * 2. Compress video
+ * 2. Compress video (or skip if FFmpeg unavailable)
  *
  * @param {File} file - Original video file
  * @param {Object} callbacks - Progress callbacks
@@ -205,12 +230,24 @@ export async function processVideo(file, callbacks = {}) {
     if (onThumbnailProgress) onThumbnailProgress(100)
     if (onOverallProgress) onOverallProgress(20)
 
-    // Compress video
-    const compressedVideo = await compressVideo(file, (progress) => {
-      if (onCompressionProgress) onCompressionProgress(progress)
-      // Overall progress: 20% + (80% * compression progress)
-      if (onOverallProgress) onOverallProgress(20 + Math.round(progress * 0.8))
-    })
+    // Try to compress video, fallback to original if FFmpeg fails
+    let compressedVideo = file
+    let compressionSkipped = false
+
+    try {
+      compressedVideo = await compressVideo(file, (progress) => {
+        if (onCompressionProgress) onCompressionProgress(progress)
+        // Overall progress: 20% + (80% * compression progress)
+        if (onOverallProgress) onOverallProgress(20 + Math.round(progress * 0.8))
+      })
+    } catch (compressionError) {
+      console.warn('Video compression failed, uploading original:', compressionError)
+      compressionSkipped = true
+      // Use original file
+      compressedVideo = file
+      if (onCompressionProgress) onCompressionProgress(100)
+      if (onOverallProgress) onOverallProgress(100)
+    }
 
     if (onOverallProgress) onOverallProgress(100)
 
@@ -220,6 +257,7 @@ export async function processVideo(file, callbacks = {}) {
       metadata,
       originalSize: file.size,
       compressedSize: compressedVideo.size,
+      compressionSkipped, // Flag to notify user
     }
   } catch (error) {
     console.error('Video processing failed:', error)
