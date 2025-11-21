@@ -21,19 +21,24 @@ def get_supabase_client() -> Client:
     )
 
 
-class ImageExtractor(HTMLParser):
-    """Parse HTML to extract image URLs"""
+class MediaExtractor(HTMLParser):
+    """Parse HTML to extract image and video URLs"""
 
     def __init__(self):
         super().__init__()
         self.image_urls = []
+        self.video_urls = []
 
     def handle_starttag(self, tag, attrs):
+        attrs_dict = dict(attrs)
         if tag == 'img':
-            attrs_dict = dict(attrs)
             src = attrs_dict.get('src')
             if src:
                 self.image_urls.append(src)
+        elif tag == 'video':
+            src = attrs_dict.get('src')
+            if src:
+                self.video_urls.append(src)
 
 
 def extract_filename_from_url(url: str) -> str | None:
@@ -68,6 +73,31 @@ def extract_filename_from_url(url: str) -> str | None:
     return None
 
 
+def extract_video_filename_from_url(url: str) -> str | None:
+    """
+    Extract filename from video URL (Supabase Storage URLs)
+
+    Examples:
+        https://xxx.supabase.co/storage/v1/object/public/event-videos/abc123.mp4 -> abc123.mp4
+
+    Args:
+        url: Video URL
+
+    Returns:
+        Filename (e.g., 'abc123.mp4') or None if not a video URL
+    """
+    if not url:
+        return None
+
+    # Match pattern: Supabase Storage URL for videos
+    # https://xxx.supabase.co/storage/v1/object/public/event-videos/{filename}
+    match = re.search(r'/storage/v1/object/public/event-videos/([^/\?#]+)', url)
+    if match:
+        return match.group(1)
+
+    return None
+
+
 def extract_image_filenames_from_html(html_content: str) -> Set[str]:
     """
     Extract all image filenames from HTML content
@@ -81,7 +111,7 @@ def extract_image_filenames_from_html(html_content: str) -> Set[str]:
     if not html_content:
         return set()
 
-    parser = ImageExtractor()
+    parser = MediaExtractor()
     try:
         parser.feed(html_content)
     except Exception as e:
@@ -91,6 +121,35 @@ def extract_image_filenames_from_html(html_content: str) -> Set[str]:
     filenames = set()
     for url in parser.image_urls:
         filename = extract_filename_from_url(url)
+        if filename:
+            filenames.add(filename)
+
+    return filenames
+
+
+def extract_video_filenames_from_html(html_content: str) -> Set[str]:
+    """
+    Extract all video filenames from HTML content
+
+    Args:
+        html_content: HTML string containing <video> tags
+
+    Returns:
+        Set of filenames (e.g., {'abc123.mp4', 'xyz789.mov'})
+    """
+    if not html_content:
+        return set()
+
+    parser = MediaExtractor()
+    try:
+        parser.feed(html_content)
+    except Exception as e:
+        print(f"Error parsing HTML for videos: {e}")
+        return set()
+
+    filenames = set()
+    for url in parser.video_urls:
+        filename = extract_video_filename_from_url(url)
         if filename:
             filenames.add(filename)
 
@@ -173,9 +232,61 @@ def delete_image_files(filename: str) -> dict:
     return result
 
 
+def delete_video_files(filename: str) -> dict:
+    """
+    Delete a video file from Supabase Storage
+
+    Args:
+        filename: Video filename (e.g., 'abc123.mp4')
+
+    Returns:
+        Dict with deletion results: {
+            'deleted': ['abc123.mp4', 'abc123-thumb.jpg'],
+            'not_found': [],
+            'errors': []
+        }
+    """
+    result = {
+        'deleted': [],
+        'not_found': [],
+        'errors': []
+    }
+
+    try:
+        supabase = get_supabase_client()
+    except Exception as e:
+        result['errors'].append(f"Failed to connect to Supabase: {str(e)}")
+        return result
+
+    # Delete video file
+    try:
+        supabase.storage.from_(settings.SUPABASE_VIDEO_BUCKET).remove([filename])
+        result['deleted'].append(filename)
+    except Exception as e:
+        error_msg = str(e).lower()
+        if 'not found' in error_msg or 'does not exist' in error_msg:
+            result['not_found'].append(filename)
+        else:
+            result['errors'].append(f"{filename}: {str(e)}")
+
+    # Delete video thumbnail (stored in images bucket with -thumb suffix)
+    thumb_filename = filename.rsplit('.', 1)[0] + '-thumb.jpg'
+    try:
+        supabase.storage.from_(settings.SUPABASE_BUCKET).remove([f"thumbnails/{thumb_filename}"])
+        result['deleted'].append(thumb_filename)
+    except Exception as e:
+        error_msg = str(e).lower()
+        if 'not found' in error_msg or 'does not exist' in error_msg:
+            result['not_found'].append(thumb_filename)
+        else:
+            result['errors'].append(f"{thumb_filename}: {str(e)}")
+
+    return result
+
+
 def cleanup_event_images(event) -> dict:
     """
-    Delete all images associated with an event
+    Delete all images and videos associated with an event
 
     Args:
         event: Event model instance
@@ -183,28 +294,61 @@ def cleanup_event_images(event) -> dict:
     Returns:
         Dict with cleanup summary: {
             'filenames_found': 3,
-            'files_deleted': 9,  # 3 filenames × 3 sizes
+            'files_deleted': 9,
             'files_not_found': 0,
             'errors': [],
             'details': [...]
         }
     """
-    filenames = get_all_event_image_filenames(event)
+    # Get image filenames
+    image_filenames = get_all_event_image_filenames(event)
+
+    # Get video filenames from HTML
+    video_filenames = set()
+    if event.description:
+        video_filenames = extract_video_filenames_from_html(event.description)
+
+    # Also get videos from event_images table (if available)
+    try:
+        if hasattr(event, 'event_images'):
+            for event_image in event.event_images:
+                if hasattr(event_image, 'media_type') and event_image.media_type == 'video':
+                    if event_image.image_url:  # Videos stored in image_url field
+                        filename = extract_video_filename_from_url(event_image.image_url)
+                        if filename:
+                            video_filenames.add(filename)
+    except Exception as e:
+        print(f"Error extracting videos from event_images table: {e}")
 
     summary = {
-        'filenames_found': len(filenames),
+        'image_filenames_found': len(image_filenames),
+        'video_filenames_found': len(video_filenames),
         'files_deleted': 0,
         'files_not_found': 0,
         'errors': [],
         'details': []
     }
 
-    for filename in filenames:
+    # Delete images
+    for filename in image_filenames:
         result = delete_image_files(filename)
         summary['files_deleted'] += len(result['deleted'])
         summary['files_not_found'] += len(result['not_found'])
         summary['errors'].extend(result['errors'])
         summary['details'].append({
+            'type': 'image',
+            'filename': filename,
+            'result': result
+        })
+
+    # Delete videos
+    for filename in video_filenames:
+        result = delete_video_files(filename)
+        summary['files_deleted'] += len(result['deleted'])
+        summary['files_not_found'] += len(result['not_found'])
+        summary['errors'].extend(result['errors'])
+        summary['details'].append({
+            'type': 'video',
             'filename': filename,
             'result': result
         })
