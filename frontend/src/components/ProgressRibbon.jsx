@@ -10,6 +10,10 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
 
   if (videoTasks.length === 0) return null
 
+  // Count only videos that are actively being processed
+  const activeVideos = videoTasks.filter(
+    task => task.status === 'uploading' || task.status === 'compressing'
+  )
   const allComplete = videoTasks.every(task => task.status === 'complete')
   const anyFailed = videoTasks.some(task => task.status === 'failed')
 
@@ -18,7 +22,7 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
       <div className={styles.header}>
         <div className={styles.title}>
           {allComplete ? '✅ Videos Ready' : '📹 Processing Videos'}
-          {videoTasks.length > 1 && ` (${videoTasks.length})`}
+          {activeVideos.length > 1 && ` (${activeVideos.length})`}
         </div>
         <div className={styles.headerButtons}>
           <button
@@ -41,8 +45,16 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
       </div>
 
       {!isMinimized && (
-        <div className={styles.taskList}>
-          {videoTasks.map((task) => (
+        <>
+          {/* User guidance message */}
+          {activeVideos.length > 0 && (
+            <div className={styles.guidanceMessage}>
+              💡 You can continue editing your event while videos process. Publishing will be available once compression completes.
+            </div>
+          )}
+
+          <div className={styles.taskList}>
+            {videoTasks.map((task) => (
             <div key={task.id} className={styles.task}>
               {/* Thumbnail preview */}
               {task.thumbnailUrl && (
@@ -100,6 +112,7 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
             </div>
           ))}
         </div>
+        </>
       )}
     </div>
   )
