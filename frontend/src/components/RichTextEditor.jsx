@@ -11,7 +11,8 @@ import { VideoNode } from '../extensions/VideoNode'
 import LocationPicker from './LocationPicker'
 import VideoTrimmer from './VideoTrimmer'
 import ProgressRibbon from './ProgressRibbon'
-import { processVideo, getVideoMetadata } from '../utils/videoCompression'
+import { getVideoMetadata } from '../utils/videoCompression'
+import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from '../config/cloudinary'
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange }) {
   const [isUploading, setIsUploading] = useState(false)
@@ -170,12 +171,13 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     input.click()
   }, [editor, uploadImage, showToast])
 
-  // Process and upload video with compression
+  // Upload video to Cloudinary (handles compression automatically)
   const handleVideoUpload = useCallback(async (file) => {
-    // Check file size limit (500MB)
-    const MAX_SIZE = 500 * 1024 * 1024
+    // Check file size limit (100MB for Cloudinary free tier)
+    const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
     if (file.size > MAX_SIZE) {
-      showToast('Video must be smaller than 500MB', 'error')
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
+      showToast(`Video is ${sizeMB}MB but limit is 100MB. Please trim or compress the video.`, 'error')
       return
     }
 
@@ -204,41 +206,66 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     setVideoTasks(prev => [...prev, newTask])
 
+    // Helper function to update task
+    function updateTask(id, updates) {
+      setVideoTasks(prev =>
+        prev.map(task => (task.id === id ? { ...task, ...updates } : task))
+      )
+    }
+
     try {
-      // Step 1: Extract thumbnail only (skip compression - too slow!)
-      updateTask(taskId, { status: 'compressing', progress: 0 })
+      // Upload directly to Cloudinary using unsigned upload
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset)
+      formData.append('folder', CLOUDINARY_CONFIG.folder)
+      formData.append('resource_type', 'video')
 
-      // Extract thumbnail
-      const { extractThumbnail } = await import('../utils/videoCompression')
-      const thumbnail = await extractThumbnail(file)
+      // Create XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest()
 
-      // Step 2: Upload thumbnail first
-      const thumbnailFile = new File([thumbnail], `${taskId}-thumb.jpg`, { type: 'image/jpeg' })
-      const thumbnailResult = await apiService.uploadImage(thumbnailFile)
-
-      updateTask(taskId, {
-        thumbnailUrl: thumbnailResult.url,
-        status: 'uploading',
-        progress: 0,
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100)
+          updateTask(taskId, { progress })
+        }
       })
 
-      // Step 3: Upload original video (no compression)
-      const videoResult = await apiService.uploadVideo(file, (progress) => {
-        updateTask(taskId, { progress })
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText)
+          const { public_id, secure_url } = response
+
+          // Generate optimized video URL with auto quality and format
+          const videoUrl = getCloudinaryVideoUrl(public_id)
+
+          // Generate thumbnail URL (frame at 1 second)
+          const thumbnailUrl = getCloudinaryThumbnail(public_id)
+
+          updateTask(taskId, {
+            status: 'complete',
+            progress: 100,
+            videoUrl,
+            thumbnailUrl,
+          })
+
+          // Insert video into editor
+          editor.chain().focus().setVideo({ src: videoUrl }).run()
+
+          showToast('Video uploaded successfully! Cloudinary is optimizing it.', 'success')
+        } else {
+          throw new Error(`Upload failed with status ${xhr.status}`)
+        }
       })
 
-      // Step 4: Complete
-      updateTask(taskId, {
-        status: 'complete',
-        progress: 100,
-        videoUrl: videoResult.url,
+      xhr.addEventListener('error', () => {
+        throw new Error('Network error during upload')
       })
 
-      // Insert video into editor
-      editor.chain().focus().setVideo({ src: videoResult.url }).run()
-
-      // Show success message
-      showToast('Video uploaded successfully', 'success')
+      // Upload to Cloudinary
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/video/upload`
+      xhr.open('POST', uploadUrl)
+      xhr.send(formData)
 
     } catch (error) {
       console.error('Video upload failed:', error)
@@ -246,14 +273,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         status: 'failed',
         error: error.message,
       })
-      showToast(`Failed to process video: ${error.message}`, 'error')
-    }
-
-    // Helper function to update task
-    function updateTask(id, updates) {
-      setVideoTasks(prev =>
-        prev.map(task => (task.id === id ? { ...task, ...updates } : task))
-      )
+      showToast(`Failed to upload video: ${error.message}`, 'error')
     }
   }, [editor, showToast, videoTasks])
 
@@ -280,10 +300,11 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         return
       }
 
-      // Check file size (500MB limit)
-      const MAX_SIZE = 500 * 1024 * 1024
+      // Check file size (100MB limit for Cloudinary free tier)
+      const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
       if (file.size > MAX_SIZE) {
-        showToast('Video must be smaller than 500MB', 'error')
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
+        showToast(`Video is ${sizeMB}MB but limit is 100MB. Please trim or use a lower quality recording.`, 'error')
         return
       }
 
