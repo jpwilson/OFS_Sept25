@@ -18,7 +18,10 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
   const anyFailed = videoTasks.some(task => task.status === 'failed')
 
   return (
-    <div className={`${styles.ribbon} ${isMinimized ? styles.minimized : ''}`}>
+    <div
+      className={`${styles.ribbon} ${isMinimized ? styles.minimized : ''}`}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className={styles.header}>
         <div className={styles.title}>
           {allComplete ? '✅ Videos Ready' : '📹 Processing Videos'}
@@ -27,16 +30,26 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
         <div className={styles.headerButtons}>
           <button
             className={styles.minimizeButton}
-            onClick={() => setIsMinimized(!isMinimized)}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              setIsMinimized(!isMinimized)
+            }}
             title={isMinimized ? 'Expand' : 'Minimize'}
+            type="button"
           >
             {isMinimized ? '▲' : '▼'}
           </button>
           {allComplete && (
             <button
               className={styles.closeButton}
-              onClick={() => onCancel && onCancel('all')}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                onCancel && onCancel('all')
+              }}
               title="Dismiss"
+              type="button"
             >
               ×
             </button>
@@ -94,7 +107,12 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
                   {task.status === 'uploading' && (
                     <button
                       className={styles.cancelButton}
-                      onClick={() => onCancel && onCancel(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        onCancel && onCancel(task.id)
+                      }}
+                      type="button"
                     >
                       Cancel
                     </button>
@@ -102,7 +120,12 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
                   {task.status === 'failed' && (
                     <button
                       className={styles.retryButton}
-                      onClick={() => task.onRetry && task.onRetry()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        task.onRetry && task.onRetry()
+                      }}
+                      type="button"
                     >
                       Retry
                     </button>

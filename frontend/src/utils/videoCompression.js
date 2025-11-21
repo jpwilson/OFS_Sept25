@@ -162,21 +162,26 @@ export async function compressVideo(file, onProgress) {
     const outputName = 'output.mp4'
     await ffmpeg.writeFile(inputName, await fetchFile(file))
 
-    // Compress to 720p H.264
-    // -vf scale: Scale to 720p (maintains aspect ratio)
+    // Compress to 720p H.264 (or 480p for very large files)
+    // Target: Keep under 50MB for Supabase storage limit
+    // -vf scale: Scale to 720p max (maintains aspect ratio)
     // -c:v libx264: Use H.264 codec
-    // -crf 23: Quality level (18-28, lower = better quality)
-    // -preset medium: Encoding speed vs compression ratio
+    // -crf 28: Quality level (higher = more compression, target 50MB)
+    // -preset fast: Faster encoding, good compression
+    // -maxrate 2M: Max bitrate 2 Mbps (~15MB per minute)
+    // -bufsize 4M: Buffer size
     // -c:a aac: Audio codec
-    // -b:a 128k: Audio bitrate
+    // -b:a 96k: Lower audio bitrate to save space
     await ffmpeg.exec([
       '-i', inputName,
       '-vf', 'scale=trunc(min(iw\\,1280)/2)*2:trunc(min(ih\\,720)/2)*2',
       '-c:v', 'libx264',
-      '-crf', '23',
-      '-preset', 'medium',
+      '-crf', '28',
+      '-preset', 'fast',
+      '-maxrate', '2M',
+      '-bufsize', '4M',
       '-c:a', 'aac',
-      '-b:a', '128k',
+      '-b:a', '96k',
       '-movflags', '+faststart', // Enable streaming
       outputName
     ])
@@ -190,6 +195,15 @@ export async function compressVideo(file, onProgress) {
 
     // Convert to Blob
     const blob = new Blob([data.buffer], { type: 'video/mp4' })
+
+    // Check if compressed file is still too large
+    const compressedSizeMB = (blob.size / (1024 * 1024)).toFixed(1)
+    console.log(`Compression complete: ${(file.size / (1024 * 1024)).toFixed(1)}MB → ${compressedSizeMB}MB`)
+
+    if (blob.size > 50 * 1024 * 1024) {
+      console.warn(`Compressed video is still ${compressedSizeMB}MB (over 50MB limit)`)
+      throw new Error(`Video is still ${compressedSizeMB}MB after compression. Please trim the video to be shorter, or record at a lower quality.`)
+    }
 
     if (onProgress) {
       onProgress(100)

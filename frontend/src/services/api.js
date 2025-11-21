@@ -206,19 +206,25 @@ class ApiService {
 
   async uploadVideo(file, onProgress) {
     try {
-      // Check file size
-      const MAX_SIZE = 200 * 1024 * 1024 // 200MB
-      if (file.size > MAX_SIZE) {
-        throw new Error('Video must be smaller than 200MB')
+      // Check file size - Supabase default limit is 50MB per file
+      // even on Pro tier unless bucket is configured otherwise
+      const MAX_SIZE = 50 * 1024 * 1024 // 50MB (Supabase default)
+      const fileSize = file.size
+      const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(1)
+
+      if (fileSize > MAX_SIZE) {
+        throw new Error(`Video is ${fileSizeMB}MB but Supabase storage limit is 50MB. Please ensure video compression is working properly, or upload a shorter/lower quality video.`)
       }
+
+      console.log(`Uploading video: ${fileSizeMB}MB`)
 
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
 
-      // For files >50MB, use resumable upload (TUS protocol)
+      // For files >10MB, use resumable upload (TUS protocol)
       // For smaller files, use standard upload
-      const useResumable = file.size > 50 * 1024 * 1024
+      const useResumable = fileSize > 10 * 1024 * 1024
 
       if (useResumable) {
         // Resumable upload for large files
