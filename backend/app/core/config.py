@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     MAX_VIDEO_DURATION: int = 120  # 2 minutes in seconds
     ALLOWED_VIDEO_FORMATS: list = [".mp4", ".mov", ".avi", ".webm"]
 
+    # Cloudinary (for video uploads and optimization)
+    CLOUDINARY_CLOUD_NAME: str = "dejjei389"
+    CLOUDINARY_API_KEY: str = ""  # Set in Vercel environment variables
+    CLOUDINARY_API_SECRET: str = ""  # Set in Vercel environment variables
+
     # Supabase Auth (for authentication)
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_JWT_SECRET: str = ""
