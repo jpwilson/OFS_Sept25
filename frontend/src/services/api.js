@@ -206,28 +206,60 @@ class ApiService {
 
   async uploadVideo(file, onProgress) {
     try {
-      // Upload directly to Supabase Storage (bypass backend to avoid Vercel 4.5MB limit)
+      // Check file size
+      const MAX_SIZE = 200 * 1024 * 1024 // 200MB
+      if (file.size > MAX_SIZE) {
+        throw new Error('Video must be smaller than 200MB')
+      }
+
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('event-videos')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-          onUploadProgress: (progress) => {
-            if (onProgress) {
-              const percent = (progress.loaded / progress.total) * 100
-              onProgress(percent)
-            }
-          }
-        })
+      // For files >50MB, use resumable upload (TUS protocol)
+      // For smaller files, use standard upload
+      const useResumable = file.size > 50 * 1024 * 1024
 
-      if (error) {
-        console.error('Supabase upload error:', error)
-        throw new Error(error.message || 'Failed to upload video to storage')
+      if (useResumable) {
+        // Resumable upload for large files
+        const { data, error } = await supabase.storage
+          .from('event-videos')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false,
+            // Resumable upload options
+            duplex: 'half',
+            onUploadProgress: (progress) => {
+              if (onProgress) {
+                const percent = (progress.loaded / progress.total) * 100
+                onProgress(percent)
+              }
+            }
+          })
+
+        if (error) {
+          console.error('Supabase upload error:', error)
+          throw new Error(error.message || 'Failed to upload video to storage')
+        }
+      } else {
+        // Standard upload for smaller files
+        const { data, error } = await supabase.storage
+          .from('event-videos')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false,
+            onUploadProgress: (progress) => {
+              if (onProgress) {
+                const percent = (progress.loaded / progress.total) * 100
+                onProgress(percent)
+              }
+            }
+          })
+
+        if (error) {
+          console.error('Supabase upload error:', error)
+          throw new Error(error.message || 'Failed to upload video to storage')
+        }
       }
 
       // Get public URL

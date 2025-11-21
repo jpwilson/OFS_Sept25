@@ -1,0 +1,199 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header {
+  text-align: center;
+  padding: 32px 24px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.content {
+  padding: 24px;
+}
+
+.message {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0 0 24px;
+}
+
+.videoList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.videoItem {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.videoInfo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #e0e0e0;
+}
+
+.videoDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.filename {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.status {
+  font-size: 13px;
+  color: #666;
+}
+
+.progressBar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  transition: width 0.3s ease;
+}
+
+.overallProgress {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.overallLabel {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.overallBar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.overallFill {
+  height: 100%;
+  background: white;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.note {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  margin: 0;
+  padding: 12px;
+  background: #f0f7ff;
+  border-radius: 6px;
+  border-left: 3px solid #2196F3;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .modal {
+    max-width: 95%;
+    border-radius: 12px;
+  }
+
+  .header {
+    padding: 24px 16px 12px;
+  }
+
+  .icon {
+    font-size: 40px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

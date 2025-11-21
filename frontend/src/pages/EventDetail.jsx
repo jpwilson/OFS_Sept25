@@ -407,9 +407,14 @@ function EventDetail() {
     }
 
     // 2. Add images from event_images table (these have captions)
+    // Also include videos - they'll be handled differently in the gallery
     if (eventImages && eventImages.length > 0) {
       eventImages.forEach(img => {
-        addImage(img.image_url, img.caption, img.id, img.alt_text)
+        // For now, only add actual images to gallery
+        // Videos will be handled separately
+        if (img.media_type !== 'video') {
+          addImage(img.image_url, img.caption, img.id, img.alt_text)
+        }
       })
     }
 
@@ -440,6 +445,48 @@ function EventDetail() {
     }
 
     return images
+  }, [event, eventImages])
+
+  // Get all videos from event_images and HTML content
+  const allVideos = useMemo(() => {
+    if (!event) return []
+
+    const videos = []
+    const videoUrls = new Set()
+
+    const addVideo = (src, caption = null, id = null, duration = null) => {
+      if (!videoUrls.has(src)) {
+        videoUrls.add(src)
+        videos.push({ src, caption, id, duration, type: 'video' })
+      }
+    }
+
+    // Add videos from event_images table
+    if (eventImages && eventImages.length > 0) {
+      eventImages.forEach(img => {
+        if (img.media_type === 'video') {
+          addVideo(img.image_url, img.caption, img.id, img.duration_seconds)
+        }
+      })
+    }
+
+    // Parse rich HTML content for video elements
+    if (event.description) {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(event.description, 'text/html')
+      const videoElements = doc.querySelectorAll('video')
+      videoElements.forEach(video => {
+        if (video.src) {
+          // Try to find matching caption from eventImages
+          const matchingVideo = eventImages?.find(ei =>
+            ei.media_type === 'video' && (video.src.includes(ei.image_url) || ei.image_url.includes(video.src))
+          )
+          addVideo(video.src, matchingVideo?.caption || null, matchingVideo?.id, matchingVideo?.duration_seconds)
+        }
+      })
+    }
+
+    return videos
   }, [event, eventImages])
 
   // Parse headings from rich HTML content and generate sections
@@ -680,6 +727,28 @@ function EventDetail() {
             onLightboxChange={setLightboxState}
             showCaptions={showCaptions}
           />
+        </div>
+      )}
+
+      {/* Video Gallery */}
+      {allVideos.length > 0 && (
+        <div className={styles.videoSection}>
+          <h3 className={styles.videoSectionTitle}>Videos</h3>
+          <div className={styles.videoGrid}>
+            {allVideos.map((video, index) => (
+              <div key={video.id || index} className={styles.videoItem}>
+                <video
+                  src={video.src}
+                  controls
+                  className={styles.videoPlayer}
+                  preload="metadata"
+                />
+                {showCaptions && video.caption && (
+                  <div className={styles.videoCaption}>{video.caption}</div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

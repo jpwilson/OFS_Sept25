@@ -2,21 +2,55 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import styles from './RichTextEditor.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
 import { LocationMarker } from '../extensions/LocationMarker'
 import { VideoNode } from '../extensions/VideoNode'
 import LocationPicker from './LocationPicker'
+import VideoTrimmer from './VideoTrimmer'
+import ProgressRibbon from './ProgressRibbon'
+import { processVideo, getVideoMetadata } from '../utils/videoCompression'
 
-function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false }) {
+function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange }) {
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadType, setUploadType] = useState('') // 'image' or 'video'
+  const [showVideoTrimmer, setShowVideoTrimmer] = useState(false)
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null)
+  const [videoTasks, setVideoTasks] = useState([]) // Track video upload/compression tasks
   const { showToast } = useToast()
+
+  // Notify parent component about video task changes
+  useEffect(() => {
+    if (onVideoTasksChange) {
+      onVideoTasksChange(videoTasks)
+    }
+  }, [videoTasks, onVideoTasksChange])
+
+  // Warn user if they try to leave while videos are processing
+  useEffect(() => {
+    const hasActiveVideos = videoTasks.some(
+      task => task.status === 'uploading' || task.status === 'compressing'
+    )
+
+    if (!hasActiveVideos) return
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault()
+      e.returnValue = 'Video is still compressing. Are you sure you want to leave? If you leave, upload will stop and your event will be saved to drafts.'
+      return e.returnValue
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [videoTasks])
 
   const editor = useEditor({
     extensions: [
@@ -136,29 +170,99 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     input.click()
   }, [editor, uploadImage, showToast])
 
-  const uploadVideo = useCallback(async (file) => {
-    if (!file.type.startsWith('video/')) {
-      showToast('Please select a video file', 'error')
-      return null
+  // Process and upload video with compression
+  const handleVideoUpload = useCallback(async (file) => {
+    // Check file size limit (500MB)
+    const MAX_SIZE = 500 * 1024 * 1024
+    if (file.size > MAX_SIZE) {
+      showToast('Video must be smaller than 500MB', 'error')
+      return
     }
 
-    if (file.size > 100 * 1024 * 1024) {
-      showToast('Video must be smaller than 100MB', 'error')
-      return null
+    // Check 2-video limit
+    const activeVideos = videoTasks.filter(
+      task => task.status === 'uploading' || task.status === 'compressing'
+    )
+    if (activeVideos.length >= 2) {
+      showToast('Maximum of 2 videos can be uploaded at a time. Please wait for current uploads to complete.', 'error')
+      return
     }
+
+    // Create task ID
+    const taskId = `video-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+    // Add task to list
+    const newTask = {
+      id: taskId,
+      filename: file.name,
+      status: 'uploading',
+      progress: 0,
+      thumbnailUrl: null,
+      videoUrl: null,
+      error: null,
+    }
+
+    setVideoTasks(prev => [...prev, newTask])
 
     try {
-      setUploadProgress(0)
-      const result = await apiService.uploadVideo(file, (progress) => {
-        setUploadProgress(Math.round(progress))
+      // Step 1: Process video (extract thumbnail & compress)
+      updateTask(taskId, { status: 'compressing', progress: 0 })
+
+      const result = await processVideo(file, {
+        onCompressionProgress: (progress) => {
+          updateTask(taskId, { progress })
+        },
       })
-      return result.url
+
+      // Step 2: Upload thumbnail first
+      const thumbnailFile = new File([result.thumbnail], `${taskId}-thumb.jpg`, { type: 'image/jpeg' })
+      const thumbnailResult = await apiService.uploadImage(thumbnailFile)
+
+      updateTask(taskId, {
+        thumbnailUrl: thumbnailResult.url,
+        status: 'uploading',
+        progress: 0,
+      })
+
+      // Step 3: Upload compressed video
+      const videoFile = new File([result.compressedVideo], file.name, { type: 'video/mp4' })
+      const videoResult = await apiService.uploadVideo(videoFile, (progress) => {
+        updateTask(taskId, { progress })
+      })
+
+      // Step 4: Complete
+      updateTask(taskId, {
+        status: 'complete',
+        progress: 100,
+        videoUrl: videoResult.url,
+      })
+
+      // Insert video into editor
+      editor.chain().focus().setVideo({ src: videoResult.url }).run()
+      showToast('Video uploaded and compressed successfully', 'success')
+
     } catch (error) {
-      console.error('Error uploading video:', error)
-      showToast(`Failed to upload video: ${error.message}`, 'error')
-      return null
+      console.error('Video upload failed:', error)
+      updateTask(taskId, {
+        status: 'failed',
+        error: error.message,
+      })
+      showToast(`Failed to process video: ${error.message}`, 'error')
     }
-  }, [showToast])
+
+    // Helper function to update task
+    function updateTask(id, updates) {
+      setVideoTasks(prev =>
+        prev.map(task => (task.id === id ? { ...task, ...updates } : task))
+      )
+    }
+  }, [editor, showToast, videoTasks])
+
+  const handleTrimComplete = useCallback(async (trimmedFile) => {
+    setShowVideoTrimmer(false)
+    setSelectedVideoFile(null)
+    await handleVideoUpload(trimmedFile)
+  }, [handleVideoUpload])
 
   const addVideo = useCallback(async () => {
     if (!editor) return
@@ -169,26 +273,63 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     input.onchange = async (e) => {
       const file = e.target.files[0]
-      if (file) {
-        setIsUploading(true)
-        setUploadType('video')
-        setUploadProgress(0)
+      if (!file) return
 
-        const url = await uploadVideo(file)
+      // Check file type
+      if (!file.type.startsWith('video/')) {
+        showToast('Please select a valid video file', 'error')
+        return
+      }
 
-        if (url) {
-          editor.chain().focus().setVideo({ src: url }).run()
-          showToast('Video uploaded successfully', 'success')
+      // Check file size (500MB limit)
+      const MAX_SIZE = 500 * 1024 * 1024
+      if (file.size > MAX_SIZE) {
+        showToast('Video must be smaller than 500MB', 'error')
+        return
+      }
+
+      try {
+        // Get video metadata
+        const metadata = await getVideoMetadata(file)
+        const duration = Math.floor(metadata.duration)
+
+        if (duration > 60) {
+          // Show trimmer for videos longer than 60 seconds
+          setSelectedVideoFile(file)
+          setShowVideoTrimmer(true)
+        } else {
+          // Proceed with upload for videos 60 seconds or less
+          handleVideoUpload(file)
         }
-
-        setIsUploading(false)
-        setUploadType('')
-        setUploadProgress(0)
+      } catch (error) {
+        console.error('Failed to read video metadata:', error)
+        showToast('Failed to read video. Please try a different file.', 'error')
       }
     }
 
     input.click()
-  }, [editor, uploadVideo, showToast])
+  }, [editor, handleVideoUpload, showToast])
+
+  // Cancel video upload/compression
+  const handleCancelVideo = useCallback((taskId) => {
+    if (taskId === 'all') {
+      setVideoTasks([])
+    } else {
+      setVideoTasks(prev => prev.filter(task => task.id !== taskId))
+    }
+  }, [])
+
+  // Retry failed video
+  const handleRetryVideo = useCallback(async (taskId) => {
+    const task = videoTasks.find(t => t.id === taskId)
+    if (!task) return
+
+    // Remove failed task
+    setVideoTasks(prev => prev.filter(t => t.id !== taskId))
+
+    // Recreate file and retry
+    showToast('Retrying video upload...', 'info')
+  }, [videoTasks, showToast])
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault()
@@ -259,41 +400,11 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
   return (
     <div className={styles.container}>
-      {/* Upload progress indicator - fixed position, always visible */}
-      {isUploading && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          background: '#000',
-          color: '#fff',
-          padding: '16px 24px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          zIndex: 9999,
-          minWidth: '280px'
-        }}>
-          <div style={{ marginBottom: '8px', fontWeight: '600' }}>
-            {uploadType === 'video' ? '📹 Uploading video...' : '📷 Uploading image...'}
-          </div>
-          <div style={{
-            background: '#333',
-            height: '8px',
-            borderRadius: '4px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              background: 'linear-gradient(90deg, #4CAF50, #8BC34A)',
-              height: '100%',
-              width: `${uploadProgress}%`,
-              transition: 'width 0.3s ease'
-            }} />
-          </div>
-          <div style={{ marginTop: '8px', fontSize: '14px', color: '#aaa' }}>
-            {uploadProgress}% complete
-          </div>
-        </div>
-      )}
+      {/* Progress ribbon for video upload/compression */}
+      <ProgressRibbon
+        videoTasks={videoTasks}
+        onCancel={handleCancelVideo}
+      />
 
       <div className={styles.menuBar}>
         <div className={styles.buttonGroup}>
@@ -444,6 +555,16 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         onSelect={handleLocationSelect}
         eventStartDate={eventStartDate}
         eventEndDate={eventEndDate}
+      />
+
+      <VideoTrimmer
+        isOpen={showVideoTrimmer}
+        onClose={() => {
+          setShowVideoTrimmer(false)
+          setSelectedVideoFile(null)
+        }}
+        videoFile={selectedVideoFile}
+        onTrimComplete={handleTrimComplete}
       />
     </div>
   )

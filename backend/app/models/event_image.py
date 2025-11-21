@@ -24,6 +24,10 @@ class EventImage(Base):
     media_type = Column(String(10), default='image', nullable=False)  # 'image' or 'video'
     duration_seconds = Column(Integer, nullable=True)  # Video duration
     video_thumbnail_url = Column(Text, nullable=True)  # Thumbnail for video preview
+    # Video processing
+    processing_status = Column(String(20), default='ready', nullable=False)  # 'uploading', 'processing', 'ready'
+    original_size = Column(Integer, nullable=True)  # Original file size in bytes
+    compressed_size = Column(Integer, nullable=True)  # Compressed file size in bytes
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

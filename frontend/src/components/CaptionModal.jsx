@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import styles from './CaptionModal.module.css'
 
 /**
- * Modal for adding/editing image captions
- * Shows after image upload to optionally add a caption
+ * Modal for adding/editing image/video captions
+ * Shows after media upload to optionally add a caption
  */
-function CaptionModal({ isOpen, onClose, onSave, initialCaption = '', imageSrc }) {
+function CaptionModal({ isOpen, onClose, onSave, initialCaption = '', imageSrc, mediaType = 'image' }) {
   const [caption, setCaption] = useState(initialCaption)
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function CaptionModal({ isOpen, onClose, onSave, initialCaption = '', imageSrc }
     <div className={styles.overlay} onClick={handleSkip}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Add Image Caption (Optional)</h3>
+          <h3 className={styles.title}>Add {mediaType === 'video' ? 'Video' : 'Image'} Caption (Optional)</h3>
           <button className={styles.closeButton} onClick={handleSkip}>
             ×
           </button>
@@ -45,7 +45,11 @@ function CaptionModal({ isOpen, onClose, onSave, initialCaption = '', imageSrc }
 
         {imageSrc && (
           <div className={styles.imagePreview}>
-            <img src={imageSrc} alt="Preview" />
+            {mediaType === 'video' ? (
+              <video src={imageSrc} controls style={{ maxWidth: '100%', maxHeight: '300px' }} />
+            ) : (
+              <img src={imageSrc} alt="Preview" />
+            )}
           </div>
         )}
 
@@ -55,7 +59,9 @@ function CaptionModal({ isOpen, onClose, onSave, initialCaption = '', imageSrc }
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe this image (e.g., 'Sunset over Table Mountain from our hotel room')"
+            placeholder={mediaType === 'video'
+              ? "Describe this video (e.g., 'Kids playing at the beach')"
+              : "Describe this image (e.g., 'Sunset over Table Mountain from our hotel room')"}
             autoFocus
             rows={3}
             maxLength={500}

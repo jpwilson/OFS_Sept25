@@ -42,15 +42,20 @@ export const VideoNode = Node.create({
       wrapper.style.margin = '16px 0'
       wrapper.style.maxWidth = node.attrs.maxWidth
       wrapper.style.width = '100%'
+      wrapper.style.display = 'flex'
+      wrapper.style.justifyContent = 'center'
 
       const video = document.createElement('video')
       video.src = node.attrs.src
       video.controls = true
       video.style.width = '100%'
       video.style.maxWidth = '600px'
+      video.style.maxHeight = '70vh' // Constrain height for portrait videos
+      video.style.height = 'auto'
       video.style.borderRadius = '8px'
       video.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
       video.style.display = 'block'
+      video.style.objectFit = 'contain' // Maintain aspect ratio
 
       wrapper.appendChild(video)
 

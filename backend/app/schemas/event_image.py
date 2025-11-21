@@ -18,6 +18,10 @@ class EventImageBase(BaseModel):
     media_type: str = 'image'  # 'image' or 'video'
     duration_seconds: Optional[int] = None
     video_thumbnail_url: Optional[str] = None
+    # Video processing
+    processing_status: str = 'ready'  # 'uploading', 'processing', 'ready'
+    original_size: Optional[int] = None
+    compressed_size: Optional[int] = None
 
 class EventImageCreate(BaseModel):
     event_id: int
@@ -32,6 +36,10 @@ class EventImageCreate(BaseModel):
     media_type: str = 'image'
     duration_seconds: Optional[int] = None
     video_thumbnail_url: Optional[str] = None
+    # Video processing
+    processing_status: str = 'ready'
+    original_size: Optional[int] = None
+    compressed_size: Optional[int] = None
 
 class EventImageUpdate(BaseModel):
     caption: Optional[str] = None
