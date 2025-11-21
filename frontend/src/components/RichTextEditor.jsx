@@ -367,41 +367,76 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     const files = Array.from(e.dataTransfer.files)
     const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    const videoFiles = files.filter(file => file.type.startsWith('video/'))
 
-    if (imageFiles.length === 0) {
-      showToast('No image files found', 'error')
+    if (imageFiles.length === 0 && videoFiles.length === 0) {
+      showToast('No image or video files found', 'error')
       return
     }
 
-    // Upload all images first
-    setIsUploading(true)
-    const uploadedUrls = []
-    for (const file of imageFiles) {
-      const url = await uploadImage(file)
-      if (url) {
-        uploadedUrls.push(url)
-      }
-    }
-
-    // Build HTML content with all images and spacing
-    if (uploadedUrls.length > 0) {
-      let html = ''
-      for (let i = 0; i < uploadedUrls.length; i++) {
-        html += `<img src="${uploadedUrls[i]}">`
-        // Add spacing between images (not after the last one)
-        if (i < uploadedUrls.length - 1) {
-          html += '<p><br /></p>'
+    // Handle images
+    if (imageFiles.length > 0) {
+      setIsUploading(true)
+      const uploadedUrls = []
+      for (const file of imageFiles) {
+        const url = await uploadImage(file)
+        if (url) {
+          uploadedUrls.push(url)
         }
       }
 
-      // Insert all content at once at the current cursor position
-      editor.chain().focus().insertContent(html).run()
+      // Build HTML content with all images and spacing
+      if (uploadedUrls.length > 0) {
+        let html = ''
+        for (let i = 0; i < uploadedUrls.length; i++) {
+          html += `<img src="${uploadedUrls[i]}">`
+          // Add spacing between images (not after the last one)
+          if (i < uploadedUrls.length - 1) {
+            html += '<p><br /></p>'
+          }
+        }
 
-      showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully`, 'success')
+        // Insert all content at once at the current cursor position
+        editor.chain().focus().insertContent(html).run()
+
+        showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully`, 'success')
+      }
+
+      setIsUploading(false)
     }
 
-    setIsUploading(false)
-  }, [editor, uploadImage, showToast])
+    // Handle videos
+    if (videoFiles.length > 0) {
+      for (const file of videoFiles) {
+        // Check file size limit (100MB for Cloudinary free tier)
+        const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
+        if (file.size > MAX_SIZE) {
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
+          showToast(`Video "${file.name}" is ${sizeMB}MB but limit is 100MB. Please use a smaller video or trim it.`, 'error')
+          continue
+        }
+
+        try {
+          // Get video metadata to check duration
+          const metadata = await getVideoMetadata(file)
+          const duration = Math.floor(metadata.duration)
+
+          if (duration > 60) {
+            // Show trimmer for videos longer than 60 seconds
+            setSelectedVideoFile(file)
+            setShowVideoTrimmer(true)
+            showToast(`Video "${file.name}" is ${duration}s long. Please trim it to 60s or less.`, 'info')
+          } else {
+            // Proceed with upload for videos 60 seconds or less
+            handleVideoUpload(file)
+          }
+        } catch (error) {
+          console.error('Failed to read video metadata:', error)
+          showToast(`Failed to read video "${file.name}". Please try a different file.`, 'error')
+        }
+      }
+    }
+  }, [editor, uploadImage, showToast, handleVideoUpload])
 
   const handleLocationSelect = useCallback((locationData) => {
     if (!editor) return
