@@ -541,9 +541,16 @@ def permanently_delete_event(
     if not event.is_deleted:
         raise HTTPException(status_code=400, detail="Event must be in trash before permanent deletion")
 
-    # Clean up image files before deleting database record
-    cleanup_result = cleanup_event_images(event)
-    print(f"Image cleanup for event {event_id}: {cleanup_result['files_deleted']} files deleted, {cleanup_result['files_not_found']} not found")
+    # Try to clean up image/video files, but don't let cleanup failures block deletion
+    cleanup_result = {'files_deleted': 0, 'files_not_found': 0, 'errors': []}
+    try:
+        cleanup_result = cleanup_event_images(event)
+        print(f"✓ Cleanup for event {event_id}: {cleanup_result.get('files_deleted', 0)} files deleted")
+    except Exception as e:
+        error_msg = f"Warning: Cleanup failed for event {event_id}: {str(e)}"
+        print(error_msg)
+        cleanup_result['errors'].append(error_msg)
+        # Continue with deletion even if cleanup failed
 
     # Delete database record (SQLAlchemy will cascade delete related records)
     db.delete(event)
@@ -551,8 +558,9 @@ def permanently_delete_event(
 
     return {
         "message": "Event permanently deleted",
-        "images_deleted": cleanup_result['files_deleted'],
-        "images_not_found": cleanup_result['files_not_found']
+        "images_deleted": cleanup_result.get('files_deleted', 0),
+        "images_not_found": cleanup_result.get('files_not_found', 0),
+        "cleanup_errors": cleanup_result.get('errors', [])
     }
 
 @router.post("/{event_id}/comments")
