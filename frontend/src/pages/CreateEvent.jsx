@@ -60,17 +60,24 @@ function CreateEvent() {
   }
 
   // Extract image URLs from HTML content
-  const extractImagesFromContent = () => {
+  const extractMediaFromContent = () => {
     if (!formData.description) return []
 
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = formData.description
-    const imgElements = tempDiv.querySelectorAll('img')
 
-    return Array.from(imgElements).map(img => ({
-      url: img.src,
-      alt: img.alt || ''
-    }))
+    // Get all media elements (images and videos) in document order
+    const mediaElements = tempDiv.querySelectorAll('img, video')
+
+    return Array.from(mediaElements).map((element, index) => {
+      const isVideo = element.tagName === 'VIDEO'
+      return {
+        url: element.src,
+        alt: element.alt || '',
+        type: isVideo ? 'video' : 'image',
+        index
+      }
+    })
   }
 
   const handleCaptionChange = (imageUrl, caption) => {
@@ -174,18 +181,19 @@ function CreateEvent() {
         gps_locations: gpsLocations
       }, isPublished)
 
-      // Save image captions to event_images table
-      const contentImages = extractImagesFromContent()
-      const captionPromises = contentImages.map((img, index) => {
-        const caption = imageCaptions[img.url]
+      // Save media captions (images and videos) to event_images table
+      const contentMedia = extractMediaFromContent()
+      const captionPromises = contentMedia.map((media, index) => {
+        const caption = imageCaptions[media.url]
         if (caption && caption.trim()) {
-          // Only save images that have captions
+          // Only save media that have captions
           return apiService.createEventImage({
             event_id: event.id,
-            image_url: img.url,
+            image_url: media.url,
             caption: caption.trim(),
             order_index: index,
-            alt_text: img.alt || null
+            alt_text: media.alt || null,
+            media_type: media.type
           })
         }
         return Promise.resolve()
@@ -414,10 +422,13 @@ function CreateEvent() {
             )}
           </div>
 
-          {/* Image Captions Section */}
+          {/* Multimedia Captions Section */}
           {(() => {
-            const contentImages = extractImagesFromContent()
-            if (contentImages.length > 0) {
+            const contentMedia = extractMediaFromContent()
+            if (contentMedia.length > 0) {
+              const imageCount = contentMedia.filter(m => m.type === 'image').length
+              const videoCount = contentMedia.filter(m => m.type === 'video').length
+
               return (
                 <div className={styles.captionSection}>
                   <button
@@ -428,30 +439,39 @@ function CreateEvent() {
                     <span className={styles.captionToggleIcon}>
                       {captionsExpanded ? '▼' : '▶'}
                     </span>
-                    <span>Image Captions (Optional)</span>
+                    <span>Multimedia Captions (Optional)</span>
                     <span className={styles.imageCount}>
-                      {contentImages.length} {contentImages.length === 1 ? 'image' : 'images'}
+                      {imageCount > 0 && `${imageCount} ${imageCount === 1 ? 'image' : 'images'}`}
+                      {imageCount > 0 && videoCount > 0 && ', '}
+                      {videoCount > 0 && `${videoCount} ${videoCount === 1 ? 'video' : 'videos'}`}
                     </span>
                   </button>
 
                   {captionsExpanded && (
                     <div className={styles.captionList}>
-                      {contentImages.map((img, index) => (
-                        <div key={img.url} className={styles.captionItem}>
+                      {contentMedia.map((media, index) => (
+                        <div key={media.url} className={styles.captionItem}>
                           <div className={styles.captionThumbnail}>
-                            <img src={img.url} alt={img.alt || `Image ${index + 1}`} />
+                            {media.type === 'video' ? (
+                              <video src={media.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <img src={media.url} alt={media.alt || `Image ${index + 1}`} />
+                            )}
                           </div>
                           <div className={styles.captionInputWrapper}>
                             <textarea
                               className={styles.captionInput}
-                              value={imageCaptions[img.url] || ''}
-                              onChange={(e) => handleCaptionChange(img.url, e.target.value)}
-                              placeholder={`Caption for image ${index + 1} (e.g., "Sunset over Table Mountain from our hotel room")`}
+                              value={imageCaptions[media.url] || ''}
+                              onChange={(e) => handleCaptionChange(media.url, e.target.value)}
+                              placeholder={media.type === 'video'
+                                ? `Caption for video ${index + 1} (e.g., "Kids playing at the beach")`
+                                : `Caption for image ${index + 1} (e.g., "Sunset over Table Mountain from our hotel room")`
+                              }
                               maxLength={200}
                               rows={2}
                             />
                             <div className={styles.captionCharCount}>
-                              {(imageCaptions[img.url] || '').length}/200
+                              {(imageCaptions[media.url] || '').length}/200
                             </div>
                           </div>
                         </div>

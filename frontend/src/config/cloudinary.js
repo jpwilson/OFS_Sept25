@@ -8,14 +8,17 @@ export const CLOUDINARY_CONFIG = {
   uploadPreset: 'ofs-videos',
 
   // Upload settings
-  maxFileSize: 100 * 1024 * 1024, // 100MB (Cloudinary free tier limit)
+  maxFileSize: 500 * 1024 * 1024, // 500MB (allows testing trimmer, Cloudinary compresses to ~50-100MB)
   maxVideoDuration: 60, // 60 seconds
 
-  // Video transformation settings
-  // Cloudinary will automatically compress and optimize
+  // Video transformation settings for aggressive compression
+  // Cloudinary compresses 400MB uploads to ~50-100MB stored
   videoTransformation: {
-    quality: 'auto',
-    fetch_format: 'auto',
+    quality: 'auto:low',      // Aggressive compression
+    fetch_format: 'auto',     // Best format for browser
+    video_codec: 'h264',      // Universal codec
+    bit_rate: '1m',           // 1 Mbps (smaller files)
+    fps: 30,                  // Limit framerate
   },
 
   // Folder structure
@@ -24,6 +27,7 @@ export const CLOUDINARY_CONFIG = {
 
 /**
  * Generate Cloudinary video URL with transformations
+ * Applies aggressive compression: 720p max, low bitrate, H.264 codec
  *
  * @param {string} publicId - Cloudinary public ID
  * @param {object} options - Transformation options
@@ -31,22 +35,28 @@ export const CLOUDINARY_CONFIG = {
  */
 export function getCloudinaryVideoUrl(publicId, options = {}) {
   const {
-    quality = 'auto',
-    format = 'auto',
-    width,
-    height,
+    quality = 'auto:low',      // Aggressive compression
+    format = 'auto',            // Best format for browser
+    width = 1280,               // Max 720p width
+    height = 720,               // Max 720p height
+    bitRate = '1m',             // 1 Mbps bitrate
+    fps = 30,                   // Limit framerate
   } = options
 
-  const transformations = []
+  const transformations = [
+    `q_${quality}`,             // Quality
+    `f_${format}`,              // Format
+    `w_${width}`,               // Max width
+    `h_${height}`,              // Max height
+    `c_limit`,                  // Don't upscale, only downscale
+    `br_${bitRate}`,            // Bitrate
+    `fps_${fps}`,               // Framerate
+    'vc_h264',                  // H.264 codec (universal)
+  ]
 
-  if (quality) transformations.push(`q_${quality}`)
-  if (format) transformations.push(`f_${format}`)
-  if (width) transformations.push(`w_${width}`)
-  if (height) transformations.push(`h_${height}`)
+  const transformStr = transformations.join(',')
 
-  const transformStr = transformations.length > 0 ? `${transformations.join(',')}/` : ''
-
-  return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/video/upload/${transformStr}${publicId}`
+  return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/video/upload/${transformStr}/${publicId}`
 }
 
 /**
