@@ -5,6 +5,7 @@ import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
 import Zoom from "yet-another-react-lightbox/plugins/zoom"
 import Captions from "yet-another-react-lightbox/plugins/captions"
+import Video from "yet-another-react-lightbox/plugins/video"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import "yet-another-react-lightbox/plugins/captions.css"
@@ -52,12 +53,33 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   // Check if any images have captions
   const hasCaptions = images.some(img => img.caption)
 
-  // Convert images to lightbox format (use full size for lightbox)
-  const slides = images.map(img => ({
-    src: getFullUrl(img),
-    alt: typeof img === 'object' ? (img.alt || img.caption || '') : '',
-    description: typeof img === 'object' && img.caption ? img.caption : undefined
-  }))
+  // Convert images and videos to lightbox format (use full size for lightbox)
+  const slides = images.map(item => {
+    const isVideo = item.type === 'video'
+
+    if (isVideo) {
+      // Video slide
+      return {
+        type: 'video',
+        width: 1920,
+        height: 1080,
+        sources: [
+          {
+            src: item.src,
+            type: 'video/mp4'
+          }
+        ],
+        description: item.caption || undefined
+      }
+    } else {
+      // Image slide
+      return {
+        src: getFullUrl(item),
+        alt: typeof item === 'object' ? (item.alt || item.caption || '') : '',
+        description: typeof item === 'object' && item.caption ? item.caption : undefined
+      }
+    }
+  })
 
   const openLightbox = (imageIndex) => {
     if (onLightboxChange) {
@@ -85,22 +107,33 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
       {/* Grid View */}
       {viewMode === 'grid' && (
         <div className={styles.grid}>
-          {images.map((img, idx) => (
-            <div
-              key={idx}
-              className={styles.gridItem}
-              onClick={() => openLightbox(idx)}
-              style={{
-                backgroundImage: `url(${getThumbnailUrl(img)})`
-              }}
-            >
-              <div className={styles.gridOverlay}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
+          {images.map((item, idx) => {
+            const isVideo = item.type === 'video'
+            return (
+              <div
+                key={idx}
+                className={styles.gridItem}
+                onClick={() => openLightbox(idx)}
+                style={{
+                  backgroundImage: `url(${getThumbnailUrl(item)})`
+                }}
+              >
+                <div className={styles.gridOverlay}>
+                  {isVideo ? (
+                    // Video play icon
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  ) : (
+                    // Image icon
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -110,7 +143,12 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         close={closeLightbox}
         slides={slides}
         index={actualIndex}
-        plugins={[Captions, Thumbnails, Slideshow, Fullscreen, Zoom]}
+        plugins={[Video, Captions, Thumbnails, Slideshow, Fullscreen, Zoom]}
+        video={{
+          autoPlay: false,
+          controls: true,
+          playsInline: true
+        }}
         captions={{
           showToggle: false,
           descriptionTextAlign: 'center',

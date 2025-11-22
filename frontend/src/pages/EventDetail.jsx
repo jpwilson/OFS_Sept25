@@ -79,22 +79,22 @@ function EventDetail() {
     }
   }, [isMobile, galleryViewMode])
 
-  // Handle image click - simple function without useCallback to avoid circular deps
-  function handleImageClick(imageUrl) {
-    // Find the image index in allImages
-    const imageIndex = allImages.findIndex(img => {
-      const imgSrc = typeof img === 'string' ? img : (img.src || img.url)
-      return imgSrc === imageUrl
+  // Handle image/video click - simple function without useCallback to avoid circular deps
+  function handleImageClick(mediaUrl) {
+    // Find the media index in allMedia
+    const mediaIndex = allMedia.findIndex(item => {
+      const itemSrc = typeof item === 'string' ? item : (item.src || item.url)
+      return itemSrc === mediaUrl
     })
 
-    if (imageIndex !== -1) {
-      setLightboxState({ open: true, index: imageIndex })
+    if (mediaIndex !== -1) {
+      setLightboxState({ open: true, index: mediaIndex })
     }
   }
 
   // Make rich HTML images clickable with event delegation and add captions
   useEffect(() => {
-    if (!contentRef.current || !eventImages.length) return
+    if (!contentRef.current) return
 
     const handleClick = (e) => {
       // Check if click was on an img element
@@ -107,13 +107,13 @@ function EventDetail() {
     const content = contentRef.current
     content.addEventListener('click', handleClick)
 
-    // Add cursor pointer style to all images and insert captions
+    // Add cursor pointer style to all images and insert captions if they exist
     const images = content.querySelectorAll('img')
     images.forEach(img => {
       img.style.cursor = 'pointer'
 
       // Find matching caption from eventImages
-      const matchingImage = eventImages.find(ei => img.src.includes(ei.image_url) || ei.image_url.includes(img.src))
+      const matchingImage = eventImages?.find(ei => img.src.includes(ei.image_url) || ei.image_url.includes(img.src))
 
       if (matchingImage && matchingImage.caption) {
         // Check if caption already exists
@@ -379,12 +379,12 @@ function EventDetail() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
-  // Extract all images from the event for the gallery
-  const allImages = useMemo(() => {
+  // Extract all media (images and videos) from the event for the gallery, in document order
+  const allMedia = useMemo(() => {
     if (!event) return []
 
-    const images = []
-    const imageUrls = new Set() // Track unique image URLs to avoid duplicates
+    const media = []
+    const mediaUrls = new Set() // Track unique media URLs to avoid duplicates
 
     // Helper to normalize URLs for comparison (handle /full/, /medium/, /thumbnails/ variations)
     const normalizeUrl = (url) => {
@@ -392,60 +392,85 @@ function EventDetail() {
       return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
     }
 
-    // Helper to add image if not duplicate
-    const addImage = (src, caption = null, id = null, alt = null) => {
+    // Helper to add media if not duplicate
+    const addMedia = (src, type = 'image', caption = null, id = null, alt = null, duration = null) => {
       const normalizedUrl = normalizeUrl(src)
-      if (!imageUrls.has(normalizedUrl)) {
-        imageUrls.add(normalizedUrl)
-        images.push({ src, caption, id, alt })
+      if (!mediaUrls.has(normalizedUrl)) {
+        mediaUrls.add(normalizedUrl)
+        media.push({ src, type, caption, id, alt, duration })
       }
     }
 
     // 1. ALWAYS include cover image first if it exists
     if (event.cover_image_url) {
-      addImage(event.cover_image_url, null)
+      addMedia(event.cover_image_url, 'image', null)
     }
 
-    // 2. Add images from event_images table (these have captions)
-    // Also include videos - they'll be handled differently in the gallery
-    if (eventImages && eventImages.length > 0) {
-      eventImages.forEach(img => {
-        // For now, only add actual images to gallery
-        // Videos will be handled separately
-        if (img.media_type !== 'video') {
-          addImage(img.image_url, img.caption, img.id, img.alt_text)
-        }
-      })
-    }
-
-    // 3. Add images from content blocks (old system - backwards compatibility)
-    if (event.content_blocks && event.content_blocks.length > 0) {
-      event.content_blocks.forEach(block => {
-        if (block.type === 'image' && block.media_url) {
-          addImage(block.media_url, block.caption || null)
-        }
-      })
-    }
-
-    // 4. Parse rich HTML content and add any images not already included
-    // This catches images added to the editor that don't have captions
+    // 2. Parse rich HTML content to extract media in document order
+    // This ensures videos appear in the correct position alongside images
     if (event.description) {
       const parser = new DOMParser()
       const doc = parser.parseFromString(event.description, 'text/html')
-      const imgElements = doc.querySelectorAll('img')
-      imgElements.forEach(img => {
-        if (img.src) {
-          // Try to find matching caption from eventImages
-          const matchingImage = eventImages?.find(ei =>
-            normalizeUrl(img.src) === normalizeUrl(ei.image_url)
-          )
-          addImage(img.src, matchingImage?.caption || null, matchingImage?.id, matchingImage?.alt_text)
+
+      // Get all media elements (img and video) in document order
+      const mediaElements = doc.querySelectorAll('img, video')
+      mediaElements.forEach(element => {
+        const src = element.src || element.getAttribute('src')
+        if (!src) return
+
+        const isVideo = element.tagName === 'VIDEO'
+        const type = isVideo ? 'video' : 'image'
+
+        // Try to find matching caption/metadata from eventImages
+        const matchingMedia = eventImages?.find(ei => {
+          const eiUrl = normalizeUrl(ei.image_url)
+          const srcUrl = normalizeUrl(src)
+          return eiUrl === srcUrl
+        })
+
+        addMedia(
+          src,
+          type,
+          matchingMedia?.caption || null,
+          matchingMedia?.id,
+          matchingMedia?.alt_text,
+          matchingMedia?.duration_seconds
+        )
+      })
+    }
+
+    // 3. Add any images/videos from event_images table that weren't in the HTML
+    // This catches media that might have been added but not yet rendered
+    if (eventImages && eventImages.length > 0) {
+      eventImages.forEach(item => {
+        const type = item.media_type === 'video' ? 'video' : 'image'
+        addMedia(
+          item.image_url,
+          type,
+          item.caption,
+          item.id,
+          item.alt_text,
+          item.duration_seconds
+        )
+      })
+    }
+
+    // 4. Add images from content blocks (old system - backwards compatibility)
+    if (event.content_blocks && event.content_blocks.length > 0) {
+      event.content_blocks.forEach(block => {
+        if (block.type === 'image' && block.media_url) {
+          addMedia(block.media_url, 'image', block.caption || null)
         }
       })
     }
 
-    return images
+    return media
   }, [event, eventImages])
+
+  // Backwards compatibility: allImages contains only images
+  const allImages = useMemo(() => {
+    return allMedia.filter(m => m.type === 'image')
+  }, [allMedia])
 
   // Get all videos from event_images and HTML content
   const allVideos = useMemo(() => {
@@ -629,7 +654,7 @@ function EventDetail() {
           <EventNavigation
             sections={sections}
             activeSection={activeSection}
-            imageCount={allImages.length}
+            imageCount={allMedia.length}
             locationCount={locations.length}
             isMobile={isMobile}
             isOpen={isMobileNavOpen}
@@ -697,12 +722,12 @@ function EventDetail() {
       )}
 
       {/* Gallery Button */}
-      {allImages.length > 0 && (
+      {allMedia.length > 0 && (
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
           <button className={styles.galleryButton} onClick={handleGalleryClick}>
             {galleryViewMode === 'grid'
               ? 'Hide Grid'
-              : `📷 View all ${allImages.length} ${allImages.length === 1 ? 'image' : 'images'}`
+              : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
             }
           </button>
           <button
@@ -715,11 +740,11 @@ function EventDetail() {
         </div>
       )}
 
-      {/* Image Gallery */}
-      {allImages.length > 0 && (
+      {/* Image & Video Gallery */}
+      {allMedia.length > 0 && (
         <div className={styles.gallerySection}>
           <ImageGallery
-            images={allImages}
+            images={allMedia}
             viewMode={galleryViewMode}
             onViewModeChange={setGalleryViewMode}
             lightboxOpen={lightboxState.open}
