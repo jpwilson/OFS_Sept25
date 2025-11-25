@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile, toBlobURL } from '@ffmpeg/util'
 import styles from './VideoTrimmer.module.css'
 import { useToast } from './Toast'
 
@@ -9,36 +7,9 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
   const [endTime, setEndTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [ffmpegLoaded, setFfmpegLoaded] = useState(false)
   const [videoUrl, setVideoUrl] = useState(null)
   const videoRef = useRef(null)
-  const ffmpegRef = useRef(new FFmpeg())
   const { showToast } = useToast()
-
-  // Load FFmpeg
-  useEffect(() => {
-    const loadFFmpeg = async () => {
-      try {
-        const ffmpeg = ffmpegRef.current
-        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
-
-        await ffmpeg.load({
-          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-        })
-
-        setFfmpegLoaded(true)
-      } catch (error) {
-        console.error('Error loading FFmpeg:', error)
-        showToast('Failed to load video processor', 'error')
-      }
-    }
-
-    if (isOpen && !ffmpegLoaded) {
-      loadFFmpeg()
-    }
-  }, [isOpen, ffmpegLoaded, showToast])
 
   // Load video file
   useEffect(() => {
@@ -91,47 +62,21 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
     }
   }
 
-  const handleTrim = async () => {
-    if (!ffmpegLoaded) {
-      showToast('Video processor not ready yet', 'error')
-      return
-    }
-
+  const handleTrim = () => {
     if (trimmedDuration > 60) {
       showToast('Video must be 60 seconds or less', 'error')
       return
     }
 
-    setIsProcessing(true)
-
-    try {
-      const ffmpeg = ffmpegRef.current
-
-      // Write input file
-      await ffmpeg.writeFile('input.mp4', await fetchFile(videoFile))
-
-      // Trim video
-      await ffmpeg.exec([
-        '-i', 'input.mp4',
-        '-ss', startTime.toString(),
-        '-t', trimmedDuration.toString(),
-        '-c', 'copy', // Fast copy without re-encoding
-        'output.mp4'
-      ])
-
-      // Read output file
-      const data = await ffmpeg.readFile('output.mp4')
-      const blob = new Blob([data.buffer], { type: 'video/mp4' })
-      const trimmedFile = new File([blob], videoFile.name, { type: 'video/mp4' })
-
-      onTrimComplete(trimmedFile)
-      onClose()
-    } catch (error) {
-      console.error('Error trimming video:', error)
-      showToast('Failed to trim video. Please try again.', 'error')
-    } finally {
-      setIsProcessing(false)
-    }
+    // Return trim parameters to parent component
+    // Cloudinary will handle the actual trimming server-side
+    onTrimComplete({
+      originalFile: videoFile,
+      startTime,
+      endTime,
+      duration: trimmedDuration
+    })
+    onClose()
   }
 
   if (!isOpen) return null
@@ -141,13 +86,13 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2>Trim Video</h2>
-          <button onClick={onClose} className={styles.closeButton} disabled={isProcessing}>
+          <button onClick={onClose} className={styles.closeButton}>
             ×
           </button>
         </div>
 
         <div className={styles.message}>
-          Videos must be max 60 seconds. Please trim to 60 seconds or less.
+          Videos must be max 60 seconds. Please trim to 60 seconds or less. Cloudinary will process the trimming automatically.
         </div>
 
         <div className={styles.content}>
@@ -180,7 +125,6 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
                       value={startTime}
                       onChange={handleStartChange}
                       className={styles.slider}
-                      disabled={isProcessing}
                     />
                   </label>
 
@@ -194,7 +138,6 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
                       value={endTime}
                       onChange={handleEndChange}
                       className={styles.slider}
-                      disabled={isProcessing}
                     />
                   </label>
 
@@ -208,18 +151,11 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
                       value={currentTime}
                       onChange={handleSeek}
                       className={styles.slider}
-                      disabled={isProcessing}
                     />
                   </label>
                 </div>
               </div>
             </>
-          )}
-
-          {!ffmpegLoaded && (
-            <div className={styles.loading}>
-              Loading video processor...
-            </div>
           )}
         </div>
 
@@ -227,16 +163,15 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
           <button
             onClick={onClose}
             className={styles.cancelButton}
-            disabled={isProcessing}
           >
             Cancel
           </button>
           <button
             onClick={handleTrim}
             className={styles.doneButton}
-            disabled={!ffmpegLoaded || trimmedDuration > 60 || isProcessing}
+            disabled={trimmedDuration > 60}
           >
-            {isProcessing ? 'Trimming...' : 'Done'}
+            Done
           </button>
         </div>
       </div>

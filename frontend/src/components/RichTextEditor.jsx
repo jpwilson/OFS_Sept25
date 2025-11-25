@@ -172,8 +172,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   }, [editor, uploadImage, showToast])
 
   // Upload video to Cloudinary (handles compression automatically)
-  const handleVideoUpload = useCallback(async (file) => {
-    // Check file size limit (100MB for Cloudinary free tier)
+  const handleVideoUpload = useCallback(async (file, trimParams = null) => {
+    // Check file size limit (500MB with trimming support)
     const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
     if (file.size > MAX_SIZE) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
@@ -221,6 +221,20 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       formData.append('folder', CLOUDINARY_CONFIG.folder)
       formData.append('resource_type', 'video')
 
+      // Add eager transformation for video trimming if trim parameters are provided
+      if (trimParams) {
+        const { startTime, endTime } = trimParams
+        // Cloudinary eager transformation for trimming
+        // Format: start_offset (so) and end_offset (eo) in seconds
+        const transformation = `so_${startTime},eo_${endTime}`
+
+        // Apply aggressive compression + trimming
+        const eagerTransform = `${transformation},q_auto:low,w_1280,h_720,c_limit,br_1m,fps_30,vc_h264,f_auto`
+
+        formData.append('eager', eagerTransform)
+        formData.append('eager_async', 'false') // Wait for transformation to complete
+      }
+
       // Create XMLHttpRequest for progress tracking
       const xhr = new XMLHttpRequest()
 
@@ -234,10 +248,18 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       xhr.addEventListener('load', () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText)
-          const { public_id, secure_url } = response
+          const { public_id, eager } = response
 
-          // Generate optimized video URL with auto quality and format
-          const videoUrl = getCloudinaryVideoUrl(public_id)
+          // If eager transformation was applied (trimming), use the trimmed version
+          // Otherwise, generate optimized video URL
+          let videoUrl
+          if (eager && eager.length > 0 && eager[0].secure_url) {
+            // Use the trimmed + compressed version from eager transformation
+            videoUrl = eager[0].secure_url
+          } else {
+            // Generate optimized video URL with auto quality and format
+            videoUrl = getCloudinaryVideoUrl(public_id)
+          }
 
           // Generate thumbnail URL (frame at 1 second)
           const thumbnailUrl = getCloudinaryThumbnail(public_id)
@@ -277,10 +299,15 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
   }, [editor, showToast, videoTasks])
 
-  const handleTrimComplete = useCallback(async (trimmedFile) => {
+  const handleTrimComplete = useCallback(async (trimData) => {
     setShowVideoTrimmer(false)
     setSelectedVideoFile(null)
-    await handleVideoUpload(trimmedFile)
+    // trimData = { originalFile, startTime, endTime, duration }
+    await handleVideoUpload(trimData.originalFile, {
+      startTime: trimData.startTime,
+      endTime: trimData.endTime,
+      duration: trimData.duration
+    })
   }, [handleVideoUpload])
 
   const addVideo = useCallback(async () => {
