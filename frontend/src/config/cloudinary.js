@@ -8,7 +8,7 @@ export const CLOUDINARY_CONFIG = {
   uploadPreset: 'ofs-videos',
 
   // Upload settings
-  maxFileSize: 500 * 1024 * 1024, // 500MB (allows testing trimmer, Cloudinary compresses to ~50-100MB)
+  maxFileSize: 100 * 1024 * 1024, // 100MB (Cloudinary free tier unsigned upload limit)
   maxVideoDuration: 60, // 60 seconds
 
   // Video transformation settings for aggressive compression

@@ -173,11 +173,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
   // Upload video to Cloudinary (handles compression automatically)
   const handleVideoUpload = useCallback(async (file, trimParams = null) => {
-    // Check file size limit (500MB with trimming support)
+    // Check file size limit (100MB for Cloudinary free tier unsigned uploads)
     const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
     if (file.size > MAX_SIZE) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
-      showToast(`Video is ${sizeMB}MB but limit is 100MB. Please trim or compress the video.`, 'error')
+      const limitMB = (MAX_SIZE / (1024 * 1024)).toFixed(0)
+      showToast(`Video is ${sizeMB}MB but limit is ${limitMB}MB. Please use a shorter or lower quality recording.`, 'error')
       return
     }
 
@@ -331,7 +332,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
       if (file.size > MAX_SIZE) {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
-        showToast(`Video is ${sizeMB}MB but limit is 100MB. Please trim or use a lower quality recording.`, 'error')
+        const limitMB = (MAX_SIZE / (1024 * 1024)).toFixed(0)
+        showToast(`Video is ${sizeMB}MB but limit is ${limitMB}MB. Please use a shorter or lower quality recording.`, 'error')
         return
       }
 

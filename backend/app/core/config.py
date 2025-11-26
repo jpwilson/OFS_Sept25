@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     # Video settings
     SUPABASE_VIDEO_BUCKET: str = "event-videos"
-    MAX_VIDEO_SIZE: int = 500 * 1024 * 1024  # 500MB (Cloudinary compresses to ~50-100MB)
+    MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB (Cloudinary free tier unsigned upload limit)
     MAX_VIDEO_DURATION: int = 120  # 2 minutes in seconds
     ALLOWED_VIDEO_FORMATS: list = [".mp4", ".mov", ".avi", ".webm"]
 
