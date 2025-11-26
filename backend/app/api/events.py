@@ -521,6 +521,71 @@ def restore_event(
 
     return {"message": "Event restored"}
 
+@router.post("/{event_id}/publish")
+def publish_event(
+    event_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Publish a draft event (make it visible to followers)"""
+    event = db.query(Event).filter(Event.id == event_id).first()
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    if event.author_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if event.is_deleted:
+        raise HTTPException(status_code=400, detail="Cannot publish deleted events. Restore from trash first.")
+
+    # If already published, just return success
+    if event.is_published:
+        return {"message": "Event is already published"}
+
+    # Check event limit for free users
+    if current_user.subscription_tier == 'free':
+        published_events_count = db.query(Event).filter(
+            Event.author_id == current_user.id,
+            Event.is_published == True,
+            Event.is_deleted == False
+        ).count()
+
+        if published_events_count >= 5:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Free plan limit reached. You can only have 5 published events. Please upgrade to Premium for unlimited events."
+            )
+
+    event.is_published = True
+    db.commit()
+
+    return {"message": "Event published successfully"}
+
+@router.post("/{event_id}/unpublish")
+def unpublish_event(
+    event_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Unpublish an event (move to drafts, hide from followers)"""
+    event = db.query(Event).filter(Event.id == event_id).first()
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    if event.author_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # If already unpublished, just return success
+    if not event.is_published:
+        return {"message": "Event is already a draft"}
+
+    event.is_published = False
+    db.commit()
+
+    return {"message": "Event moved to drafts"}
+
 @router.delete("/{event_id}/permanent")
 def permanently_delete_event(
     event_id: int,

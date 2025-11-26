@@ -206,6 +206,50 @@ function EventDetail() {
     }
   }
 
+  async function handlePublish() {
+    const confirmed = await confirm({
+      title: 'Publish Event',
+      message: 'Make this event visible to your followers?',
+      confirmText: 'Publish',
+      cancelText: 'Cancel',
+      danger: false
+    })
+
+    if (!confirmed) return
+
+    try {
+      await apiService.publishEvent(id)
+      showToast('Event published successfully', 'success')
+      // Reload event to update status
+      await loadEvent()
+    } catch (error) {
+      console.error('Error publishing event:', error)
+      showToast(error.message || 'Failed to publish event', 'error')
+    }
+  }
+
+  async function handleUnpublish() {
+    const confirmed = await confirm({
+      title: 'Move to Drafts',
+      message: 'Hide this event from followers? Comments and likes will be preserved.',
+      confirmText: 'Move to Drafts',
+      cancelText: 'Cancel',
+      danger: false
+    })
+
+    if (!confirmed) return
+
+    try {
+      await apiService.unpublishEvent(id)
+      showToast('Event moved to drafts', 'success')
+      // Reload event to update status
+      await loadEvent()
+    } catch (error) {
+      console.error('Error unpublishing event:', error)
+      showToast('Failed to move event to drafts', 'error')
+    }
+  }
+
   async function loadEvent() {
     const data = await apiService.getEvent(id)
     if (!data) {
@@ -625,6 +669,21 @@ function EventDetail() {
                 >
                   ✎ Edit
                 </button>
+                {event.is_published ? (
+                  <button
+                    className={styles.unpublishButton}
+                    onClick={handleUnpublish}
+                  >
+                    📋 Move to Drafts
+                  </button>
+                ) : (
+                  <button
+                    className={styles.publishButton}
+                    onClick={handlePublish}
+                  >
+                    ✓ Publish
+                  </button>
+                )}
                 <button
                   className={styles.deleteButton}
                   onClick={handleDelete}

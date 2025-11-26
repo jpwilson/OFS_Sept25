@@ -173,6 +173,44 @@ class ApiService {
     }
   }
 
+  async publishEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/publish`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to publish event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error publishing event:', error)
+      throw error
+    }
+  }
+
+  async unpublishEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/unpublish`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to unpublish event')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error unpublishing event:', error)
+      throw error
+    }
+  }
+
   async uploadImage(file) {
     try {
       const formData = new FormData()

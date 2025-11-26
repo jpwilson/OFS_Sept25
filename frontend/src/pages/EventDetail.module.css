@@ -68,7 +68,9 @@
 }
 
 .editButton,
-.deleteButton {
+.deleteButton,
+.publishButton,
+.unpublishButton {
   padding: 12px 24px;
   color: white;
   border: none;
@@ -88,6 +90,26 @@
   background: #667eea;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.publishButton {
+  background: rgba(34, 197, 94, 0.9);
+}
+
+.publishButton:hover {
+  background: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.unpublishButton {
+  background: rgba(251, 146, 60, 0.9);
+}
+
+.unpublishButton:hover {
+  background: #fb923c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.4);
 }
 
 .deleteButton {

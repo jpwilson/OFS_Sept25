@@ -496,6 +496,57 @@
   transform: translateY(-1px);
 }
 
+.draftActions {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.draftActions .publishButton,
+.draftActions .editLinkButton {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+}
+
+.draftActions .publishButton {
+  background: #22c55e;
+  color: white;
+}
+
+.draftActions .publishButton:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+.draftActions .editLinkButton {
+  background: var(--bg-primary);
+  color: #667eea;
+  border: 1px solid #667eea;
+}
+
+.draftActions .editLinkButton:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.eventCardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .footer {
   max-width: 900px;
   margin: 60px auto 0;

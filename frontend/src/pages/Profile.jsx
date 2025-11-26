@@ -177,6 +177,28 @@ function Profile() {
     }
   }
 
+  async function handlePublish(eventId) {
+    const confirmed = await confirm({
+      title: 'Publish Event',
+      message: 'Make this event visible to your followers?',
+      confirmText: 'Publish',
+      cancelText: 'Cancel',
+      danger: false
+    })
+
+    if (!confirmed) return
+
+    try {
+      await apiService.publishEvent(eventId)
+      showToast('Event published successfully', 'success')
+      loadDrafts() // Reload drafts to remove published event
+      loadUserEvents() // Reload published events to show newly published event
+    } catch (error) {
+      console.error('Failed to publish event:', error)
+      showToast(error.message || 'Failed to publish event', 'error')
+    }
+  }
+
   function handleLogout() {
     logout()
     navigate('/login')
@@ -363,24 +385,39 @@ function Profile() {
           ) : (
             <div className={styles.eventsGrid}>
               {drafts.map(event => (
-                <Link
-                  key={event.id}
-                  to={`/event/${event.id}`}
-                  className={`${styles.eventCard} ${styles.draftCard}`}
-                >
-                  <div
-                    className={styles.eventImage}
-                    style={{ backgroundImage: `url(${event.cover_image_url})` }}
+                <div key={event.id} className={`${styles.eventCard} ${styles.draftCard}`}>
+                  <Link
+                    to={`/event/${event.id}`}
+                    className={styles.eventCardLink}
                   >
-                    <div className={styles.draftBadge}>DRAFT</div>
-                    <div className={styles.eventOverlay}>
-                      <h3 className={styles.eventTitle}>{event.title}</h3>
-                      <p className={styles.eventDate}>
-                        {formatDate(event.start_date)}
-                      </p>
+                    <div
+                      className={styles.eventImage}
+                      style={{ backgroundImage: `url(${event.cover_image_url})` }}
+                    >
+                      <div className={styles.draftBadge}>DRAFT</div>
+                      <div className={styles.eventOverlay}>
+                        <h3 className={styles.eventTitle}>{event.title}</h3>
+                        <p className={styles.eventDate}>
+                          {formatDate(event.start_date)}
+                        </p>
+                      </div>
                     </div>
+                  </Link>
+                  <div className={styles.draftActions}>
+                    <button
+                      className={styles.publishButton}
+                      onClick={() => handlePublish(event.id)}
+                    >
+                      ✓ Publish
+                    </button>
+                    <Link
+                      to={`/event/${event.id}/edit`}
+                      className={styles.editLinkButton}
+                    >
+                      ✎ Edit
+                    </Link>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )
