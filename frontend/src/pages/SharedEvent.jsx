@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import apiService from '../services/api'
-import styles from './SharedEvent.module.css'
+import ImageGallery from '../components/ImageGallery'
+import EventNavigation from '../components/EventNavigation'
+import EventMap from '../components/EventMap'
+import ShortLocation from '../components/ShortLocation'
+import styles from './EventDetail.module.css'
+import bannerStyles from './SharedEvent.module.css'
 
 function SharedEvent() {
   const { token } = useParams()
@@ -14,35 +19,77 @@ function SharedEvent() {
   const [bannerType, setBannerType] = useState(null)
   const [isExpired, setIsExpired] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
+  const [sections, setSections] = useState([])
+  const [activeSection, setActiveSection] = useState(null)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [galleryViewMode, setGalleryViewMode] = useState('single')
+  const [locations, setLocations] = useState([])
+  const [eventImages, setEventImages] = useState([])
+  const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
+  const [showCaptions, setShowCaptions] = useState(() => {
+    const saved = localStorage.getItem('showImageCaptions')
+    return saved === 'true'
+  })
+  const contentRef = useRef(null)
+  const mapRef = useRef(null)
+
+  // Save caption preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('showImageCaptions', showCaptions)
+  }, [showCaptions])
 
   useEffect(() => {
     loadSharedEvent()
   }, [token, user])
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   async function loadSharedEvent() {
     try {
       const data = await apiService.viewSharedEvent(token)
       setEvent(data.event)
 
+      // Load event images
+      try {
+        const images = await apiService.getEventImages(data.event.id)
+        setEventImages(images || [])
+      } catch (err) {
+        console.error('Error loading event images:', err)
+      }
+
+      // Load locations if multi-location event
+      if (data.event.has_multiple_locations) {
+        try {
+          const locs = await apiService.getEventLocations(data.event.id)
+          setLocations(locs || [])
+        } catch (err) {
+          console.error('Error loading locations:', err)
+        }
+      }
+
       // Check if expired
       const expired = new Date(data.expires_at) < new Date()
       setIsExpired(expired)
 
-      // Determine banner type based on user status
+      // Determine banner type
       if (!user) {
         setBannerType('not_logged_in')
       } else if (user.username === data.event.author_username) {
         setBannerType('is_author')
       } else {
-        // Check if following
         try {
           const followStatus = await apiService.checkIfFollowing(data.event.author_username)
           setIsFollowing(followStatus.is_following)
-          if (followStatus.is_following) {
-            setBannerType('already_following')
-          } else {
-            setBannerType('not_following')
-          }
+          setBannerType(followStatus.is_following ? 'already_following' : 'not_following')
         } catch (err) {
           setBannerType('not_following')
         }
@@ -55,6 +102,47 @@ function SharedEvent() {
       setLoading(false)
     }
   }
+
+  // Extract sections from content
+  useEffect(() => {
+    if (!event || !event.description) return
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = event.description
+
+    const headings = tempDiv.querySelectorAll('h1, h2, h3')
+    const extractedSections = Array.from(headings).map((heading, index) => ({
+      id: `section-${index}`,
+      title: heading.textContent,
+      level: parseInt(heading.tagName.substring(1))
+    }))
+
+    setSections(extractedSections)
+  }, [event])
+
+  // All media (images and videos)
+  const allMedia = useMemo(() => {
+    if (!event || !event.description) return []
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = event.description
+    const mediaElements = tempDiv.querySelectorAll('img, video')
+
+    return Array.from(mediaElements).map((element) => {
+      if (element.tagName === 'VIDEO') {
+        return {
+          type: 'video',
+          src: element.src,
+          alt: element.alt || ''
+        }
+      }
+      return {
+        type: 'image',
+        src: element.src,
+        alt: element.alt || ''
+      }
+    })
+  }, [event])
 
   async function handleFollow() {
     if (!user) {
@@ -71,38 +159,105 @@ function SharedEvent() {
     }
   }
 
-  function formatDateRange(start, end) {
+  function formatDateRange(start, end, short = false) {
     const startDate = new Date(start)
     const endDate = end ? new Date(end) : null
 
-    const options = { month: 'long', day: 'numeric', year: 'numeric' }
+    const options = short
+      ? { month: 'short', day: 'numeric', year: '2-digit' }
+      : { month: 'long', day: 'numeric', year: 'numeric' }
 
     if (!endDate || startDate.toDateString() === endDate.toDateString()) {
       return startDate.toLocaleDateString('en-US', options)
     }
 
+    if (startDate.getFullYear() === endDate.getFullYear()) {
+      if (startDate.getMonth() === endDate.getMonth()) {
+        return `${startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - ${endDate.getDate()}, ${endDate.getFullYear()}`
+      }
+      return `${startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+    }
+
     return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`
+  }
+
+  function handleImageClick(mediaUrl) {
+    const mediaIndex = allMedia.findIndex(item => {
+      const itemSrc = typeof item === 'string' ? item : (item.src || item.url)
+      return itemSrc === mediaUrl
+    })
+
+    if (mediaIndex !== -1) {
+      setLightboxState({ open: true, index: mediaIndex })
+    }
+  }
+
+  const handleGalleryClick = () => {
+    const newMode = galleryViewMode === 'grid' ? 'single' : 'grid'
+    setGalleryViewMode(newMode)
+
+    if (newMode === 'grid') {
+      setTimeout(() => {
+        const gallery = document.querySelector('[class*="gallerySection"]')
+        if (gallery) {
+          const offset = 80
+          const elementPosition = gallery.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+        }
+      }, 100)
+    }
+
+    if (isMobile) {
+      setIsMobileNavOpen(false)
+    }
+  }
+
+  const handleMapClick = () => {
+    setTimeout(() => {
+      if (mapRef.current) {
+        const offset = 80
+        const elementPosition = mapRef.current.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - offset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+
+    if (isMobile) {
+      setIsMobileNavOpen(false)
+    }
   }
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading event...</div>
-      </div>
+      <div className={styles.loading}>Loading event...</div>
     )
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>
-          <div className={styles.errorIcon}>🔗</div>
+      <div className={bannerStyles.container}>
+        <div className={bannerStyles.error}>
+          <div className={bannerStyles.errorIcon}>🔗</div>
           <h2>Unable to Load Event</h2>
           <p>{error}</p>
           {!user && (
-            <Link to="/login" className={styles.loginButton}>
-              Sign In
-            </Link>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <Link to="/login?mode=signup" className={bannerStyles.loginButton}>
+                Sign Up Free
+              </Link>
+              <Link to="/login" className={bannerStyles.loginButton} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                Sign In
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -113,146 +268,173 @@ function SharedEvent() {
     <div className={styles.container}>
       {/* Banner */}
       {isExpired ? (
-        <div className={`${styles.banner} ${styles.bannerExpired}`}>
-          <div className={styles.bannerContent}>
-            <div className={styles.bannerIcon}>⏰</div>
-            <div className={styles.bannerText}>
+        <div className={`${bannerStyles.banner} ${bannerStyles.bannerExpired}`}>
+          <div className={bannerStyles.bannerContent}>
+            <div className={bannerStyles.bannerIcon}>⏰</div>
+            <div className={bannerStyles.bannerText}>
               <strong>This share link has expired.</strong>
               <p>
                 Follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> to request access to their events.
               </p>
             </div>
             {!user && (
-              <Link to="/login" className={styles.bannerButton}>
-                Sign Up
-              </Link>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Link to="/login?mode=signup" className={bannerStyles.bannerButton}>
+                  Sign Up Free
+                </Link>
+                <Link to="/login" className={bannerStyles.bannerButton} style={{ background: 'rgba(255,255,255,0.2)' }}>
+                  Sign In
+                </Link>
+              </div>
             )}
           </div>
         </div>
       ) : bannerType === 'not_logged_in' ? (
-        <div className={`${styles.banner} ${styles.bannerSignup}`}>
-          <div className={styles.bannerContent}>
-            <div className={styles.bannerIcon}>👋</div>
-            <div className={styles.bannerText}>
+        <div className={`${bannerStyles.banner} ${bannerStyles.bannerSignup}`}>
+          <div className={bannerStyles.bannerContent}>
+            <div className={bannerStyles.bannerIcon}>👋</div>
+            <div className={bannerStyles.bannerText}>
               <strong>Enjoying this event?</strong>
               <p>
                 Sign up to follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> and see more of their events!
               </p>
             </div>
-            <Link to="/login" className={styles.bannerButton}>
-              Sign Up Free
-            </Link>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <Link to="/login?mode=signup" className={bannerStyles.bannerButton}>
+                Sign Up Free
+              </Link>
+              <Link to="/login" className={bannerStyles.bannerButton} style={{ background: 'rgba(102, 126, 234, 0.2)', color: '#667eea', border: '1px solid #667eea' }}>
+                Already have an account? Sign In
+              </Link>
+            </div>
           </div>
         </div>
       ) : bannerType === 'not_following' ? (
-        <div className={`${styles.banner} ${styles.bannerFollow}`}>
-          <div className={styles.bannerContent}>
-            <div className={styles.bannerIcon}>👤</div>
-            <div className={styles.bannerText}>
+        <div className={`${bannerStyles.banner} ${bannerStyles.bannerFollow}`}>
+          <div className={bannerStyles.bannerContent}>
+            <div className={bannerStyles.bannerIcon}>👤</div>
+            <div className={bannerStyles.bannerText}>
               <strong>Want to see more?</strong>
               <p>
                 Follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> to permanently access their events.
               </p>
             </div>
-            <button onClick={handleFollow} className={styles.bannerButton}>
+            <button onClick={handleFollow} className={bannerStyles.bannerButton}>
               Follow
             </button>
           </div>
         </div>
       ) : bannerType === 'already_following' ? (
-        <div className={`${styles.banner} ${styles.bannerSuccess}`}>
-          <div className={styles.bannerContent}>
-            <div className={styles.bannerIcon}>✓</div>
-            <div className={styles.bannerText}>
+        <div className={`${bannerStyles.banner} ${bannerStyles.bannerSuccess}`}>
+          <div className={bannerStyles.bannerContent}>
+            <div className={bannerStyles.bannerIcon}>✓</div>
+            <div className={bannerStyles.bannerText}>
               <strong>You're following this user</strong>
               <p>
                 You already have access to <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link>'s events.
               </p>
             </div>
-            <Link to="/feed" className={styles.bannerButton}>
+            <Link to="/feed" className={bannerStyles.bannerButton}>
               Go to Feed
             </Link>
           </div>
         </div>
       ) : bannerType === 'is_author' ? (
-        <div className={`${styles.banner} ${styles.bannerInfo}`}>
-          <div className={styles.bannerContent}>
-            <div className={styles.bannerIcon}>ℹ️</div>
-            <div className={styles.bannerText}>
+        <div className={`${bannerStyles.banner} ${bannerStyles.bannerInfo}`}>
+          <div className={bannerStyles.bannerContent}>
+            <div className={bannerStyles.bannerIcon}>ℹ️</div>
+            <div className={bannerStyles.bannerText}>
               <strong>This is your shared event</strong>
               <p>This is how others see your event when you share the link.</p>
             </div>
-            <Link to={`/event/${event.id}`} className={styles.bannerButton}>
+            <Link to={`/event/${event.id}`} className={bannerStyles.bannerButton}>
               View Full Event
             </Link>
           </div>
         </div>
       ) : null}
 
-      {/* Event Content */}
-      <div className={styles.eventContent}>
-        {event.cover_image_url && (
-          <div
-            className={styles.coverImage}
-            style={{ backgroundImage: `url(${event.cover_image_url})` }}
-          />
-        )}
-
-        <div className={styles.eventHeader}>
-          <h1 className={styles.title}>{event.title}</h1>
-
+      {/* Hero Image */}
+      <div
+        className={styles.heroImage}
+        style={{ backgroundImage: `url(${event.cover_image_url})` }}
+      >
+        <div className={styles.heroOverlay}>
+          <div className={styles.heroHeader}>
+            <h1 className={styles.title}>
+              <span className={styles.titleDesktop}>{event.title}</span>
+              <span className={styles.titleMobile}>{event.short_title || event.title}</span>
+            </h1>
+          </div>
           <div className={styles.meta}>
             <Link to={`/profile/${event.author_username}`} className={styles.author}>
-              <div className={styles.authorAvatar}>
-                {event.author_full_name?.charAt(0) || event.author_username.charAt(0)}
-              </div>
-              <div>
-                <div className={styles.authorName}>
-                  {event.author_full_name || event.author_username}
-                </div>
-                <div className={styles.authorUsername}>@{event.author_username}</div>
-              </div>
+              <div className={styles.avatar}></div>
+              <span className={styles.authorDesktop}>{event.author_full_name || event.author_username}</span>
+              <span className={styles.authorMobile}>@{event.author_username}</span>
             </Link>
-
-            <div className={styles.details}>
-              <div className={styles.detail}>
-                <span className={styles.detailIcon}>📅</span>
-                <span>{formatDateRange(event.start_date, event.end_date)}</span>
-              </div>
-
-              {event.location_name && (
-                <div className={styles.detail}>
-                  <span className={styles.detailIcon}>📍</span>
-                  <span>{event.location_name}</span>
-                </div>
-              )}
-
-              {event.category && (
-                <div className={styles.detail}>
-                  <span className={styles.detailIcon}>🏷️</span>
-                  <span>{event.category}</span>
-                </div>
-              )}
-            </div>
+            <span>·</span>
+            <span className={styles.dateDesktop}>{formatDateRange(event.start_date, event.end_date)}</span>
+            <span className={styles.dateMobile}>{formatDateRange(event.start_date, event.end_date, true)}</span>
+            <span>·</span>
+            <ShortLocation locationName={event.location_name} maxWords={3} />
           </div>
         </div>
+      </div>
 
-        <div className={styles.eventBody}>
-          <div
-            className={styles.description}
-            dangerouslySetInnerHTML={{ __html: event.description }}
+      {/* Page Layout */}
+      <div className={styles.pageLayout}>
+        {sections.length > 0 && (
+          <EventNavigation
+            sections={sections}
+            activeSection={activeSection}
+            imageCount={allMedia.length}
+            locationCount={locations.length}
+            isMobile={isMobile}
+            isOpen={isMobileNavOpen}
+            onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            onGalleryClick={handleGalleryClick}
+            onMapClick={handleMapClick}
           />
-        </div>
-
-        {!user && (
-          <div className={styles.ctaFooter}>
-            <h3>Create Your Own Events</h3>
-            <p>Join thousands sharing their life stories and special moments.</p>
-            <Link to="/login" className={styles.ctaButton}>
-              Sign Up Free
-            </Link>
-          </div>
         )}
+
+        <div className={styles.mainContent} ref={contentRef}>
+          {isMobile && sections.length > 0 && (
+            <button
+              className={styles.mobileMenuButton}
+              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            >
+              ☰ Table of Contents
+            </button>
+          )}
+
+          <div className={styles.content}>
+            <div dangerouslySetInnerHTML={{ __html: event.description }} />
+          </div>
+
+          {/* Image Gallery */}
+          {allMedia.length > 0 && (
+            <div className={styles.gallerySection}>
+              <ImageGallery
+                media={allMedia}
+                viewMode={galleryViewMode}
+                onToggleView={() => setGalleryViewMode(galleryViewMode === 'grid' ? 'single' : 'grid')}
+                onImageClick={handleImageClick}
+                lightboxState={lightboxState}
+                setLightboxState={setLightboxState}
+                showCaptions={showCaptions}
+                setShowCaptions={setShowCaptions}
+                eventImages={eventImages}
+              />
+            </div>
+          )}
+
+          {/* Map */}
+          {locations.length > 0 && (
+            <div ref={mapRef} className={styles.mapSection}>
+              <EventMap locations={locations} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
