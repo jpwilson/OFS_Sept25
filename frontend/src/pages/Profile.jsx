@@ -22,10 +22,11 @@ function Profile() {
   const [events, setEvents] = useState([])
   const [drafts, setDrafts] = useState([])
   const [trash, setTrash] = useState([])
+  const [sharedLinks, setSharedLinks] = useState([])
   const [loading, setLoading] = useState(true)
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, or trash
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, trash, or shared
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
   const [showRequestsModal, setShowRequestsModal] = useState(false)
@@ -40,6 +41,7 @@ function Profile() {
     if (isOwnProfile) {
       loadDrafts()
       loadTrash()
+      loadSharedLinks()
       loadRequestCount()
     }
     if (currentUser && !isOwnProfile) {
@@ -78,6 +80,15 @@ function Profile() {
       setTrash(trashEvents)
     } catch (error) {
       console.error('Failed to load trash:', error)
+    }
+  }
+
+  async function loadSharedLinks() {
+    try {
+      const links = await apiService.getAllShareLinks()
+      setSharedLinks(links)
+    } catch (error) {
+      console.error('Failed to load shared links:', error)
     }
   }
 
@@ -209,6 +220,33 @@ function Profile() {
       console.error('Failed to publish event:', error)
       showToast(error.message || 'Failed to publish event', 'error')
     }
+  }
+
+  async function handleDisableShareLink(eventId, eventTitle) {
+    const confirmed = await confirm({
+      title: 'Disable Share Link',
+      message: `Disable public sharing for "${eventTitle}"? The link will no longer work.`,
+      confirmText: 'Disable',
+      cancelText: 'Cancel',
+      danger: true
+    })
+
+    if (!confirmed) return
+
+    try {
+      await apiService.deleteShareLink(eventId)
+      showToast('Share link disabled', 'success')
+      loadSharedLinks() // Reload shared links
+    } catch (error) {
+      console.error('Failed to disable share link:', error)
+      showToast('Failed to disable share link', 'error')
+    }
+  }
+
+  function copyToClipboard(text, label = 'Link') {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast(`${label} copied to clipboard`, 'success'))
+      .catch(() => showToast('Failed to copy to clipboard', 'error'))
   }
 
   function handleLogout() {
@@ -343,6 +381,12 @@ function Profile() {
                 Drafts ({drafts.length})
               </button>
               <button
+                className={`${styles.tab} ${activeTab === 'shared' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('shared')}
+              >
+                Shared Links ({sharedLinks.length})
+              </button>
+              <button
                 className={`${styles.tab} ${activeTab === 'trash' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('trash')}
               >
@@ -434,6 +478,70 @@ function Profile() {
                   </div>
                 </div>
               ))}
+            </div>
+          )
+        )}
+
+        {activeTab === 'shared' && (
+          sharedLinks.length === 0 ? (
+            <div className={styles.noEvents}>
+              <p>No active share links.</p>
+              <p className={styles.hint}>Share events with temporary public links from the event page.</p>
+            </div>
+          ) : (
+            <div className={styles.sharedLinksList}>
+              {sharedLinks.map(link => {
+                const fullUrl = `${window.location.origin}${link.share_url}`
+                const expiresAt = new Date(link.expires_at)
+                const isExpired = link.is_expired
+
+                return (
+                  <div key={link.event_id} className={styles.sharedLinkCard}>
+                    <div className={styles.sharedLinkInfo}>
+                      <h3 className={styles.sharedLinkTitle}>
+                        {link.event_title}
+                        {isExpired && <span className={styles.expiredBadge}>EXPIRED</span>}
+                      </h3>
+                      <div className={styles.sharedLinkUrl}>
+                        <input
+                          type="text"
+                          value={fullUrl}
+                          readOnly
+                          className={styles.urlInput}
+                        />
+                        <button
+                          onClick={() => copyToClipboard(fullUrl, 'Share link')}
+                          className={styles.copyButton}
+                          title="Copy to clipboard"
+                        >
+                          📋 Copy
+                        </button>
+                      </div>
+                      <div className={styles.sharedLinkMeta}>
+                        <span>👁 {link.view_count} views</span>
+                        <span>·</span>
+                        <span>
+                          {isExpired ? 'Expired' : 'Expires'} {expiresAt.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.sharedLinkActions}>
+                      <button
+                        className={styles.disableButton}
+                        onClick={() => handleDisableShareLink(link.event_id, link.event_title)}
+                      >
+                        🔗 Disable Link
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )
         )}

@@ -125,6 +125,41 @@ def get_share_link(
         "view_count": event.share_view_count or 0
     }
 
+@router.get("/share-links")
+def get_all_share_links(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all active share links for current user's events
+    """
+    # Get all events authored by current user that have active shares
+    events = db.query(Event).filter(
+        Event.author_id == current_user.id,
+        Event.share_enabled == True,
+        Event.share_token.isnot(None),
+        Event.is_deleted == False
+    ).all()
+
+    share_links = []
+    current_time = datetime.utcnow()
+
+    for event in events:
+        # Check if expired
+        is_expired = event.share_expires_at and event.share_expires_at < current_time
+
+        share_links.append({
+            "event_id": event.id,
+            "event_title": event.title,
+            "share_token": event.share_token,
+            "share_url": f"/share/{event.share_token}",
+            "expires_at": event.share_expires_at.isoformat() if event.share_expires_at else None,
+            "view_count": event.share_view_count or 0,
+            "is_expired": is_expired
+        })
+
+    return {"share_links": share_links}
+
 @router.get("/share/{token}")
 def view_shared_event(
     token: str,

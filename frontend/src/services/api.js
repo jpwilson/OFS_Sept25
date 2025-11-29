@@ -957,6 +957,20 @@ class ApiService {
     }
   }
 
+  async getAllShareLinks() {
+    try {
+      const response = await fetch(`${API_BASE}/share-links`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch share links')
+      const data = await response.json()
+      return data.share_links || []
+    } catch (error) {
+      console.error('Error fetching all share links:', error)
+      return []
+    }
+  }
+
   async viewSharedEvent(token) {
     try {
       const headers = {}
