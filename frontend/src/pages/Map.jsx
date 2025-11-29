@@ -18,11 +18,24 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 })
 
+// Predefined categories (matching CategorySelector)
+const CATEGORIES = [
+  'Birthday',
+  'Anniversary',
+  'Vacation',
+  'Family Gathering',
+  'Holiday',
+  'Project',
+  'Daily Life',
+  'Milestone'
+]
+
 function Map() {
   const { user } = useAuth()
   const [events, setEvents] = useState([])
   const [filteredEvents, setFilteredEvents] = useState([])
   const [filter, setFilter] = useState('all') // all, following, self
+  const [selectedCategory, setSelectedCategory] = useState('') // empty = all categories
   const [selectedDateRange, setSelectedDateRange] = useState({
     start: '',
     end: ''
@@ -62,7 +75,7 @@ function Map() {
 
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedDateRange, events])
+  }, [filter, selectedCategory, selectedDateRange, events])
 
   const applyFilters = () => {
     let filtered = [...events]
@@ -72,6 +85,11 @@ function Map() {
       filtered = filtered.filter(event => event.author_username === user.username)
     } else if (filter === 'following') {
       filtered = filtered.filter(event => following.includes(event.author_username))
+    }
+
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(event => event.category === selectedCategory)
     }
 
     // Apply date filter
@@ -147,6 +165,21 @@ function Map() {
               value={selectedDateRange.end}
               onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
             />
+          </div>
+
+          <div className={styles.categorySelector}>
+            <label htmlFor="category-filter">Category:</label>
+            <select
+              id="category-filter"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={styles.categoryDropdown}
+            >
+              <option value="">All Categories</option>
+              {CATEGORIES.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
 
           <button

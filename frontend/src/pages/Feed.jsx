@@ -6,6 +6,18 @@ import { FeedSkeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
 import ShortLocation from '../components/ShortLocation'
 
+// Predefined categories (matching CategorySelector)
+const CATEGORIES = [
+  'Birthday',
+  'Anniversary',
+  'Vacation',
+  'Family Gathering',
+  'Holiday',
+  'Project',
+  'Daily Life',
+  'Milestone'
+]
+
 function Feed() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -13,6 +25,7 @@ function Feed() {
   const [filteredEvents, setFilteredEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all') // all, following, self
+  const [selectedCategory, setSelectedCategory] = useState('') // empty = all categories
   const [selectedDateRange, setSelectedDateRange] = useState({
     start: '',
     end: ''
@@ -61,7 +74,7 @@ function Feed() {
 
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedDateRange, events])
+  }, [filter, selectedCategory, selectedDateRange, events])
 
   async function loadEvents() {
     const data = await apiService.getEvents()
@@ -78,6 +91,11 @@ function Feed() {
       filtered = filtered.filter(event => event.author_username === user.username)
     } else if (filter === 'following') {
       filtered = filtered.filter(event => following.includes(event.author_username))
+    }
+
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(event => event.category === selectedCategory)
     }
 
     // Apply date filter
@@ -172,6 +190,21 @@ function Feed() {
                 value={selectedDateRange.end}
                 onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
               />
+            </div>
+
+            <div className={styles.categorySelector}>
+              <label htmlFor="category-filter">Category:</label>
+              <select
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className={styles.categoryDropdown}
+              >
+                <option value="">All Categories</option>
+                {CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </div>
 
             <button

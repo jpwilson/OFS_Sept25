@@ -793,6 +793,193 @@ class ApiService {
       throw error
     }
   }
+
+  // ========================================
+  // CUSTOM GROUPS
+  // ========================================
+
+  async getCustomGroups() {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch custom groups')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching custom groups:', error)
+      return []
+    }
+  }
+
+  async getCustomGroup(groupId) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/${groupId}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch custom group')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching custom group:', error)
+      throw error
+    }
+  }
+
+  async createCustomGroup(groupData) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(groupData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create custom group')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating custom group:', error)
+      throw error
+    }
+  }
+
+  async updateCustomGroup(groupId, groupData) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/${groupId}`, {
+        method: 'PATCH',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(groupData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update custom group')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating custom group:', error)
+      throw error
+    }
+  }
+
+  async deleteCustomGroup(groupId) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/${groupId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete custom group')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting custom group:', error)
+      throw error
+    }
+  }
+
+  async addGroupMember(groupId, userId) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/${groupId}/members/${userId}`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to add member')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error adding group member:', error)
+      throw error
+    }
+  }
+
+  async removeGroupMember(groupId, userId) {
+    try {
+      const response = await fetch(`${API_BASE}/custom-groups/${groupId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to remove member')
+      return await response.json()
+    } catch (error) {
+      console.error('Error removing group member:', error)
+      throw error
+    }
+  }
+
+  // ========================================
+  // SHAREABLE LINKS
+  // ========================================
+
+  async createShareLink(eventId, expiresInDays) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/share`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ expires_in_days: expiresInDays })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create share link')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating share link:', error)
+      throw error
+    }
+  }
+
+  async getShareLink(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/share`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        if (response.status === 404) return null
+        throw new Error('Failed to fetch share link')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching share link:', error)
+      return null
+    }
+  }
+
+  async deleteShareLink(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/share`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete share link')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting share link:', error)
+      throw error
+    }
+  }
+
+  async viewSharedEvent(token) {
+    try {
+      const headers = {}
+      // Include auth token if available (for personalized messages)
+      const authHeaders = await this.getAuthHeaders()
+      if (authHeaders.Authorization) {
+        headers.Authorization = authHeaders.Authorization
+      }
+
+      const response = await fetch(`${API_BASE}/share/${token}`, {
+        headers
+      })
+      if (!response.ok) {
+        if (response.status === 410) throw new Error('expired')
+        if (response.status === 404) throw new Error('not_found')
+        throw new Error('Failed to fetch shared event')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error viewing shared event:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()

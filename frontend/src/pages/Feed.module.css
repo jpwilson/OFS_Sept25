@@ -110,6 +110,36 @@
   font-size: 13px;
 }
 
+.categorySelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.categorySelector label {
+  font-size: 13px;
+  color: #999;
+}
+
+.categoryDropdown {
+  padding: 6px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.categoryDropdown:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
 .filterButton {
   padding: 10px 20px;
   border: 1px solid #444;

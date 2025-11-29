@@ -287,6 +287,35 @@
   font-size: 14px;
 }
 
+.categorySelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.categorySelector label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.categoryDropdown {
+  padding: 6px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.categoryDropdown:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
 /* Cluster marker styles */
 .clusterIcon {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
