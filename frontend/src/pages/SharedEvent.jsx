@@ -14,6 +14,7 @@ function SharedEvent() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [event, setEvent] = useState(null)
+  const [shareContext, setShareContext] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [bannerType, setBannerType] = useState(null)
@@ -57,6 +58,7 @@ function SharedEvent() {
     try {
       const data = await apiService.viewSharedEvent(token)
       setEvent(data.event)
+      setShareContext(data.share_context)
 
       // Load event images
       try {
@@ -151,7 +153,7 @@ function SharedEvent() {
     }
 
     try {
-      await apiService.followUser(event.author_username)
+      await apiService.followUser(shareContext.author_username)
       setIsFollowing(true)
       setBannerType('already_following')
     } catch (error) {
@@ -236,29 +238,15 @@ function SharedEvent() {
     }
   }
 
-  if (loading) {
-    return (
+  if (!event || !shareContext) {
+    return loading ? (
       <div className={styles.loading}>Loading event...</div>
-    )
-  }
-
-  if (error) {
-    return (
+    ) : (
       <div className={bannerStyles.container}>
         <div className={bannerStyles.error}>
           <div className={bannerStyles.errorIcon}>🔗</div>
           <h2>Unable to Load Event</h2>
           <p>{error}</p>
-          {!user && (
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <Link to="/login?mode=signup" className={bannerStyles.loginButton}>
-                Sign Up Free
-              </Link>
-              <Link to="/login" className={bannerStyles.loginButton} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-                Sign In
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     )
@@ -274,7 +262,7 @@ function SharedEvent() {
             <div className={bannerStyles.bannerText}>
               <strong>This share link has expired.</strong>
               <p>
-                Follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> to request access to their events.
+                Follow <Link to={`/profile/${shareContext.author_username}`}>@{shareContext.author_username}</Link> to request access to their events.
               </p>
             </div>
             {!user && (
@@ -296,7 +284,7 @@ function SharedEvent() {
             <div className={bannerStyles.bannerText}>
               <strong>Enjoying this event?</strong>
               <p>
-                Sign up to follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> and see more of their events!
+                Sign up to follow <Link to={`/profile/${shareContext.author_username}`}>@{shareContext.author_username}</Link> and see more of their events!
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -316,11 +304,11 @@ function SharedEvent() {
             <div className={bannerStyles.bannerText}>
               <strong>Want to see more?</strong>
               <p>
-                Follow <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link> to permanently access their events.
+                Follow <Link to={`/profile/${shareContext.author_username}`}>@{shareContext.author_username}</Link> to permanently access their events.
               </p>
             </div>
             <button onClick={handleFollow} className={bannerStyles.bannerButton}>
-              Follow
+              Request to Follow
             </button>
           </div>
         </div>
@@ -331,7 +319,7 @@ function SharedEvent() {
             <div className={bannerStyles.bannerText}>
               <strong>You're following this user</strong>
               <p>
-                You already have access to <Link to={`/profile/${event.author_username}`}>@{event.author_username}</Link>'s events.
+                You already have access to <Link to={`/profile/${shareContext.author_username}`}>@{shareContext.author_username}</Link>'s events.
               </p>
             </div>
             <Link to="/feed" className={bannerStyles.bannerButton}>
@@ -367,10 +355,10 @@ function SharedEvent() {
             </h1>
           </div>
           <div className={styles.meta}>
-            <Link to={`/profile/${event.author_username}`} className={styles.author}>
+            <Link to={`/profile/${shareContext.author_username}`} className={styles.author}>
               <div className={styles.avatar}></div>
-              <span className={styles.authorDesktop}>{event.author_full_name || event.author_username}</span>
-              <span className={styles.authorMobile}>@{event.author_username}</span>
+              <span className={styles.authorDesktop}>{shareContext.author_full_name || shareContext.author_username}</span>
+              <span className={styles.authorMobile}>@{shareContext.author_username}</span>
             </Link>
             <span>·</span>
             <span className={styles.dateDesktop}>{formatDateRange(event.start_date, event.end_date)}</span>
