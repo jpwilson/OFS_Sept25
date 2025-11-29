@@ -9,6 +9,7 @@ function Header() {
   const navigate = useNavigate()
   const [requestCount, setRequestCount] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -31,6 +32,16 @@ function Header() {
     return () => clearInterval(interval)
   }, [user])
 
+  useEffect(() => {
+    // Check if user has dismissed this count
+    const dismissedCount = localStorage.getItem('dismissedFollowRequestCount')
+    if (dismissedCount && parseInt(dismissedCount) === requestCount) {
+      setIsDismissed(true)
+    } else {
+      setIsDismissed(false)
+    }
+  }, [requestCount])
+
   async function loadRequestCount() {
     try {
       const data = await apiService.getFollowRequestCount()
@@ -38,6 +49,13 @@ function Header() {
     } catch (error) {
       console.error('Failed to load follow request count:', error)
     }
+  }
+
+  function handleDismiss(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    localStorage.setItem('dismissedFollowRequestCount', requestCount.toString())
+    setIsDismissed(true)
   }
 
   return (
@@ -69,8 +87,17 @@ function Header() {
         {user ? (
           <span className={styles.profileLink}>
             <Link to={`/profile/${user.username}`}>Profile</Link>
-            {requestCount > 0 && (
-              <span className={styles.badge}>{requestCount}</span>
+            {requestCount > 0 && !isDismissed && (
+              <span className={styles.badge}>
+                {requestCount}
+                <button
+                  className={styles.dismissButton}
+                  onClick={handleDismiss}
+                  title="Dismiss notification"
+                >
+                  ×
+                </button>
+              </span>
             )}
           </span>
         ) : (
@@ -94,8 +121,17 @@ function Header() {
                 <Link to={`/profile/${user.username}`} onClick={closeMobileMenu}>
                   Profile
                 </Link>
-                {requestCount > 0 && (
-                  <span className={styles.badge}>{requestCount}</span>
+                {requestCount > 0 && !isDismissed && (
+                  <span className={styles.badge}>
+                    {requestCount}
+                    <button
+                      className={styles.dismissButton}
+                      onClick={handleDismiss}
+                      title="Dismiss notification"
+                    >
+                      ×
+                    </button>
+                  </span>
                 )}
               </span>
             ) : (

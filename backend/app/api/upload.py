@@ -15,7 +15,13 @@ from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
 from ..schemas.event_image import EventImageCreate, EventImageResponse
-from supabase import create_client, Client
+
+try:
+    from supabase import create_client, Client
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    SUPABASE_AVAILABLE = False
+    Client = Any  # Type hint placeholder
 
 router = APIRouter(tags=["upload"])
 

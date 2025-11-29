@@ -141,10 +141,10 @@ def test_follow_request_workflow():
             )
             if response.status_code == 200:
                 data = response.json()
-                if data.get('is_following') and data.get('status') == 'approved':
-                    print("   ✓ Sarah is now following Tom (approved)")
+                if data.get('is_following') and data.get('status') == 'accepted':
+                    print("   ✓ Sarah is now following Tom (accepted)")
                 else:
-                    print(f"   ❌ Expected approved follow, got: {data}")
+                    print(f"   ❌ Expected accepted follow, got: {data}")
 
             # Check Tom's follower count
             print(f"\n9. Checking Tom's profile for updated follower count...")

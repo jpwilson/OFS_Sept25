@@ -29,7 +29,8 @@ function Profile() {
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
   const [showRequestsModal, setShowRequestsModal] = useState(false)
-  const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'approved'
+  const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
+  const [requestCount, setRequestCount] = useState(0)
 
   const isOwnProfile = currentUser && currentUser.username === username
 
@@ -39,6 +40,7 @@ function Profile() {
     if (isOwnProfile) {
       loadDrafts()
       loadTrash()
+      loadRequestCount()
     }
     if (currentUser && !isOwnProfile) {
       checkFollowStatus()
@@ -83,7 +85,7 @@ function Profile() {
     try {
       const result = await apiService.checkIfFollowing(username)
       setIsFollowing(result.is_following)
-      setFollowStatus(result.status) // 'pending', 'approved', or null
+      setFollowStatus(result.status) // 'pending', 'accepted', or null
     } catch (error) {
       console.error('Failed to check follow status:', error)
     }
@@ -129,9 +131,19 @@ function Profile() {
     setShowRequestsModal(true)
   }
 
+  async function loadRequestCount() {
+    try {
+      const data = await apiService.getFollowRequestCount()
+      setRequestCount(data.count || 0)
+    } catch (error) {
+      console.error('Failed to load follow request count:', error)
+    }
+  }
+
   async function handleRequestHandled() {
-    // Reload profile to update follower counts
+    // Reload profile to update follower counts and request count
     await loadProfile()
+    await loadRequestCount()
   }
 
   async function handleRestore(eventId) {
@@ -281,6 +293,9 @@ function Profile() {
                 className={styles.requestsButton}
               >
                 Follow Requests
+                {requestCount > 0 && (
+                  <span className={styles.requestsBadge}>{requestCount}</span>
+                )}
               </button>
               <Link to="/create" className={styles.createButton}>
                 Create Event
