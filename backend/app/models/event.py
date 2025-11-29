@@ -22,6 +22,18 @@ class Event(Base):
     view_count = Column(Integer, default=0)
     is_published = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
+
+    # Privacy and categorization
+    privacy_level = Column(String, default="public")  # 'public', 'followers', 'close_family', 'custom_group', 'private'
+    category = Column(String, nullable=True)  # Event category
+    custom_group_id = Column(Integer, ForeignKey("custom_groups.id", ondelete="SET NULL"), nullable=True)
+
+    # Shareable links
+    share_token = Column(String, unique=True, nullable=True)
+    share_enabled = Column(Boolean, default=False)
+    share_expires_at = Column(DateTime, nullable=True)
+    share_view_count = Column(Integer, default=0)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -31,3 +43,4 @@ class Event(Base):
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
     locations = relationship("EventLocation", back_populates="event", cascade="all, delete-orphan")
     images = relationship("EventImage", back_populates="event", cascade="all, delete-orphan")
+    custom_group = relationship("CustomGroup", back_populates="events")

@@ -39,3 +39,7 @@ class User(Base):
         back_populates="following",
         cascade="all, delete-orphan"
     )
+
+    # Custom groups
+    custom_groups = relationship("CustomGroup", back_populates="owner", cascade="all, delete-orphan")
+    group_memberships = relationship("CustomGroupMember", back_populates="user", cascade="all, delete-orphan")

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
@@ -73,6 +73,11 @@ def build_event_dict(event):
         "author_full_name": event.author.full_name,
         "view_count": event.view_count,
         "is_published": event.is_published,
+        "privacy_level": event.privacy_level or "public",
+        "category": event.category,
+        "custom_group_id": event.custom_group_id,
+        "share_enabled": event.share_enabled or False,
+        "share_expires_at": event.share_expires_at,
         "created_at": event.created_at,
         "updated_at": event.updated_at,
         "like_count": len(event.likes) if hasattr(event, 'likes') and event.likes else 0,
@@ -86,20 +91,33 @@ def build_event_dict(event):
 def get_events(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    category: str = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_optional)
 ):
     try:
         from sqlalchemy.orm import selectinload
+        from ..utils.privacy import filter_events_by_privacy
 
-        print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}")
+        print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}, category={category}, user={current_user.username if current_user else 'anonymous'}")
 
-        # Use selectinload to load authors. Skip content_blocks - they have schema issues
-        events = db.query(Event).options(
+        # Start with base query
+        query = db.query(Event).options(
             selectinload(Event.author)
         ).filter(
             Event.is_published == True,
             Event.is_deleted == False
-        ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+        )
+
+        # Apply privacy filtering
+        query = filter_events_by_privacy(query, current_user, db)
+
+        # Apply category filter if provided
+        if category:
+            query = query.filter(Event.category == category)
+
+        # Apply pagination and ordering
+        events = query.order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
 
         print(f"[EVENTS] Found {len(events)} events")
 
@@ -127,6 +145,11 @@ def get_events(
                     "author_full_name": event.author.full_name,
                     "view_count": event.view_count,
                     "is_published": event.is_published,
+                    "privacy_level": event.privacy_level or "public",
+                    "category": event.category,
+                    "custom_group_id": event.custom_group_id,
+                    "share_enabled": event.share_enabled or False,
+                    "share_expires_at": event.share_expires_at,
                     "created_at": event.created_at,
                     "updated_at": event.updated_at,
                     "like_count": 0,  # TODO: Add later

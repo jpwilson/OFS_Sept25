@@ -2,12 +2,14 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
+from typing import Optional
 from .database import get_db
 from .security import decode_token
 from .config import settings
 from ..models.user import User
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -133,3 +135,21 @@ def get_current_user(
             detail="User not found"
         )
     return user
+
+
+def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """
+    Optional auth dependency - returns None if no token provided
+    Useful for endpoints that work for both authenticated and anonymous users
+    """
+    if credentials is None:
+        return None
+
+    try:
+        # Reuse the logic from get_current_user but return None on errors
+        return get_current_user(credentials, db)
+    except HTTPException:
+        return None

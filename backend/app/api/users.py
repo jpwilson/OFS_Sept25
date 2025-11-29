@@ -25,14 +25,14 @@ def get_current_user_profile(
     from ..models.event import Event
     event_count = db.query(Event).filter(Event.author_id == current_user.id).count()
 
-    # Count followers and following (only approved)
+    # Count followers and following (only accepted)
     follower_count = db.query(Follow).filter(
         Follow.following_id == current_user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).count()
     following_count = db.query(Follow).filter(
         Follow.follower_id == current_user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).count()
 
     return {
@@ -66,14 +66,14 @@ def get_user_profile(
     from ..models.event import Event
     event_count = db.query(Event).filter(Event.author_id == user.id).count()
 
-    # Count followers and following (only approved)
+    # Count followers and following (only accepted)
     follower_count = db.query(Follow).filter(
         Follow.following_id == user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).count()
     following_count = db.query(Follow).filter(
         Follow.follower_id == user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).count()
 
     return {
@@ -214,8 +214,8 @@ def check_if_following(
         return {"is_following": False, "status": None}
 
     return {
-        "is_following": follow.status == "approved",
-        "status": follow.status  # 'pending', 'approved', or 'rejected'
+        "is_following": follow.status == "accepted",
+        "status": follow.status  # 'pending', 'accepted', or 'rejected'
     }
 
 @router.get("/{username}/followers")
@@ -232,7 +232,7 @@ def get_user_followers(
 
     follows = db.query(Follow).filter(
         Follow.following_id == user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).all()
 
     followers_list = []
@@ -246,7 +246,7 @@ def get_user_followers(
                 Follow.follower_id == current_user.id,
                 Follow.following_id == follower.id
             ).first()
-            is_following = follow_check and follow_check.status == "approved"
+            is_following = follow_check and follow_check.status == "accepted"
 
         # Check if this follower follows current user back
         follows_you = False
@@ -255,7 +255,7 @@ def get_user_followers(
                 Follow.follower_id == follower.id,
                 Follow.following_id == current_user.id
             ).first()
-            follows_you = follow_check and follow_check.status == "approved"
+            follows_you = follow_check and follow_check.status == "accepted"
 
         followers_list.append({
             "id": follower.id,
@@ -282,7 +282,7 @@ def get_user_following(
 
     follows = db.query(Follow).filter(
         Follow.follower_id == user.id,
-        Follow.status == "approved"
+        Follow.status == "accepted"
     ).all()
 
     following_list = []
@@ -296,7 +296,7 @@ def get_user_following(
                 Follow.follower_id == current_user.id,
                 Follow.following_id == followed_user.id
             ).first()
-            is_following = follow_check and follow_check.status == "approved"
+            is_following = follow_check and follow_check.status == "accepted"
 
         # Check if this user follows current user back
         follows_you = False
@@ -305,7 +305,7 @@ def get_user_following(
                 Follow.follower_id == followed_user.id,
                 Follow.following_id == current_user.id
             ).first()
-            follows_you = follow_check and follow_check.status == "approved"
+            follows_you = follow_check and follow_check.status == "accepted"
 
         following_list.append({
             "id": followed_user.id,
@@ -359,10 +359,10 @@ def accept_follow_request(
     if not follow:
         raise HTTPException(status_code=404, detail="Follow request not found")
 
-    follow.status = "approved"
+    follow.status = "accepted"
     db.commit()
 
-    return {"message": "Follow request accepted", "status": "approved"}
+    return {"message": "Follow request accepted", "status": "accepted"}
 
 @router.post("/me/follow-requests/{request_id}/reject")
 def reject_follow_request(

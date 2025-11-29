@@ -39,6 +39,9 @@ class EventBase(BaseModel):
     longitude: Optional[float] = None
     cover_image_url: Optional[str] = None
     has_multiple_locations: bool = False
+    privacy_level: str = "public"  # 'public', 'followers', 'close_family', 'custom_group', 'private'
+    category: Optional[str] = None
+    custom_group_id: Optional[int] = None
 
 class EventCreate(EventBase):
     gps_locations: Optional[List[GPSLocation]] = []
@@ -56,6 +59,9 @@ class EventUpdate(BaseModel):
     cover_image_url: Optional[str] = None
     has_multiple_locations: Optional[bool] = None
     is_published: Optional[bool] = None
+    privacy_level: Optional[str] = None
+    category: Optional[str] = None
+    custom_group_id: Optional[int] = None
     gps_locations: Optional[List[GPSLocation]] = []
 
 class EventResponse(EventBase):
@@ -67,6 +73,11 @@ class EventResponse(EventBase):
     like_count: int
     comment_count: int
     is_published: bool
+    privacy_level: str
+    category: Optional[str] = None
+    custom_group_id: Optional[int] = None
+    share_enabled: bool = False
+    share_expires_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     content_blocks: List[ContentBlockResponse] = []
@@ -75,3 +86,12 @@ class EventResponse(EventBase):
 
     class Config:
         from_attributes = True
+
+class ShareLinkCreate(BaseModel):
+    expires_in_days: int  # 1-5 days
+
+class ShareLinkResponse(BaseModel):
+    share_token: str
+    share_url: str
+    expires_at: datetime
+    view_count: int
