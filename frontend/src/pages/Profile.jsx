@@ -363,7 +363,7 @@ function Profile() {
             >
               {followLoading ? '...' :
                isFollowing ? 'Following' :
-               followStatus === 'pending' ? 'Requested' : 'Follow'}
+               followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
             </button>
           ) : null}
         </div>
@@ -410,7 +410,24 @@ function Profile() {
         </div>
 
         {activeTab === 'published' && (
-          events.length === 0 ? (
+          !isOwnProfile && followStatus !== 'accepted' && !isFollowing ? (
+            <div className={styles.noEvents}>
+              <p>Follow @{username} to see their events.</p>
+              {currentUser && (
+                <button
+                  className={`${styles.followButton} ${
+                    followStatus === 'pending' ? styles.requested : ''
+                  }`}
+                  onClick={handleFollowToggle}
+                  disabled={followLoading}
+                  style={{ margin: '16px auto', display: 'block' }}
+                >
+                  {followLoading ? '...' :
+                   followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
+                </button>
+              )}
+            </div>
+          ) : events.length === 0 ? (
             <div className={styles.noEvents}>
               {isOwnProfile ? (
                 <>
