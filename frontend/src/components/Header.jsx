@@ -83,6 +83,7 @@ function Header() {
         <Link to="/feed">Feed</Link>
         <Link to="/map">Map</Link>
         <Link to="/timeline">Timeline</Link>
+        <Link to="/groups">Groups</Link>
         <Link to="/create">Create</Link>
         {user ? (
           <span className={styles.profileLink}>
@@ -115,6 +116,7 @@ function Header() {
             <Link to="/feed" onClick={closeMobileMenu}>Feed</Link>
             <Link to="/map" onClick={closeMobileMenu}>Map</Link>
             <Link to="/timeline" onClick={closeMobileMenu}>Timeline</Link>
+            <Link to="/groups" onClick={closeMobileMenu}>Groups</Link>
             <Link to="/create" onClick={closeMobileMenu}>Create</Link>
             {user ? (
               <span className={styles.profileLink}>
