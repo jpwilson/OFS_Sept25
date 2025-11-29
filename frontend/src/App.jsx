@@ -18,6 +18,8 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Contact from './pages/Contact'
 import AuthCallback from './pages/AuthCallback'
+import Groups from './pages/Groups'
+import SharedEvent from './pages/SharedEvent'
 import Layout from './components/Layout'
 
 // Component to handle root route redirect
@@ -39,6 +41,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/share/:token" element={<SharedEvent />} />
             <Route element={<Layout />}>
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/feed" element={<Feed />} />
@@ -49,6 +52,7 @@ function App() {
               <Route path="/create" element={<CreateEvent />} />
               <Route path="/map" element={<Map />} />
               <Route path="/timeline" element={<Timeline />} />
+              <Route path="/groups" element={<Groups />} />
             </Route>
           </Routes>
         </ConfirmProvider>

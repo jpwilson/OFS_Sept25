@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import LoginPromptModal from '../components/LoginPromptModal'
+import ShareEventModal from '../components/ShareEventModal'
 import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
 import EventMap from '../components/EventMap'
@@ -36,6 +37,7 @@ function EventDetail() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
+  const [showShareModal, setShowShareModal] = useState(false)
   const [showCaptions, setShowCaptions] = useState(() => {
     const saved = localStorage.getItem('showImageCaptions')
     return saved === 'true'
@@ -669,6 +671,12 @@ function EventDetail() {
                 >
                   ✎ Edit
                 </button>
+                <button
+                  className={styles.shareButton}
+                  onClick={() => setShowShareModal(true)}
+                >
+                  🔗 Share
+                </button>
                 {event.is_published ? (
                   <button
                     className={styles.unpublishButton}
@@ -967,6 +975,13 @@ function EventDetail() {
         isOpen={showLoginPrompt}
         onClose={() => setShowLoginPrompt(false)}
         action={loginPromptAction}
+      />
+
+      {/* Share Event Modal */}
+      <ShareEventModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        event={event}
       />
     </div>
   )

@@ -10,6 +10,8 @@ import LocationSelectionModal from '../components/LocationSelectionModal'
 import LocationAutocomplete from '../components/LocationAutocomplete'
 import GPSExtractionModal from '../components/GPSExtractionModal'
 import UpgradeModal from '../components/UpgradeModal'
+import PrivacySelector from '../components/PrivacySelector'
+import CategorySelector from '../components/CategorySelector'
 import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
@@ -27,7 +29,10 @@ function CreateEvent() {
     latitude: null,
     longitude: null,
     cover_image_url: '',
-    has_multiple_locations: false
+    has_multiple_locations: false,
+    privacy_level: 'public',
+    category: '',
+    custom_group_id: null
   })
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
@@ -305,6 +310,18 @@ function CreateEvent() {
               Used for cleaner display on mobile devices (e.g., "SA Sept '25" instead of "South Africa September-October 2025")
             </small>
           </div>
+
+          <PrivacySelector
+            value={formData.privacy_level}
+            onChange={(value) => setFormData({ ...formData, privacy_level: value })}
+            customGroupId={formData.custom_group_id}
+            onCustomGroupChange={(value) => setFormData({ ...formData, custom_group_id: value })}
+          />
+
+          <CategorySelector
+            value={formData.category}
+            onChange={(value) => setFormData({ ...formData, category: value })}
+          />
 
           <div className={styles.checkboxGroup}>
             <label className={styles.checkboxLabel}>

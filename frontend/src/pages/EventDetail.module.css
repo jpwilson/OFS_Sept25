@@ -68,6 +68,7 @@
 }
 
 .editButton,
+.shareButton,
 .deleteButton,
 .publishButton,
 .unpublishButton {
@@ -90,6 +91,16 @@
   background: #667eea;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.shareButton {
+  background: rgba(45, 212, 191, 0.9);
+}
+
+.shareButton:hover {
+  background: #2dd4bf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
 }
 
 .publishButton {
