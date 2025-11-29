@@ -943,6 +943,24 @@ class ApiService {
     }
   }
 
+  async updateShareLink(eventId, expiresInDays) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/share`, {
+        method: 'PATCH',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ expires_in_days: expiresInDays })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update share link')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating share link:', error)
+      throw error
+    }
+  }
+
   async deleteShareLink(eventId) {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/share`, {

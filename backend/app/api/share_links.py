@@ -69,6 +69,43 @@ def create_share_link(
         "view_count": 0
     }
 
+@router.patch("/events/{event_id}/share", response_model=ShareLinkResponse)
+def update_share_link(
+    event_id: int,
+    share_data: ShareLinkCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update share link expiration date"""
+    # Validate expiration days
+    if share_data.expires_in_days < 1 or share_data.expires_in_days > 5:
+        raise HTTPException(status_code=400, detail="Expiration must be between 1 and 5 days")
+
+    event = db.query(Event).filter(
+        Event.id == event_id,
+        Event.author_id == current_user.id,
+        Event.share_enabled == True
+    ).first()
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found or sharing not enabled")
+
+    # Update expiration
+    new_expires_at = datetime.utcnow() + timedelta(days=share_data.expires_in_days)
+    event.share_expires_at = new_expires_at
+
+    db.commit()
+    db.refresh(event)
+
+    share_url = f"/share/{event.share_token}"
+
+    return {
+        "share_token": event.share_token,
+        "share_url": share_url,
+        "expires_at": new_expires_at,
+        "view_count": event.share_view_count or 0
+    }
+
 @router.delete("/events/{event_id}/share")
 def delete_share_link(
     event_id: int,

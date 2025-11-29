@@ -32,6 +32,7 @@ function Profile() {
   const [showRequestsModal, setShowRequestsModal] = useState(false)
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
   const [requestCount, setRequestCount] = useState(0)
+  const [editingExpiry, setEditingExpiry] = useState(null) // event_id being edited
 
   const isOwnProfile = currentUser && currentUser.username === username
 
@@ -219,6 +220,18 @@ function Profile() {
     } catch (error) {
       console.error('Failed to publish event:', error)
       showToast(error.message || 'Failed to publish event', 'error')
+    }
+  }
+
+  async function handleUpdateExpiry(eventId, newDays) {
+    try {
+      await apiService.updateShareLink(eventId, newDays)
+      showToast('Share link expiry updated', 'success')
+      setEditingExpiry(null)
+      loadSharedLinks() // Reload shared links
+    } catch (error) {
+      console.error('Failed to update expiry:', error)
+      showToast('Failed to update expiry', 'error')
     }
   }
 
@@ -530,8 +543,41 @@ function Profile() {
                           })}
                         </span>
                       </div>
+                      {editingExpiry === link.event_id ? (
+                        <div className={styles.expiryEditor}>
+                          <label htmlFor={`expiry-${link.event_id}`} className={styles.expiryLabel}>
+                            Extend link for:
+                          </label>
+                          <select
+                            id={`expiry-${link.event_id}`}
+                            className={styles.expirySelect}
+                            onChange={(e) => handleUpdateExpiry(link.event_id, parseInt(e.target.value))}
+                          >
+                            <option value="">Select days...</option>
+                            <option value="1">1 day</option>
+                            <option value="2">2 days</option>
+                            <option value="3">3 days</option>
+                            <option value="4">4 days</option>
+                            <option value="5">5 days</option>
+                          </select>
+                          <button
+                            className={styles.cancelEdit}
+                            onClick={() => setEditingExpiry(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                     <div className={styles.sharedLinkActions}>
+                      {!isExpired && (
+                        <button
+                          className={styles.editExpiryButton}
+                          onClick={() => setEditingExpiry(link.event_id)}
+                        >
+                          📅 Edit Expiry
+                        </button>
+                      )}
                       <button
                         className={styles.disableButton}
                         onClick={() => handleDisableShareLink(link.event_id, link.event_title)}

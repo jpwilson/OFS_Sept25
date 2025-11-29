@@ -77,17 +77,17 @@ function SharedEvent() {
       }
 
       // Check if expired
-      const expired = new Date(data.expires_at) < new Date()
+      const expired = data.share_context.expires_at && new Date(data.share_context.expires_at) < new Date()
       setIsExpired(expired)
 
       // Determine banner type
       if (!user) {
         setBannerType('not_logged_in')
-      } else if (user.username === data.event.author_username) {
+      } else if (user.username === data.share_context.author_username) {
         setBannerType('is_author')
       } else {
         try {
-          const followStatus = await apiService.checkIfFollowing(data.event.author_username)
+          const followStatus = await apiService.checkIfFollowing(data.share_context.author_username)
           setIsFollowing(followStatus.is_following)
           setBannerType(followStatus.is_following ? 'already_following' : 'not_following')
         } catch (err) {
