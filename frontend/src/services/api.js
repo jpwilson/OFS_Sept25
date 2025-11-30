@@ -28,7 +28,8 @@ class ApiService {
 
   async getEvents() {
     try {
-      const response = await fetch(`${API_BASE}/events`)
+      const headers = await this.getAuthHeaders()
+      const response = await fetch(`${API_BASE}/events`, { headers })
       if (!response.ok) throw new Error('Failed to fetch events')
       return await response.json()
     } catch (error) {
