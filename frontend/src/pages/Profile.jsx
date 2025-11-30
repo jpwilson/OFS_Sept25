@@ -33,8 +33,22 @@ function Profile() {
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
   const [requestCount, setRequestCount] = useState(0)
   const [editingExpiry, setEditingExpiry] = useState(null) // event_id being edited
+  const [theme, setTheme] = useState(() => {
+    // Get theme from localStorage, default to 'dark'
+    return localStorage.getItem('theme') || 'dark'
+  })
 
   const isOwnProfile = currentUser && currentUser.username === username
+
+  // Apply theme globally
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  function toggleTheme() {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     loadProfile()
@@ -374,6 +388,15 @@ function Profile() {
             </button>
           ) : null}
         </div>
+
+        {/* Theme Toggle - positioned to the right */}
+        <button
+          onClick={toggleTheme}
+          className={styles.themeToggle}
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
       </div>
 
       {/* Show upgrade ribbon if user is at limit (5/5 events) */}

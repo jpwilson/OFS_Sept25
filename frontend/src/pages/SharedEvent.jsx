@@ -122,6 +122,61 @@ function SharedEvent() {
     setSections(extractedSections)
   }, [event])
 
+  // Make rich HTML images clickable with event delegation and add captions
+  useEffect(() => {
+    if (!contentRef.current) return
+
+    const handleClick = (e) => {
+      // Check if click was on an img element
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault()
+        handleImageClick(e.target.src)
+      }
+    }
+
+    const content = contentRef.current
+    content.addEventListener('click', handleClick)
+
+    // Add cursor pointer style to all images and insert captions if they exist
+    const images = content.querySelectorAll('img')
+    images.forEach(img => {
+      img.style.cursor = 'pointer'
+
+      // Find matching caption from eventImages
+      const matchingImage = eventImages?.find(ei => img.src.includes(ei.image_url) || ei.image_url.includes(img.src))
+
+      if (matchingImage && matchingImage.caption) {
+        // Check if caption already exists
+        let captionDiv = img.nextElementSibling
+        if (!captionDiv || !captionDiv.classList.contains('image-caption')) {
+          // Create caption div
+          captionDiv = document.createElement('div')
+          captionDiv.classList.add('image-caption')
+          captionDiv.style.fontSize = '14px'
+          captionDiv.style.color = '#888'
+          captionDiv.style.fontStyle = 'italic'
+          captionDiv.style.textAlign = 'center'
+          captionDiv.style.marginTop = '8px'
+          captionDiv.style.marginBottom = '20px'
+          captionDiv.textContent = matchingImage.caption
+
+          // Insert after image
+          img.parentNode.insertBefore(captionDiv, img.nextSibling)
+        }
+
+        // Show/hide based on showCaptions state
+        captionDiv.style.display = showCaptions ? 'block' : 'none'
+      }
+    })
+
+    return () => {
+      content.removeEventListener('click', handleClick)
+      // Clean up caption divs
+      const captions = content.querySelectorAll('.image-caption')
+      captions.forEach(cap => cap.remove())
+    }
+  }, [event, eventImages, showCaptions]) // Re-run when event, eventImages, or showCaptions changes
+
   // All media (images and videos)
   const allMedia = useMemo(() => {
     if (!event || !event.description) return []
