@@ -8,10 +8,31 @@ const API_BASE = `${API_URL}/api/v1`
 
 class ApiService {
   async getAuthHeaders() {
-    // Try to get Supabase session first
-    const { data: { session } } = await supabase.auth.getSession()
+    // Try to get Supabase session first and refresh if needed
+    const { data: { session }, error } = await supabase.auth.getSession()
 
-    if (session?.access_token) {
+    if (error) {
+      console.error('Session error:', error)
+    }
+
+    // If session exists but might be expiring soon, try to refresh it
+    if (session) {
+      const expiresAt = session.expires_at * 1000 // Convert to milliseconds
+      const now = Date.now()
+      const timeUntilExpiry = expiresAt - now
+
+      // If token expires in less than 5 minutes, refresh it
+      if (timeUntilExpiry < 5 * 60 * 1000) {
+        console.log('Token expiring soon, refreshing...')
+        const { data: { session: newSession } } = await supabase.auth.refreshSession()
+        if (newSession?.access_token) {
+          return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${newSession.access_token}`
+          }
+        }
+      }
+
       return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`
@@ -30,12 +51,19 @@ class ApiService {
     try {
       const headers = await this.getAuthHeaders()
       const response = await fetch(`${API_BASE}/events`, { headers })
-      if (!response.ok) throw new Error('Failed to fetch events')
+      if (!response.ok) {
+        console.error('getEvents failed:', response.status, response.statusText)
+        throw new Error('Failed to fetch events')
+      }
       return await response.json()
     } catch (error) {
       console.error('Error fetching events:', error)
-      // Return mock data if API fails
-      return mockEventsForFeed
+      // Only return mock data in development
+      if (window.location.hostname === 'localhost') {
+        return mockEventsForFeed
+      }
+      // In production, return empty array instead of mock data
+      return []
     }
   }
 
