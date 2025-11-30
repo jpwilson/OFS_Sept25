@@ -267,7 +267,7 @@ function SharedEvent() {
             </div>
             {!user && (
               <div style={{ display: 'flex', gap: '8px' }}>
-                <Link to="/login?mode=signup" className={bannerStyles.bannerButton}>
+                <Link to="/login?signup=true" className={bannerStyles.bannerButton}>
                   Sign Up Free
                 </Link>
                 <Link to="/login" className={bannerStyles.bannerButton} style={{ background: 'rgba(255,255,255,0.2)' }}>
@@ -288,7 +288,7 @@ function SharedEvent() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <Link to="/login?mode=signup" className={bannerStyles.bannerButton}>
+              <Link to="/login?signup=true" className={bannerStyles.bannerButton}>
                 Sign Up Free
               </Link>
               <Link to="/login" className={bannerStyles.bannerButton} style={{ background: 'rgba(102, 126, 234, 0.2)', color: '#667eea', border: '1px solid #667eea' }}>
