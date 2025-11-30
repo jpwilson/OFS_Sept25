@@ -21,13 +21,9 @@ def get_current_user_profile(
     db: Session = Depends(get_db)
 ):
     """Get the current authenticated user's profile"""
-    # Count published events by this user (exclude drafts and trash)
+    # Count events by this user
     from ..models.event import Event
-    event_count = db.query(Event).filter(
-        Event.author_id == current_user.id,
-        Event.is_published == True,
-        Event.is_deleted == False
-    ).count()
+    event_count = db.query(Event).filter(Event.author_id == current_user.id).count()
 
     # Count followers and following (only accepted)
     follower_count = db.query(Follow).filter(
@@ -93,13 +89,9 @@ def get_user_profile(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Count published events by this user (exclude drafts and trash)
+    # Count events by this user
     from ..models.event import Event
-    event_count = db.query(Event).filter(
-        Event.author_id == user.id,
-        Event.is_published == True,
-        Event.is_deleted == False
-    ).count()
+    event_count = db.query(Event).filter(Event.author_id == user.id).count()
 
     # Count followers and following (only accepted)
     follower_count = db.query(Follow).filter(
