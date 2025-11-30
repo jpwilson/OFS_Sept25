@@ -42,6 +42,10 @@ function EventDetail() {
     const saved = localStorage.getItem('showImageCaptions')
     return saved === 'true'
   })
+  const [hideInlineImages, setHideInlineImages] = useState(() => {
+    const saved = localStorage.getItem('hideInlineImages')
+    return saved === 'true'
+  })
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -49,6 +53,27 @@ function EventDetail() {
   useEffect(() => {
     localStorage.setItem('showImageCaptions', showCaptions)
   }, [showCaptions])
+
+  // Save hide inline images preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('hideInlineImages', hideInlineImages)
+  }, [hideInlineImages])
+
+  // Hide/show inline images in content
+  useEffect(() => {
+    if (!contentRef.current) return
+
+    const images = contentRef.current.querySelectorAll('img')
+    const videos = contentRef.current.querySelectorAll('video')
+
+    images.forEach(img => {
+      img.style.display = hideInlineImages ? 'none' : ''
+    })
+
+    videos.forEach(video => {
+      video.style.display = hideInlineImages ? 'none' : ''
+    })
+  }, [hideInlineImages, event])
 
   const isAuthor = user && event && user.username === event.author_username
 
@@ -790,20 +815,35 @@ function EventDetail() {
 
       {/* Gallery Button */}
       {allMedia.length > 0 && (
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
-          <button className={styles.galleryButton} onClick={handleGalleryClick}>
-            {galleryViewMode === 'grid'
-              ? 'Hide Grid'
-              : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
-            }
-          </button>
-          <button
-            className={styles.galleryButton}
-            onClick={() => setShowCaptions(!showCaptions)}
-            style={{ opacity: showCaptions ? 1 : 0.6 }}
-          >
-            {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
-          </button>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '12px' }}>
+            <button className={styles.galleryButton} onClick={handleGalleryClick}>
+              {galleryViewMode === 'grid'
+                ? 'Hide Grid'
+                : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
+              }
+            </button>
+            <button
+              className={styles.galleryButton}
+              onClick={() => setShowCaptions(!showCaptions)}
+              style={{ opacity: showCaptions ? 1 : 0.6 }}
+            >
+              {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
+            </button>
+          </div>
+
+          {/* Hide Inline Images Toggle */}
+          <div className={styles.toggleContainer}>
+            <label className={styles.toggleLabel}>
+              <span>Hide inline images</span>
+              <div
+                className={`${styles.toggleSwitch} ${hideInlineImages ? styles.toggleActive : ''}`}
+                onClick={() => setHideInlineImages(!hideInlineImages)}
+              >
+                <div className={styles.toggleSlider}></div>
+              </div>
+            </label>
+          </div>
         </div>
       )}
 

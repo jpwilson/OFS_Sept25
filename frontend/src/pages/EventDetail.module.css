@@ -941,8 +941,63 @@
   .videoGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .videoSection {
     padding: 0 16px;
   }
+}
+
+/* Hide Inline Images Toggle */
+.toggleContainer {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: var(--border-color);
+  border-radius: 13px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.toggleSwitch:hover {
+  background: #333;
+}
+
+.toggleActive {
+  background: #667eea;
+}
+
+.toggleActive:hover {
+  background: #5568d3;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggleActive .toggleSlider {
+  transform: translateX(22px);
 }
