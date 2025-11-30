@@ -395,10 +395,12 @@ function SharedEvent() {
             </button>
           )}
 
-          <div
-            className={styles.richContent}
-            dangerouslySetInnerHTML={{ __html: event.description }}
-          />
+          <div className={styles.content}>
+            <div
+              className={styles.richContent}
+              dangerouslySetInnerHTML={{ __html: event.description }}
+            />
+          </div>
 
           {/* Image Gallery */}
           {allMedia.length > 0 && (
