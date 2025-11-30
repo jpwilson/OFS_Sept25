@@ -403,7 +403,7 @@ function SharedEvent() {
           {allMedia.length > 0 && (
             <div className={styles.gallerySection}>
               <ImageGallery
-                media={allMedia}
+                images={allMedia}
                 viewMode={galleryViewMode}
                 onToggleView={() => setGalleryViewMode(galleryViewMode === 'grid' ? 'single' : 'grid')}
                 onImageClick={handleImageClick}
