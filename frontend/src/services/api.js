@@ -58,12 +58,8 @@ class ApiService {
       return await response.json()
     } catch (error) {
       console.error('Error fetching events:', error)
-      // Only return mock data in development
-      if (window.location.hostname === 'localhost') {
-        return mockEventsForFeed
-      }
-      // In production, return empty array instead of mock data
-      return []
+      // Return mock data as fallback to prevent blank page
+      return mockEventsForFeed
     }
   }
 
