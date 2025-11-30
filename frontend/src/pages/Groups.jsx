@@ -164,18 +164,132 @@ function Groups() {
     )
   }
 
+  async function handleToggleCloseFamily(userId, currentStatus) {
+    try {
+      await apiService.toggleCloseFamily(userId, !currentStatus)
+      showToast(`Updated close family status`, 'success')
+      loadFollowers()
+    } catch (error) {
+      console.error('Error toggling close family:', error)
+      showToast('Failed to update close family status', 'error')
+    }
+  }
+
+  const closeFamilyFollowers = followers.filter(f => f.is_close_family)
+  const regularFollowers = followers.filter(f => !f.is_close_family)
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Custom Groups</h1>
+        <h1 className={styles.title}>Groups</h1>
         <button className={styles.createButton} onClick={handleCreateClick}>
-          + Create Group
+          + Create Custom Group
         </button>
       </div>
 
       <div className={styles.description}>
-        Create custom groups of people to share specific events with. Use these groups when setting event privacy to "Custom Group".
+        Manage who you share events with. Built-in groups (Followers, Close Family) are automatically managed based on your followers.
       </div>
+
+      {/* Built-in Groups */}
+      <div className={styles.builtInGroups}>
+        <h2 className={styles.sectionTitle}>Built-in Groups</h2>
+
+        {/* Followers Group */}
+        <div className={styles.groupCard}>
+          <div className={styles.groupHeader}>
+            <div className={styles.groupInfo}>
+              <h3 className={styles.groupName}>👥 Followers</h3>
+              <p className={styles.groupDescription}>All users who follow you</p>
+              <div className={styles.groupMeta}>
+                {followers.length} {followers.length === 1 ? 'member' : 'members'}
+              </div>
+            </div>
+            <div className={styles.groupActions}>
+              <button
+                className={styles.expandButton}
+                onClick={() => setExpandedGroup(expandedGroup === 'followers' ? null : 'followers')}
+              >
+                {expandedGroup === 'followers' ? '▲ Hide' : '▼ Show'} Members
+              </button>
+            </div>
+          </div>
+
+          {expandedGroup === 'followers' && (
+            <div className={styles.membersList}>
+              {followers.length === 0 ? (
+                <p className={styles.noMembers}>No followers yet.</p>
+              ) : (
+                <div className={styles.members}>
+                  {followers.map(follower => (
+                    <div key={follower.id} className={styles.memberChip}>
+                      <div className={styles.memberAvatar}>
+                        {follower.full_name?.charAt(0) || follower.username.charAt(0)}
+                      </div>
+                      <span className={styles.memberName}>
+                        {follower.full_name || follower.username}
+                      </span>
+                      <label className={styles.closeFamilyToggle}>
+                        <input
+                          type="checkbox"
+                          checked={follower.is_close_family}
+                          onChange={() => handleToggleCloseFamily(follower.id, follower.is_close_family)}
+                        />
+                        <span className={styles.toggleLabel}>Close Family</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Close Family Group */}
+        <div className={styles.groupCard}>
+          <div className={styles.groupHeader}>
+            <div className={styles.groupInfo}>
+              <h3 className={styles.groupName}>❤️ Close Family</h3>
+              <p className={styles.groupDescription}>Followers marked as close family</p>
+              <div className={styles.groupMeta}>
+                {closeFamilyFollowers.length} {closeFamilyFollowers.length === 1 ? 'member' : 'members'}
+              </div>
+            </div>
+            <div className={styles.groupActions}>
+              <button
+                className={styles.expandButton}
+                onClick={() => setExpandedGroup(expandedGroup === 'close_family' ? null : 'close_family')}
+              >
+                {expandedGroup === 'close_family' ? '▲ Hide' : '▼ Show'} Members
+              </button>
+            </div>
+          </div>
+
+          {expandedGroup === 'close_family' && (
+            <div className={styles.membersList}>
+              {closeFamilyFollowers.length === 0 ? (
+                <p className={styles.noMembers}>No close family members yet. Use the checkbox in the Followers group to mark followers as close family.</p>
+              ) : (
+                <div className={styles.members}>
+                  {closeFamilyFollowers.map(follower => (
+                    <div key={follower.id} className={styles.memberChip}>
+                      <div className={styles.memberAvatar}>
+                        {follower.full_name?.charAt(0) || follower.username.charAt(0)}
+                      </div>
+                      <span className={styles.memberName}>
+                        {follower.full_name || follower.username}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Custom Groups */}
+      <h2 className={styles.sectionTitle}>Custom Groups</h2>
 
       {groups.length === 0 ? (
         <div className={styles.emptyState}>

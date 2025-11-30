@@ -4,6 +4,7 @@ import styles from './Feed.module.css'
 import apiService from '../services/api'
 import { FeedSkeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 import ShortLocation from '../components/ShortLocation'
 
 // Predefined categories (matching CategorySelector)
@@ -20,6 +21,7 @@ const CATEGORIES = [
 
 function Feed() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [filteredEvents, setFilteredEvents] = useState([])
@@ -33,6 +35,9 @@ function Feed() {
   const [following, setFollowing] = useState([])
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [cardSize, setCardSize] = useState('large') // large, medium, small
+  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [userSearchResults, setUserSearchResults] = useState([])
+  const [searchingUsers, setSearchingUsers] = useState(false)
 
   useEffect(() => {
     loadEvents()
@@ -113,6 +118,37 @@ function Feed() {
     setFilteredEvents(filtered)
   }
 
+  // User search with debouncing
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (userSearchQuery.trim().length >= 2) {
+        setSearchingUsers(true)
+        const results = await apiService.searchUsers(userSearchQuery)
+        setUserSearchResults(results)
+        setSearchingUsers(false)
+      } else {
+        setUserSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [userSearchQuery])
+
+  const handleFollowUser = async (username) => {
+    try {
+      await apiService.followUser(username)
+      showToast('Follow request sent!', 'success')
+      // Remove from search results or mark as followed
+      setUserSearchResults(prev => prev.map(u =>
+        u.username === username ? { ...u, followRequested: true } : u
+      ))
+      loadFollowing()
+    } catch (error) {
+      console.error('Error following user:', error)
+      showToast('Failed to send follow request', 'error')
+    }
+  }
+
   function formatDateRange(start, end) {
     const startDate = new Date(start)
     const endDate = new Date(end)
@@ -177,6 +213,57 @@ function Feed() {
 
         {filtersExpanded && (
           <div className={styles.filters}>
+            {/* User Search */}
+            <div className={styles.userSearchSection}>
+              <label htmlFor="user-search">Find users:</label>
+              <input
+                type="text"
+                id="user-search"
+                placeholder="Search by name or username..."
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                className={styles.userSearchInput}
+              />
+              {searchingUsers && (
+                <div className={styles.searchLoading}>Searching...</div>
+              )}
+              {userSearchResults.length > 0 && (
+                <div className={styles.userSearchResults}>
+                  {userSearchResults.map(result => (
+                    <div key={result.id} className={styles.userSearchResult}>
+                      <div className={styles.userSearchInfo}>
+                        <div className={styles.userSearchAvatar}>
+                          {result.full_name?.charAt(0) || result.username.charAt(0)}
+                        </div>
+                        <div className={styles.userSearchDetails}>
+                          <div className={styles.userSearchName}>
+                            {result.full_name || result.username}
+                          </div>
+                          <div className={styles.userSearchUsername}>@{result.username}</div>
+                        </div>
+                      </div>
+                      {result.followRequested ? (
+                        <button className={styles.followRequestedButton} disabled>
+                          Request Sent
+                        </button>
+                      ) : following.includes(result.username) ? (
+                        <button className={styles.followingButton} disabled>
+                          Following
+                        </button>
+                      ) : (
+                        <button
+                          className={styles.followButton}
+                          onClick={() => handleFollowUser(result.username)}
+                        >
+                          Follow
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className={styles.dateSelector}>
               <span>From:</span>
               <input

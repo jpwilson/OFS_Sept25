@@ -163,6 +163,151 @@
   color: #fff;
 }
 
+/* User Search Section */
+.userSearchSection {
+  width: 100%;
+  padding: 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.userSearchSection label {
+  display: block;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.userSearchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.userSearchInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.searchLoading {
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.userSearchResults {
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.userSearchResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.userSearchResult:hover {
+  background: #222;
+  border-color: #667eea;
+}
+
+.userSearchInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.userSearchAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.userSearchDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userSearchName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.userSearchUsername {
+  font-size: 13px;
+  color: #999;
+}
+
+.followButton,
+.followingButton,
+.followRequestedButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.followButton {
+  background: #667eea;
+  color: white;
+}
+
+.followButton:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.followingButton {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: 1px solid #667eea;
+  cursor: default;
+}
+
+.followRequestedButton {
+  background: rgba(150, 150, 150, 0.1);
+  color: #999;
+  border: 1px solid #555;
+  cursor: default;
+}
+
 .filterInfo {
   margin-top: 12px;
   font-size: 13px;

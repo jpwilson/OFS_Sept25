@@ -51,6 +51,33 @@ def get_current_user_profile(
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None
     }
 
+@router.get("/search/users")
+def search_users(
+    q: str,
+    db: Session = Depends(get_db)
+):
+    """Search for users by username or full name"""
+    if not q or len(q) < 2:
+        return []
+
+    # Search by username or full_name (case-insensitive)
+    search_term = f"%{q}%"
+    users = db.query(User).filter(
+        (User.username.ilike(search_term)) | (User.full_name.ilike(search_term))
+    ).limit(20).all()
+
+    results = []
+    for user in users:
+        results.append({
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "avatar_url": user.avatar_url,
+            "bio": user.bio
+        })
+
+    return results
+
 @router.get("/{username}")
 def get_user_profile(
     username: str,
@@ -179,7 +206,10 @@ def get_followers(
     db: Session = Depends(get_db)
 ):
     """Get list of users following the current user"""
-    follows = db.query(Follow).filter(Follow.following_id == current_user.id).all()
+    follows = db.query(Follow).filter(
+        Follow.following_id == current_user.id,
+        Follow.status == "accepted"
+    ).all()
 
     followers_list = []
     for follow in follows:
@@ -188,10 +218,35 @@ def get_followers(
             "id": user.id,
             "username": user.username,
             "full_name": user.full_name,
-            "avatar_url": user.avatar_url
+            "avatar_url": user.avatar_url,
+            "is_close_family": follow.is_close_family,
+            "status": follow.status
         })
 
     return followers_list
+
+@router.patch("/me/followers/{user_id}/close-family")
+def toggle_close_family(
+    user_id: int,
+    close_family: bool,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Mark or unmark a follower as close family"""
+    # Find the follow relationship where user_id is following current_user
+    follow = db.query(Follow).filter(
+        Follow.follower_id == user_id,
+        Follow.following_id == current_user.id,
+        Follow.status == "accepted"
+    ).first()
+
+    if not follow:
+        raise HTTPException(status_code=404, detail="Follower relationship not found")
+
+    follow.is_close_family = close_family
+    db.commit()
+
+    return {"message": "Close family status updated", "is_close_family": close_family}
 
 @router.get("/{username}/is-following")
 def check_if_following(

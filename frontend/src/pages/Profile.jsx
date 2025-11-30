@@ -348,6 +348,13 @@ function Profile() {
                   <span className={styles.requestsBadge}>{requestCount}</span>
                 )}
               </button>
+              <button
+                onClick={() => copyToClipboard(`https://www.ourfamilysocials.com/profile/${username}`, 'Profile link')}
+                className={styles.shareButton}
+                title="Share your profile link"
+              >
+                Share Profile
+              </button>
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>

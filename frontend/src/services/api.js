@@ -522,6 +522,47 @@ class ApiService {
     }
   }
 
+  async getFollowers() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/followers`, {
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch followers')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching followers:', error)
+      return []
+    }
+  }
+
+  async toggleCloseFamily(userId, isCloseFamily) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/followers/${userId}/close-family?close_family=${isCloseFamily}`, {
+        method: 'PATCH',
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to update close family status')
+      return await response.json()
+    } catch (error) {
+      console.error('Error toggling close family:', error)
+      throw error
+    }
+  }
+
+  async searchUsers(query) {
+    try {
+      const response = await fetch(`${API_BASE}/users/search/users?q=${encodeURIComponent(query)}`)
+
+      if (!response.ok) throw new Error('Failed to search users')
+      return await response.json()
+    } catch (error) {
+      console.error('Error searching users:', error)
+      return []
+    }
+  }
+
   // Follow Requests
   async getFollowRequests() {
     try {
