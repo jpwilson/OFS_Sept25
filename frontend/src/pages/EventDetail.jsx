@@ -725,9 +725,6 @@ function EventDetail() {
           </div>
           <div className={styles.meta}>
             <Link to={`/profile/${event.author_username}`} className={styles.author}>
-              <div className={styles.avatar}>
-                {(event.author_full_name || event.author_username).charAt(0).toUpperCase()}
-              </div>
               <span className={styles.authorDesktop}>{event.author_full_name || event.author_username}</span>
               <span className={styles.authorMobile}>@{event.author_username}</span>
             </Link>
