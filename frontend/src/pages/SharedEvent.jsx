@@ -463,13 +463,10 @@ function SharedEvent() {
               <ImageGallery
                 images={allMedia}
                 viewMode={galleryViewMode}
-                onToggleView={() => setGalleryViewMode(galleryViewMode === 'grid' ? 'single' : 'grid')}
-                onImageClick={handleImageClick}
-                lightboxState={lightboxState}
-                setLightboxState={setLightboxState}
-                showCaptions={showCaptions}
-                setShowCaptions={setShowCaptions}
-                eventImages={eventImages}
+                onViewModeChange={setGalleryViewMode}
+                lightboxOpen={lightboxState.open}
+                lightboxIndex={lightboxState.index}
+                onLightboxChange={setLightboxState}
               />
             </div>
           )}
