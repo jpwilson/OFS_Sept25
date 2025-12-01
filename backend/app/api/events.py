@@ -364,8 +364,14 @@ def get_user_trash(
     return response
 
 @router.get("/{event_id}", response_model=EventResponse)
-def get_event(event_id: int, db: Session = Depends(get_db)):
+def get_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_optional)
+):
     from sqlalchemy.orm import joinedload
+    from ..utils.privacy import can_view_event, get_event_privacy_display
+
     event = db.query(Event).options(
         joinedload(Event.locations),
         joinedload(Event.images)  # Load event_images relationship
@@ -373,6 +379,23 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
 
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
+
+    # Check privacy permissions
+    if not can_view_event(event, current_user, db):
+        privacy_info = get_event_privacy_display(event, db)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "message": "You don't have permission to view this event",
+                "privacy_level": privacy_info["level"],
+                "privacy_display": privacy_info["display"],
+                "privacy_description": privacy_info["description"],
+                "author_username": event.author.username,
+                "author_full_name": event.author.full_name,
+                "requires_auth": not current_user,
+                "requires_follow": privacy_info["level"] in ["followers", "close_family", "custom_group"]
+            }
+        )
 
     event.view_count += 1
     db.commit()

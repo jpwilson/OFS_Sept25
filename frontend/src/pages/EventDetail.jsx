@@ -21,6 +21,7 @@ function EventDetail() {
   const { confirm } = useConfirm()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [privacyError, setPrivacyError] = useState(null)
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [commentLoading, setCommentLoading] = useState(false)
@@ -264,16 +265,26 @@ function EventDetail() {
   }
 
   async function loadEvent() {
-    const data = await apiService.getEvent(id)
-    if (!data) {
-      // Event not found - don't replace with mock data
+    try {
+      const data = await apiService.getEvent(id)
+      if (!data) {
+        // Event not found - don't replace with mock data
+        setLoading(false)
+        return
+      }
+      setEvent(data)
+      // Load event_images from the event response (consolidated API call)
+      setEventImages(data.event_images || [])
+      setPrivacyError(null)
       setLoading(false)
-      return
+    } catch (error) {
+      console.error('Error loading event:', error)
+      // Check if it's a privacy/permission error (403)
+      if (error.response?.status === 403 && error.response?.data?.detail) {
+        setPrivacyError(error.response.data.detail)
+      }
+      setLoading(false)
     }
-    setEvent(data)
-    // Load event_images from the event response (consolidated API call)
-    setEventImages(data.event_images || [])
-    setLoading(false)
   }
 
   async function loadLocations() {
@@ -656,6 +667,49 @@ function EventDetail() {
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>
+  }
+
+  if (privacyError) {
+    return (
+      <div className={styles.privacyBlock}>
+        <div className={styles.privacyIcon}>🔒</div>
+        <h2>This event is {privacyError.privacy_display}</h2>
+        <p className={styles.privacyDescription}>{privacyError.privacy_description}</p>
+
+        <div className={styles.privacyAuthor}>
+          Created by <Link to={`/profile/${privacyError.author_username}`}>@{privacyError.author_username}</Link>
+        </div>
+
+        <div className={styles.privacyActions}>
+          {privacyError.requires_auth ? (
+            <>
+              <Link to="/login?signup=true" className={styles.primaryButton}>
+                Sign Up to View
+              </Link>
+              <Link to="/login" className={styles.secondaryButton}>
+                Already have an account? Sign In
+              </Link>
+            </>
+          ) : privacyError.requires_follow ? (
+            <>
+              <p className={styles.privacyFollowMessage}>
+                You need to follow {privacyError.author_full_name || privacyError.author_username} to view this event.
+              </p>
+              <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
+                Go to {privacyError.author_username}'s Profile
+              </Link>
+              <Link to="/feed" className={styles.secondaryButton}>
+                Back to Feed
+              </Link>
+            </>
+          ) : (
+            <Link to="/feed" className={styles.primaryButton}>
+              Back to Feed
+            </Link>
+          )}
+        </div>
+      </div>
+    )
   }
 
   if (!event) {

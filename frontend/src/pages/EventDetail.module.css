@@ -25,6 +25,98 @@
   color: var(--text-tertiary);
 }
 
+.privacyBlock {
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 60px 40px;
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.privacyIcon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+.privacyBlock h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.privacyDescription {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.privacyAuthor {
+  font-size: 16px;
+  color: var(--text-tertiary);
+  margin-bottom: 32px;
+}
+
+.privacyAuthor a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.privacyAuthor a:hover {
+  text-decoration: underline;
+}
+
+.privacyActions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.privacyFollowMessage {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.primaryButton {
+  display: inline-block;
+  padding: 14px 32px;
+  background: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.primaryButton:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  display: inline-block;
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--primary-color);
+  text-decoration: none;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
 .heroImage {
   width: 100%;
   height: 85vh;
