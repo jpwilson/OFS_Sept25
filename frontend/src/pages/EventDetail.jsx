@@ -280,13 +280,13 @@ function EventDetail() {
   async function loadEvent() {
     const data = await apiService.getEvent(id)
     if (!data) {
-      // Use mock data if API fails
-      setEvent(getMockEvent(id))
-    } else {
-      setEvent(data)
-      // Load event_images from the event response (consolidated API call)
-      setEventImages(data.event_images || [])
+      // Event not found - don't replace with mock data
+      setLoading(false)
+      return
     }
+    setEvent(data)
+    // Load event_images from the event response (consolidated API call)
+    setEventImages(data.event_images || [])
     setLoading(false)
   }
 

@@ -65,8 +65,12 @@ class ApiService {
 
   async getEvent(id) {
     try {
-      const response = await fetch(`${API_BASE}/events/${id}`)
-      if (!response.ok) throw new Error('Failed to fetch event')
+      const headers = await this.getAuthHeaders()
+      const response = await fetch(`${API_BASE}/events/${id}`, { headers })
+      if (!response.ok) {
+        console.error('getEvent failed:', response.status, response.statusText)
+        throw new Error('Failed to fetch event')
+      }
       return await response.json()
     } catch (error) {
       console.error('Error fetching event:', error)
