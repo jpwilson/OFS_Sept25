@@ -4,11 +4,12 @@ from sqlalchemy.orm import sessionmaker
 from .config import settings
 
 # Configure connection pool for Supabase free tier (max 5 connections in Session Pooler)
+# CRITICAL: Vercel serverless can spin up multiple instances, so we need VERY small pools
 pool_config = {}
 if "postgresql" in settings.DATABASE_URL or "postgres" in settings.DATABASE_URL:
     pool_config = {
-        "pool_size": 2,  # Max 2 persistent connections
-        "max_overflow": 1,  # Allow 1 additional connection if needed (total 3)
+        "pool_size": 1,  # Only 1 persistent connection per serverless instance
+        "max_overflow": 0,  # No overflow (strict limit)
         "pool_pre_ping": True,  # Verify connections before using
         "pool_recycle": 300,  # Recycle connections after 5 minutes
     }
