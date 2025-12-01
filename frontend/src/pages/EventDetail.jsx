@@ -42,10 +42,7 @@ function EventDetail() {
     const saved = localStorage.getItem('showImageCaptions')
     return saved === 'true'
   })
-  const [hideInlineImages, setHideInlineImages] = useState(() => {
-    const saved = localStorage.getItem('hideInlineImages')
-    return saved === 'true'
-  })
+  const [hideInlineImages, setHideInlineImages] = useState(false)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -54,14 +51,9 @@ function EventDetail() {
     localStorage.setItem('showImageCaptions', showCaptions)
   }, [showCaptions])
 
-  // Save hide inline images preference to localStorage
-  useEffect(() => {
-    localStorage.setItem('hideInlineImages', hideInlineImages)
-  }, [hideInlineImages])
-
   // Hide/show inline images in content
   useEffect(() => {
-    if (!contentRef.current) return
+    if (!contentRef.current || !event) return
 
     const images = contentRef.current.querySelectorAll('img')
     const videos = contentRef.current.querySelectorAll('video')
@@ -74,6 +66,11 @@ function EventDetail() {
       video.style.display = hideInlineImages ? 'none' : ''
     })
   }, [hideInlineImages, event])
+
+  // Reset toggle when event changes
+  useEffect(() => {
+    setHideInlineImages(false)
+  }, [id])
 
   const isAuthor = user && event && user.username === event.author_username
 
