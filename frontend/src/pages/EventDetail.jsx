@@ -38,18 +38,9 @@ function EventDetail() {
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showCaptions, setShowCaptions] = useState(() => {
-    const saved = localStorage.getItem('showImageCaptions')
-    return saved === 'true'
-  })
   const [hideInlineImages, setHideInlineImages] = useState(false)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
-
-  // Save caption preference to localStorage
-  useEffect(() => {
-    localStorage.setItem('showImageCaptions', showCaptions)
-  }, [showCaptions])
 
   // Hide/show inline images in content
   useEffect(() => {
@@ -157,9 +148,7 @@ function EventDetail() {
           // Insert after image
           img.parentNode.insertBefore(captionDiv, img.nextSibling)
         }
-
-        // Show/hide based on showCaptions state
-        captionDiv.style.display = showCaptions ? 'block' : 'none'
+        // Captions are always visible
       }
     })
 
@@ -169,7 +158,7 @@ function EventDetail() {
       const captions = content.querySelectorAll('.image-caption')
       captions.forEach(cap => cap.remove())
     }
-  }, [event, eventImages, showCaptions]) // Re-run when event, eventImages, or showCaptions changes
+  }, [event, eventImages]) // Re-run when event or eventImages changes
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -781,7 +770,7 @@ function EventDetail() {
                   style={{ backgroundImage: `url(${block.media_url})`, cursor: 'pointer' }}
                   onClick={() => handleImageClick(block.media_url)}
                 ></div>
-                {showCaptions && block.caption && (
+                {block.caption && (
                   <div className={styles.caption}>{block.caption}</div>
                 )}
               </div>
@@ -813,19 +802,12 @@ function EventDetail() {
 
       {/* Gallery Button */}
       {allMedia.length > 0 && (
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
           <button className={styles.galleryButton} onClick={handleGalleryClick}>
             {galleryViewMode === 'grid'
               ? 'Hide Grid'
               : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
             }
-          </button>
-          <button
-            className={styles.galleryButton}
-            onClick={() => setShowCaptions(!showCaptions)}
-            style={{ opacity: showCaptions ? 1 : 0.6 }}
-          >
-            {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
           </button>
         </div>
       )}
@@ -840,7 +822,6 @@ function EventDetail() {
             lightboxOpen={lightboxState.open}
             lightboxIndex={lightboxState.index}
             onLightboxChange={setLightboxState}
-            showCaptions={showCaptions}
           />
         </div>
       )}
@@ -858,7 +839,7 @@ function EventDetail() {
                   className={styles.videoPlayer}
                   preload="metadata"
                 />
-                {showCaptions && video.caption && (
+                {video.caption && (
                   <div className={styles.videoCaption}>{video.caption}</div>
                 )}
               </div>
