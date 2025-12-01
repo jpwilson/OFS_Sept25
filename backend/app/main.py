@@ -50,7 +50,11 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "cors_origins": settings.CORS_ORIGINS}
+    return {
+        "status": "healthy",
+        "cors_origins": settings.CORS_ORIGINS,
+        "timestamp": "2025-12-01"
+    }
 
 @app.get("/debug/env")
 def debug_env():
