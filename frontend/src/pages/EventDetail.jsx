@@ -753,6 +753,8 @@ function EventDetail() {
             onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
             onGalleryClick={handleGalleryClick}
             onMapClick={handleMapClick}
+            hideInlineImages={hideInlineImages}
+            onToggleInlineImages={() => setHideInlineImages(!hideInlineImages)}
           />
         )}
 
@@ -815,35 +817,20 @@ function EventDetail() {
 
       {/* Gallery Button */}
       {allMedia.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '12px' }}>
-            <button className={styles.galleryButton} onClick={handleGalleryClick}>
-              {galleryViewMode === 'grid'
-                ? 'Hide Grid'
-                : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
-              }
-            </button>
-            <button
-              className={styles.galleryButton}
-              onClick={() => setShowCaptions(!showCaptions)}
-              style={{ opacity: showCaptions ? 1 : 0.6 }}
-            >
-              {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
-            </button>
-          </div>
-
-          {/* Hide Inline Images Toggle */}
-          <div className={styles.toggleContainer}>
-            <label className={styles.toggleLabel}>
-              <span>Hide inline images</span>
-              <div
-                className={`${styles.toggleSwitch} ${hideInlineImages ? styles.toggleActive : ''}`}
-                onClick={() => setHideInlineImages(!hideInlineImages)}
-              >
-                <div className={styles.toggleSlider}></div>
-              </div>
-            </label>
-          </div>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
+          <button className={styles.galleryButton} onClick={handleGalleryClick}>
+            {galleryViewMode === 'grid'
+              ? 'Hide Grid'
+              : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
+            }
+          </button>
+          <button
+            className={styles.galleryButton}
+            onClick={() => setShowCaptions(!showCaptions)}
+            style={{ opacity: showCaptions ? 1 : 0.6 }}
+          >
+            {showCaptions ? '💬 Hide Captions' : '💬 Show Captions'}
+          </button>
         </div>
       )}
 
