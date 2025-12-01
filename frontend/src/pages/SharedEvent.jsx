@@ -30,7 +30,7 @@ function SharedEvent() {
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const [showCaptions, setShowCaptions] = useState(() => {
     const saved = localStorage.getItem('showImageCaptions')
-    return saved === 'true'
+    return saved !== null ? saved === 'true' : true // Default to true if not set
   })
   const contentRef = useRef(null)
   const mapRef = useRef(null)
@@ -105,22 +105,50 @@ function SharedEvent() {
     }
   }
 
-  // Extract sections from content
-  useEffect(() => {
-    if (!event || !event.description) return
+  // Parse headings from rich HTML content and generate sections
+  const parsedContent = useMemo(() => {
+    if (!event || !event.description) return { sections: [], html: '' }
 
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = event.description
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(event.description, 'text/html')
+    const headings = doc.querySelectorAll('h1, h2')
 
-    const headings = tempDiv.querySelectorAll('h1, h2, h3')
-    const extractedSections = Array.from(headings).map((heading, index) => ({
-      id: `section-${index}`,
-      title: heading.textContent,
-      level: parseInt(heading.tagName.substring(1))
-    }))
+    const sections = []
+    let currentSkip = null
 
-    setSections(extractedSections)
+    headings.forEach((heading, index) => {
+      // Skip headings with empty or whitespace-only content
+      const title = heading.textContent.trim()
+      if (!title) return
+
+      const anchor = `section-${index}`
+      heading.id = anchor
+
+      if (heading.tagName === 'H1') {
+        currentSkip = {
+          id: anchor,
+          title: title,
+          jumps: []
+        }
+        sections.push(currentSkip)
+      } else if (heading.tagName === 'H2' && currentSkip) {
+        currentSkip.jumps.push({
+          id: anchor,
+          title: title
+        })
+      }
+    })
+
+    // Serialize the modified document back to HTML
+    const html = doc.body.innerHTML
+
+    return { sections, html }
   }, [event])
+
+  // Update sections when content is parsed
+  useEffect(() => {
+    setSections(parsedContent.sections)
+  }, [parsedContent])
 
   // Make rich HTML images clickable with event delegation and add captions
   useEffect(() => {
@@ -177,7 +205,7 @@ function SharedEvent() {
     }
   }, [event, eventImages, showCaptions]) // Re-run when event, eventImages, or showCaptions changes
 
-  // All media (images and videos)
+  // All media (images and videos) with captions
   const allMedia = useMemo(() => {
     if (!event || !event.description) return []
 
@@ -186,20 +214,29 @@ function SharedEvent() {
     const mediaElements = tempDiv.querySelectorAll('img, video')
 
     return Array.from(mediaElements).map((element) => {
+      const src = element.src
+
+      // Find matching caption from eventImages
+      const matchingImage = eventImages?.find(ei =>
+        src.includes(ei.image_url) || ei.image_url.includes(src)
+      )
+
       if (element.tagName === 'VIDEO') {
         return {
           type: 'video',
-          src: element.src,
-          alt: element.alt || ''
+          src: src,
+          alt: element.alt || '',
+          caption: matchingImage?.caption || ''
         }
       }
       return {
         type: 'image',
-        src: element.src,
-        alt: element.alt || ''
+        src: src,
+        alt: element.alt || '',
+        caption: matchingImage?.caption || ''
       }
     })
-  }, [event])
+  }, [event, eventImages])
 
   async function handleFollow() {
     if (!user) {
@@ -453,7 +490,7 @@ function SharedEvent() {
           <div className={styles.content}>
             <div
               className={styles.richContent}
-              dangerouslySetInnerHTML={{ __html: event.description }}
+              dangerouslySetInnerHTML={{ __html: parsedContent.html }}
             />
           </div>
 
