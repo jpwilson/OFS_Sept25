@@ -672,19 +672,23 @@ function EventDetail() {
   if (privacyError) {
     return (
       <div className={styles.privacyBlock}>
-        <div className={styles.privacyIcon}>🔒</div>
-        <h2>This event is {privacyError.privacy_display}</h2>
-        <p className={styles.privacyDescription}>{privacyError.privacy_description}</p>
-
-        <div className={styles.privacyAuthor}>
-          Created by <Link to={`/profile/${privacyError.author_username}`}>@{privacyError.author_username}</Link>
-        </div>
+        <div className={styles.privacyIcon}>👋</div>
+        <h2>Welcome to Our Family Socials!</h2>
+        <p className={styles.privacyDescription}>
+          This event is shared privately by{' '}
+          <strong>{privacyError.author_full_name || privacyError.author_username}</strong>.
+        </p>
 
         <div className={styles.privacyActions}>
           {privacyError.requires_auth ? (
             <>
+              <p className={styles.privacyExplainer}>
+                Join Our Family Socials to view this event and connect with friends and family.
+                Once you create an account, you can request to follow{' '}
+                <strong>@{privacyError.author_username}</strong>, who can then grant you access to their events.
+              </p>
               <Link to="/login?signup=true" className={styles.primaryButton}>
-                Sign Up to View
+                Sign Up Free
               </Link>
               <Link to="/login" className={styles.secondaryButton}>
                 Already have an account? Sign In
@@ -692,20 +696,27 @@ function EventDetail() {
             </>
           ) : privacyError.requires_follow ? (
             <>
-              <p className={styles.privacyFollowMessage}>
-                You need to follow {privacyError.author_full_name || privacyError.author_username} to view this event.
+              <p className={styles.privacyExplainer}>
+                This event is only visible to followers of{' '}
+                <strong>{privacyError.author_full_name || privacyError.author_username}</strong>.
+                Visit their profile to request to follow them, and they can grant you access to view their events.
               </p>
               <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
-                Go to {privacyError.author_username}'s Profile
+                Request to Follow @{privacyError.author_username}
               </Link>
               <Link to="/feed" className={styles.secondaryButton}>
                 Back to Feed
               </Link>
             </>
           ) : (
-            <Link to="/feed" className={styles.primaryButton}>
-              Back to Feed
-            </Link>
+            <>
+              <p className={styles.privacyExplainer}>
+                This is a private event. Only the author can view it.
+              </p>
+              <Link to="/feed" className={styles.primaryButton}>
+                Back to Feed
+              </Link>
+            </>
           )}
         </div>
       </div>

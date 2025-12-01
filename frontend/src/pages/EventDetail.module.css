@@ -76,10 +76,18 @@
   align-items: center;
 }
 
-.privacyFollowMessage {
+.privacyExplainer {
   font-size: 16px;
   color: var(--text-secondary);
   margin-bottom: 16px;
+  line-height: 1.6;
+  max-width: 500px;
+  text-align: center;
+}
+
+.privacyExplainer strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .primaryButton {
