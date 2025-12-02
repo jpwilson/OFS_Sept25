@@ -71,8 +71,48 @@ export function AuthProvider({ children }) {
         const profileData = await response.json()
         setUser(profileData)
       } else {
-        // Profile doesn't exist yet - might be right after signup
-        setUser(null)
+        // Profile doesn't exist yet - create it automatically
+        // This happens when email confirmation is enabled and user just confirmed their email
+        console.log('Profile not found, creating automatically...')
+
+        // Get username and display_name from Supabase user metadata
+        const username = supabaseUser.user_metadata?.username
+        const displayName = supabaseUser.user_metadata?.display_name || username
+
+        if (!username) {
+          console.error('No username in Supabase user metadata')
+          setUser(null)
+          setLoading(false)
+          return
+        }
+
+        // Create profile
+        try {
+          const createResponse = await fetch(`${API_URL}/api/v1/auth/supabase/create-profile`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username,
+              display_name: displayName,
+              supabase_token: token
+            })
+          })
+
+          if (createResponse.ok) {
+            const profile = await createResponse.json()
+            setUser(profile)
+            console.log('Profile created successfully!')
+          } else {
+            const errorData = await createResponse.json()
+            console.error('Failed to create profile:', errorData)
+            setUser(null)
+          }
+        } catch (createError) {
+          console.error('Error creating profile:', createError)
+          setUser(null)
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error)
