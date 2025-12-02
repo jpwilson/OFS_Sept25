@@ -33,7 +33,11 @@ function Feed() {
     end: ''
   })
   const [following, setFollowing] = useState([])
-  const [filtersExpanded, setFiltersExpanded] = useState(false)
+  const [filtersExpanded, setFiltersExpanded] = useState(() => {
+    // Load user preference from localStorage, default to true (open)
+    const saved = localStorage.getItem('feedFiltersExpanded')
+    return saved !== null ? saved === 'true' : true
+  })
   const [cardSize, setCardSize] = useState('large') // large, medium, small
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
@@ -215,11 +219,11 @@ function Feed() {
           <div className={styles.filters}>
             {/* User Search */}
             <div className={styles.userSearchSection}>
-              <label htmlFor="user-search">Find users:</label>
+              <label htmlFor="user-search">Find your family and friends</label>
               <input
                 type="text"
                 id="user-search"
-                placeholder="Search by name or username..."
+                placeholder="Search for users by name or username"
                 value={userSearchQuery}
                 onChange={(e) => setUserSearchQuery(e.target.value)}
                 className={styles.userSearchInput}
@@ -311,6 +315,17 @@ function Feed() {
               onClick={() => setFilter('self')}
             >
               My Events
+            </button>
+            <button
+              className={styles.filterPrefToggle}
+              onClick={() => {
+                const newValue = !filtersExpanded
+                setFiltersExpanded(newValue)
+                localStorage.setItem('feedFiltersExpanded', newValue.toString())
+              }}
+              title={filtersExpanded ? "Set filters to minimize by default" : "Set filters to open by default"}
+            >
+              {filtersExpanded ? '📌 Filters open by default' : '📌 Filters closed by default'}
             </button>
           </div>
         )}

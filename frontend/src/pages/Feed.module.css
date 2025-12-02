@@ -20,10 +20,14 @@
 }
 
 .pageTitle {
-  font-size: 24px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: -0.5px;
 }
 
 .headerControls {
@@ -161,6 +165,25 @@
   background: #667eea;
   border-color: #667eea;
   color: #fff;
+}
+
+.filterPrefToggle {
+  padding: 8px 14px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #999;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: auto;
+}
+
+.filterPrefToggle:hover {
+  background: #333;
+  border-color: #667eea;
+  color: #ccc;
 }
 
 /* User Search Section */
