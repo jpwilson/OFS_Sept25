@@ -35,17 +35,6 @@ class Settings(BaseSettings):
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_JWT_SECRET: str = ""
 
-    # Stripe (for subscription payments)
-    STRIPE_SECRET_KEY: str = ""  # sk_test_... or sk_live_...
-    STRIPE_PUBLISHABLE_KEY: str = ""  # pk_test_... or pk_live_...
-    STRIPE_WEBHOOK_SECRET: str = ""  # whsec_...
-    STRIPE_PRO_MONTHLY_PRICE_ID: str = ""  # price_... (for $9/month)
-    STRIPE_PRO_ANNUAL_PRICE_ID: str = ""  # price_... (for $90/year)
-
-    # Resend (for transactional emails)
-    RESEND_API_KEY: str = ""  # re_...
-    RESEND_FROM_EMAIL: str = "billing@ourfamilysocials.com"
-
     # CORS Origins (comma-separated list of allowed origins)
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ofs-sept25-frontend.vercel.app,https://www.ourfamilysocials.com,https://ourfamilysocials.com"
 

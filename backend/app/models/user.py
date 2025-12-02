@@ -17,16 +17,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     banner_url = Column(String, nullable=True)
     bio = Column(String, nullable=True)
-    subscription_tier = Column(String, default='free')  # Legacy: 'free', 'premium', 'family' - deprecated in favor of subscription_status
-
-    # Stripe subscription fields
-    stripe_customer_id = Column(String, unique=True, nullable=True)
-    stripe_subscription_id = Column(String, unique=True, nullable=True)
-    subscription_status = Column(String, default='inactive')  # 'inactive', 'trialing', 'active', 'past_due', 'canceled'
-    trial_end_date = Column(DateTime, nullable=True)
-    subscription_period_end = Column(DateTime, nullable=True)
-    subscription_cancel_at_period_end = Column(Boolean, default=False)
-
+    subscription_tier = Column(String, default='free')  # 'free', 'premium', 'family'
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
