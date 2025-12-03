@@ -316,17 +316,21 @@ function Feed() {
             >
               My Events
             </button>
-            <button
-              className={styles.filterPrefToggle}
-              onClick={() => {
-                const newValue = !filtersExpanded
-                setFiltersExpanded(newValue)
-                localStorage.setItem('feedFiltersExpanded', newValue.toString())
-              }}
-              title={filtersExpanded ? "Set filters to minimize by default" : "Set filters to open by default"}
-            >
-              {filtersExpanded ? '📌 Filters open by default' : '📌 Filters closed by default'}
-            </button>
+            <div className={styles.toggleContainer}>
+              <span className={styles.toggleLabel}>Keep filters open</span>
+              <label className={styles.toggleSwitch}>
+                <input
+                  type="checkbox"
+                  checked={filtersExpanded}
+                  onChange={(e) => {
+                    const newValue = e.target.checked
+                    setFiltersExpanded(newValue)
+                    localStorage.setItem('feedFiltersExpanded', newValue.toString())
+                  }}
+                />
+                <span className={styles.toggleSlider}></span>
+              </label>
+            </div>
           </div>
         )}
 

@@ -40,6 +40,7 @@ function EventDetail() {
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const [showShareModal, setShowShareModal] = useState(false)
   const [hideInlineImages, setHideInlineImages] = useState(false)
+  const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -63,6 +64,17 @@ function EventDetail() {
   useEffect(() => {
     setHideInlineImages(false)
   }, [id])
+
+  // Track scroll position for floating TOC button
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button after scrolling 300px down
+      setShowFloatingTOC(window.scrollY > 300)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const isAuthor = user && event && user.username === event.author_username
 
@@ -810,12 +822,25 @@ function EventDetail() {
 
         <div className={styles.mainContent} ref={contentRef}>
           {isMobile && sections.length > 0 && (
-            <button
-              className={styles.mobileMenuButton}
-              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            >
-              ☰ Table of Contents
-            </button>
+            <>
+              <button
+                className={styles.mobileMenuButton}
+                onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+              >
+                ☰ Table of Contents
+              </button>
+
+              {/* Floating TOC button - appears when scrolling */}
+              {showFloatingTOC && !isMobileNavOpen && (
+                <button
+                  className={styles.floatingTOCButton}
+                  onClick={() => setIsMobileNavOpen(true)}
+                  aria-label="Open Table of Contents"
+                >
+                  <span className={styles.floatingTOCIcon}>☰</span>
+                </button>
+              )}
+            </>
           )}
 
           <div className={styles.content}>

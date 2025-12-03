@@ -837,6 +837,11 @@
   display: none; /* Hide on desktop */
 }
 
+/* Floating TOC Button */
+.floatingTOCButton {
+  display: none; /* Hide on desktop */
+}
+
 @media (max-width: 1024px) {
   .mobileMenuButton {
     display: flex;
@@ -859,6 +864,48 @@
   .mobileMenuButton:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  /* Floating TOC Button - only on mobile */
+  .floatingTOCButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 56px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 2px 0 12px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      left: -44px;
+      opacity: 0;
+    }
+    to {
+      left: 0;
+      opacity: 1;
+    }
+  }
+
+  .floatingTOCButton:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .floatingTOCIcon {
+    font-size: 20px;
+    line-height: 1;
   }
 }
 

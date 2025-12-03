@@ -167,23 +167,65 @@
   color: #fff;
 }
 
-.filterPrefToggle {
-  padding: 8px 14px;
-  border: 1px solid #555;
-  background: #2a2a2a;
-  color: #999;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 12px;
-  font-weight: 400;
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-left: auto;
+  padding: 8px 14px;
+  background: #2a2a2a;
+  border-radius: 8px;
 }
 
-.filterPrefToggle:hover {
-  background: #333;
-  border-color: #667eea;
+.toggleLabel {
+  font-size: 13px;
   color: #ccc;
+  font-weight: 500;
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #444;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.toggleSwitch input:checked + .toggleSlider:before {
+  transform: translateX(20px);
 }
 
 /* User Search Section */
