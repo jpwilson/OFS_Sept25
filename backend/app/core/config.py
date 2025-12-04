@@ -38,17 +38,6 @@ class Settings(BaseSettings):
     # CORS Origins (comma-separated list of allowed origins)
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ofs-sept25-frontend.vercel.app,https://www.ourfamilysocials.com,https://ourfamilysocials.com"
 
-    # Stripe (for subscription payments)
-    STRIPE_SECRET_KEY: str = ""
-    STRIPE_PUBLISHABLE_KEY: str = ""
-    STRIPE_WEBHOOK_SECRET: str = ""
-    STRIPE_PRO_MONTHLY_PRICE_ID: str = ""
-    STRIPE_PRO_ANNUAL_PRICE_ID: str = ""
-
-    # Resend (for transactional emails)
-    RESEND_API_KEY: str = ""
-    RESEND_FROM_EMAIL: str = "notifications@ourfamilysocials.com"
-
     class Config:
         env_file = ".env"
         case_sensitive = True

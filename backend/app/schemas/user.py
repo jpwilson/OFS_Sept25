@@ -20,12 +20,6 @@ class UserResponse(UserBase):
     bio: Optional[str] = None
     is_active: bool
     created_at: datetime
-    subscription_tier: Optional[str] = 'free'
-    subscription_status: Optional[str] = 'trial'
-    trial_end_date: Optional[datetime] = None
-    trial_days_remaining: Optional[int] = None
-    is_within_first_5_days: Optional[bool] = False
-    can_access_content: Optional[bool] = True
 
     class Config:
         from_attributes = True
