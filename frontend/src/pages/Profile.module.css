@@ -389,6 +389,38 @@
   color: white !important;
 }
 
+/* Sub-tabs (within Shared Links tab) */
+.subTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.subTab {
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.subTab:hover {
+  border-color: #667eea;
+  color: var(--text-primary);
+}
+
+.activeSubTab {
+  background: #667eea !important;
+  border-color: #667eea !important;
+  color: white !important;
+}
+
 .draftBadge {
   position: absolute;
   top: 16px;

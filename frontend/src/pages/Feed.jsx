@@ -206,6 +206,21 @@ function Feed() {
                 ⊞
               </button>
             </div>
+            <div className={styles.toggleContainer}>
+              <span className={styles.toggleLabel}>Keep filters open</span>
+              <label className={styles.toggleSwitch}>
+                <input
+                  type="checkbox"
+                  checked={filtersExpanded}
+                  onChange={(e) => {
+                    const newValue = e.target.checked
+                    setFiltersExpanded(newValue)
+                    localStorage.setItem('feedFiltersExpanded', newValue.toString())
+                  }}
+                />
+                <span className={styles.toggleSlider}></span>
+              </label>
+            </div>
             <button
               className={styles.filterToggle}
               onClick={() => setFiltersExpanded(!filtersExpanded)}
@@ -316,21 +331,6 @@ function Feed() {
             >
               My Events
             </button>
-            <div className={styles.toggleContainer}>
-              <span className={styles.toggleLabel}>Keep filters open</span>
-              <label className={styles.toggleSwitch}>
-                <input
-                  type="checkbox"
-                  checked={filtersExpanded}
-                  onChange={(e) => {
-                    const newValue = e.target.checked
-                    setFiltersExpanded(newValue)
-                    localStorage.setItem('feedFiltersExpanded', newValue.toString())
-                  }}
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
-            </div>
           </div>
         )}
 

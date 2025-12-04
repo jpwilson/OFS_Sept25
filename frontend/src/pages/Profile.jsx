@@ -33,6 +33,7 @@ function Profile() {
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
   const [requestCount, setRequestCount] = useState(0)
   const [editingExpiry, setEditingExpiry] = useState(null) // event_id being edited
+  const [sharedSubTab, setSharedSubTab] = useState('active') // 'active' or 'expired'
   const [theme, setTheme] = useState(() => {
     // Get theme from localStorage, default to 'dark'
     return localStorage.getItem('theme') || 'dark'
@@ -543,25 +544,45 @@ function Profile() {
         )}
 
         {activeTab === 'shared' && (
-          sharedLinks.length === 0 ? (
-            <div className={styles.noEvents}>
-              <p>No active share links.</p>
-              <p className={styles.hint}>Share events with temporary public links from the event page.</p>
+          <>
+            <div className={styles.subTabs}>
+              <button
+                className={`${styles.subTab} ${sharedSubTab === 'active' ? styles.activeSubTab : ''}`}
+                onClick={() => setSharedSubTab('active')}
+              >
+                Active ({sharedLinks.filter(l => !l.is_expired).length})
+              </button>
+              <button
+                className={`${styles.subTab} ${sharedSubTab === 'expired' ? styles.activeSubTab : ''}`}
+                onClick={() => setSharedSubTab('expired')}
+              >
+                Expired ({sharedLinks.filter(l => l.is_expired).length})
+              </button>
             </div>
-          ) : (
-            <div className={styles.sharedLinksList}>
-              {sharedLinks.map(link => {
-                const fullUrl = `${window.location.origin}${link.share_url}`
-                const expiresAt = new Date(link.expires_at)
-                const isExpired = link.is_expired
 
-                return (
-                  <div key={link.event_id} className={styles.sharedLinkCard}>
-                    <div className={styles.sharedLinkInfo}>
-                      <h3 className={styles.sharedLinkTitle}>
-                        {link.event_title}
-                        {isExpired && <span className={styles.expiredBadge}>EXPIRED</span>}
-                      </h3>
+            {sharedLinks.filter(l => sharedSubTab === 'active' ? !l.is_expired : l.is_expired).length === 0 ? (
+              <div className={styles.noEvents}>
+                <p>No {sharedSubTab} share links.</p>
+                {sharedSubTab === 'active' && (
+                  <p className={styles.hint}>Share events with temporary public links from the event page.</p>
+                )}
+              </div>
+            ) : (
+              <div className={styles.sharedLinksList}>
+                {sharedLinks
+                  .filter(l => sharedSubTab === 'active' ? !l.is_expired : l.is_expired)
+                  .map(link => {
+                    const fullUrl = `${window.location.origin}${link.share_url}`
+                    const expiresAt = new Date(link.expires_at)
+                    const isExpired = link.is_expired
+
+                    return (
+                      <div key={link.event_id} className={styles.sharedLinkCard}>
+                        <div className={styles.sharedLinkInfo}>
+                          <h3 className={styles.sharedLinkTitle}>
+                            {link.event_title}
+                            {isExpired && <span className={styles.expiredBadge}>EXPIRED</span>}
+                          </h3>
                       <div className={styles.sharedLinkUrl}>
                         <input
                           type="text"
@@ -618,25 +639,28 @@ function Profile() {
                     </div>
                     <div className={styles.sharedLinkActions}>
                       {!isExpired && (
-                        <button
-                          className={styles.editExpiryButton}
-                          onClick={() => setEditingExpiry(link.event_id)}
-                        >
-                          📅 Edit Expiry
-                        </button>
+                        <>
+                          <button
+                            className={styles.editExpiryButton}
+                            onClick={() => setEditingExpiry(link.event_id)}
+                          >
+                            📅 Edit Expiry
+                          </button>
+                          <button
+                            className={styles.disableButton}
+                            onClick={() => handleDisableShareLink(link.event_id, link.event_title)}
+                          >
+                            🔗 Disable Link
+                          </button>
+                        </>
                       )}
-                      <button
-                        className={styles.disableButton}
-                        onClick={() => handleDisableShareLink(link.event_id, link.event_title)}
-                      >
-                        🔗 Disable Link
-                      </button>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          )
+                    )
+                  })}
+              </div>
+            )}
+          </>
         )}
 
         {activeTab === 'trash' && (
