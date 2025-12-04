@@ -1,84 +1,66 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import styles from './UpgradeModal.module.css'
 
-function UpgradeModal({ isOpen, onClose, onSaveAsDraft }) {
-  if (!isOpen) return null
+export default function UpgradeModal({ onClose }) {
+  const navigate = useNavigate()
+
+  const handleSubscribe = () => {
+    navigate('/billing')
+    if (onClose) onClose()
+  }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>
-          ×
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.icon}>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#gradient)" />
+            <defs>
+              <linearGradient id="gradient" x1="2" y1="2" x2="22" y2="21" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#667eea" />
+                <stop offset="1" stopColor="#764ba2" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <h2 className={styles.title}>Unlock Full Access</h2>
+
+        <p className={styles.description}>
+          Your free trial has ended. Subscribe to continue enjoying all features:
+        </p>
+
+        <ul className={styles.features}>
+          <li>Create unlimited family events</li>
+          <li>View all event details and photos</li>
+          <li>Journey mapping with multiple locations</li>
+          <li>Share events with family and friends</li>
+          <li>Timeline and map views</li>
+        </ul>
+
+        <div className={styles.pricing}>
+          <div className={styles.priceOption}>
+            <span className={styles.price}>$9</span>
+            <span className={styles.period}>/month</span>
+          </div>
+          <span className={styles.or}>or</span>
+          <div className={styles.priceOption}>
+            <span className={styles.price}>$90</span>
+            <span className={styles.period}>/year</span>
+            <span className={styles.savings}>Save $18</span>
+          </div>
+        </div>
+
+        <button className={styles.subscribeButton} onClick={handleSubscribe}>
+          Subscribe Now
         </button>
 
-        <div className={styles.header}>
-          <div className={styles.icon}>🚀</div>
-          <h2 className={styles.title}>You've reached the free plan limit</h2>
-          <p className={styles.subtitle}>
-            Upgrade to Premium to publish unlimited events
-          </p>
-        </div>
-
-        <div className={styles.comparison}>
-          <div className={styles.planCard}>
-            <div className={styles.planHeader}>
-              <h3>Free Plan</h3>
-              <div className={styles.currentBadge}>Current</div>
-            </div>
-            <div className={styles.planFeature}>
-              <span className={styles.limit}>5/5</span> Published events
-            </div>
-            <div className={styles.planFeature}>
-              ✓ Unlimited drafts
-            </div>
-            <div className={styles.planFeature}>
-              ✓ All core features
-            </div>
-          </div>
-
-          <div className={`${styles.planCard} ${styles.premium}`}>
-            <div className={styles.planHeader}>
-              <h3>Premium</h3>
-              <div className={styles.recommendedBadge}>Recommended</div>
-            </div>
-            <div className={styles.price}>
-              <span className={styles.priceAmount}>$9</span>
-              <span className={styles.pricePeriod}>/month</span>
-            </div>
-            <p className={styles.priceNote}>Billed annually at $108/year</p>
-            <div className={styles.planFeature}>
-              <strong>Unlimited</strong> published events
-            </div>
-            <div className={styles.planFeature}>
-              ✓ Everything in Free
-            </div>
-            <div className={styles.planFeature}>
-              ✓ Priority support
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.actions}>
-          <button
-            className={styles.buttonSecondary}
-            onClick={onSaveAsDraft}
-          >
-            Save as Draft
+        {onClose && (
+          <button className={styles.closeButton} onClick={onClose}>
+            Maybe Later
           </button>
-          <Link
-            to="/pricing"
-            className={styles.buttonPrimary}
-          >
-            Upgrade to Premium
-          </Link>
-        </div>
-
-        <p className={styles.note}>
-          Your event will be saved as a draft. Upgrade anytime to publish unlimited events!
-        </p>
+        )}
       </div>
     </div>
   )
 }
-
-export default UpgradeModal

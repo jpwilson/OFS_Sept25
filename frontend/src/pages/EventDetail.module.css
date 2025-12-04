@@ -25,6 +25,36 @@
   color: var(--text-tertiary);
 }
 
+.blurredPreview {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.blurredContent {
+  text-align: center;
+  padding: 60px;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  filter: blur(8px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.blurredContent h1 {
+  color: var(--text-primary);
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.blurredContent p {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
 .privacyBlock {
   max-width: 600px;
   margin: 100px auto;

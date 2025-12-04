@@ -20,6 +20,7 @@ import Contact from './pages/Contact'
 import AuthCallback from './pages/AuthCallback'
 import Groups from './pages/Groups'
 import SharedEvent from './pages/SharedEvent'
+import Billing from './pages/Billing'
 import Layout from './components/Layout'
 
 // Component to handle root route redirect
@@ -44,6 +45,7 @@ function App() {
             <Route path="/share/:token" element={<SharedEvent />} />
             <Route element={<Layout />}>
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/billing" element={<Billing />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/event/:id/edit" element={<EditEvent />} />

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import LoginPromptModal from '../components/LoginPromptModal'
+import UpgradeModal from '../components/UpgradeModal'
 import ShareEventModal from '../components/ShareEventModal'
 import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
@@ -16,7 +17,7 @@ import { mockEventDetails } from '../data/mockEvents'
 function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isTrialExpired, canAccessContent } = useAuth()
   const { showToast } = useToast()
   const { confirm } = useConfirm()
   const [event, setEvent] = useState(null)
@@ -679,6 +680,21 @@ function EventDetail() {
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>
+  }
+
+  // Check if trial expired - show upgrade modal
+  if (user && isTrialExpired && !canAccessContent) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.blurredPreview}>
+          <div className={styles.blurredContent}>
+            <h1>Event Preview</h1>
+            <p>This is a preview of the event content...</p>
+          </div>
+        </div>
+        <UpgradeModal onClose={() => navigate('/feed')} />
+      </div>
+    )
   }
 
   if (privacyError) {

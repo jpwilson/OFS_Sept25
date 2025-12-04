@@ -288,6 +288,16 @@ export function AuthProvider({ children }) {
     return localStorage.getItem('token')
   }
 
+  // Subscription helper values (derived from user object)
+  const subscriptionStatus = user?.subscription_status || 'trial'
+  const subscriptionTier = user?.subscription_tier || 'free'
+  const trialDaysRemaining = user?.trial_days_remaining || 0
+  const isWithinFirst5Days = user?.is_within_first_5_days || false
+  const canAccessContent = user?.can_access_content ?? true
+  const isTrialActive = subscriptionStatus === 'trial' && trialDaysRemaining > 0
+  const isPaidSubscriber = subscriptionStatus === 'active' && ['premium', 'family'].includes(subscriptionTier)
+  const isTrialExpired = subscriptionStatus === 'trial' && trialDaysRemaining <= 0
+
   const value = {
     user,
     session,
@@ -299,7 +309,16 @@ export function AuthProvider({ children }) {
     updateUser,
     getToken,
     loading,
-    isSupabaseAuth: !!session
+    isSupabaseAuth: !!session,
+    // Subscription helpers
+    subscriptionStatus,
+    subscriptionTier,
+    trialDaysRemaining,
+    isWithinFirst5Days,
+    canAccessContent,
+    isTrialActive,
+    isPaidSubscriber,
+    isTrialExpired
   }
 
   return (
