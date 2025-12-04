@@ -167,14 +167,24 @@ def create_supabase_profile(
 
     # Create new profile
     try:
+        from datetime import datetime, timedelta
+
         print("🔵 Creating new user profile...")
+
+        # Set trial dates: 30 days from now
+        trial_start = datetime.utcnow()
+        trial_end = trial_start + timedelta(days=30)
+
         user = User(
             email=email,
             username=profile_data.username,
             display_name=profile_data.display_name or profile_data.username,
             auth_user_id=auth_user_id,
             hashed_password=None,  # No password for Supabase Auth users
-            subscription_tier='free'
+            subscription_tier='free',
+            subscription_status='trial',
+            trial_start_date=trial_start,
+            trial_end_date=trial_end
         )
 
         print("🔵 Adding user to session...")
