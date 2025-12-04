@@ -245,10 +245,64 @@ class ApiService {
     }
   }
 
+  // Compress image to stay under Vercel's 4.5MB limit
+  async compressImage(file, maxSizeMB = 4) {
+    return new Promise((resolve) => {
+      // If file is already small enough, return as-is
+      if (file.size <= maxSizeMB * 1024 * 1024) {
+        resolve(file)
+        return
+      }
+
+      const img = new Image()
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+
+      img.onload = () => {
+        // Calculate new dimensions (max 2000px on longest side)
+        let { width, height } = img
+        const maxDimension = 2000
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension
+            width = maxDimension
+          } else {
+            width = (width / height) * maxDimension
+            height = maxDimension
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Convert to blob with quality reduction
+        canvas.toBlob(
+          (blob) => {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            console.log(`Compressed ${file.name}: ${(file.size/1024/1024).toFixed(2)}MB -> ${(compressedFile.size/1024/1024).toFixed(2)}MB`)
+            resolve(compressedFile)
+          },
+          'image/jpeg',
+          0.85 // 85% quality
+        )
+      }
+
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
   async uploadImage(file) {
     try {
+      // Compress image if needed (Vercel has 4.5MB body limit)
+      const processedFile = await this.compressImage(file)
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', processedFile)
 
       // Get token from Supabase session or legacy storage
       const { data: { session } } = await supabase.auth.getSession()
