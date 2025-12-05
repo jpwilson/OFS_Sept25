@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import confetti from 'canvas-confetti'
 import styles from './Billing.module.css'
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
@@ -121,6 +122,49 @@ export default function Billing() {
   const urlParams = new URLSearchParams(window.location.search)
   const isSuccess = urlParams.get('success') === 'true'
   const isCanceled = urlParams.get('canceled') === 'true'
+
+  // Celebration confetti on successful subscription
+  useEffect(() => {
+    if (isSuccess) {
+      // Fire confetti from both sides
+      const duration = 3000
+      const end = Date.now() + duration
+
+      const frame = () => {
+        // Left side
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+        // Right side
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame)
+        }
+      }
+      frame()
+
+      // Big burst in the center
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { x: 0.5, y: 0.5 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+      }, 500)
+    }
+  }, [isSuccess])
 
   return (
     <div className={styles.container}>
