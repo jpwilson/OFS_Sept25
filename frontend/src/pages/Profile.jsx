@@ -354,6 +354,9 @@ function Profile() {
               <Link to={`/profile/${username}/edit`} className={styles.editButton}>
                 Edit Profile
               </Link>
+              <Link to="/billing" className={styles.membershipButton}>
+                Membership
+              </Link>
               <button
                 onClick={handleShowRequests}
                 className={styles.requestsButton}

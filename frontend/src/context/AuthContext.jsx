@@ -291,12 +291,16 @@ export function AuthProvider({ children }) {
   // Subscription helper values (derived from user object)
   const subscriptionStatus = user?.subscription_status || 'trial'
   const subscriptionTier = user?.subscription_tier || 'free'
-  const trialDaysRemaining = user?.trial_days_remaining || 0
+  const trialDaysRemaining = user?.trial_days_remaining ?? 30 // Default to 30 if not set
   const isWithinFirst5Days = user?.is_within_first_5_days || false
+  // canAccessContent from backend, defaults to true for logged-in users
   const canAccessContent = user?.can_access_content ?? true
-  const isTrialActive = subscriptionStatus === 'trial' && trialDaysRemaining > 0
+  // Trial is active if user has days remaining OR if trial was never started (legacy user)
+  const hasTrialDates = user?.trial_end_date != null
+  const isTrialActive = subscriptionStatus === 'trial' && (trialDaysRemaining > 0 || !hasTrialDates)
   const isPaidSubscriber = subscriptionStatus === 'active' && ['premium', 'family'].includes(subscriptionTier)
-  const isTrialExpired = subscriptionStatus === 'trial' && trialDaysRemaining <= 0
+  // Only expired if they HAD a trial and it's now over
+  const isTrialExpired = subscriptionStatus === 'trial' && hasTrialDates && trialDaysRemaining <= 0
 
   const value = {
     user,

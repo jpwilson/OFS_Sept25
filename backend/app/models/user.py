@@ -97,7 +97,13 @@ class User(Base):
             return True
 
         # Trial still active
-        if self.get_trial_status() == 'active':
+        trial_status = self.get_trial_status()
+        if trial_status == 'active':
+            return True
+
+        # Legacy users (signed up before trial system) - grant access
+        # They have no trial dates set, so treat as having access
+        if trial_status == 'never_started':
             return True
 
         return False
