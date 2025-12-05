@@ -42,8 +42,9 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str = ""
     STRIPE_PUBLISHABLE_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
-    STRIPE_PRO_MONTHLY_PRICE_ID: str = ""
-    STRIPE_PRO_ANNUAL_PRICE_ID: str = ""
+    STRIPE_PRICE_MONTHLY: str = "price_1Sb5USLuFd5RCAMNWC1s9Tcl"
+    STRIPE_PRICE_ANNUAL: str = "price_1Sb5USLuFd5RCAMNvFThee52"
+    STRIPE_PRICE_LIFETIME: str = "price_1Sb5USLuFd5RCAMNRHqzXr3r"
 
     # Resend (for transactional emails)
     RESEND_API_KEY: str = ""

@@ -283,3 +283,142 @@
   line-height: 1.6;
   margin: 0;
 }
+
+/* Success/Cancel/Error Messages */
+.successMessage {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.successMessage span:first-child {
+  font-size: 24px;
+}
+
+.successMessage strong {
+  color: #48bb78;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.successMessage p {
+  color: #9ae6b4;
+  font-size: 14px;
+  margin: 0;
+}
+
+.canceledMessage {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.canceledMessage span:first-child {
+  font-size: 24px;
+}
+
+.canceledMessage strong {
+  color: #ccc;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.canceledMessage p {
+  color: #888;
+  font-size: 14px;
+  margin: 0;
+}
+
+.errorMessage {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.1) 0%, rgba(197, 48, 48, 0.1) 100%);
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.errorMessage span {
+  font-size: 20px;
+}
+
+.errorMessage p {
+  color: #fc8181;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Lifetime Card */
+.lifetimeCard {
+  background: linear-gradient(135deg, rgba(246, 173, 85, 0.1) 0%, rgba(237, 137, 54, 0.1) 100%);
+  border: 1px solid rgba(246, 173, 85, 0.3);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.lifetimeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.lifetimeHeader h3 {
+  color: white;
+  font-size: 20px;
+  margin: 0;
+}
+
+.lifetimeBadge {
+  background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.lifetimeDescription {
+  color: #aaa;
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+.lifetimeButton {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lifetimeButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(246, 173, 85, 0.4);
+}
+
+.lifetimeButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

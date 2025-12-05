@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 import styles from './Billing.module.css'
+
+const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? (import.meta.env.VITE_API_URL || 'https://ofs-sept25.vercel.app')
+  : 'http://localhost:8000'
+const API_BASE = `${API_URL}/api/v1`
 
 export default function Billing() {
   const {
@@ -16,6 +22,22 @@ export default function Billing() {
   const navigate = useNavigate()
   const [billingPeriod, setBillingPeriod] = useState('annual')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    }
+    const legacyToken = localStorage.getItem('token')
+    return {
+      'Content-Type': 'application/json',
+      ...(legacyToken && { 'Authorization': `Bearer ${legacyToken}` })
+    }
+  }
 
   if (!user) {
     return (
@@ -30,25 +52,110 @@ export default function Billing() {
     )
   }
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (priceType = null) => {
     setLoading(true)
-    // TODO: Implement Stripe checkout
-    // For now, show coming soon message
-    alert('Stripe checkout coming soon! This will redirect to secure payment.')
-    setLoading(false)
+    setError(null)
+
+    const selectedPrice = priceType || billingPeriod
+
+    try {
+      const headers = await getAuthHeaders()
+      const currentUrl = window.location.origin
+
+      const response = await fetch(`${API_BASE}/stripe/create-checkout-session`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          price_id: selectedPrice,
+          success_url: `${currentUrl}/billing?success=true`,
+          cancel_url: `${currentUrl}/billing?canceled=true`
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Failed to create checkout session')
+      }
+
+      const data = await response.json()
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.checkout_url
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setError(err.message || 'Something went wrong. Please try again.')
+      setLoading(false)
+    }
   }
 
   const handleManageSubscription = async () => {
     setLoading(true)
-    // TODO: Implement Stripe customer portal
-    alert('Stripe customer portal coming soon!')
-    setLoading(false)
+    setError(null)
+
+    try {
+      const headers = await getAuthHeaders()
+      const currentUrl = window.location.origin
+
+      const response = await fetch(`${API_BASE}/stripe/create-portal-session?return_url=${encodeURIComponent(currentUrl + '/billing')}`, {
+        method: 'POST',
+        headers
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Failed to open customer portal')
+      }
+
+      const data = await response.json()
+
+      // Redirect to Stripe Customer Portal
+      window.location.href = data.portal_url
+    } catch (err) {
+      console.error('Portal error:', err)
+      setError(err.message || 'Something went wrong. Please try again.')
+      setLoading(false)
+    }
   }
+
+  // Check for success/cancel query params
+  const urlParams = new URLSearchParams(window.location.search)
+  const isSuccess = urlParams.get('success') === 'true'
+  const isCanceled = urlParams.get('canceled') === 'true'
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         <h1 className={styles.title}>Subscription</h1>
+
+        {/* Success Message */}
+        {isSuccess && (
+          <div className={styles.successMessage}>
+            <span>🎉</span>
+            <div>
+              <strong>Welcome to Our Family Socials!</strong>
+              <p>Your subscription is now active. Enjoy unlimited access to all features!</p>
+            </div>
+          </div>
+        )}
+
+        {/* Canceled Message */}
+        {isCanceled && (
+          <div className={styles.canceledMessage}>
+            <span>ℹ️</span>
+            <div>
+              <strong>Checkout canceled</strong>
+              <p>No worries! You can subscribe whenever you're ready.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className={styles.errorMessage}>
+            <span>⚠️</span>
+            <p>{error}</p>
+          </div>
+        )}
 
         {/* Current Status Card */}
         <div className={styles.statusCard}>
@@ -143,7 +250,7 @@ export default function Billing() {
 
               <button
                 className={styles.subscribeButton}
-                onClick={handleSubscribe}
+                onClick={() => handleSubscribe()}
                 disabled={loading}
               >
                 {loading ? 'Loading...' : 'Subscribe Now'}
@@ -152,6 +259,29 @@ export default function Billing() {
               <p className={styles.guarantee}>
                 30-day money-back guarantee. Cancel anytime.
               </p>
+            </div>
+
+            {/* Lifetime Option */}
+            <div className={styles.lifetimeCard}>
+              <div className={styles.lifetimeHeader}>
+                <h3>Lifetime Access</h3>
+                <span className={styles.lifetimeBadge}>Best Value</span>
+              </div>
+              <div className={styles.priceAmount}>
+                <span className={styles.currency}>$</span>
+                <span className={styles.price}>250</span>
+                <span className={styles.period}>one-time</span>
+              </div>
+              <p className={styles.lifetimeDescription}>
+                Pay once, use forever. No recurring fees, no renewals.
+              </p>
+              <button
+                className={styles.lifetimeButton}
+                onClick={() => handleSubscribe('lifetime')}
+                disabled={loading}
+              >
+                {loading ? 'Loading...' : 'Get Lifetime Access'}
+              </button>
             </div>
           </>
         )}
