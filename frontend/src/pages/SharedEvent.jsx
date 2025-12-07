@@ -32,6 +32,8 @@ function SharedEvent() {
     const saved = localStorage.getItem('showImageCaptions')
     return saved !== null ? saved === 'true' : true // Default to true if not set
   })
+  const [hideInlineImages, setHideInlineImages] = useState(false)
+  const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
 
@@ -53,6 +55,28 @@ function SharedEvent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Track scroll position for floating TOC button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowFloatingTOC(window.scrollY > 300)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Hide/show inline images in content
+  useEffect(() => {
+    if (!contentRef.current || !event) return
+    const images = contentRef.current.querySelectorAll('img')
+    const videos = contentRef.current.querySelectorAll('video')
+    images.forEach(img => {
+      img.style.display = hideInlineImages ? 'none' : ''
+    })
+    videos.forEach(video => {
+      video.style.display = hideInlineImages ? 'none' : ''
+    })
+  }, [hideInlineImages, event])
 
   async function loadSharedEvent() {
     try {
@@ -474,17 +498,32 @@ function SharedEvent() {
             onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
             onGalleryClick={handleGalleryClick}
             onMapClick={handleMapClick}
+            hideInlineImages={hideInlineImages}
+            onToggleInlineImages={() => setHideInlineImages(!hideInlineImages)}
           />
         )}
 
         <div className={styles.mainContent} ref={contentRef}>
           {isMobile && sections.length > 0 && (
-            <button
-              className={styles.mobileMenuButton}
-              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            >
-              ☰ Table of Contents
-            </button>
+            <>
+              <button
+                className={styles.mobileMenuButton}
+                onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+              >
+                ☰ Table of Contents
+              </button>
+
+              {/* Floating TOC button - appears when scrolling */}
+              {showFloatingTOC && !isMobileNavOpen && (
+                <button
+                  className={styles.floatingTOCButton}
+                  onClick={() => setIsMobileNavOpen(true)}
+                  aria-label="Open Table of Contents"
+                >
+                  <span className={styles.floatingTOCIcon}>☰</span>
+                </button>
+              )}
+            </>
           )}
 
           <div className={styles.content}>
@@ -493,6 +532,18 @@ function SharedEvent() {
               dangerouslySetInnerHTML={{ __html: parsedContent.html }}
             />
           </div>
+
+          {/* Gallery Button */}
+          {allMedia.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              <button className={styles.galleryButton} onClick={handleGalleryClick}>
+                {galleryViewMode === 'grid'
+                  ? 'Hide Grid'
+                  : `📷 View all ${allMedia.length} ${allMedia.length === 1 ? 'item' : 'items'}`
+                }
+              </button>
+            </div>
+          )}
 
           {/* Image Gallery */}
           {allMedia.length > 0 && (
