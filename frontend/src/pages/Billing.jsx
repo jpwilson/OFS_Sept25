@@ -17,6 +17,8 @@ export default function Billing() {
     trialDaysRemaining,
     isWithinFirst5Days,
     isPaidSubscriber,
+    isSubscriptionCanceled,
+    subscriptionEndsAt,
     isTrialExpired,
     subscriptionTier
   } = useAuth()
@@ -206,7 +208,11 @@ export default function Billing() {
           <div className={styles.statusHeader}>
             <h2>Current Plan</h2>
             {isPaidSubscriber ? (
-              <span className={styles.badge}>Pro</span>
+              isSubscriptionCanceled ? (
+                <span className={`${styles.badge} ${styles.cancelingBadge}`}>Canceling</span>
+              ) : (
+                <span className={styles.badge}>Pro</span>
+              )
             ) : isTrialActive ? (
               <span className={`${styles.badge} ${styles.trialBadge}`}>Trial</span>
             ) : (
@@ -216,15 +222,33 @@ export default function Billing() {
 
           {isPaidSubscriber ? (
             <div className={styles.statusContent}>
-              <p className={styles.statusText}>
-                You're on the <strong>{subscriptionTier}</strong> plan. Thank you for your support!
-              </p>
+              {isSubscriptionCanceled ? (
+                <>
+                  <p className={styles.statusText}>
+                    Your subscription is set to end on{' '}
+                    <strong>
+                      {subscriptionEndsAt?.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </strong>
+                  </p>
+                  <p className={styles.statusSubtext}>
+                    You'll keep full access until then. Want to stay? You can resubscribe anytime.
+                  </p>
+                </>
+              ) : (
+                <p className={styles.statusText}>
+                  You're on the <strong>{subscriptionTier}</strong> plan. Thank you for your support!
+                </p>
+              )}
               <button
                 className={styles.secondaryButton}
                 onClick={handleManageSubscription}
                 disabled={loading}
               >
-                Manage Subscription
+                {isSubscriptionCanceled ? 'Resubscribe' : 'Manage Subscription'}
               </button>
             </div>
           ) : isTrialActive ? (

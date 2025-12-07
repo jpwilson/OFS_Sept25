@@ -50,6 +50,7 @@ def get_current_user_profile(
         "banner_url": current_user.banner_url,
         "subscription_tier": current_user.subscription_tier,
         "subscription_status": current_user.subscription_status,
+        "subscription_ends_at": current_user.subscription_ends_at.isoformat() if current_user.subscription_ends_at else None,
         "trial_end_date": current_user.trial_end_date.isoformat() if current_user.trial_end_date else None,
         "trial_days_remaining": current_user.get_trial_days_remaining(),
         "is_within_first_5_days": current_user.is_within_first_5_days(),

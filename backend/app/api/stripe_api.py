@@ -292,7 +292,11 @@ async def handle_subscription_updated(subscription, db: Session):
 
     # Map Stripe status to our status
     if status in ['trialing', 'active']:
-        user.subscription_status = 'active'
+        # Check if user has scheduled cancellation
+        if cancel_at_period_end:
+            user.subscription_status = 'canceled'  # Will expire at period end
+        else:
+            user.subscription_status = 'active'
         user.subscription_tier = 'premium'
     elif status == 'past_due':
         user.subscription_status = 'active'  # Keep active, payment will retry
