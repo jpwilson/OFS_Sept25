@@ -5,3 +5,4 @@ from .comment import Comment
 from .like import Like
 from .event_location import EventLocation
 from .event_image import EventImage
+from .share_token import ShareToken
