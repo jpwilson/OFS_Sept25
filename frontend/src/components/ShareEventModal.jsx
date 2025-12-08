@@ -6,19 +6,30 @@ import styles from './ShareEventModal.module.css'
 /**
  * Share Event Modal
  *
- * Allows users to create temporary shareable links for their events
- * Links expire after 1-5 days and show banners to encourage signup/follow
+ * Allows users to:
+ * 1. Create temporary shareable links for their events
+ * 2. Send events directly via email with personal message
  */
 function ShareEventModal({ isOpen, onClose, event }) {
   const { showToast } = useToast()
+  const [activeTab, setActiveTab] = useState('link') // 'link' or 'email'
   const [shareLink, setShareLink] = useState(null)
-  const [expiresInDays, setExpiresInDays] = useState(3) // Default 3 days
+  const [expiresInDays, setExpiresInDays] = useState(3)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Email form state
+  const [recipientEmail, setRecipientEmail] = useState('')
+  const [personalMessage, setPersonalMessage] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
 
   useEffect(() => {
     if (isOpen && event) {
       loadExistingShareLink()
+      // Reset email form when modal opens
+      setRecipientEmail('')
+      setPersonalMessage('')
+      setEmailSent(false)
     }
   }, [isOpen, event])
 
@@ -76,6 +87,44 @@ function ShareEventModal({ isOpen, onClose, event }) {
     }
   }
 
+  async function handleSendEmail(e) {
+    e.preventDefault()
+
+    if (!recipientEmail.trim()) {
+      showToast('Please enter an email address', 'error')
+      return
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(recipientEmail)) {
+      showToast('Please enter a valid email address', 'error')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await apiService.shareEventViaEmail(
+        event.id,
+        recipientEmail.trim(),
+        personalMessage.trim() || null
+      )
+      setEmailSent(true)
+      showToast(`Event shared with ${recipientEmail}!`, 'success')
+    } catch (error) {
+      console.error('Failed to send email:', error)
+      showToast(error.message || 'Failed to send email', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleSendAnother() {
+    setRecipientEmail('')
+    setPersonalMessage('')
+    setEmailSent(false)
+  }
+
   function formatExpiryDate(dateString) {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
@@ -103,83 +152,166 @@ function ShareEventModal({ isOpen, onClose, event }) {
           </button>
         </div>
 
+        {/* Tab Navigation */}
+        <div className={styles.tabNav}>
+          <button
+            className={`${styles.tab} ${activeTab === 'link' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('link')}
+          >
+            🔗 Copy Link
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'email' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('email')}
+          >
+            ✉️ Send Email
+          </button>
+        </div>
+
         <div className={styles.content}>
-          <p className={styles.description}>
-            Create a temporary public link to share this event. Anyone with the link can view it, even if they're not signed in.
-          </p>
+          {activeTab === 'link' ? (
+            // Link Tab Content
+            <>
+              <p className={styles.description}>
+                Create a temporary public link to share this event. Anyone with the link can view it, even if they're not signed in.
+              </p>
 
-          {shareLink && !isExpired(shareLink.expires_at) ? (
-            <div className={styles.activeLinkSection}>
-              <div className={styles.linkBox}>
-                <input
-                  type="text"
-                  className={styles.linkInput}
-                  value={`${window.location.origin}${shareLink.share_url}`}
-                  readOnly
-                  onClick={(e) => e.target.select()}
-                />
-                <button
-                  className={`${styles.copyButton} ${copied ? styles.copied : ''}`}
-                  onClick={handleCopyLink}
-                >
-                  {copied ? '✓ Copied' : 'Copy'}
-                </button>
-              </div>
+              {shareLink && !isExpired(shareLink.expires_at) ? (
+                <div className={styles.activeLinkSection}>
+                  <div className={styles.linkBox}>
+                    <input
+                      type="text"
+                      className={styles.linkInput}
+                      value={`${window.location.origin}${shareLink.share_url}`}
+                      readOnly
+                      onClick={(e) => e.target.select()}
+                    />
+                    <button
+                      className={`${styles.copyButton} ${copied ? styles.copied : ''}`}
+                      onClick={handleCopyLink}
+                    >
+                      {copied ? '✓ Copied' : 'Copy'}
+                    </button>
+                  </div>
 
-              <div className={styles.linkInfo}>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Expires:</span>
-                  <span className={styles.infoValue}>
-                    {formatExpiryDate(shareLink.expires_at)}
-                  </span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Views:</span>
-                  <span className={styles.infoValue}>{shareLink.view_count}</span>
-                </div>
-              </div>
+                  <div className={styles.linkInfo}>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Expires:</span>
+                      <span className={styles.infoValue}>
+                        {formatExpiryDate(shareLink.expires_at)}
+                      </span>
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Views:</span>
+                      <span className={styles.infoValue}>{shareLink.view_count}</span>
+                    </div>
+                  </div>
 
-              <button
-                className={styles.disableButton}
-                onClick={handleDeleteLink}
-                disabled={loading}
-              >
-                {loading ? 'Disabling...' : 'Disable Share Link'}
-              </button>
-            </div>
-          ) : (
-            <div className={styles.createLinkSection}>
-              <label className={styles.label}>Link expires in:</label>
-              <div className={styles.daysSelector}>
-                {[1, 2, 3, 4, 5].map(days => (
                   <button
-                    key={days}
-                    type="button"
-                    className={`${styles.dayButton} ${expiresInDays === days ? styles.selected : ''}`}
-                    onClick={() => setExpiresInDays(days)}
+                    className={styles.disableButton}
+                    onClick={handleDeleteLink}
+                    disabled={loading}
                   >
-                    {days} {days === 1 ? 'day' : 'days'}
+                    {loading ? 'Disabling...' : 'Disable Share Link'}
                   </button>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className={styles.createLinkSection}>
+                  <label className={styles.label}>Link expires in:</label>
+                  <div className={styles.daysSelector}>
+                    {[1, 2, 3, 4, 5].map(days => (
+                      <button
+                        key={days}
+                        type="button"
+                        className={`${styles.dayButton} ${expiresInDays === days ? styles.selected : ''}`}
+                        onClick={() => setExpiresInDays(days)}
+                      >
+                        {days} {days === 1 ? 'day' : 'days'}
+                      </button>
+                    ))}
+                  </div>
 
-              <button
-                className={styles.createButton}
-                onClick={handleCreateLink}
-                disabled={loading}
-              >
-                {loading ? 'Creating Link...' : 'Create Share Link'}
-              </button>
+                  <button
+                    className={styles.createButton}
+                    onClick={handleCreateLink}
+                    disabled={loading}
+                  >
+                    {loading ? 'Creating Link...' : 'Create Share Link'}
+                  </button>
 
-              <div className={styles.helpText}>
-                <p>💡 <strong>What viewers will see:</strong></p>
-                <ul>
-                  <li>Not logged in → Encouraged to sign up</li>
-                  <li>Logged in but not following → Encouraged to follow you</li>
-                  <li>Already following → They can already see your events</li>
-                </ul>
-              </div>
-            </div>
+                  <div className={styles.helpText}>
+                    <p>💡 <strong>What viewers will see:</strong></p>
+                    <ul>
+                      <li>Not logged in → Encouraged to sign up</li>
+                      <li>Logged in but not following → Encouraged to follow you</li>
+                      <li>Already following → They can already see your events</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            // Email Tab Content
+            <>
+              <p className={styles.description}>
+                Send this event directly to someone's inbox with a personal message. They'll receive a link that expires in 7 days.
+              </p>
+
+              {emailSent ? (
+                <div className={styles.emailSentSection}>
+                  <div className={styles.successIcon}>✓</div>
+                  <h4>Email Sent!</h4>
+                  <p>We've sent "{event?.title}" to {recipientEmail}</p>
+                  <button
+                    className={styles.sendAnotherButton}
+                    onClick={handleSendAnother}
+                  >
+                    Send to Another Person
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSendEmail} className={styles.emailForm}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Recipient's Email</label>
+                    <input
+                      type="email"
+                      className={styles.emailInput}
+                      placeholder="friend@example.com"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      Personal Message <span className={styles.optional}>(optional)</span>
+                    </label>
+                    <textarea
+                      className={styles.messageInput}
+                      placeholder="Add a personal note to your invitation..."
+                      value={personalMessage}
+                      onChange={(e) => setPersonalMessage(e.target.value)}
+                      rows={3}
+                      maxLength={500}
+                    />
+                    <span className={styles.charCount}>{personalMessage.length}/500</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className={styles.sendButton}
+                    disabled={loading || !recipientEmail.trim()}
+                  >
+                    {loading ? 'Sending...' : 'Send Invitation'}
+                  </button>
+
+                  <p className={styles.emailNote}>
+                    Email will be sent from notifications@ourfamilysocials.com
+                  </p>
+                </form>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -1141,6 +1141,32 @@ class ApiService {
       throw error
     }
   }
+
+  // ========================================
+  // EMAIL SHARING
+  // ========================================
+
+  async shareEventViaEmail(eventId, recipientEmail, personalMessage = null) {
+    try {
+      const response = await fetch(`${API_BASE}/email/share-event`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({
+          event_id: eventId,
+          recipient_email: recipientEmail,
+          personal_message: personalMessage
+        })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to send email')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error sharing event via email:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()
