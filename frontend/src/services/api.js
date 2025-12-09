@@ -1143,6 +1143,41 @@ class ApiService {
   }
 
   // ========================================
+  // NOTIFICATION PREFERENCES
+  // ========================================
+
+  async getNotificationPreferences() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/notification-preferences`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch notification preferences')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching notification preferences:', error)
+      throw error
+    }
+  }
+
+  async updateNotificationPreferences(preferences) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/notification-preferences`, {
+        method: 'PUT',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(preferences)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update notification preferences')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating notification preferences:', error)
+      throw error
+    }
+  }
+
+  // ========================================
   // EMAIL SHARING
   // ========================================
 

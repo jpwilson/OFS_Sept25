@@ -357,6 +357,9 @@ function Profile() {
               <Link to="/billing" className={styles.membershipButton}>
                 Membership
               </Link>
+              <Link to="/settings/notifications" className={styles.notificationsButton}>
+                Notifications
+              </Link>
               <button
                 onClick={handleShowRequests}
                 className={styles.requestsButton}

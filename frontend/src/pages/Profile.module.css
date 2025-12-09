@@ -188,6 +188,25 @@
   transform: translateY(-1px);
 }
 
+.notificationsButton {
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.notificationsButton:hover {
+  background: var(--bg-secondary);
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+}
+
 .createButton {
   padding: 10px 24px;
   background: #667eea;

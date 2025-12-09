@@ -15,6 +15,14 @@ class ProfileUpdate(BaseModel):
     avatar_url: Optional[str] = None
     banner_url: Optional[str] = None
 
+
+class NotificationPreferencesUpdate(BaseModel):
+    email_notifications_enabled: Optional[bool] = None
+    notify_new_follower: Optional[bool] = None
+    notify_new_comment: Optional[bool] = None
+    notify_trial_reminder: Optional[bool] = None
+    notify_event_shared: Optional[bool] = None
+
 @router.get("/me")
 def get_current_user_profile(
     current_user: User = Depends(get_current_user),
@@ -538,6 +546,52 @@ def update_profile(
         "banner_url": current_user.banner_url,
         "created_at": current_user.created_at
     }
+
+
+@router.get("/me/notification-preferences")
+def get_notification_preferences(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user's email notification preferences"""
+    return {
+        "email_notifications_enabled": current_user.email_notifications_enabled if current_user.email_notifications_enabled is not None else True,
+        "notify_new_follower": current_user.notify_new_follower if current_user.notify_new_follower is not None else True,
+        "notify_new_comment": current_user.notify_new_comment if current_user.notify_new_comment is not None else True,
+        "notify_trial_reminder": current_user.notify_trial_reminder if current_user.notify_trial_reminder is not None else True,
+        "notify_event_shared": current_user.notify_event_shared if current_user.notify_event_shared is not None else True
+    }
+
+
+@router.put("/me/notification-preferences")
+def update_notification_preferences(
+    preferences: NotificationPreferencesUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update current user's email notification preferences"""
+    if preferences.email_notifications_enabled is not None:
+        current_user.email_notifications_enabled = preferences.email_notifications_enabled
+    if preferences.notify_new_follower is not None:
+        current_user.notify_new_follower = preferences.notify_new_follower
+    if preferences.notify_new_comment is not None:
+        current_user.notify_new_comment = preferences.notify_new_comment
+    if preferences.notify_trial_reminder is not None:
+        current_user.notify_trial_reminder = preferences.notify_trial_reminder
+    if preferences.notify_event_shared is not None:
+        current_user.notify_event_shared = preferences.notify_event_shared
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "email_notifications_enabled": current_user.email_notifications_enabled,
+        "notify_new_follower": current_user.notify_new_follower,
+        "notify_new_comment": current_user.notify_new_comment,
+        "notify_trial_reminder": current_user.notify_trial_reminder,
+        "notify_event_shared": current_user.notify_event_shared
+    }
+
 
 @router.get("/{username}/events")
 def get_user_events(

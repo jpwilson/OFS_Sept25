@@ -21,6 +21,7 @@ import AuthCallback from './pages/AuthCallback'
 import Groups from './pages/Groups'
 import SharedEvent from './pages/SharedEvent'
 import Billing from './pages/Billing'
+import NotificationSettings from './pages/NotificationSettings'
 import Layout from './components/Layout'
 
 // Component to handle root route redirect
@@ -51,6 +52,7 @@ function App() {
               <Route path="/event/:id/edit" element={<EditEvent />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/edit" element={<EditProfile />} />
+              <Route path="/settings/notifications" element={<NotificationSettings />} />
               <Route path="/create" element={<CreateEvent />} />
               <Route path="/map" element={<Map />} />
               <Route path="/timeline" element={<Timeline />} />

@@ -32,6 +32,13 @@ class User(Base):
     stripe_subscription_id = Column(String, unique=True, nullable=True)
     subscription_status = Column(String, default='trial')  # 'trial', 'active', 'canceled', 'expired'
 
+    # Email notification preferences (all enabled by default)
+    email_notifications_enabled = Column(Boolean, default=True)  # Master toggle
+    notify_new_follower = Column(Boolean, default=True)
+    notify_new_comment = Column(Boolean, default=True)
+    notify_trial_reminder = Column(Boolean, default=True)
+    notify_event_shared = Column(Boolean, default=True)  # When someone views your shared event
+
     events = relationship("Event", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     likes = relationship("Like", back_populates="user")
