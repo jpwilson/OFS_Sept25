@@ -692,7 +692,7 @@ function EventDetail() {
             <p>This is a preview of the event content...</p>
           </div>
         </div>
-        <UpgradeModal onClose={() => navigate('/feed')} />
+        <UpgradeModal isOpen={true} onClose={() => navigate('/feed')} />
       </div>
     )
   }

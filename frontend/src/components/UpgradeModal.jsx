@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import styles from './UpgradeModal.module.css'
 
-export default function UpgradeModal({ onClose, trialDays = 30 }) {
+export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays = 30 }) {
   const navigate = useNavigate()
+
+  // Don't render if not open
+  if (!isOpen) return null
 
   const handleSubscribe = () => {
     navigate('/billing')
@@ -10,7 +13,6 @@ export default function UpgradeModal({ onClose, trialDays = 30 }) {
   }
 
   const handleMaybeLater = () => {
-    navigate('/feed')
     if (onClose) onClose()
   }
 
