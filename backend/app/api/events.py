@@ -59,6 +59,7 @@ def build_event_dict(event):
     return {
         "id": event.id,
         "title": event.title,
+        "short_title": event.short_title,
         "summary": event.summary,
         "description": event.description,
         "start_date": event.start_date,
@@ -287,6 +288,7 @@ def create_event(
         event_dict = {
             "id": event.id,
             "title": event.title,
+            "short_title": event.short_title,
             "summary": event.summary,
             "description": event.description,
             "start_date": event.start_date,
@@ -296,17 +298,23 @@ def create_event(
             "longitude": event.longitude,
             "cover_image_url": event.cover_image_url,
             "has_multiple_locations": event.has_multiple_locations,
+            "privacy_level": event.privacy_level or "public",
+            "category": event.category,
+            "custom_group_id": event.custom_group_id,
             "author_id": event.author_id,
             "author_username": event.author.username,
             "author_full_name": event.author.full_name,
             "view_count": event.view_count,
             "is_published": event.is_published,
+            "share_enabled": event.share_enabled or False,
+            "share_expires_at": event.share_expires_at,
             "created_at": event.created_at,
             "updated_at": event.updated_at,
             "like_count": 0,
             "comment_count": 0,
             "content_blocks": [],
-            "locations": event.locations if event.locations else []
+            "locations": event.locations if event.locations else [],
+            "event_images": []
         }
 
         print(f"DEBUG: Building response for event {event.id} with {len(event.locations) if event.locations else 0} locations")
