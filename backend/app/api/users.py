@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -6,6 +6,7 @@ from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.follow import Follow
+from ..services.email_service import send_follow_request_email, send_new_follower_email
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -141,6 +142,7 @@ def get_user_profile(
 @router.post("/{username}/follow")
 def follow_user(
     username: str,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -172,6 +174,22 @@ def follow_user(
 
     db.add(follow)
     db.commit()
+
+    # Send email notification to user being followed
+    if user_to_follow.email:
+        # Check notification preferences
+        should_notify = (
+            (user_to_follow.email_notifications_enabled is None or user_to_follow.email_notifications_enabled) and
+            (user_to_follow.notify_new_follower is None or user_to_follow.notify_new_follower)
+        )
+        if should_notify:
+            requester_name = current_user.display_name or current_user.full_name or current_user.username
+            background_tasks.add_task(
+                send_follow_request_email,
+                to_email=user_to_follow.email,
+                username=user_to_follow.username,
+                requester_name=requester_name
+            )
 
     return {"message": f"Follow request sent to {username}", "status": "pending"}
 
@@ -423,6 +441,7 @@ def get_follow_requests(
 @router.post("/me/follow-requests/{request_id}/accept")
 def accept_follow_request(
     request_id: int,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -438,6 +457,23 @@ def accept_follow_request(
 
     follow.status = "accepted"
     db.commit()
+
+    # Send email notification to the follower that their request was accepted
+    follower = db.query(User).filter(User.id == follow.follower_id).first()
+    if follower and follower.email:
+        # Check notification preferences
+        should_notify = (
+            (follower.email_notifications_enabled is None or follower.email_notifications_enabled) and
+            (follower.notify_new_follower is None or follower.notify_new_follower)
+        )
+        if should_notify:
+            followed_name = current_user.display_name or current_user.full_name or current_user.username
+            background_tasks.add_task(
+                send_new_follower_email,
+                to_email=follower.email,
+                username=follower.username,
+                follower_name=followed_name  # The person they're now following
+            )
 
     return {"message": "Follow request accepted", "status": "accepted"}
 

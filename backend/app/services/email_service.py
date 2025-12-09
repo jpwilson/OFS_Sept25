@@ -308,3 +308,120 @@ def send_new_follower_email(
         subject=f"{follower_name} is now following you",
         html=html
     )
+
+
+def send_new_comment_email(
+    to_email: str,
+    event_author_name: str,
+    commenter_name: str,
+    event_title: str,
+    comment_preview: str,
+    event_url: str
+) -> dict:
+    """Notify event author of new comment"""
+
+    # Truncate comment preview if too long
+    if len(comment_preview) > 150:
+        comment_preview = comment_preview[:147] + "..."
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">New Comment</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px;">
+                <p style="color: #555; font-size: 16px; margin: 0 0 16px 0;">
+                    <strong>{commenter_name}</strong> commented on your event
+                </p>
+
+                <p style="color: #333; font-size: 18px; font-weight: 600; margin: 0 0 16px 0;">
+                    "{event_title}"
+                </p>
+
+                <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <p style="margin: 0; color: #555; font-style: italic;">"{comment_preview}"</p>
+                </div>
+
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="{event_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                        View Comment
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 16px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 12px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com/settings/notifications" style="color: #667eea; text-decoration: none;">Manage notification settings</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"{commenter_name} commented on \"{event_title}\"",
+        html=html
+    )
+
+
+def send_follow_request_email(
+    to_email: str,
+    username: str,
+    requester_name: str
+) -> dict:
+    """Notify user of new follow request"""
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">New Follow Request</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px; text-align: center;">
+                <p style="color: #555; font-size: 18px; margin: 0 0 24px 0;">
+                    <strong>{requester_name}</strong> wants to follow you
+                </p>
+
+                <a href="https://www.ourfamilysocials.com/profile/{username}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                    View Request
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 16px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 12px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com/settings/notifications" style="color: #667eea; text-decoration: none;">Manage notification settings</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"{requester_name} wants to follow you",
+        html=html
+    )

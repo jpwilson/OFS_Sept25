@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
@@ -7,6 +7,7 @@ from ..core.security import verify_password, get_password_hash, create_access_to
 from ..core.supabase_auth import validate_supabase_token
 from ..models.user import User
 from ..schemas.user import UserCreate, UserLogin, UserResponse, Token
+from ..services.email_service import send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -77,6 +78,7 @@ class SupabaseProfileCreate(BaseModel):
 @router.post("/supabase/create-profile", response_model=UserResponse)
 def create_supabase_profile(
     profile_data: SupabaseProfileCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     """
@@ -197,6 +199,19 @@ def create_supabase_profile(
         db.refresh(user)
 
         print(f"🟢 Profile created successfully! User ID: {user.id}")
+
+        # Send welcome email
+        try:
+            background_tasks.add_task(
+                send_welcome_email,
+                to_email=email,
+                username=profile_data.username
+            )
+            print(f"🟢 Welcome email queued for {email}")
+        except Exception as e:
+            print(f"🟡 Failed to queue welcome email: {e}")
+            # Don't fail profile creation if email fails
+
         return UserResponse.model_validate(user)
 
     except Exception as e:

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -8,6 +8,7 @@ from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.event import Event
 from ..models.comment import Comment
+from ..services.email_service import send_new_comment_email
 
 router = APIRouter(prefix="/events", tags=["comments"])
 
@@ -31,6 +32,7 @@ class CommentResponse(BaseModel):
 def create_comment(
     event_id: int,
     comment: CommentCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -50,6 +52,28 @@ def create_comment(
     db.add(new_comment)
     db.commit()
     db.refresh(new_comment)
+
+    # Send email notification to event author (if not commenting on own event)
+    if event.author_id != current_user.id:
+        event_author = db.query(User).filter(User.id == event.author_id).first()
+        if event_author and event_author.email:
+            # Check notification preferences
+            should_notify = (
+                (event_author.email_notifications_enabled is None or event_author.email_notifications_enabled) and
+                (event_author.notify_new_comment is None or event_author.notify_new_comment)
+            )
+            if should_notify:
+                commenter_name = current_user.display_name or current_user.full_name or current_user.username
+                event_url = f"https://www.ourfamilysocials.com/event/{event.id}"
+                background_tasks.add_task(
+                    send_new_comment_email,
+                    to_email=event_author.email,
+                    event_author_name=event_author.display_name or event_author.username,
+                    commenter_name=commenter_name,
+                    event_title=event.title,
+                    comment_preview=comment.content,
+                    event_url=event_url
+                )
 
     # Build response
     return CommentResponse(
