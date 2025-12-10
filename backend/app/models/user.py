@@ -38,6 +38,7 @@ class User(Base):
     notify_new_comment = Column(Boolean, default=True)
     notify_trial_reminder = Column(Boolean, default=True)
     notify_event_shared = Column(Boolean, default=True)  # When someone views your shared event
+    notify_new_event_from_followed = Column(Boolean, default=True)  # When someone you follow posts an event
 
     events = relationship("Event", back_populates="author")
     comments = relationship("Comment", back_populates="author")

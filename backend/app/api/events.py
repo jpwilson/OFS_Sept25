@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
@@ -8,8 +8,10 @@ from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
 from ..models.event_location import EventLocation
+from ..models.follow import Follow
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
 from ..utils.location_validator import validate_location_count, extract_location_markers
+from ..services.email_service import send_new_event_notification_email
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -181,6 +183,7 @@ def get_events(
 @router.post("", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(
     event_data: EventCreate,
+    background_tasks: BackgroundTasks,
     is_published: bool = True,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -282,6 +285,41 @@ def create_event(
 
     # Refresh event to get updated locations
     db.refresh(event)
+
+    # Send notification to followers if event is published
+    if is_published:
+        try:
+            # Get all followers of the current user who have notifications enabled
+            followers = db.query(Follow).filter(
+                Follow.following_id == current_user.id,
+                Follow.status == "accepted"
+            ).all()
+
+            author_name = current_user.display_name or current_user.full_name or current_user.username
+            event_url = f"https://www.ourfamilysocials.com/event/{event.id}"
+
+            for follow in followers:
+                follower = follow.follower
+                # Check if follower wants notifications
+                should_notify = (
+                    (follower.email_notifications_enabled is None or follower.email_notifications_enabled) and
+                    (follower.notify_new_event_from_followed is None or follower.notify_new_event_from_followed)
+                )
+
+                if should_notify and follower.email:
+                    background_tasks.add_task(
+                        send_new_event_notification_email,
+                        to_email=follower.email,
+                        follower_username=follower.display_name or follower.username,
+                        author_name=author_name,
+                        event_title=event.title,
+                        event_url=event_url,
+                        cover_image_url=event.cover_image_url
+                    )
+                    print(f"📧 Queued new event notification for {follower.email}")
+        except Exception as e:
+            print(f"⚠️ Failed to queue follower notifications: {e}")
+            # Don't fail event creation if notifications fail
 
     try:
         # Explicitly map fields - don't use **event.__dict__

@@ -23,6 +23,7 @@ class NotificationPreferencesUpdate(BaseModel):
     notify_new_comment: Optional[bool] = None
     notify_trial_reminder: Optional[bool] = None
     notify_event_shared: Optional[bool] = None
+    notify_new_event_from_followed: Optional[bool] = None
 
 @router.get("/me")
 def get_current_user_profile(
@@ -595,7 +596,8 @@ def get_notification_preferences(
         "notify_new_follower": current_user.notify_new_follower if current_user.notify_new_follower is not None else True,
         "notify_new_comment": current_user.notify_new_comment if current_user.notify_new_comment is not None else True,
         "notify_trial_reminder": current_user.notify_trial_reminder if current_user.notify_trial_reminder is not None else True,
-        "notify_event_shared": current_user.notify_event_shared if current_user.notify_event_shared is not None else True
+        "notify_event_shared": current_user.notify_event_shared if current_user.notify_event_shared is not None else True,
+        "notify_new_event_from_followed": current_user.notify_new_event_from_followed if current_user.notify_new_event_from_followed is not None else True
     }
 
 
@@ -616,6 +618,8 @@ def update_notification_preferences(
         current_user.notify_trial_reminder = preferences.notify_trial_reminder
     if preferences.notify_event_shared is not None:
         current_user.notify_event_shared = preferences.notify_event_shared
+    if preferences.notify_new_event_from_followed is not None:
+        current_user.notify_new_event_from_followed = preferences.notify_new_event_from_followed
 
     db.commit()
     db.refresh(current_user)
@@ -625,7 +629,8 @@ def update_notification_preferences(
         "notify_new_follower": current_user.notify_new_follower,
         "notify_new_comment": current_user.notify_new_comment,
         "notify_trial_reminder": current_user.notify_trial_reminder,
-        "notify_event_shared": current_user.notify_event_shared
+        "notify_event_shared": current_user.notify_event_shared,
+        "notify_new_event_from_followed": current_user.notify_new_event_from_followed
     }
 
 

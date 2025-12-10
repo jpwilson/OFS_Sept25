@@ -425,3 +425,72 @@ def send_follow_request_email(
         subject=f"{requester_name} wants to follow you",
         html=html
     )
+
+
+def send_new_event_notification_email(
+    to_email: str,
+    follower_username: str,
+    author_name: str,
+    event_title: str,
+    event_url: str,
+    cover_image_url: Optional[str] = None
+) -> dict:
+    """Notify follower when someone they follow posts a new event"""
+
+    image_html = ""
+    if cover_image_url:
+        image_html = f"""
+        <div style="margin: 20px 0; border-radius: 8px; overflow: hidden;">
+            <img src="{cover_image_url}" alt="{event_title}" style="width: 100%; height: auto; display: block;" />
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">New Event from {author_name}</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px;">
+                <p style="color: #555; font-size: 16px; margin: 0 0 16px 0;">
+                    Hi {follower_username}! <strong>{author_name}</strong> just shared a new family moment:
+                </p>
+
+                <h2 style="color: #333; font-size: 20px; margin: 0 0 16px 0;">
+                    {event_title}
+                </h2>
+
+                {image_html}
+
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="{event_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                        View Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 16px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 12px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com/settings/notifications" style="color: #667eea; text-decoration: none;">Manage notification settings</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"{author_name} shared \"{event_title}\"",
+        html=html
+    )
