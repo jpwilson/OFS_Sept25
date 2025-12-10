@@ -20,8 +20,9 @@ class CommentResponse(BaseModel):
     event_id: int
     author_id: int
     author_username: str
-    author_full_name: str
-    author_avatar_url: Optional[str]
+    author_full_name: Optional[str] = None
+    author_display_name: Optional[str] = None
+    author_avatar_url: Optional[str] = None
     content: str
     created_at: datetime
 
@@ -82,6 +83,7 @@ def create_comment(
         author_id=new_comment.author_id,
         author_username=current_user.username,
         author_full_name=current_user.full_name,
+        author_display_name=current_user.display_name,
         author_avatar_url=current_user.avatar_url,
         content=new_comment.content,
         created_at=new_comment.created_at
@@ -102,6 +104,7 @@ def get_comments(
             author_id=comment.author_id,
             author_username=comment.author.username,
             author_full_name=comment.author.full_name,
+            author_display_name=comment.author.display_name,
             author_avatar_url=comment.author.avatar_url,
             content=comment.content,
             created_at=comment.created_at
