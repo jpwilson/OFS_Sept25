@@ -720,31 +720,6 @@ def permanently_delete_event(
         "cleanup_errors": cleanup_result.get('errors', [])
     }
 
-@router.post("/{event_id}/comments")
-def add_comment(
-    event_id: int,
-    content: str,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    from ..models.comment import Comment
-
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-
-    comment = Comment(
-        event_id=event_id,
-        author_id=current_user.id,
-        content=content
-    )
-
-    db.add(comment)
-    db.commit()
-    db.refresh(comment)
-
-    return {"id": comment.id, "content": comment.content, "created_at": comment.created_at}
-
 @router.post("/{event_id}/like")
 def add_like(
     event_id: int,
