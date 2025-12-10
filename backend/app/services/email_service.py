@@ -277,8 +277,11 @@ def send_new_follower_email(
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
         <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">New Follower!</h1>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: white; font-size: 14px; font-weight: 600;">Our Family Socials</span>
+                    <span style="color: rgba(255,255,255,0.8); font-size: 12px;">New Follower</span>
+                </div>
             </div>
 
             <!-- Content -->
@@ -334,8 +337,11 @@ def send_new_comment_email(
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
         <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">New Comment</h1>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: white; font-size: 14px; font-weight: 600;">Our Family Socials</span>
+                    <span style="color: rgba(255,255,255,0.8); font-size: 12px;">New Comment</span>
+                </div>
             </div>
 
             <!-- Content -->
@@ -394,8 +400,11 @@ def send_follow_request_email(
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
         <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">New Follow Request</h1>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: white; font-size: 14px; font-weight: 600;">Our Family Socials</span>
+                    <span style="color: rgba(255,255,255,0.8); font-size: 12px;">Follow Request</span>
+                </div>
             </div>
 
             <!-- Content -->
@@ -455,8 +464,11 @@ def send_new_event_notification_email(
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
         <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">New Event from {author_name}</h1>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: white; font-size: 14px; font-weight: 600;">Our Family Socials</span>
+                    <span style="color: rgba(255,255,255,0.8); font-size: 12px;">New Event</span>
+                </div>
             </div>
 
             <!-- Content -->
