@@ -8,6 +8,9 @@ from ..core.supabase_auth import validate_supabase_token
 from ..models.user import User
 from ..schemas.user import UserCreate, UserLogin, UserResponse, Token
 from ..services.email_service import send_welcome_email
+from ..models.invited_viewer import InvitedViewer
+from ..models.follow import Follow
+from sqlalchemy import func
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -73,6 +76,7 @@ class SupabaseProfileCreate(BaseModel):
     username: str
     display_name: Optional[str] = None
     supabase_token: str  # Supabase JWT token
+    invite_token: Optional[str] = None  # Optional invitation token
 
 
 @router.post("/supabase/create-profile", response_model=UserResponse)
@@ -200,6 +204,75 @@ def create_supabase_profile(
 
         print(f"🟢 Profile created successfully! User ID: {user.id}")
 
+        # Process invitation token if provided
+        invitations_processed = []
+        if profile_data.invite_token:
+            try:
+                invitation = db.query(InvitedViewer).filter(
+                    InvitedViewer.invite_token == profile_data.invite_token,
+                    InvitedViewer.status == 'pending'
+                ).first()
+
+                if invitation:
+                    # Mark user as invited viewer
+                    user.is_invited_viewer = True
+
+                    # Mark invitation as signed up
+                    invitation.status = 'signed_up'
+                    invitation.resulting_user_id = user.id
+                    invitation.signed_up_at = datetime.utcnow()
+                    invitations_processed.append(invitation)
+
+                    print(f"🟢 Processed invitation from user {invitation.inviter_id}")
+            except Exception as e:
+                print(f"🟡 Failed to process invite token: {e}")
+
+        # Also check for any other pending invitations to this email
+        try:
+            other_invitations = db.query(InvitedViewer).filter(
+                func.lower(InvitedViewer.invited_email) == email.lower(),
+                InvitedViewer.status == 'pending'
+            ).all()
+
+            for inv in other_invitations:
+                if inv not in invitations_processed:
+                    user.is_invited_viewer = True
+                    inv.status = 'signed_up'
+                    inv.resulting_user_id = user.id
+                    inv.signed_up_at = datetime.utcnow()
+                    invitations_processed.append(inv)
+                    print(f"🟢 Found and processed additional invitation from user {inv.inviter_id}")
+        except Exception as e:
+            print(f"🟡 Failed to check other invitations: {e}")
+
+        # Auto-create Follow relationships for all processed invitations
+        for inv in invitations_processed:
+            try:
+                # Check if follow already exists
+                existing_follow = db.query(Follow).filter(
+                    Follow.follower_id == user.id,
+                    Follow.following_id == inv.inviter_id
+                ).first()
+
+                if not existing_follow:
+                    # Create auto-accepted follow (user follows their inviter)
+                    follow = Follow(
+                        follower_id=user.id,
+                        following_id=inv.inviter_id,
+                        status='accepted',
+                        invited_viewer_follow=True,
+                        invitation_id=inv.id
+                    )
+                    db.add(follow)
+                    print(f"🟢 Created follow relationship: {user.id} -> {inv.inviter_id}")
+            except Exception as e:
+                print(f"🟡 Failed to create follow for invitation {inv.id}: {e}")
+
+        # Commit invitation/follow changes
+        if invitations_processed:
+            db.commit()
+            db.refresh(user)
+
         # Send welcome email
         try:
             background_tasks.add_task(
@@ -222,3 +295,48 @@ def create_supabase_profile(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create profile: {str(e)}"
         )
+
+
+class InviteValidationResponse(BaseModel):
+    valid: bool
+    inviter_name: Optional[str] = None
+    inviter_username: Optional[str] = None
+    invited_email: Optional[str] = None
+    invited_name: Optional[str] = None
+    message: Optional[str] = None
+
+
+@router.get("/validate-invite/{token}", response_model=InviteValidationResponse)
+def validate_invite_token(token: str, db: Session = Depends(get_db)):
+    """
+    Validate an invitation token.
+    Returns inviter info if valid, used for pre-filling signup form.
+    """
+    invitation = db.query(InvitedViewer).filter(
+        InvitedViewer.invite_token == token
+    ).first()
+
+    if not invitation:
+        return InviteValidationResponse(
+            valid=False,
+            message="Invalid or expired invitation"
+        )
+
+    if invitation.status == 'signed_up':
+        return InviteValidationResponse(
+            valid=False,
+            message="This invitation has already been used"
+        )
+
+    # Get inviter details
+    inviter = db.query(User).filter(User.id == invitation.inviter_id).first()
+    inviter_name = inviter.display_name or inviter.username if inviter else "Someone"
+    inviter_username = inviter.username if inviter else None
+
+    return InviteValidationResponse(
+        valid=True,
+        inviter_name=inviter_name,
+        inviter_username=inviter_username,
+        invited_email=invitation.invited_email,
+        invited_name=invitation.invited_name
+    )

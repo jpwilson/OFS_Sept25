@@ -1202,6 +1202,130 @@ class ApiService {
       throw error
     }
   }
+
+  // ========================================
+  // INVITED VIEWERS
+  // ========================================
+
+  async createInvitation(email, name = null, personalMessage = null) {
+    try {
+      const response = await fetch(`${API_BASE}/invitations`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({
+          email,
+          name,
+          personal_message: personalMessage
+        })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw error  // Return the full error object for handling
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating invitation:', error)
+      throw error
+    }
+  }
+
+  async getInvitations(status = null) {
+    try {
+      const url = status
+        ? `${API_BASE}/invitations?status=${status}`
+        : `${API_BASE}/invitations`
+      const response = await fetch(url, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch invitations')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching invitations:', error)
+      return { invitations: [], total: 0 }
+    }
+  }
+
+  async checkInvitationEmail(email) {
+    try {
+      const response = await fetch(`${API_BASE}/invitations/check-email?email=${encodeURIComponent(email)}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to check email')
+      return await response.json()
+    } catch (error) {
+      console.error('Error checking invitation email:', error)
+      return {
+        exists_as_user: false,
+        already_invited_by_me: false,
+        invited_by_others: []
+      }
+    }
+  }
+
+  async cancelInvitation(invitationId) {
+    try {
+      const response = await fetch(`${API_BASE}/invitations/${invitationId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to cancel invitation')
+      return await response.json()
+    } catch (error) {
+      console.error('Error cancelling invitation:', error)
+      throw error
+    }
+  }
+
+  async resendInvitation(invitationId) {
+    try {
+      const response = await fetch(`${API_BASE}/invitations/${invitationId}/resend`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to resend invitation')
+      return await response.json()
+    } catch (error) {
+      console.error('Error resending invitation:', error)
+      throw error
+    }
+  }
+
+  async validateInviteToken(token) {
+    try {
+      const response = await fetch(`${API_BASE}/auth/validate-invite/${token}`)
+      if (!response.ok) throw new Error('Failed to validate invite')
+      return await response.json()
+    } catch (error) {
+      console.error('Error validating invite token:', error)
+      return { valid: false, message: 'Invalid invitation' }
+    }
+  }
+
+  async getViewerStatus() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/viewer-status`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch viewer status')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching viewer status:', error)
+      return null
+    }
+  }
+
+  async getMyInviters() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/inviters`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch inviters')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching inviters:', error)
+      return { inviters: [], count: 0 }
+    }
+  }
 }
 
 export default new ApiService()

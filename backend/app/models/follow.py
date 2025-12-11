@@ -13,6 +13,11 @@ class Follow(Base):
     is_close_family = Column(Boolean, default=False, nullable=False)  # Mark as close family member
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    # Invited viewer fields
+    invited_viewer_follow = Column(Boolean, default=False)  # True if auto-created from invitation
+    invitation_id = Column(Integer, ForeignKey("invited_viewers.id", ondelete="SET NULL"), nullable=True)
+
     # Relationships
     follower = relationship("User", foreign_keys=[follower_id], back_populates="following")
     following = relationship("User", foreign_keys=[following_id], back_populates="followers")
+    invitation = relationship("InvitedViewer")

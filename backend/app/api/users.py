@@ -24,6 +24,7 @@ class NotificationPreferencesUpdate(BaseModel):
     notify_trial_reminder: Optional[bool] = None
     notify_event_shared: Optional[bool] = None
     notify_new_event_from_followed: Optional[bool] = None
+    notify_invitee_new_event: Optional[bool] = None
 
 @router.get("/me")
 def get_current_user_profile(
@@ -597,7 +598,8 @@ def get_notification_preferences(
         "notify_new_comment": current_user.notify_new_comment if current_user.notify_new_comment is not None else True,
         "notify_trial_reminder": current_user.notify_trial_reminder if current_user.notify_trial_reminder is not None else True,
         "notify_event_shared": current_user.notify_event_shared if current_user.notify_event_shared is not None else True,
-        "notify_new_event_from_followed": current_user.notify_new_event_from_followed if current_user.notify_new_event_from_followed is not None else True
+        "notify_new_event_from_followed": current_user.notify_new_event_from_followed if current_user.notify_new_event_from_followed is not None else True,
+        "notify_invitee_new_event": current_user.notify_invitee_new_event if current_user.notify_invitee_new_event is not None else True
     }
 
 
@@ -620,6 +622,8 @@ def update_notification_preferences(
         current_user.notify_event_shared = preferences.notify_event_shared
     if preferences.notify_new_event_from_followed is not None:
         current_user.notify_new_event_from_followed = preferences.notify_new_event_from_followed
+    if preferences.notify_invitee_new_event is not None:
+        current_user.notify_invitee_new_event = preferences.notify_invitee_new_event
 
     db.commit()
     db.refresh(current_user)
@@ -630,8 +634,54 @@ def update_notification_preferences(
         "notify_new_comment": current_user.notify_new_comment,
         "notify_trial_reminder": current_user.notify_trial_reminder,
         "notify_event_shared": current_user.notify_event_shared,
-        "notify_new_event_from_followed": current_user.notify_new_event_from_followed
+        "notify_new_event_from_followed": current_user.notify_new_event_from_followed,
+        "notify_invitee_new_event": current_user.notify_invitee_new_event
     }
+
+
+@router.get("/me/viewer-status")
+def get_viewer_status(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get current user's invited viewer status.
+    Used by frontend to show appropriate UI for restricted users.
+    """
+    from ..utils.viewer_access import get_viewer_status as get_status
+    return get_status(current_user, db)
+
+
+@router.get("/me/inviters")
+def get_my_inviters(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get list of users who invited the current user.
+    Only relevant for invited viewers.
+    """
+    from ..models.invited_viewer import InvitedViewer
+
+    if not current_user.is_invited_viewer:
+        return {"inviters": [], "count": 0}
+
+    invitations = db.query(InvitedViewer).filter(
+        InvitedViewer.resulting_user_id == current_user.id
+    ).all()
+
+    inviters = []
+    for inv in invitations:
+        inviter = db.query(User).filter(User.id == inv.inviter_id).first()
+        if inviter:
+            inviters.append({
+                "id": inviter.id,
+                "username": inviter.username,
+                "display_name": inviter.display_name,
+                "avatar_url": inviter.avatar_url
+            })
+
+    return {"inviters": inviters, "count": len(inviters)}
 
 
 @router.get("/{username}/events")

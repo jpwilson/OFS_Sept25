@@ -39,6 +39,11 @@ class User(Base):
     notify_trial_reminder = Column(Boolean, default=True)
     notify_event_shared = Column(Boolean, default=True)  # When someone views your shared event
     notify_new_event_from_followed = Column(Boolean, default=True)  # When someone you follow posts an event
+    notify_invitee_new_event = Column(Boolean, default=True)  # Receive notifications from people who invited you
+
+    # Invited Viewer fields
+    is_invited_viewer = Column(Boolean, default=False)  # True if signed up via invitation
+    invited_viewer_mode = Column(Boolean, default=False)  # True when in restricted mode (after trial)
 
     events = relationship("Event", back_populates="author")
     comments = relationship("Comment", back_populates="author")
@@ -61,6 +66,9 @@ class User(Base):
     # Custom groups
     custom_groups = relationship("CustomGroup", back_populates="owner", cascade="all, delete-orphan")
     group_memberships = relationship("CustomGroupMember", back_populates="user", cascade="all, delete-orphan")
+
+    # Invited viewers (people this user has invited)
+    sent_invitations = relationship("InvitedViewer", foreign_keys="InvitedViewer.inviter_id", back_populates="inviter", cascade="all, delete-orphan")
 
     # Subscription helper methods
     def get_trial_status(self):

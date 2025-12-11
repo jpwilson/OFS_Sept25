@@ -498,3 +498,262 @@ def send_new_event_notification_email(
         subject=f"{author_name} shared \"{event_title}\"",
         html=html
     )
+
+
+def send_viewer_invitation_email(
+    to_email: str,
+    inviter_name: str,
+    invited_name: str,
+    invite_token: str,
+    personal_message: Optional[str] = None
+) -> dict:
+    """
+    Send invitation email to non-user.
+    Includes signup link with invite token.
+    """
+    signup_url = f"https://www.ourfamilysocials.com/signup?invite={invite_token}"
+
+    message_html = ""
+    if personal_message:
+        message_html = f"""
+        <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 16px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #555; font-style: italic;">"{personal_message}"</p>
+            <p style="margin: 8px 0 0 0; color: #888; font-size: 14px;">— {inviter_name}</p>
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Our Family Socials</p>
+                <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 600;">You're Invited!</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px;">
+                <p style="color: #333; font-size: 18px; margin: 0 0 16px 0;">
+                    Hi {invited_name}!
+                </p>
+
+                <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                    <strong>{inviter_name}</strong> wants to share their family moments with you on Our Family Socials.
+                </p>
+
+                {message_html}
+
+                <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                    Join to see their photos, stories, and adventures. You'll get a <strong>30-day free trial</strong> to explore everything!
+                </p>
+
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="{signup_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                        Accept Invitation
+                    </a>
+                </div>
+
+                <div style="background: #f0f7ff; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                    <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
+                        <strong>What you'll get:</strong><br>
+                        • See {inviter_name}'s family photos and stories<br>
+                        • 30-day free trial with full access<br>
+                        • Stay connected with family memories
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 13px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com" style="color: #667eea; text-decoration: none;">Our Family Socials</a>
+                    — Share your family's story
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"{inviter_name} invited you to see their family moments",
+        html=html
+    )
+
+
+def send_invited_viewer_new_event_email(
+    to_email: str,
+    viewer_name: str,
+    author_name: str,
+    event_title: str,
+    event_url: str,
+    cover_image_url: Optional[str] = None
+) -> dict:
+    """
+    Notify invited viewer when their inviter posts a new event.
+    Rate-limited to 1 per day per author (handled by caller).
+    """
+    image_html = ""
+    if cover_image_url:
+        image_html = f"""
+        <div style="margin: 20px 0; border-radius: 8px; overflow: hidden;">
+            <img src="{cover_image_url}" alt="{event_title}" style="width: 100%; height: auto; display: block;" />
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; text-align: center;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Our Family Socials</p>
+                <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 600;">New Family Moment</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px;">
+                <p style="color: #555; font-size: 16px; margin: 0 0 16px 0;">
+                    Hi {viewer_name}! <strong>{author_name}</strong> just shared something new:
+                </p>
+
+                <h2 style="color: #333; font-size: 20px; margin: 0 0 16px 0;">
+                    {event_title}
+                </h2>
+
+                {image_html}
+
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="{event_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                        View Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 16px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 12px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com/settings/notifications" style="color: #667eea; text-decoration: none;">Manage notification settings</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"{author_name} shared \"{event_title}\"",
+        html=html
+    )
+
+
+def send_trial_ending_invited_viewer_email(
+    to_email: str,
+    username: str,
+    days_remaining: int,
+    inviter_names: list
+) -> dict:
+    """
+    Special trial reminder for invited viewers.
+    Explains what they'll still have access to after trial ends.
+    """
+    inviters_text = ", ".join(inviter_names) if inviter_names else "your inviter"
+
+    urgency_text = ""
+    if days_remaining <= 3:
+        urgency_text = "Your trial is almost over!"
+    elif days_remaining <= 7:
+        urgency_text = "Your trial ends soon"
+    else:
+        urgency_text = f"You have {days_remaining} days left"
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+        <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 24px; text-align: center;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Our Family Socials</p>
+                <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 600;">{urgency_text}</h1>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 32px;">
+                <h2 style="color: #333; margin: 0 0 16px 0; font-size: 20px;">
+                    Hi {username},
+                </h2>
+
+                <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                    Your free trial of Our Family Socials ends in <strong>{days_remaining} days</strong>.
+                </p>
+
+                <div style="background: #e8f5e9; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                    <p style="color: #2e7d32; font-size: 15px; margin: 0 0 8px 0; font-weight: 600;">
+                        Good news! You'll still have access to:
+                    </p>
+                    <p style="color: #555; font-size: 14px; margin: 0;">
+                        Events shared by <strong>{inviters_text}</strong>
+                    </p>
+                </div>
+
+                <div style="background: #fff3e0; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                    <p style="color: #e65100; font-size: 15px; margin: 0 0 8px 0; font-weight: 600;">
+                        After your trial, you won't be able to:
+                    </p>
+                    <ul style="color: #555; font-size: 14px; line-height: 1.6; margin: 0; padding-left: 20px;">
+                        <li>Create your own events</li>
+                        <li>Follow new people</li>
+                        <li>See events from others (except {inviters_text})</li>
+                    </ul>
+                </div>
+
+                <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+                    Want full access? Subscribe to keep all features and share your own family moments!
+                </p>
+
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="https://www.ourfamilysocials.com/billing" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                        Subscribe Now
+                    </a>
+                </div>
+
+                <p style="color: #888; font-size: 14px; text-align: center; margin: 0;">
+                    Plans start at $7.50/month (billed annually)
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 13px; margin: 0;">
+                    <a href="https://www.ourfamilysocials.com" style="color: #667eea; text-decoration: none;">Our Family Socials</a>
+                    — Share your family's story
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(
+        to=to_email,
+        subject=f"Your trial ends in {days_remaining} days - here's what happens next",
+        html=html
+    )
