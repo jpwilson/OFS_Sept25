@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
+import InviteViewerForm from '../components/InviteViewerForm'
 import styles from './Groups.module.css'
 
 function Groups() {
@@ -11,37 +13,76 @@ function Groups() {
   const { confirm } = useConfirm()
   const [groups, setGroups] = useState([])
   const [followers, setFollowers] = useState([])
+  const [following, setFollowing] = useState([])
+  const [pendingRequests, setPendingRequests] = useState([])
+  const [sentInvitations, setSentInvitations] = useState([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
   const [editingGroup, setEditingGroup] = useState(null)
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [selectedMembers, setSelectedMembers] = useState([])
   const [expandedGroup, setExpandedGroup] = useState(null)
+  const [activeSection, setActiveSection] = useState('followers') // followers, following, invites
 
   useEffect(() => {
-    loadGroups()
-    loadFollowers()
+    loadAllData()
   }, [])
+
+  async function loadAllData() {
+    setLoading(true)
+    await Promise.all([
+      loadGroups(),
+      loadFollowers(),
+      loadFollowing(),
+      loadPendingRequests(),
+      loadInvitations()
+    ])
+    setLoading(false)
+  }
 
   async function loadGroups() {
     try {
       const data = await apiService.getCustomGroups()
       setGroups(data)
-      setLoading(false)
     } catch (error) {
       console.error('Error loading groups:', error)
-      showToast('Failed to load groups', 'error')
-      setLoading(false)
     }
   }
 
   async function loadFollowers() {
     try {
       const data = await apiService.getFollowers()
-      // Only get accepted followers
-      setFollowers(data.filter(f => f.status === 'accepted'))
+      setFollowers(data)
     } catch (error) {
       console.error('Error loading followers:', error)
+    }
+  }
+
+  async function loadFollowing() {
+    try {
+      const data = await apiService.getFollowing()
+      setFollowing(data)
+    } catch (error) {
+      console.error('Error loading following:', error)
+    }
+  }
+
+  async function loadPendingRequests() {
+    try {
+      const data = await apiService.getFollowRequests()
+      setPendingRequests(data)
+    } catch (error) {
+      console.error('Error loading pending requests:', error)
+    }
+  }
+
+  async function loadInvitations() {
+    try {
+      const data = await apiService.getInvitations()
+      setSentInvitations(data)
+    } catch (error) {
+      console.error('Error loading invitations:', error)
     }
   }
 
@@ -156,12 +197,11 @@ function Groups() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading groups...</div>
-      </div>
-    )
+  // Helper to get status label for a follower
+  function getFollowerStatus(follower) {
+    if (follower.status === 'pending') return 'Requested to follow you'
+    if (follower.status === 'accepted') return 'Following you'
+    return follower.status
   }
 
   async function handleToggleCloseFamily(userId, currentStatus) {
@@ -175,193 +215,299 @@ function Groups() {
     }
   }
 
-  const closeFamilyFollowers = followers.filter(f => f.is_close_family)
-  const regularFollowers = followers.filter(f => !f.is_close_family)
+  async function handleAcceptRequest(userId) {
+    try {
+      await apiService.acceptFollowRequest(userId)
+      showToast('Follow request accepted', 'success')
+      loadAllData()
+    } catch (error) {
+      console.error('Error accepting request:', error)
+      showToast('Failed to accept request', 'error')
+    }
+  }
+
+  async function handleRejectRequest(userId) {
+    try {
+      await apiService.rejectFollowRequest(userId)
+      showToast('Follow request rejected', 'success')
+      loadAllData()
+    } catch (error) {
+      console.error('Error rejecting request:', error)
+      showToast('Failed to reject request', 'error')
+    }
+  }
+
+  async function handleCancelInvitation(invitationId) {
+    try {
+      await apiService.cancelInvitation(invitationId)
+      showToast('Invitation cancelled', 'success')
+      loadInvitations()
+    } catch (error) {
+      console.error('Error cancelling invitation:', error)
+      showToast('Failed to cancel invitation', 'error')
+    }
+  }
+
+  async function handleResendInvitation(invitationId) {
+    try {
+      await apiService.resendInvitation(invitationId)
+      showToast('Invitation resent', 'success')
+    } catch (error) {
+      console.error('Error resending invitation:', error)
+      showToast('Failed to resend invitation', 'error')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Loading...</div>
+      </div>
+    )
+  }
+
+  const acceptedFollowers = followers.filter(f => f.status === 'accepted')
+  const closeFamilyFollowers = acceptedFollowers.filter(f => f.is_close_family)
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Groups</h1>
-        <button className={styles.createButton} onClick={handleCreateClick}>
-          + Create Custom Group
+        <h1 className={styles.title}>Sharing</h1>
+        <button className={styles.inviteButton} onClick={() => setShowInviteModal(true)}>
+          + Invite Someone
         </button>
       </div>
 
       <div className={styles.description}>
-        Manage who you share events with. Built-in groups (Followers, Close Family) are automatically managed based on your followers.
+        Manage who can see your events and invite new people to follow you.
       </div>
 
-      {/* Built-in Groups */}
-      <div className={styles.builtInGroups}>
-        <h2 className={styles.sectionTitle}>Built-in Groups</h2>
+      {/* Followers Section */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Your Followers</h2>
+          <span className={styles.count}>{acceptedFollowers.length}</span>
+        </div>
 
-        {/* Followers Group */}
-        <div className={styles.groupCard}>
-          <div className={styles.groupHeader}>
-            <div className={styles.groupInfo}>
-              <h3 className={styles.groupName}>👥 Followers</h3>
-              <p className={styles.groupDescription}>All users who follow you</p>
-              <div className={styles.groupMeta}>
-                {followers.length} {followers.length === 1 ? 'member' : 'members'}
-              </div>
-            </div>
-            <div className={styles.groupActions}>
-              <button
-                className={styles.expandButton}
-                onClick={() => setExpandedGroup(expandedGroup === 'followers' ? null : 'followers')}
-              >
-                {expandedGroup === 'followers' ? '▲ Hide' : '▼ Show'} Members
-              </button>
-            </div>
+        {acceptedFollowers.length === 0 ? (
+          <div className={styles.emptyTable}>
+            <p>No followers yet. Invite people to follow you!</p>
           </div>
-
-          {expandedGroup === 'followers' && (
-            <div className={styles.membersList}>
-              {followers.length === 0 ? (
-                <p className={styles.noMembers}>No followers yet.</p>
-              ) : (
-                <div className={styles.members}>
-                  {followers.map(follower => (
-                    <div key={follower.id} className={styles.memberChip}>
-                      <div className={styles.memberAvatar}>
-                        {follower.full_name?.charAt(0) || follower.username.charAt(0)}
-                      </div>
-                      <span className={styles.memberName}>
-                        {follower.full_name || follower.username}
-                      </span>
-                      <label className={styles.closeFamilyToggle}>
+        ) : (
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Close Family</th>
+                </tr>
+              </thead>
+              <tbody>
+                {acceptedFollowers.map(follower => (
+                  <tr key={follower.id}>
+                    <td>
+                      <Link to={`/profile/${follower.username}`} className={styles.userLink}>
+                        @{follower.username}
+                        {follower.full_name && <span className={styles.fullName}> ({follower.full_name})</span>}
+                      </Link>
+                    </td>
+                    <td className={styles.emailCell}>{follower.email || '—'}</td>
+                    <td><span className={styles.statusBadge}>{getFollowerStatus(follower)}</span></td>
+                    <td>
+                      <label className={styles.toggleLabel}>
                         <input
                           type="checkbox"
                           checked={follower.is_close_family}
                           onChange={() => handleToggleCloseFamily(follower.id, follower.is_close_family)}
                         />
-                        <span className={styles.toggleLabel}>Close Family</span>
+                        <span className={styles.toggleSlider}></span>
                       </label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Close Family Group */}
-        <div className={styles.groupCard}>
-          <div className={styles.groupHeader}>
-            <div className={styles.groupInfo}>
-              <h3 className={styles.groupName}>❤️ Close Family</h3>
-              <p className={styles.groupDescription}>Followers marked as close family</p>
-              <div className={styles.groupMeta}>
-                {closeFamilyFollowers.length} {closeFamilyFollowers.length === 1 ? 'member' : 'members'}
-              </div>
-            </div>
-            <div className={styles.groupActions}>
-              <button
-                className={styles.expandButton}
-                onClick={() => setExpandedGroup(expandedGroup === 'close_family' ? null : 'close_family')}
-              >
-                {expandedGroup === 'close_family' ? '▲ Hide' : '▼ Show'} Members
-              </button>
-            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-          {expandedGroup === 'close_family' && (
-            <div className={styles.membersList}>
-              {closeFamilyFollowers.length === 0 ? (
-                <p className={styles.noMembers}>No close family members yet. Use the checkbox in the Followers group to mark followers as close family.</p>
-              ) : (
-                <div className={styles.members}>
-                  {closeFamilyFollowers.map(follower => (
-                    <div key={follower.id} className={styles.memberChip}>
-                      <div className={styles.memberAvatar}>
-                        {follower.full_name?.charAt(0) || follower.username.charAt(0)}
-                      </div>
-                      <span className={styles.memberName}>
-                        {follower.full_name || follower.username}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Custom Groups */}
-      <h2 className={styles.sectionTitle}>Custom Groups</h2>
-
-      {groups.length === 0 ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>👥</div>
-          <h2>No Groups Yet</h2>
-          <p>Create your first custom group to organize who you share events with.</p>
-          <button className={styles.createButton} onClick={handleCreateClick}>
-            Create Your First Group
-          </button>
-        </div>
-      ) : (
-        <div className={styles.groupsList}>
-          {groups.map(group => (
-            <div key={group.id} className={styles.groupCard}>
-              <div className={styles.groupHeader}>
-                <div className={styles.groupInfo}>
-                  <h3 className={styles.groupName}>{group.name}</h3>
-                  {group.description && (
-                    <p className={styles.groupDescription}>{group.description}</p>
-                  )}
-                  <div className={styles.groupMeta}>
-                    {group.member_count || 0} {group.member_count === 1 ? 'member' : 'members'}
-                  </div>
-                </div>
-                <div className={styles.groupActions}>
-                  <button
-                    className={styles.expandButton}
-                    onClick={() => toggleGroupExpansion(group.id)}
-                  >
-                    {expandedGroup === group.id ? '▲ Hide' : '▼ Show'} Members
-                  </button>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => handleEditClick(group)}
-                  >
-                    ✎ Edit
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteClick(group)}
-                  >
-                    🗑 Delete
-                  </button>
-                </div>
-              </div>
-
-              {expandedGroup === group.id && group.members && (
-                <div className={styles.membersList}>
-                  {group.members.length === 0 ? (
-                    <p className={styles.noMembers}>No members yet. Edit this group to add members.</p>
-                  ) : (
-                    <div className={styles.members}>
-                      {group.members.map(member => (
-                        <div key={member.id} className={styles.memberChip}>
-                          <div className={styles.memberAvatar}>
-                            {member.full_name?.charAt(0) || member.username.charAt(0)}
-                          </div>
-                          <span className={styles.memberName}>
-                            {member.full_name || member.username}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+      {/* Pending Requests */}
+      {pendingRequests.length > 0 && (
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Pending Requests</h2>
+            <span className={styles.count}>{pendingRequests.length}</span>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingRequests.map(request => (
+                  <tr key={request.id}>
+                    <td>
+                      <Link to={`/profile/${request.username}`} className={styles.userLink}>
+                        @{request.username}
+                        {request.full_name && <span className={styles.fullName}> ({request.full_name})</span>}
+                      </Link>
+                    </td>
+                    <td className={styles.emailCell}>{request.email || '—'}</td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        <button className={styles.acceptBtn} onClick={() => handleAcceptRequest(request.id)}>Accept</button>
+                        <button className={styles.rejectBtn} onClick={() => handleRejectRequest(request.id)}>Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Create/Edit Modal */}
+      {/* Sent Invitations */}
+      {sentInvitations.length > 0 && (
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Sent Invitations</h2>
+            <span className={styles.count}>{sentInvitations.length}</span>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sentInvitations.map(invite => (
+                  <tr key={invite.id}>
+                    <td>{invite.invited_name || '—'}</td>
+                    <td className={styles.emailCell}>{invite.invited_email}</td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${invite.status === 'signed_up' ? styles.success : styles.pending}`}>
+                        {invite.status === 'signed_up' ? 'Signed Up' : 'Pending'}
+                      </span>
+                    </td>
+                    <td>
+                      {invite.status === 'pending' && (
+                        <div className={styles.actionButtons}>
+                          <button className={styles.resendBtn} onClick={() => handleResendInvitation(invite.id)}>Resend</button>
+                          <button className={styles.cancelBtn} onClick={() => handleCancelInvitation(invite.id)}>Cancel</button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Groups Section */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Custom Groups</h2>
+          <button className={styles.createButton} onClick={handleCreateClick}>
+            + Create Group
+          </button>
+        </div>
+
+        {groups.length === 0 ? (
+          <div className={styles.emptyTable}>
+            <p>No custom groups yet. Create groups to organize who sees specific events.</p>
+          </div>
+        ) : (
+          <div className={styles.groupsList}>
+            {groups.map(group => (
+              <div key={group.id} className={styles.groupCard}>
+                <div className={styles.groupHeader}>
+                  <div className={styles.groupInfo}>
+                    <h3 className={styles.groupName}>{group.name}</h3>
+                    {group.description && (
+                      <p className={styles.groupDescription}>{group.description}</p>
+                    )}
+                    <div className={styles.groupMeta}>
+                      {group.member_count || 0} {group.member_count === 1 ? 'member' : 'members'}
+                    </div>
+                  </div>
+                  <div className={styles.groupActions}>
+                    <button
+                      className={styles.expandButton}
+                      onClick={() => toggleGroupExpansion(group.id)}
+                    >
+                      {expandedGroup === group.id ? '▲' : '▼'}
+                    </button>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEditClick(group)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteClick(group)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {expandedGroup === group.id && group.members && (
+                  <div className={styles.membersList}>
+                    {group.members.length === 0 ? (
+                      <p className={styles.noMembers}>No members yet.</p>
+                    ) : (
+                      <div className={styles.members}>
+                        {group.members.map(member => (
+                          <Link key={member.id} to={`/profile/${member.username}`} className={styles.memberChip}>
+                            @{member.username}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowInviteModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Invite Someone</h2>
+              <button className={styles.closeButton} onClick={() => setShowInviteModal(false)}>×</button>
+            </div>
+            <div className={styles.modalContent}>
+              <InviteViewerForm
+                onInviteSent={() => {
+                  loadInvitations()
+                  setShowInviteModal(false)
+                }}
+                onClose={() => setShowInviteModal(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create/Edit Group Modal */}
       {showCreateModal && (
         <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

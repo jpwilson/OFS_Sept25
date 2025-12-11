@@ -503,3 +503,250 @@
     max-height: 85vh;
   }
 }
+
+/* New Sharing Page Styles */
+
+.inviteButton {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inviteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.section {
+  margin-bottom: 40px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.count {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.emptyTable {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-tertiary);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.userLink {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.userLink:hover {
+  text-decoration: underline;
+}
+
+.fullName {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.emailCell {
+  color: var(--text-secondary);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+.statusBadge.success {
+  background: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+}
+
+.statusBadge.pending {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f39c12;
+}
+
+.toggleLabel {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggleLabel input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-tertiary);
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.toggleLabel input:checked + .toggleSlider {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.toggleLabel input:checked + .toggleSlider:before {
+  transform: translateX(20px);
+  background-color: white;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.acceptBtn,
+.rejectBtn,
+.resendBtn,
+.cancelBtn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.acceptBtn {
+  background: #27ae60;
+  color: white;
+}
+
+.acceptBtn:hover {
+  background: #2ecc71;
+}
+
+.rejectBtn {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.rejectBtn:hover {
+  background: #e74c3c;
+  color: white;
+  border-color: #e74c3c;
+}
+
+.resendBtn {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.resendBtn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.cancelBtn {
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+.cancelBtn:hover {
+  background: #e74c3c;
+  color: white;
+  border-color: #e74c3c;
+}
+
+.modalContent {
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    padding: 10px 12px;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+}

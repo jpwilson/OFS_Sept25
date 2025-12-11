@@ -37,16 +37,16 @@ function PrivacySelector({ value, onChange, customGroupId, onCustomGroupChange }
 
   const privacyOptions = [
     {
-      value: 'public',
-      label: 'Public',
-      icon: '🌍',
-      description: 'Anyone can see this event'
-    },
-    {
       value: 'followers',
       label: 'Followers',
       icon: '👥',
       description: 'Only your followers can see this'
+    },
+    {
+      value: 'public',
+      label: 'Public',
+      icon: '🌍',
+      description: 'Anyone can see this event'
     },
     {
       value: 'close_family',

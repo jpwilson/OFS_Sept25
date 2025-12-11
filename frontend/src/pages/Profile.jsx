@@ -6,7 +6,6 @@ import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import FollowRequestsModal from '../components/FollowRequestsModal'
-import InvitedViewersTab from '../components/InvitedViewersTab'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
 import styles from './Profile.module.css'
@@ -443,12 +442,6 @@ function Profile() {
               >
                 Trash ({trash.length})
               </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'invited' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('invited')}
-              >
-                Invited
-              </button>
             </div>
           )}
         </div>
@@ -718,9 +711,6 @@ function Profile() {
           )
         )}
 
-        {activeTab === 'invited' && (
-          <InvitedViewersTab />
-        )}
       </div>
 
       <FollowListModal
