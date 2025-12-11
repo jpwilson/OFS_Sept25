@@ -18,7 +18,8 @@ export default function NotificationSettings() {
     notify_new_comment: true,
     notify_trial_reminder: true,
     notify_event_shared: true,
-    notify_new_event_from_followed: true
+    notify_new_event_from_followed: true,
+    notify_invitee_new_event: true
   })
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function NotificationSettings() {
       newPreferences.notify_trial_reminder = false
       newPreferences.notify_event_shared = false
       newPreferences.notify_new_event_from_followed = false
+      newPreferences.notify_invitee_new_event = false
     }
 
     // If turning on any individual notification, ensure master is on
@@ -85,7 +87,8 @@ export default function NotificationSettings() {
       notify_new_comment: true,
       notify_trial_reminder: true,
       notify_event_shared: true,
-      notify_new_event_from_followed: true
+      notify_new_event_from_followed: true,
+      notify_invitee_new_event: true
     }
     setPreferences(newPreferences)
     await savePreferences(newPreferences)
@@ -98,7 +101,8 @@ export default function NotificationSettings() {
       notify_new_comment: false,
       notify_trial_reminder: false,
       notify_event_shared: false,
-      notify_new_event_from_followed: false
+      notify_new_event_from_followed: false,
+      notify_invitee_new_event: false
     }
     setPreferences(newPreferences)
     await savePreferences(newPreferences)
@@ -116,13 +120,15 @@ export default function NotificationSettings() {
                      preferences.notify_new_comment &&
                      preferences.notify_trial_reminder &&
                      preferences.notify_event_shared &&
-                     preferences.notify_new_event_from_followed
+                     preferences.notify_new_event_from_followed &&
+                     preferences.notify_invitee_new_event
 
   const allDisabled = !preferences.notify_new_follower &&
                       !preferences.notify_new_comment &&
                       !preferences.notify_trial_reminder &&
                       !preferences.notify_event_shared &&
-                      !preferences.notify_new_event_from_followed
+                      !preferences.notify_new_event_from_followed &&
+                      !preferences.notify_invitee_new_event
 
   return (
     <div className={styles.container}>
@@ -254,6 +260,25 @@ export default function NotificationSettings() {
                 type="checkbox"
                 checked={preferences.notify_event_shared}
                 onChange={() => handleToggle('notify_event_shared')}
+                disabled={!preferences.email_notifications_enabled}
+              />
+              <span className={styles.slider}></span>
+            </label>
+          </div>
+
+          <div className={styles.notificationItem}>
+            <div className={styles.notificationInfo}>
+              <span className={styles.notificationIcon}>✉️</span>
+              <div>
+                <h4>Notify Invited Viewers</h4>
+                <p>Email your invited viewers when you publish new events</p>
+              </div>
+            </div>
+            <label className={styles.switch}>
+              <input
+                type="checkbox"
+                checked={preferences.notify_invitee_new_event}
+                onChange={() => handleToggle('notify_invitee_new_event')}
                 disabled={!preferences.email_notifications_enabled}
               />
               <span className={styles.slider}></span>

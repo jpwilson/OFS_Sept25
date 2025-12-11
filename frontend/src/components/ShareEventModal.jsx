@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useToast } from './Toast'
 import apiService from '../services/api'
+import InviteViewerForm from './InviteViewerForm'
 import styles from './ShareEventModal.module.css'
 
 /**
@@ -166,6 +167,12 @@ function ShareEventModal({ isOpen, onClose, event }) {
           >
             ✉️ Send Email
           </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'invite' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('invite')}
+          >
+            👤 Invite
+          </button>
         </div>
 
         <div className={styles.content}>
@@ -250,7 +257,7 @@ function ShareEventModal({ isOpen, onClose, event }) {
                 </div>
               )}
             </>
-          ) : (
+          ) : activeTab === 'email' ? (
             // Email Tab Content
             <>
               <p className={styles.description}>
@@ -311,6 +318,19 @@ function ShareEventModal({ isOpen, onClose, event }) {
                   </p>
                 </form>
               )}
+            </>
+          ) : (
+            // Invite Tab Content
+            <>
+              <p className={styles.description}>
+                Invite someone who isn't on Our Family Socials yet. They'll receive an email to sign up and will automatically follow you.
+              </p>
+
+              <InviteViewerForm
+                onInviteSent={() => {
+                  showToast('Invitation sent!', 'success')
+                }}
+              />
             </>
           )}
         </div>

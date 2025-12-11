@@ -22,6 +22,7 @@ import Groups from './pages/Groups'
 import SharedEvent from './pages/SharedEvent'
 import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
+import InvitedSignup from './pages/InvitedSignup'
 import Layout from './components/Layout'
 
 // Component to handle root route redirect
@@ -38,6 +39,7 @@ function App() {
           <Routes>
             <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup/invited" element={<InvitedSignup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />

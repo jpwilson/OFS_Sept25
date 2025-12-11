@@ -12,6 +12,7 @@ import GPSExtractionModal from '../components/GPSExtractionModal'
 import UpgradeModal from '../components/UpgradeModal'
 import PrivacySelector from '../components/PrivacySelector'
 import CategorySelector from '../components/CategorySelector'
+import InviteViewerForm from '../components/InviteViewerForm'
 import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
@@ -50,6 +51,8 @@ function CreateEvent() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [captionsExpanded, setCaptionsExpanded] = useState(true) // Auto-expand on first publish
   const [imageCaptions, setImageCaptions] = useState({})
+  const [inviteExpanded, setInviteExpanded] = useState(false)
+  const [invitesSent, setInvitesSent] = useState(0)
 
   // Check GPS extraction preference on component mount
   useEffect(() => {
@@ -322,6 +325,32 @@ function CreateEvent() {
             value={formData.category}
             onChange={(value) => setFormData({ ...formData, category: value })}
           />
+
+          {/* Invite Viewers Section */}
+          <div className={styles.inviteSection}>
+            <button
+              type="button"
+              className={styles.inviteToggle}
+              onClick={() => setInviteExpanded(!inviteExpanded)}
+            >
+              <span className={styles.inviteToggleIcon}>
+                {inviteExpanded ? '▼' : '▶'}
+              </span>
+              <span>Invite people not on Our Family Socials</span>
+              {invitesSent > 0 && (
+                <span className={styles.inviteCount}>
+                  {invitesSent} invited
+                </span>
+              )}
+            </button>
+            {inviteExpanded && (
+              <div className={styles.inviteContent}>
+                <InviteViewerForm
+                  onInviteSent={() => setInvitesSent(prev => prev + 1)}
+                />
+              </div>
+            )}
+          </div>
 
           <div className={styles.checkboxGroup}>
             <label className={styles.checkboxLabel}>

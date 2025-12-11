@@ -6,6 +6,7 @@ import { FeedSkeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import ShortLocation from '../components/ShortLocation'
+import InvitedViewerBanner from '../components/InvitedViewerBanner'
 
 // Predefined categories (matching CategorySelector)
 const CATEGORIES = [
@@ -179,6 +180,7 @@ function Feed() {
 
   return (
     <div className={styles.container}>
+      {user && <InvitedViewerBanner />}
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1 className={styles.pageTitle}>Event Feed</h1>

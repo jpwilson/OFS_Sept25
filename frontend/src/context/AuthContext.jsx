@@ -75,9 +75,10 @@ export function AuthProvider({ children }) {
         // This happens when email confirmation is enabled and user just confirmed their email
         console.log('Profile not found, creating automatically...')
 
-        // Get username and display_name from Supabase user metadata
+        // Get username, display_name, and invite_token from Supabase user metadata
         const username = supabaseUser.user_metadata?.username
         const displayName = supabaseUser.user_metadata?.display_name || username
+        const inviteToken = supabaseUser.user_metadata?.invite_token
 
         if (!username) {
           console.error('No username in Supabase user metadata')
@@ -88,16 +89,22 @@ export function AuthProvider({ children }) {
 
         // Create profile
         try {
+          const profileData = {
+            username,
+            display_name: displayName,
+            supabase_token: token
+          }
+          // Include invite token if present
+          if (inviteToken) {
+            profileData.invite_token = inviteToken
+          }
+
           const createResponse = await fetch(`${API_URL}/api/v1/auth/supabase/create-profile`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              username,
-              display_name: displayName,
-              supabase_token: token
-            })
+            body: JSON.stringify(profileData)
           })
 
           if (createResponse.ok) {
@@ -173,18 +180,24 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const register = async (email, password, username, displayName) => {
+  const register = async (email, password, username, displayName, inviteToken = null) => {
     try {
       // Sign up with Supabase Auth, storing username/displayName in metadata
+      const metadata = {
+        username: username,
+        display_name: displayName || username
+      }
+      // Store invite token in metadata if present
+      if (inviteToken) {
+        metadata.invite_token = inviteToken
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            username: username,
-            display_name: displayName || username
-          }
+          data: metadata
         }
       })
 
@@ -192,16 +205,22 @@ export function AuthProvider({ children }) {
 
       if (data.session) {
         // Email confirmation disabled - create profile immediately
+        const profileData = {
+          username,
+          display_name: displayName || username,
+          supabase_token: data.session.access_token
+        }
+        // Include invite token if present
+        if (inviteToken) {
+          profileData.invite_token = inviteToken
+        }
+
         const profileResponse = await fetch(`${API_URL}/api/v1/auth/supabase/create-profile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            username,
-            display_name: displayName || username,
-            supabase_token: data.session.access_token
-          })
+          body: JSON.stringify(profileData)
         })
 
         if (!profileResponse.ok) {
