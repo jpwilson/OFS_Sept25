@@ -300,6 +300,17 @@
   align-items: center;
   gap: 12px;
   flex: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px;
+  margin: -4px;
+  transition: background 0.2s;
+}
+
+.userSearchInfo:hover {
+  background: var(--bg-primary);
 }
 
 .userSearchAvatar {

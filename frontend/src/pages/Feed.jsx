@@ -39,7 +39,7 @@ function Feed() {
     const saved = localStorage.getItem('feedFiltersExpanded')
     return saved !== null ? saved === 'true' : true
   })
-  const [cardSize, setCardSize] = useState('large') // large, medium, small
+  const [cardSize, setCardSize] = useState('small') // large, medium, small
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
@@ -119,6 +119,9 @@ function Feed() {
         new Date(event.end_date || event.start_date) <= new Date(selectedDateRange.end)
       )
     }
+
+    // Sort by event start_date (most recent first)
+    filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
 
     setFilteredEvents(filtered)
   }
@@ -252,7 +255,7 @@ function Feed() {
                 <div className={styles.userSearchResults}>
                   {userSearchResults.map(result => (
                     <div key={result.id} className={styles.userSearchResult}>
-                      <div className={styles.userSearchInfo}>
+                      <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
                         <div className={styles.userSearchAvatar}>
                           {result.full_name?.charAt(0) || result.username.charAt(0)}
                         </div>
@@ -262,7 +265,7 @@ function Feed() {
                           </div>
                           <div className={styles.userSearchUsername}>@{result.username}</div>
                         </div>
-                      </div>
+                      </Link>
                       {result.followRequested ? (
                         <button className={styles.followRequestedButton} disabled>
                           Request Sent
