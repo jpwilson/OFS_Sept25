@@ -18,7 +18,7 @@ class Event(Base):
     longitude = Column(Float, nullable=True)
     cover_image_url = Column(String, nullable=True)
     has_multiple_locations = Column(Boolean, default=False)
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    author_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     view_count = Column(Integer, default=0)
     is_published = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
