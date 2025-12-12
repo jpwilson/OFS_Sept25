@@ -176,18 +176,43 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
+    input.multiple = true  // Allow multi-select
 
     input.onchange = async (e) => {
-      const file = e.target.files[0]
-      if (file) {
-        setIsUploading(true)
+      const files = Array.from(e.target.files)
+      if (files.length === 0) return
+
+      // Check if adding these would exceed limit
+      const remainingSlots = MAX_IMAGES_PER_EVENT - images
+      if (files.length > remainingSlots) {
+        showToast(`Can only add ${remainingSlots} more images (limit: ${MAX_IMAGES_PER_EVENT})`, 'error')
+        return
+      }
+
+      setIsUploading(true)
+      const uploadedUrls = []
+
+      for (const file of files) {
         const url = await uploadImage(file)
         if (url) {
-          editor.chain().focus().setImage({ src: url }).run()
-          showToast('Image uploaded successfully', 'success')
+          uploadedUrls.push(url)
         }
-        setIsUploading(false)
       }
+
+      // Insert all images with line breaks between them
+      if (uploadedUrls.length > 0) {
+        let html = ''
+        for (let i = 0; i < uploadedUrls.length; i++) {
+          html += `<img src="${uploadedUrls[i]}">`
+          if (i < uploadedUrls.length - 1) {
+            html += '<p><br /></p>'
+          }
+        }
+        editor.chain().focus().insertContent(html).run()
+        showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded`, 'success')
+      }
+
+      setIsUploading(false)
     }
 
     input.click()
@@ -343,50 +368,68 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const addVideo = useCallback(async () => {
     if (!editor) return
 
+    // Check video limit
+    const { videos } = countMedia()
+    if (videos >= MAX_VIDEOS_PER_EVENT) {
+      showToast(`Maximum ${MAX_VIDEOS_PER_EVENT} videos per event. Please remove some videos first.`, 'error')
+      return
+    }
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'video/*'
+    input.multiple = true  // Allow multi-select
 
     input.onchange = async (e) => {
-      const file = e.target.files[0]
-      if (!file) return
+      const files = Array.from(e.target.files)
+      if (files.length === 0) return
 
-      // Check file type
-      if (!file.type.startsWith('video/')) {
-        showToast('Please select a valid video file', 'error')
+      // Check if adding these would exceed limit
+      const remainingSlots = MAX_VIDEOS_PER_EVENT - videos
+      if (files.length > remainingSlots) {
+        showToast(`Can only add ${remainingSlots} more videos (limit: ${MAX_VIDEOS_PER_EVENT})`, 'error')
         return
       }
 
-      // Check file size (100MB limit for Cloudinary free tier)
       const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
-      if (file.size > MAX_SIZE) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
-        const limitMB = (MAX_SIZE / (1024 * 1024)).toFixed(0)
-        showToast(`Video is ${sizeMB}MB but limit is ${limitMB}MB. Please use a shorter or lower quality recording.`, 'error')
-        return
-      }
 
-      try {
-        // Get video metadata
-        const metadata = await getVideoMetadata(file)
-        const duration = Math.floor(metadata.duration)
-
-        if (duration > 60) {
-          // Show trimmer for videos longer than 60 seconds
-          setSelectedVideoFile(file)
-          setShowVideoTrimmer(true)
-        } else {
-          // Proceed with upload for videos 60 seconds or less
-          handleVideoUpload(file)
+      for (const file of files) {
+        // Check file type
+        if (!file.type.startsWith('video/')) {
+          showToast(`"${file.name}" is not a video file`, 'error')
+          continue
         }
-      } catch (error) {
-        console.error('Failed to read video metadata:', error)
-        showToast('Failed to read video. Please try a different file.', 'error')
+
+        // Check file size (100MB limit)
+        if (file.size > MAX_SIZE) {
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
+          showToast(`"${file.name}" is ${sizeMB}MB (limit: 100MB)`, 'error')
+          continue
+        }
+
+        try {
+          // Get video metadata
+          const metadata = await getVideoMetadata(file)
+          const duration = Math.floor(metadata.duration)
+
+          if (duration > 60) {
+            // Show trimmer for videos longer than 60 seconds
+            setSelectedVideoFile(file)
+            setShowVideoTrimmer(true)
+            showToast(`"${file.name}" is ${duration}s long. Please trim to 60s or less.`, 'info')
+          } else {
+            // Proceed with upload for videos 60 seconds or less
+            handleVideoUpload(file)
+          }
+        } catch (error) {
+          console.error('Failed to read video metadata:', error)
+          showToast(`Failed to read "${file.name}". Please try a different file.`, 'error')
+        }
       }
     }
 
     input.click()
-  }, [editor, handleVideoUpload, showToast])
+  }, [editor, handleVideoUpload, showToast, countMedia])
 
   // Cancel video upload/compression
   const handleCancelVideo = useCallback((taskId) => {

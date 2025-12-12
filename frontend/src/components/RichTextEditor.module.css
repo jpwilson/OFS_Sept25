@@ -215,3 +215,66 @@
 .editor::-webkit-scrollbar-thumb:hover {
   background: #667eea;
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .menuBar {
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .buttonGroup {
+    padding: 0 4px;
+    gap: 2px;
+  }
+
+  .menuBar button {
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 32px;
+    /* Larger touch targets */
+    min-height: 36px;
+  }
+
+  .imageButton,
+  .videoButton,
+  .locationButton {
+    padding: 8px 12px !important;
+  }
+
+  .editor {
+    padding: 16px;
+    min-height: 350px;
+    max-height: 500px;
+  }
+
+  .editor :global(.ProseMirror) {
+    min-height: 350px;
+  }
+
+  .imageHint {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .dropMessage p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menuBar {
+    justify-content: center;
+  }
+
+  .buttonGroup {
+    border-right: none;
+    padding: 4px;
+  }
+
+  /* Stack media buttons on very small screens */
+  .menuBar button {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+}
