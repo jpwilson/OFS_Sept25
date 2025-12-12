@@ -28,7 +28,7 @@ function EditEvent() {
     latitude: null,
     longitude: null,
     cover_image_url: '',
-    has_multiple_locations: false,
+    has_multiple_locations: true,
     privacy_level: 'public',
     category: '',
     custom_group_id: null
@@ -72,7 +72,7 @@ function EditEvent() {
         latitude: event.latitude || null,
         longitude: event.longitude || null,
         cover_image_url: event.cover_image_url || '',
-        has_multiple_locations: event.has_multiple_locations || false,
+        has_multiple_locations: true,
         privacy_level: event.privacy_level || 'public',
         category: event.category || '',
         custom_group_id: event.custom_group_id || null
@@ -204,18 +204,14 @@ function EditEvent() {
   const handleSubmit = async (e, shouldPublish) => {
     e.preventDefault()
 
-    // Only validate locations if has_multiple_locations is checked
-    if (formData.has_multiple_locations) {
-      const validation = await validateLocationCount(formData.description)
-
-      if (!validation.isValid) {
-        // More than 20 locations - show selection modal
-        setAllLocations(validation.locations)
-        setPendingPublish(shouldPublish !== undefined ? shouldPublish : isPublished)
-        setShowLocationModal(true)
-        showToast(`Found ${validation.count} locations. Please select up to ${validation.maxLocations}.`, 'error')
-        return
-      }
+    // Validate location count (max 20)
+    const validation = await validateLocationCount(formData.description)
+    if (!validation.isValid) {
+      setAllLocations(validation.locations)
+      setPendingPublish(shouldPublish !== undefined ? shouldPublish : isPublished)
+      setShowLocationModal(true)
+      showToast(`Found ${validation.count} locations. Please select up to ${validation.maxLocations}.`, 'error')
+      return
     }
 
     setIsSubmitting(true)
@@ -367,23 +363,6 @@ function EditEvent() {
             <span className={styles.hint}>
               This short summary appears on event cards in the feed. Keep it concise!
             </span>
-          </div>
-
-          <div className={styles.checkboxGroup}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={formData.has_multiple_locations}
-                onChange={(e) => setFormData({ ...formData, has_multiple_locations: e.target.checked })}
-                className={styles.checkbox}
-              />
-              <span>This event involves multiple locations (e.g., travel itinerary, road trip)</span>
-            </label>
-            {formData.has_multiple_locations && (
-              <p className={styles.hint}>
-                You can add up to 20 location markers in your content using the location pin button in the editor toolbar.
-              </p>
-            )}
           </div>
 
           <div className={styles.formGroup}>

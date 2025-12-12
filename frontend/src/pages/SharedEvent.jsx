@@ -92,14 +92,12 @@ function SharedEvent() {
         console.error('Error loading event images:', err)
       }
 
-      // Load locations if multi-location event
-      if (data.event.has_multiple_locations) {
-        try {
-          const locs = await apiService.getEventLocations(data.event.id)
-          setLocations(locs || [])
-        } catch (err) {
-          console.error('Error loading locations:', err)
-        }
+      // Load locations for event map
+      try {
+        const locs = await apiService.getEventLocations(data.event.id)
+        setLocations(locs || [])
+      } catch (err) {
+        console.error('Error loading locations:', err)
       }
 
       // Check if expired

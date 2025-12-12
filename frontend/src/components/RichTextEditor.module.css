@@ -117,18 +117,19 @@
 
 .editor {
   padding: 20px;
-  min-height: 400px;
-  max-height: 600px;
+  min-height: 500px;
+  max-height: 700px;
   overflow-y: auto;
   font-size: 16px;
   line-height: 1.6;
   color: var(--text-primary);
+  background: var(--bg-primary);
 }
 
 /* Editor content styles */
 .editor :global(.ProseMirror) {
   outline: none;
-  min-height: 400px;
+  min-height: 500px;
 }
 
 .editor :global(.ProseMirror p.is-editor-empty:first-child::before) {

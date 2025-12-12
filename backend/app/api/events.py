@@ -202,8 +202,8 @@ def create_event(
                 detail="Free plan limit reached. You can only create 5 events. Please upgrade to Premium for unlimited events."
             )
 
-    # Validate location count if multiple locations enabled
-    if event_data.has_multiple_locations and event_data.description:
+    # Validate location count (max 20)
+    if event_data.description:
         is_valid, location_count = validate_location_count(event_data.description)
         if not is_valid:
             raise HTTPException(
@@ -224,30 +224,29 @@ def create_event(
     db.commit()
     db.refresh(event)
 
-    # Extract and save location markers from HTML content if multiple locations enabled
-    if event.has_multiple_locations and event.description:
+    # Extract and save location markers from HTML content
+    if event.description:
         location_markers = extract_location_markers(event.description)
-        print(f"DEBUG: Extracted {len(location_markers)} location markers for event {event.id}")
-        for marker in location_markers:
-            event_location = EventLocation(
-                event_id=event.id,
-                location_name=marker['location_name'],
-                latitude=marker['latitude'],
-                longitude=marker['longitude'],
-                location_type='inline_marker',
-                timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
-                order_index=marker['order_index']
-            )
-            db.add(event_location)
-            print(f"DEBUG: Added location: {marker['location_name']}")
+        if location_markers:
+            print(f"DEBUG: Extracted {len(location_markers)} location markers for event {event.id}")
+            for marker in location_markers:
+                event_location = EventLocation(
+                    event_id=event.id,
+                    location_name=marker['location_name'],
+                    latitude=marker['latitude'],
+                    longitude=marker['longitude'],
+                    location_type='inline_marker',
+                    timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
+                    order_index=marker['order_index']
+                )
+                db.add(event_location)
+                print(f"DEBUG: Added location: {marker['location_name']}")
 
-        db.commit()
-        print(f"DEBUG: Committed {len(location_markers)} locations to database")
-    else:
-        print(f"DEBUG: Skipping location extraction - has_multiple_locations={event.has_multiple_locations}, has_description={bool(event.description)}")
+            db.commit()
+            print(f"DEBUG: Committed {len(location_markers)} locations to database")
 
     # Save GPS-extracted locations from uploaded images
-    if event.has_multiple_locations and event_data.gps_locations:
+    if event_data.gps_locations:
         print(f"DEBUG: Saving {len(event_data.gps_locations)} GPS-extracted locations")
         try:
             for idx, gps_loc in enumerate(event_data.gps_locations):
@@ -486,12 +485,9 @@ def update_event(
                     detail="Free plan limit reached. You can only have 5 published events. Please upgrade to Premium for unlimited events."
                 )
 
-    # Validate location count if multiple locations enabled
-    # Check both the new value (if set) and existing event value
-    has_multiple = update_dict.get('has_multiple_locations', event.has_multiple_locations)
+    # Validate location count (max 20)
     description = update_dict.get('description', event.description)
-
-    if has_multiple and description:
+    if description:
         is_valid, location_count = validate_location_count(description)
         if not is_valid:
             raise HTTPException(
@@ -505,8 +501,8 @@ def update_event(
     db.commit()
     db.refresh(event)
 
-    # Re-extract and save location markers from HTML content if multiple locations enabled
-    if event.has_multiple_locations and event.description:
+    # Re-extract and save location markers from HTML content
+    if event.description:
         # Delete existing inline_marker locations for this event
         db.query(EventLocation).filter(
             EventLocation.event_id == event.id,
@@ -515,17 +511,18 @@ def update_event(
 
         # Extract and add new locations
         location_markers = extract_location_markers(event.description)
-        for marker in location_markers:
-            event_location = EventLocation(
-                event_id=event.id,
-                location_name=marker['location_name'],
-                latitude=marker['latitude'],
-                longitude=marker['longitude'],
-                location_type='inline_marker',
-                timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
-                order_index=marker['order_index']
-            )
-            db.add(event_location)
+        if location_markers:
+            for marker in location_markers:
+                event_location = EventLocation(
+                    event_id=event.id,
+                    location_name=marker['location_name'],
+                    latitude=marker['latitude'],
+                    longitude=marker['longitude'],
+                    location_type='inline_marker',
+                    timestamp=datetime.fromisoformat(marker['timestamp']) if marker.get('timestamp') else None,
+                    order_index=marker['order_index']
+                )
+                db.add(event_location)
 
         db.commit()
         db.refresh(event)  # Refresh to get updated locations with timestamps
