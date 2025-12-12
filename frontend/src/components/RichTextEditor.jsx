@@ -14,6 +14,10 @@ import ProgressRibbon from './ProgressRibbon'
 import { getVideoMetadata } from '../utils/videoCompression'
 import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from '../config/cloudinary'
 
+// Upload limits per event
+const MAX_IMAGES_PER_EVENT = 100
+const MAX_VIDEOS_PER_EVENT = 10
+
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange }) {
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -24,6 +28,17 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const [selectedVideoFile, setSelectedVideoFile] = useState(null)
   const [videoTasks, setVideoTasks] = useState([]) // Track video upload/compression tasks
   const { showToast } = useToast()
+
+  // Count existing media in editor content
+  const countMedia = useCallback(() => {
+    if (!editor) return { images: 0, videos: 0 }
+    const html = editor.getHTML()
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const images = tempDiv.querySelectorAll('img').length
+    const videos = tempDiv.querySelectorAll('video').length
+    return { images, videos }
+  }, [editor])
 
   // Notify parent component about video task changes
   useEffect(() => {
@@ -151,6 +166,13 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const addImage = useCallback(async () => {
     if (!editor) return
 
+    // Check image limit
+    const { images } = countMedia()
+    if (images >= MAX_IMAGES_PER_EVENT) {
+      showToast(`Maximum ${MAX_IMAGES_PER_EVENT} images per event. Please remove some images first.`, 'error')
+      return
+    }
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
@@ -169,10 +191,17 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
 
     input.click()
-  }, [editor, uploadImage, showToast])
+  }, [editor, uploadImage, showToast, countMedia])
 
   // Upload video to Cloudinary (handles compression automatically)
   const handleVideoUpload = useCallback(async (file, trimParams = null) => {
+    // Check total videos limit
+    const { videos } = countMedia()
+    if (videos >= MAX_VIDEOS_PER_EVENT) {
+      showToast(`Maximum ${MAX_VIDEOS_PER_EVENT} videos per event. Please remove some videos first.`, 'error')
+      return
+    }
+
     // Check file size limit (100MB for Cloudinary free tier unsigned uploads)
     const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
     if (file.size > MAX_SIZE) {
@@ -182,7 +211,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       return
     }
 
-    // Check 2-video limit
+    // Check 2-video concurrent upload limit
     const activeVideos = videoTasks.filter(
       task => task.status === 'uploading' || task.status === 'compressing'
     )
@@ -298,7 +327,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       })
       showToast(`Failed to upload video: ${error.message}`, 'error')
     }
-  }, [editor, showToast, videoTasks])
+  }, [editor, showToast, videoTasks, countMedia])
 
   const handleTrimComplete = useCallback(async (trimData) => {
     setShowVideoTrimmer(false)
@@ -403,6 +432,20 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       return
     }
 
+    // Check limits before processing
+    const { images: currentImages, videos: currentVideos } = countMedia()
+    const remainingImageSlots = MAX_IMAGES_PER_EVENT - currentImages
+    const remainingVideoSlots = MAX_VIDEOS_PER_EVENT - currentVideos
+
+    if (imageFiles.length > remainingImageSlots) {
+      showToast(`Can only add ${remainingImageSlots} more images (limit: ${MAX_IMAGES_PER_EVENT})`, 'error')
+      return
+    }
+    if (videoFiles.length > remainingVideoSlots) {
+      showToast(`Can only add ${remainingVideoSlots} more videos (limit: ${MAX_VIDEOS_PER_EVENT})`, 'error')
+      return
+    }
+
     // Handle images
     if (imageFiles.length > 0) {
       setIsUploading(true)
@@ -465,7 +508,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         }
       }
     }
-  }, [editor, uploadImage, showToast, handleVideoUpload])
+  }, [editor, uploadImage, showToast, handleVideoUpload, countMedia])
 
   const handleLocationSelect = useCallback((locationData) => {
     if (!editor) return

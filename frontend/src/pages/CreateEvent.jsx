@@ -8,7 +8,6 @@ import apiService from '../services/api'
 import RichTextEditor from '../components/RichTextEditor'
 import LocationSelectionModal from '../components/LocationSelectionModal'
 import LocationAutocomplete from '../components/LocationAutocomplete'
-import GPSExtractionModal from '../components/GPSExtractionModal'
 import UpgradeModal from '../components/UpgradeModal'
 import PrivacySelector from '../components/PrivacySelector'
 import CategorySelector from '../components/CategorySelector'
@@ -44,20 +43,10 @@ function CreateEvent() {
   const [allLocations, setAllLocations] = useState([])
   const [selectedLocations, setSelectedLocations] = useState([])
   const [pendingPublish, setPendingPublish] = useState(true)
-  const [showGPSModal, setShowGPSModal] = useState(false)
-  const [gpsExtractionEnabled, setGPSExtractionEnabled] = useState(false)
   const [gpsLocations, setGpsLocations] = useState([])
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [captionsExpanded, setCaptionsExpanded] = useState(true) // Auto-expand on first publish
   const [imageCaptions, setImageCaptions] = useState({})
-
-  // Check GPS extraction preference on component mount
-  useEffect(() => {
-    const preference = localStorage.getItem('gpsExtractionPreference')
-    if (preference === 'enabled') {
-      setGPSExtractionEnabled(true)
-    }
-  }, [])
 
   const handleGPSExtracted = (gpsData) => {
     setGpsLocations(prev => [...prev, gpsData])
@@ -255,20 +244,7 @@ function CreateEvent() {
   }
 
   const handleMultipleLocationsChange = (e) => {
-    const isChecked = e.target.checked
-    setFormData({ ...formData, has_multiple_locations: isChecked })
-
-    // Show GPS extraction modal if checking the box and modal hasn't been dismissed
-    if (isChecked) {
-      const modalDismissed = localStorage.getItem('gpsExtractionModalDismissed')
-      if (!modalDismissed) {
-        setShowGPSModal(true)
-      }
-    }
-  }
-
-  const handleGPSExtractionResponse = (enabled) => {
-    setGPSExtractionEnabled(enabled)
+    setFormData({ ...formData, has_multiple_locations: e.target.checked })
   }
 
   return (
@@ -336,7 +312,7 @@ function CreateEvent() {
             {formData.has_multiple_locations && (
               <p className={styles.hint}>
                 You can add up to 20 location markers in your content using the location pin button in the editor toolbar.
-                {gpsExtractionEnabled && ' GPS data will be automatically extracted from uploaded photos.'}
+                GPS data will be automatically extracted from uploaded photos.
               </p>
             )}
           </div>
@@ -350,7 +326,7 @@ function CreateEvent() {
               eventStartDate={formData.start_date}
               eventEndDate={formData.end_date}
               onGPSExtracted={handleGPSExtracted}
-              gpsExtractionEnabled={gpsExtractionEnabled && formData.has_multiple_locations}
+              gpsExtractionEnabled={true}
             />
             <span className={styles.hint}>
               Use the toolbar to format text, add headings, and insert images. Your content will be displayed like a blog post.
@@ -520,12 +496,6 @@ function CreateEvent() {
         onClose={() => setShowLocationModal(false)}
         locations={allLocations}
         onConfirm={handleLocationConfirm}
-      />
-
-      <GPSExtractionModal
-        isOpen={showGPSModal}
-        onClose={() => setShowGPSModal(false)}
-        onEnable={handleGPSExtractionResponse}
       />
 
       <UpgradeModal
