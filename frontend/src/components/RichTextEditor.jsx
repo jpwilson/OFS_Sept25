@@ -29,17 +29,6 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const [videoTasks, setVideoTasks] = useState([]) // Track video upload/compression tasks
   const { showToast } = useToast()
 
-  // Count existing media in editor content
-  const countMedia = useCallback(() => {
-    if (!editor) return { images: 0, videos: 0 }
-    const html = editor.getHTML()
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = html
-    const images = tempDiv.querySelectorAll('img').length
-    const videos = tempDiv.querySelectorAll('video').length
-    return { images, videos }
-  }, [editor])
-
   // Notify parent component about video task changes
   useEffect(() => {
     if (onVideoTasksChange) {
@@ -127,6 +116,17 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       }
     }
   })
+
+  // Count existing media in editor content
+  const countMedia = useCallback(() => {
+    if (!editor) return { images: 0, videos: 0 }
+    const html = editor.getHTML()
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const images = tempDiv.querySelectorAll('img').length
+    const videos = tempDiv.querySelectorAll('video').length
+    return { images, videos }
+  }, [editor])
 
   const uploadImage = useCallback(async (file) => {
     if (!file.type.startsWith('image/')) {
