@@ -82,26 +82,13 @@
   background: #333;
 }
 
-/* Green arrow when showing filters (collapsed state) */
-.filterToggleShow {
+/* Colored arrows only */
+.arrowGreen {
   color: #00ff88;
-  border-color: #00ff88;
 }
 
-.filterToggleShow:hover {
-  background: rgba(0, 255, 136, 0.1);
-  border-color: #00ff88;
-}
-
-/* Red arrow when hiding filters (expanded state) */
-.filterToggleHide {
+.arrowRed {
   color: #ff4757;
-  border-color: #ff4757;
-}
-
-.filterToggleHide:hover {
-  background: rgba(255, 71, 87, 0.1);
-  border-color: #ff4757;
 }
 
 .filters {
@@ -139,75 +126,95 @@
 .categorySelector {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 8px;
+  padding: 8px 16px;
   background: #2a2a2a;
   border-radius: 8px;
-  flex-wrap: wrap;
-  width: 100%;
 }
 
-.categoryLabel {
+.categorySelector label {
   font-size: 13px;
   color: #999;
-  font-weight: 500;
 }
 
-.categoryCheckboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  flex: 1;
+.categoryDropdownWrapper {
+  position: relative;
 }
 
-.categoryCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
+.categoryDropdownButton {
   padding: 6px 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 150px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryDropdownButton:hover {
+  border-color: #667eea;
+}
+
+.dropdownArrow {
+  font-size: 10px;
+  color: #999;
+}
+
+.categoryDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
   background: #1a1a1a;
   border: 1px solid #444;
   border-radius: 6px;
-  transition: all 0.2s ease;
+  min-width: 180px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.categoryCheckbox:hover {
-  border-color: #667eea;
-  background: #222;
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #ccc;
+  transition: background 0.2s ease;
 }
 
-.categoryCheckbox input[type="checkbox"] {
+.categoryOption:hover {
+  background: #2a2a2a;
+}
+
+.categoryOption input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #667eea;
   cursor: pointer;
 }
 
-.categoryCheckbox input[type="checkbox"]:checked + .checkboxLabel {
-  color: #667eea;
-  font-weight: 500;
-}
-
-.checkboxLabel {
-  font-size: 13px;
-  color: #ccc;
-  white-space: nowrap;
-}
-
-.clearCategories {
-  padding: 6px 12px;
+.clearCategoriesBtn {
+  width: 100%;
+  padding: 10px 14px;
   background: transparent;
-  border: 1px solid #666;
-  border-radius: 6px;
+  border: none;
+  border-top: 1px solid #333;
   color: #999;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-.clearCategories:hover {
-  border-color: #ff4757;
+.clearCategoriesBtn:hover {
+  background: #2a2a2a;
   color: #ff4757;
 }
 

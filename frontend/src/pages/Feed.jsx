@@ -38,6 +38,7 @@ function Feed() {
     return window.innerWidth > 768
   })
   const [selectedCategories, setSelectedCategories] = useState([]) // empty = all categories
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [cardSize, setCardSize] = useState('small') // large, medium, small
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
@@ -211,10 +212,13 @@ function Feed() {
               </button>
             </div>
             <button
-              className={`${styles.filterToggle} ${filtersExpanded ? styles.filterToggleHide : styles.filterToggleShow}`}
+              className={styles.filterToggle}
               onClick={() => setFiltersExpanded(!filtersExpanded)}
             >
-              {filtersExpanded ? '▲ Hide Filters' : '▼ Show Filters'}
+              <span className={filtersExpanded ? styles.arrowRed : styles.arrowGreen}>
+                {filtersExpanded ? '▲' : '▼'}
+              </span>
+              {filtersExpanded ? ' Hide Filters' : ' Show Filters'}
             </button>
           </div>
         </div>
@@ -288,33 +292,46 @@ function Feed() {
             </div>
 
             <div className={styles.categorySelector}>
-              <span className={styles.categoryLabel}>Categories:</span>
-              <div className={styles.categoryCheckboxes}>
-                {CATEGORIES.map(cat => (
-                  <label key={cat} className={styles.categoryCheckbox}>
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(cat)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedCategories(prev => [...prev, cat])
-                        } else {
-                          setSelectedCategories(prev => prev.filter(c => c !== cat))
-                        }
-                      }}
-                    />
-                    <span className={styles.checkboxLabel}>{cat}</span>
-                  </label>
-                ))}
-              </div>
-              {selectedCategories.length > 0 && (
+              <label htmlFor="category-filter">Category:</label>
+              <div className={styles.categoryDropdownWrapper}>
                 <button
-                  className={styles.clearCategories}
-                  onClick={() => setSelectedCategories([])}
+                  className={styles.categoryDropdownButton}
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 >
-                  Clear
+                  {selectedCategories.length === 0
+                    ? 'All Categories'
+                    : `${selectedCategories.length} selected`}
+                  <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
                 </button>
-              )}
+                {categoryDropdownOpen && (
+                  <div className={styles.categoryDropdownMenu}>
+                    {CATEGORIES.map(cat => (
+                      <label key={cat} className={styles.categoryOption}>
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategories(prev => [...prev, cat])
+                            } else {
+                              setSelectedCategories(prev => prev.filter(c => c !== cat))
+                            }
+                          }}
+                        />
+                        <span>{cat}</span>
+                      </label>
+                    ))}
+                    {selectedCategories.length > 0 && (
+                      <button
+                        className={styles.clearCategoriesBtn}
+                        onClick={() => setSelectedCategories([])}
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <button
