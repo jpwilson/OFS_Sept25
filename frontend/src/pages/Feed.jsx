@@ -28,17 +28,16 @@ function Feed() {
   const [filteredEvents, setFilteredEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all') // all, following, self
-  const [selectedCategory, setSelectedCategory] = useState('') // empty = all categories
   const [selectedDateRange, setSelectedDateRange] = useState({
     start: '',
     end: ''
   })
   const [following, setFollowing] = useState([])
   const [filtersExpanded, setFiltersExpanded] = useState(() => {
-    // Load user preference from localStorage, default to true (open)
-    const saved = localStorage.getItem('feedFiltersExpanded')
-    return saved !== null ? saved === 'true' : true
+    // Default: open on desktop (>768px), closed on mobile
+    return window.innerWidth > 768
   })
+  const [selectedCategories, setSelectedCategories] = useState([]) // empty = all categories
   const [cardSize, setCardSize] = useState('small') // large, medium, small
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
@@ -84,7 +83,7 @@ function Feed() {
 
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedCategory, selectedDateRange, events])
+  }, [filter, selectedCategories, selectedDateRange, events])
 
   async function loadEvents() {
     const data = await apiService.getEvents()
@@ -103,9 +102,9 @@ function Feed() {
       filtered = filtered.filter(event => following.includes(event.author_username))
     }
 
-    // Apply category filter
-    if (selectedCategory) {
-      filtered = filtered.filter(event => event.category === selectedCategory)
+    // Apply category filter (multi-select)
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(event => selectedCategories.includes(event.category))
     }
 
     // Apply date filter
@@ -211,23 +210,8 @@ function Feed() {
                 ⊞
               </button>
             </div>
-            <div className={styles.toggleContainer}>
-              <span className={styles.toggleLabel}>Keep filters open</span>
-              <label className={styles.toggleSwitch}>
-                <input
-                  type="checkbox"
-                  checked={filtersExpanded}
-                  onChange={(e) => {
-                    const newValue = e.target.checked
-                    setFiltersExpanded(newValue)
-                    localStorage.setItem('feedFiltersExpanded', newValue.toString())
-                  }}
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
-            </div>
             <button
-              className={styles.filterToggle}
+              className={`${styles.filterToggle} ${filtersExpanded ? styles.filterToggleHide : styles.filterToggleShow}`}
               onClick={() => setFiltersExpanded(!filtersExpanded)}
             >
               {filtersExpanded ? '▲ Hide Filters' : '▼ Show Filters'}
@@ -304,18 +288,33 @@ function Feed() {
             </div>
 
             <div className={styles.categorySelector}>
-              <label htmlFor="category-filter">Category:</label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className={styles.categoryDropdown}
-              >
-                <option value="">All Categories</option>
+              <span className={styles.categoryLabel}>Categories:</span>
+              <div className={styles.categoryCheckboxes}>
                 {CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <label key={cat} className={styles.categoryCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(cat)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedCategories(prev => [...prev, cat])
+                        } else {
+                          setSelectedCategories(prev => prev.filter(c => c !== cat))
+                        }
+                      }}
+                    />
+                    <span className={styles.checkboxLabel}>{cat}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {selectedCategories.length > 0 && (
+                <button
+                  className={styles.clearCategories}
+                  onClick={() => setSelectedCategories([])}
+                >
+                  Clear
+                </button>
+              )}
             </div>
 
             <button

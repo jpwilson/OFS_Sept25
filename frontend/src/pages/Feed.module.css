@@ -75,11 +75,33 @@
   cursor: pointer;
   font-size: 13px;
   transition: all 0.2s ease;
+  font-weight: 600;
 }
 
 .filterToggle:hover {
   background: #333;
-  border-color: #667eea;
+}
+
+/* Green arrow when showing filters (collapsed state) */
+.filterToggleShow {
+  color: #00ff88;
+  border-color: #00ff88;
+}
+
+.filterToggleShow:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+}
+
+/* Red arrow when hiding filters (expanded state) */
+.filterToggleHide {
+  color: #ff4757;
+  border-color: #ff4757;
+}
+
+.filterToggleHide:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: #ff4757;
 }
 
 .filters {
@@ -117,31 +139,76 @@
 .categorySelector {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 12px;
+  padding: 12px 16px;
   background: #2a2a2a;
   border-radius: 8px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
-.categorySelector label {
+.categoryLabel {
   font-size: 13px;
   color: #999;
+  font-weight: 500;
 }
 
-.categoryDropdown {
-  padding: 6px 10px;
+.categoryCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.categoryCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  background: #1a1a1a;
   border: 1px solid #444;
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-  min-width: 150px;
+  transition: all 0.2s ease;
 }
 
-.categoryDropdown:focus {
-  outline: none;
+.categoryCheckbox:hover {
   border-color: #667eea;
+  background: #222;
+}
+
+.categoryCheckbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.categoryCheckbox input[type="checkbox"]:checked + .checkboxLabel {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.checkboxLabel {
+  font-size: 13px;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.clearCategories {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #666;
+  border-radius: 6px;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearCategories:hover {
+  border-color: #ff4757;
+  color: #ff4757;
 }
 
 .filterButton {
@@ -167,66 +234,6 @@
   color: #fff;
 }
 
-.toggleContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
-  padding: 8px 14px;
-  background: #2a2a2a;
-  border-radius: 8px;
-}
-
-.toggleLabel {
-  font-size: 13px;
-  color: #ccc;
-  font-weight: 500;
-}
-
-.toggleSwitch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-  cursor: pointer;
-}
-
-.toggleSwitch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggleSlider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #444;
-  border-radius: 24px;
-  transition: 0.3s;
-}
-
-.toggleSlider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-.toggleSwitch input:checked + .toggleSlider {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.toggleSwitch input:checked + .toggleSlider:before {
-  transform: translateX(20px);
-}
 
 /* User Search Section */
 .userSearchSection {
