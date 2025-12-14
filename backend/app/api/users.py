@@ -105,6 +105,8 @@ def get_user_profile(
     db: Session = Depends(get_db)
 ):
     """Get a user's profile by username"""
+    from ..utils.privacy import is_user_subscription_active
+
     user = db.query(User).filter(User.username == username).first()
 
     if not user:
@@ -128,6 +130,9 @@ def get_user_profile(
         Follow.status == "accepted"
     ).count()
 
+    # Check if user's subscription is active (for showing "inactive member" message)
+    is_active_member = is_user_subscription_active(user)
+
     return {
         "id": user.id,
         "username": user.username,
@@ -138,7 +143,8 @@ def get_user_profile(
         "event_count": event_count,
         "follower_count": follower_count,
         "following_count": following_count,
-        "created_at": user.created_at
+        "created_at": user.created_at,
+        "is_active_member": is_active_member
     }
 
 @router.post("/{username}/follow")
@@ -149,6 +155,14 @@ def follow_user(
     db: Session = Depends(get_db)
 ):
     """Follow a user"""
+    # Check if user has an active subscription (trial or paid)
+    # Expired users cannot follow new people
+    if not current_user.can_access_content():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your subscription has expired. Please subscribe to follow new people."
+        )
+
     # Get the user to follow
     user_to_follow = db.query(User).filter(User.username == username).first()
 

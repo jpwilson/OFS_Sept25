@@ -347,6 +347,14 @@ function Profile() {
               {profile.following_count || 0} following
             </button>
           </div>
+
+          {/* Inactive member message - show when viewing someone else's profile */}
+          {!isOwnProfile && profile.is_active_member === false && (
+            <div className={styles.inactiveMemberBanner}>
+              <span className={styles.inactiveIcon}>ℹ️</span>
+              <span>This member's subscription is currently inactive. Their events are not visible at this time.</span>
+            </div>
+          )}
         </div>
         <div className={styles.actions}>
           {isOwnProfile ? (

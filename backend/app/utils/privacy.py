@@ -21,17 +21,18 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     - custom_group: Only members of the specified custom group can view
     - private: Only the author can view
 
-    IMPORTANT: If the event author's subscription has expired, NO ONE can view
-    the event, not even the author. This incentivizes continued payment.
+    Subscription rules:
+    - Authors can ALWAYS see their own events (even if expired - reminds them what they have)
+    - If author's subscription expired, others cannot see their events
     """
-    # First check: Is the event author's subscription active?
-    # If not, the event is invisible to everyone including the author
-    if not is_user_subscription_active(event.author):
-        return False
-
-    # Author can always view their own events (if their subscription is active)
+    # Author can ALWAYS view their own events (even with expired subscription)
+    # This reminds them of what they have and motivates resubscription
     if viewer and event.author_id == viewer.id:
         return True
+
+    # For others viewing: check if author's subscription is active
+    if not is_user_subscription_active(event.author):
+        return False
 
     # Public events are visible to everyone
     if event.privacy_level == "public":
@@ -114,16 +115,20 @@ def filter_events_by_privacy(
 
     Returns a modified query with privacy filters applied
 
-    IMPORTANT: Events from expired users (no active subscription) are hidden from everyone,
-    including the author themselves. This incentivizes continued payment.
+    Subscription rules:
+    - Users can ALWAYS see their own events (even if their subscription expired)
+    - Events from OTHER expired users are hidden
     """
     from sqlalchemy.orm import joinedload
     from datetime import datetime
 
     # Filter out events from expired users (authors without active subscription)
+    # EXCEPT: Always allow viewer to see their own events
     # We need to join with the User table to check subscription status
     query = query.join(Event.author).filter(
         or_(
+            # Always show viewer's own events (regardless of subscription)
+            Event.author_id == viewer.id if viewer else False,
             # Author has premium/family tier with active or canceled status
             (User.subscription_tier.in_(['premium', 'family'])) &
             (User.subscription_status.in_(['active', 'canceled'])),

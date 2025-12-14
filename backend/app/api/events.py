@@ -188,7 +188,15 @@ def create_event(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Check event limit for free users
+    # Check if user has an active subscription (trial or paid)
+    # Expired users cannot create new events
+    if not current_user.can_access_content():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your subscription has expired. Please subscribe to create new events."
+        )
+
+    # Check event limit for free users (those still on trial)
     if current_user.subscription_tier == 'free':
         published_events_count = db.query(Event).filter(
             Event.author_id == current_user.id,
