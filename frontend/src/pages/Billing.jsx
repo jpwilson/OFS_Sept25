@@ -13,6 +13,7 @@ const API_BASE = `${API_URL}/api/v1`
 export default function Billing() {
   const {
     user,
+    loading: authLoading,
     isTrialActive,
     trialDaysRemaining,
     isWithinFirst5Days,
@@ -26,7 +27,6 @@ export default function Billing() {
   const [billingPeriod, setBillingPeriod] = useState('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [couponCode, setCouponCode] = useState('')
 
   const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -41,6 +41,17 @@ export default function Billing() {
       'Content-Type': 'application/json',
       ...(legacyToken && { 'Authorization': `Bearer ${legacyToken}` })
     }
+  }
+
+  // Show loading while auth is being determined
+  if (authLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <h1 className={styles.title}>Loading...</h1>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {
@@ -72,8 +83,7 @@ export default function Billing() {
         body: JSON.stringify({
           price_id: selectedPrice,
           success_url: `${currentUrl}/billing?success=true`,
-          cancel_url: `${currentUrl}/billing?canceled=true`,
-          ...(couponCode.trim() && { coupon_code: couponCode.trim() })
+          cancel_url: `${currentUrl}/billing?canceled=true`
         })
       })
 
@@ -317,17 +327,6 @@ export default function Billing() {
                 <li>GPS extraction from photos</li>
                 <li>Privacy controls</li>
               </ul>
-
-              {/* Coupon Code Input */}
-              <div className={styles.couponSection}>
-                <input
-                  type="text"
-                  placeholder="Coupon code (optional)"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  className={styles.couponInput}
-                />
-              </div>
 
               <button
                 className={styles.subscribeButton}
