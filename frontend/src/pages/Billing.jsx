@@ -26,6 +26,7 @@ export default function Billing() {
   const [billingPeriod, setBillingPeriod] = useState('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [couponCode, setCouponCode] = useState('')
 
   const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -71,7 +72,8 @@ export default function Billing() {
         body: JSON.stringify({
           price_id: selectedPrice,
           success_url: `${currentUrl}/billing?success=true`,
-          cancel_url: `${currentUrl}/billing?canceled=true`
+          cancel_url: `${currentUrl}/billing?canceled=true`,
+          ...(couponCode.trim() && { coupon_code: couponCode.trim() })
         })
       })
 
@@ -315,6 +317,17 @@ export default function Billing() {
                 <li>GPS extraction from photos</li>
                 <li>Privacy controls</li>
               </ul>
+
+              {/* Coupon Code Input */}
+              <div className={styles.couponSection}>
+                <input
+                  type="text"
+                  placeholder="Coupon code (optional)"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className={styles.couponInput}
+                />
+              </div>
 
               <button
                 className={styles.subscribeButton}

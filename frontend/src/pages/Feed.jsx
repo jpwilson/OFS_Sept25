@@ -21,7 +21,7 @@ const CATEGORIES = [
 ]
 
 function Feed() {
-  const { user } = useAuth()
+  const { user, canAccessContent, isTrialExpired } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
@@ -43,6 +43,7 @@ function Feed() {
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
 
   useEffect(() => {
     loadEvents()
@@ -157,6 +158,26 @@ function Feed() {
     }
   }
 
+  // Handle card click - check subscription access for expired users
+  const handleEventClick = (event) => {
+    // If user has full access, navigate normally
+    if (!user || canAccessContent) {
+      navigate(`/event/${event.id}`)
+      return
+    }
+
+    // Expired user - check if they follow this author or if event is public
+    const isFollowingAuthor = following.includes(event.author_username)
+    const isPublicEvent = event.privacy_level === 'public'
+
+    if (isFollowingAuthor || isPublicEvent) {
+      navigate(`/event/${event.id}`)
+    } else {
+      // Show upgrade prompt
+      setShowUpgradePrompt(true)
+    }
+  }
+
   function formatDateRange(start, end) {
     const startDate = new Date(start)
     const endDate = new Date(end)
@@ -184,6 +205,43 @@ function Feed() {
   return (
     <div className={styles.container}>
       {user && <InvitedViewerBanner />}
+
+      {/* Expired trial banner */}
+      {user && isTrialExpired && !canAccessContent && (
+        <div className={styles.expiredBanner}>
+          <div className={styles.expiredBannerContent}>
+            <span className={styles.expiredBannerIcon}>🔒</span>
+            <div>
+              <strong>Your free trial has ended</strong>
+              <p>You can view events from people you follow. Subscribe to see all events.</p>
+            </div>
+            <Link to="/billing" className={styles.expiredBannerButton}>
+              Upgrade
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Upgrade prompt modal */}
+      {showUpgradePrompt && (
+        <div className={styles.upgradeModal} onClick={() => setShowUpgradePrompt(false)}>
+          <div className={styles.upgradeModalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.upgradeModalClose} onClick={() => setShowUpgradePrompt(false)}>×</button>
+            <div className={styles.upgradeModalIcon}>🔒</div>
+            <h3>Premium Content</h3>
+            <p>This event is from someone you don't follow. Follow them to see their events, or upgrade to Premium for full access.</p>
+            <div className={styles.upgradeModalActions}>
+              <Link to="/billing" className={styles.upgradeModalButton}>
+                View Plans
+              </Link>
+              <button className={styles.upgradeModalSecondary} onClick={() => setShowUpgradePrompt(false)}>
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1 className={styles.pageTitle}>Event Feed</h1>
@@ -367,7 +425,7 @@ function Feed() {
           <div
             key={event.id}
             className={styles.eventCard}
-            onClick={() => navigate(`/event/${event.id}`)}
+            onClick={() => handleEventClick(event)}
           >
             <div
               className={styles.eventImage}

@@ -123,3 +123,28 @@ class User(Base):
             return True
 
         return False
+
+    def can_view_event(self, event, db) -> bool:
+        """Check if user can view a specific event's detail page.
+
+        Expired trial users can only view:
+        1. Public events (privacy_level == 'public')
+        2. Events from people they follow
+        """
+        # Full access users can view anything
+        if self.can_access_content():
+            return True
+
+        # Public events are viewable by everyone
+        if event.privacy_level == 'public':
+            return True
+
+        # Expired users can view events from people they follow
+        from .follow import Follow
+        is_following = db.query(Follow).filter(
+            Follow.follower_id == self.id,
+            Follow.following_id == event.author_id,
+            Follow.status == 'accepted'
+        ).first() is not None
+
+        return is_following

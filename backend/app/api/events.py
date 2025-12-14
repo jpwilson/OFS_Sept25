@@ -442,6 +442,19 @@ def get_event(
             }
         )
 
+    # Check subscription access for expired users
+    # Expired users can only view public events or events from people they follow
+    if current_user and not current_user.can_view_event(event, db):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "message": "Upgrade to Premium to view this event, or follow this user to see their content.",
+                "subscription_required": True,
+                "author_username": event.author.username,
+                "author_full_name": event.author.full_name
+            }
+        )
+
     event.view_count += 1
     db.commit()
     db.refresh(event)

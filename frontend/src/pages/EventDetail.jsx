@@ -698,6 +698,35 @@ function EventDetail() {
   }
 
   if (privacyError) {
+    // Check if this is a subscription access error
+    if (privacyError.subscription_required) {
+      return (
+        <div className={styles.privacyBlock}>
+          <div className={styles.privacyIcon}>🔒</div>
+          <h2>Premium Content</h2>
+          <p className={styles.privacyDescription}>
+            {privacyError.message}
+          </p>
+
+          <div className={styles.privacyActions}>
+            <p className={styles.privacyExplainer}>
+              Your free trial has ended. Subscribe to Premium for unlimited access to all events,
+              or follow <strong>@{privacyError.author_username}</strong> to see their content.
+            </p>
+            <Link to="/billing" className={styles.primaryButton}>
+              View Plans
+            </Link>
+            <Link to={`/profile/${privacyError.author_username}`} className={styles.secondaryButton}>
+              Visit @{privacyError.author_username}'s Profile
+            </Link>
+            <Link to="/feed" className={styles.tertiaryButton}>
+              Back to Feed
+            </Link>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className={styles.privacyBlock}>
         <div className={styles.privacyIcon}>👋</div>

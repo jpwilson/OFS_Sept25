@@ -20,6 +20,7 @@ class CheckoutRequest(BaseModel):
     price_id: str  # 'monthly', 'annual', or 'lifetime'
     success_url: str
     cancel_url: str
+    coupon_code: Optional[str] = None  # Optional coupon/promo code
 
 
 class CheckoutResponse(BaseModel):
@@ -114,6 +115,10 @@ def create_checkout_session(
         if current_user.is_within_first_5_days():
             # Give extra 30 days (60 total) for early subscribers
             checkout_params['subscription_data']['trial_period_days'] = 60
+
+    # Add coupon/promo code if provided
+    if request.coupon_code:
+        checkout_params['discounts'] = [{'coupon': request.coupon_code}]
 
     try:
         checkout_session = stripe.checkout.Session.create(**checkout_params)
