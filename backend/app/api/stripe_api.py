@@ -317,6 +317,8 @@ async def handle_subscription_updated(subscription, db: Session):
 
 async def handle_subscription_deleted(subscription, db: Session):
     """Handle subscription cancellation/deletion"""
+    from ..models.follow import Follow
+    from ..services.email_service import send_subscription_expired_to_follower_email
 
     customer_id = subscription.get('customer')
 
@@ -331,6 +333,33 @@ async def handle_subscription_deleted(subscription, db: Session):
 
     db.commit()
     print(f"Subscription deleted for user {user.id}")
+
+    # Notify all followers that this user's subscription has expired
+    # Their events are now hidden
+    try:
+        followers = db.query(Follow).filter(
+            Follow.following_id == user.id,
+            Follow.status == "accepted"
+        ).all()
+
+        expired_user_name = user.display_name or user.full_name or user.username
+
+        for follow in followers:
+            follower = follow.follower
+            if follower.email:
+                follower_name = follower.display_name or follower.username
+                try:
+                    send_subscription_expired_to_follower_email(
+                        to_email=follower.email,
+                        follower_name=follower_name,
+                        expired_user_name=expired_user_name,
+                        expired_user_username=user.username
+                    )
+                    print(f"Notified {follower.email} about {user.username}'s subscription expiry")
+                except Exception as e:
+                    print(f"Failed to notify {follower.email}: {e}")
+    except Exception as e:
+        print(f"Error notifying followers of subscription expiry: {e}")
 
 
 async def handle_payment_succeeded(invoice, db: Session):

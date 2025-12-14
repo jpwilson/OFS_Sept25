@@ -15,8 +15,8 @@ export default function WelcomeModal() {
     const welcomeKey = `welcome_shown_${user.id}`
     const shownCount = parseInt(localStorage.getItem(welcomeKey) || '0', 10)
 
-    // Show only first 3 times
-    if (shownCount < 3) {
+    // Show first 4 times
+    if (shownCount < 4) {
       setIsVisible(true)
       localStorage.setItem(welcomeKey, String(shownCount + 1))
     }

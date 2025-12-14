@@ -20,8 +20,16 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     - close_family: Only followers marked as close family can view
     - custom_group: Only members of the specified custom group can view
     - private: Only the author can view
+
+    IMPORTANT: If the event author's subscription has expired, NO ONE can view
+    the event, not even the author. This incentivizes continued payment.
     """
-    # Author can always view their own events
+    # First check: Is the event author's subscription active?
+    # If not, the event is invisible to everyone including the author
+    if not is_user_subscription_active(event.author):
+        return False
+
+    # Author can always view their own events (if their subscription is active)
     if viewer and event.author_id == viewer.id:
         return True
 
@@ -71,6 +79,31 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     return False
 
 
+def is_user_subscription_active(user: User) -> bool:
+    """
+    Check if a user has an active subscription (trial or paid).
+    Returns True if user can have visible events.
+    """
+    if not user:
+        return False
+
+    # Paid subscribers are always active
+    if user.subscription_tier in ['premium', 'family']:
+        if user.subscription_status in ['active', 'canceled']:
+            # 'canceled' still has access until period ends
+            return True
+
+    # Trial users need to check if trial is still valid
+    if user.subscription_status == 'trial':
+        if user.trial_end_date:
+            from datetime import datetime
+            return datetime.utcnow() < user.trial_end_date
+        # Legacy users without trial_end_date are considered active
+        return True
+
+    return False
+
+
 def filter_events_by_privacy(
     query,
     viewer: Optional[User],
@@ -80,7 +113,29 @@ def filter_events_by_privacy(
     Filter a SQLAlchemy query to only include events the viewer can see
 
     Returns a modified query with privacy filters applied
+
+    IMPORTANT: Events from expired users (no active subscription) are hidden from everyone,
+    including the author themselves. This incentivizes continued payment.
     """
+    from sqlalchemy.orm import joinedload
+    from datetime import datetime
+
+    # Filter out events from expired users (authors without active subscription)
+    # We need to join with the User table to check subscription status
+    query = query.join(Event.author).filter(
+        or_(
+            # Author has premium/family tier with active or canceled status
+            (User.subscription_tier.in_(['premium', 'family'])) &
+            (User.subscription_status.in_(['active', 'canceled'])),
+            # Author is on trial and trial hasn't expired
+            (User.subscription_status == 'trial') &
+            (
+                (User.trial_end_date == None) |  # Legacy users
+                (User.trial_end_date > datetime.utcnow())  # Active trial
+            )
+        )
+    )
+
     # If no viewer, only show public events
     if not viewer:
         return query.filter(Event.privacy_level == "public")
@@ -133,10 +188,25 @@ def filter_events_by_privacy(
     return query.filter(or_(*conditions))
 
 
+def is_event_hidden_due_to_expired_subscription(event: Event) -> bool:
+    """
+    Check if an event is hidden because the author's subscription has expired.
+    """
+    return not is_user_subscription_active(event.author)
+
+
 def get_event_privacy_display(event: Event, db: Session) -> dict:
     """
     Get human-readable privacy information for display
     """
+    # Check if event is hidden due to expired subscription
+    if is_event_hidden_due_to_expired_subscription(event):
+        return {
+            "level": "subscription_expired",
+            "display": "Unavailable",
+            "description": "This event is currently unavailable. The creator's subscription has expired."
+        }
+
     if event.privacy_level == "public":
         return {
             "level": "public",

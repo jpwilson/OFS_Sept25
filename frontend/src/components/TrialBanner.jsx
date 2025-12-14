@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import styles from './TrialBanner.module.css'
@@ -12,13 +13,50 @@ export default function TrialBanner() {
     isTrialExpired
   } = useAuth()
   const navigate = useNavigate()
+  const [isDismissed, setIsDismissed] = useState(false)
+
+  // Check if banner was dismissed within last 24 hours
+  useEffect(() => {
+    if (!user) return
+
+    const dismissKey = `trial_banner_dismissed_${user.id}`
+    const dismissedAt = localStorage.getItem(dismissKey)
+
+    if (dismissedAt) {
+      const dismissedTime = parseInt(dismissedAt, 10)
+      const now = Date.now()
+      const twentyFourHours = 24 * 60 * 60 * 1000
+
+      // If dismissed less than 24 hours ago, keep it dismissed
+      if (now - dismissedTime < twentyFourHours) {
+        setIsDismissed(true)
+      } else {
+        // More than 24 hours ago, clear the dismissal
+        localStorage.removeItem(dismissKey)
+        setIsDismissed(false)
+      }
+    }
+  }, [user])
+
+  const handleDismiss = () => {
+    if (!user) return
+
+    const dismissKey = `trial_banner_dismissed_${user.id}`
+    localStorage.setItem(dismissKey, Date.now().toString())
+    setIsDismissed(true)
+  }
 
   // Don't show for anonymous users, paid subscribers, or if no user
   if (!user || isPaidSubscriber) {
     return null
   }
 
-  // Show expired trial banner
+  // Don't show if dismissed within 24 hours (for trial banners)
+  if (isDismissed && !isTrialExpired) {
+    return null
+  }
+
+  // Show expired trial banner (always show, not dismissible - they need to pay!)
   if (isTrialExpired) {
     return (
       <div className={`${styles.banner} ${styles.expired}`}>
@@ -54,6 +92,13 @@ export default function TrialBanner() {
               Claim Bonus
             </button>
           </div>
+          <button
+            className={styles.dismissButton}
+            onClick={handleDismiss}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
         </div>
       )
     }
@@ -72,6 +117,13 @@ export default function TrialBanner() {
             Subscribe
           </button>
         </div>
+        <button
+          className={styles.dismissButton}
+          onClick={handleDismiss}
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
       </div>
     )
   }
