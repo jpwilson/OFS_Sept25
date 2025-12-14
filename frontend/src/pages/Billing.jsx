@@ -28,6 +28,54 @@ export default function Billing() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Check for success/cancel query params - must be before any conditional returns
+  const urlParams = new URLSearchParams(window.location.search)
+  const isSuccess = urlParams.get('success') === 'true'
+  const isCanceled = urlParams.get('canceled') === 'true'
+
+  // Celebration confetti on successful subscription - must be before any conditional returns
+  useEffect(() => {
+    if (isSuccess && user) {
+      // Fire confetti from both sides
+      const duration = 3000
+      const end = Date.now() + duration
+
+      const frame = () => {
+        // Left side
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+        // Right side
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame)
+        }
+      }
+      frame()
+
+      // Big burst in the center
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { x: 0.5, y: 0.5 },
+          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
+        })
+      }, 500)
+    }
+  }, [isSuccess, user])
+
   const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (session?.access_token) {
@@ -41,30 +89,6 @@ export default function Billing() {
       'Content-Type': 'application/json',
       ...(legacyToken && { 'Authorization': `Bearer ${legacyToken}` })
     }
-  }
-
-  // Show loading while auth is being determined
-  if (authLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <h1 className={styles.title}>Loading...</h1>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <h1>Please sign in to manage your subscription</h1>
-          <button onClick={() => navigate('/login')} className={styles.primaryButton}>
-            Sign In
-          </button>
-        </div>
-      </div>
-    )
   }
 
   const handleSubscribe = async (priceType = null) => {
@@ -132,53 +156,29 @@ export default function Billing() {
     }
   }
 
-  // Check for success/cancel query params
-  const urlParams = new URLSearchParams(window.location.search)
-  const isSuccess = urlParams.get('success') === 'true'
-  const isCanceled = urlParams.get('canceled') === 'true'
+  // Show loading while auth is being determined
+  if (authLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <h1 className={styles.title}>Loading...</h1>
+        </div>
+      </div>
+    )
+  }
 
-  // Celebration confetti on successful subscription
-  useEffect(() => {
-    if (isSuccess) {
-      // Fire confetti from both sides
-      const duration = 3000
-      const end = Date.now() + duration
-
-      const frame = () => {
-        // Left side
-        confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.6 },
-          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
-        })
-        // Right side
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.6 },
-          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
-        })
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame)
-        }
-      }
-      frame()
-
-      // Big burst in the center
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { x: 0.5, y: 0.5 },
-          colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4fd1c5']
-        })
-      }, 500)
-    }
-  }, [isSuccess])
+  if (!user) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <h1>Please sign in to manage your subscription</h1>
+          <button onClick={() => navigate('/login')} className={styles.primaryButton}>
+            Sign In
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.container}>
@@ -300,7 +300,7 @@ export default function Billing() {
                 onClick={() => setBillingPeriod('annual')}
               >
                 Annual
-                <span className={styles.saveBadge}>Save $18</span>
+                <span className={styles.saveBadge}>Save $36</span>
               </button>
             </div>
 
@@ -311,13 +311,13 @@ export default function Billing() {
               </div>
               <div className={styles.priceAmount}>
                 <span className={styles.currency}>$</span>
-                <span className={styles.price}>{billingPeriod === 'annual' ? '90' : '9'}</span>
+                <span className={styles.price}>{billingPeriod === 'annual' ? '108' : '12'}</span>
                 <span className={styles.period}>/{billingPeriod === 'annual' ? 'year' : 'month'}</span>
               </div>
               {billingPeriod === 'annual' && (
-                <p className={styles.monthlyBreakdown}>That's only $7.50/month</p>
+                <p className={styles.monthlyBreakdown}>That's only $9/month</p>
               )}
-              
+
               <ul className={styles.features}>
                 <li>Unlimited family events</li>
                 <li>Photo and video uploads</li>
@@ -369,7 +369,7 @@ export default function Billing() {
         {/* FAQ Section */}
         <div className={styles.faqSection}>
           <h2>Frequently Asked Questions</h2>
-          
+
           <div className={styles.faqItem}>
             <h3>What happens when my trial ends?</h3>
             <p>You can still browse the feed, map, and timeline, but you won't be able to view event details or create new events until you subscribe.</p>
