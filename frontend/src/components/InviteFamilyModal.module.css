@@ -112,6 +112,13 @@
   line-height: 1.5;
 }
 
+.loadingLink {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-secondary, #888);
+  font-style: italic;
+}
+
 .messagePreview {
   background: var(--bg-primary, #0a0a0a);
   border-radius: 8px;

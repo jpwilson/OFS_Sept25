@@ -315,21 +315,44 @@ def create_supabase_profile(
         )
 
 
+class InviterInfo(BaseModel):
+    username: str
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
+    event_count: int = 0
+    follower_count: int = 0
+
+
+class EventPreview(BaseModel):
+    id: int
+    title: str
+    cover_image_url: Optional[str] = None
+    start_date: str
+    category: Optional[str] = None
+
+
 class InviteValidationResponse(BaseModel):
     valid: bool
-    inviter_name: Optional[str] = None
-    inviter_username: Optional[str] = None
+    inviter: Optional[InviterInfo] = None
+    recent_events: List[EventPreview] = []
     invited_email: Optional[str] = None
     invited_name: Optional[str] = None
     message: Optional[str] = None
+    # Legacy fields for backwards compatibility
+    inviter_name: Optional[str] = None
+    inviter_username: Optional[str] = None
 
 
 @router.get("/validate-invite/{token}", response_model=InviteValidationResponse)
 def validate_invite_token(token: str, db: Session = Depends(get_db)):
     """
     Validate an invitation token.
-    Returns inviter info if valid, used for pre-filling signup form.
+    Returns rich inviter info including avatar, bio, and recent events for the landing page.
     """
+    from ..models.event import Event
+    from ..models.follow import Follow
+
     invitation = db.query(InvitedViewer).filter(
         InvitedViewer.invite_token == token
     ).first()
@@ -340,21 +363,70 @@ def validate_invite_token(token: str, db: Session = Depends(get_db)):
             message="Invalid or expired invitation"
         )
 
-    if invitation.status == 'signed_up':
+    # For link-based invites, allow reuse (status stays 'pending')
+    # For email-based invites, check if already used
+    if invitation.status == 'signed_up' and invitation.invited_email is not None:
         return InviteValidationResponse(
             valid=False,
             message="This invitation has already been used"
         )
 
-    # Get inviter details
+    # Get inviter details with full profile info
     inviter = db.query(User).filter(User.id == invitation.inviter_id).first()
-    inviter_name = inviter.display_name or inviter.username if inviter else "Someone"
-    inviter_username = inviter.username if inviter else None
+
+    if not inviter:
+        return InviteValidationResponse(
+            valid=False,
+            message="Inviter no longer exists"
+        )
+
+    # Get inviter's event count (published, non-deleted)
+    event_count = db.query(Event).filter(
+        Event.author_id == inviter.id,
+        Event.is_published == True,
+        Event.is_deleted == False
+    ).count()
+
+    # Get inviter's follower count (accepted follows)
+    follower_count = db.query(Follow).filter(
+        Follow.following_id == inviter.id,
+        Follow.status == "accepted"
+    ).count()
+
+    # Get inviter's recent events (up to 3, most recent first)
+    recent_events_query = db.query(Event).filter(
+        Event.author_id == inviter.id,
+        Event.is_published == True,
+        Event.is_deleted == False
+    ).order_by(Event.start_date.desc()).limit(3).all()
+
+    recent_events = [
+        EventPreview(
+            id=event.id,
+            title=event.title,
+            cover_image_url=event.cover_image_url,
+            start_date=event.start_date.isoformat() if event.start_date else "",
+            category=event.category
+        )
+        for event in recent_events_query
+    ]
+
+    inviter_info = InviterInfo(
+        username=inviter.username,
+        display_name=inviter.display_name or inviter.full_name,
+        avatar_url=inviter.avatar_url,
+        bio=inviter.bio,
+        event_count=event_count,
+        follower_count=follower_count
+    )
 
     return InviteValidationResponse(
         valid=True,
-        inviter_name=inviter_name,
-        inviter_username=inviter_username,
+        inviter=inviter_info,
+        recent_events=recent_events,
         invited_email=invitation.invited_email,
-        invited_name=invitation.invited_name
+        invited_name=invitation.invited_name,
+        # Legacy fields for backwards compatibility
+        inviter_name=inviter.display_name or inviter.username,
+        inviter_username=inviter.username
     )

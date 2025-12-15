@@ -20,6 +20,7 @@ import Contact from './pages/Contact'
 import AuthCallback from './pages/AuthCallback'
 import Groups from './pages/Groups'
 import SharedEvent from './pages/SharedEvent'
+import InviteLanding from './pages/InviteLanding'
 import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
 import InvitedSignup from './pages/InvitedSignup'
@@ -46,6 +47,7 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/share/:token" element={<SharedEvent />} />
+            <Route path="/join/:token" element={<InviteLanding />} />
             <Route element={<Layout />}>
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/billing" element={<Billing />} />

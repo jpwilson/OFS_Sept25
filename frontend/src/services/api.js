@@ -1207,6 +1207,23 @@ class ApiService {
   // INVITED VIEWERS
   // ========================================
 
+  async createInviteLink() {
+    try {
+      const response = await fetch(`${API_BASE}/invitations/link`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw error
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating invite link:', error)
+      throw error
+    }
+  }
+
   async createInvitation(email, name = null, personalMessage = null) {
     try {
       const response = await fetch(`${API_BASE}/invitations`, {

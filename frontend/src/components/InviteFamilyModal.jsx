@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from './Toast'
 import apiService from '../services/api'
@@ -12,29 +12,59 @@ export default function InviteFamilyModal({ isOpen, onClose }) {
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [inviteUrl, setInviteUrl] = useState('')
+  const [loadingLink, setLoadingLink] = useState(false)
+
+  // Get or create invite link when modal opens
+  useEffect(() => {
+    if (isOpen && !inviteUrl) {
+      getInviteLink()
+    }
+  }, [isOpen])
+
+  async function getInviteLink() {
+    setLoadingLink(true)
+    try {
+      const response = await apiService.createInviteLink()
+      setInviteUrl(response.invite_url)
+    } catch (error) {
+      console.error('Failed to get invite link:', error)
+      // Fallback to old profile URL if endpoint fails
+      setInviteUrl(`https://www.ourfamilysocials.com/profile/${user?.username}`)
+    } finally {
+      setLoadingLink(false)
+    }
+  }
 
   if (!isOpen) return null
 
   const displayName = user?.display_name || user?.full_name || user?.username
-  const profileUrl = `https://www.ourfamilysocials.com/profile/${user?.username}`
 
   const inviteMessage = `Hi! I'd love for you to join me on Our Family Socials - it's a private space where I share family memories, photos, and life events with the people I care about.
 
-Click this link to sign up and see my family moments:
-${profileUrl}
+Click this link to see what I'm sharing and sign up:
+${inviteUrl}
 
 Looking forward to sharing our memories together!
 - ${displayName}`
 
   const copyInviteMessage = () => {
+    if (!inviteUrl) {
+      showToast('Please wait, loading invite link...', 'info')
+      return
+    }
     navigator.clipboard.writeText(inviteMessage)
       .then(() => showToast('Invite message copied!', 'success'))
       .catch(() => showToast('Failed to copy', 'error'))
   }
 
-  const copyProfileLink = () => {
-    navigator.clipboard.writeText(profileUrl)
-      .then(() => showToast('Profile link copied!', 'success'))
+  const copyInviteLink = () => {
+    if (!inviteUrl) {
+      showToast('Please wait, loading invite link...', 'info')
+      return
+    }
+    navigator.clipboard.writeText(inviteUrl)
+      .then(() => showToast('Invite link copied!', 'success'))
       .catch(() => showToast('Failed to copy', 'error'))
   }
 
@@ -58,7 +88,7 @@ Looking forward to sharing our memories together!
       setMessage('')
       onClose()
     } catch (error) {
-      const detail = error.response?.data?.detail
+      const detail = error.response?.data?.detail || error.detail
       if (detail?.code === 'USER_EXISTS') {
         showToast(`${email} already has an account (@${detail.username})`, 'info')
       } else if (detail?.code === 'ALREADY_INVITED') {
@@ -102,25 +132,31 @@ Looking forward to sharing our memories together!
               Copy this message and share it via text, WhatsApp, or any messaging app:
             </p>
 
-            <div className={styles.messagePreview}>
-              <pre>{inviteMessage}</pre>
-            </div>
+            {loadingLink ? (
+              <div className={styles.loadingLink}>Generating your invite link...</div>
+            ) : (
+              <>
+                <div className={styles.messagePreview}>
+                  <pre>{inviteMessage}</pre>
+                </div>
 
-            <div className={styles.buttonRow}>
-              <button className={styles.primaryButton} onClick={copyInviteMessage}>
-                Copy Full Message
-              </button>
-              <button className={styles.secondaryButton} onClick={copyProfileLink}>
-                Copy Link Only
-              </button>
-            </div>
+                <div className={styles.buttonRow}>
+                  <button className={styles.primaryButton} onClick={copyInviteMessage}>
+                    Copy Full Message
+                  </button>
+                  <button className={styles.secondaryButton} onClick={copyInviteLink}>
+                    Copy Link Only
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className={styles.howItWorks}>
               <h4>How it works:</h4>
               <ol>
-                <li>They click your link and sign up</li>
+                <li>They click your link and see a welcome page</li>
+                <li>They sign up with a preview of your events</li>
                 <li>You both automatically follow each other</li>
-                <li>They see all your events in their feed</li>
               </ol>
             </div>
           </div>
@@ -129,7 +165,7 @@ Looking forward to sharing our memories together!
         {activeTab === 'email' && (
           <form className={styles.emailSection} onSubmit={handleSendEmail}>
             <p className={styles.instructions}>
-              We'll send them a personalized invitation email with your profile link.
+              We'll send them a personalized invitation email with a special signup link.
             </p>
 
             <div className={styles.formGroup}>
@@ -178,8 +214,8 @@ Looking forward to sharing our memories together!
               <h4>What happens next:</h4>
               <ol>
                 <li>They receive your invitation email</li>
-                <li>They click the link and create an account</li>
-                <li>You both automatically follow each other</li>
+                <li>They see a welcome page with your profile</li>
+                <li>They sign up and you're automatically connected</li>
               </ol>
             </div>
           </form>

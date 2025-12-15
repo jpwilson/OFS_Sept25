@@ -10,8 +10,12 @@ from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.invited_viewer import InvitedViewer
 from ..services.email_service import send_viewer_invitation_email
+from ..core.config import settings
 
 router = APIRouter(prefix="/invitations", tags=["invitations"])
+
+# Base URL for invite links
+INVITE_BASE_URL = "https://www.ourfamilysocials.com"
 
 
 # ===== Schemas =====
@@ -48,7 +52,57 @@ class InvitationListResponse(BaseModel):
     total: int
 
 
+class InviteLinkResponse(BaseModel):
+    token: str
+    invite_url: str
+    message: str
+
+
 # ===== Endpoints =====
+
+@router.post("/link", response_model=InviteLinkResponse)
+def create_invite_link(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Create or retrieve a shareable invite link (no email required).
+    This link can be shared via text, WhatsApp, etc.
+    Each user gets one reusable link invite.
+    """
+    # Check if user already has an active link-based invite
+    existing = db.query(InvitedViewer).filter(
+        InvitedViewer.inviter_id == current_user.id,
+        InvitedViewer.invited_email == None,  # Link-based invite (no email)
+        InvitedViewer.status == 'pending'
+    ).first()
+
+    if existing:
+        return InviteLinkResponse(
+            token=existing.invite_token,
+            invite_url=f"{INVITE_BASE_URL}/join/{existing.invite_token}",
+            message="Retrieved existing invite link"
+        )
+
+    # Create new link-based invite
+    invite_token = InvitedViewer.generate_token()
+    new_invite = InvitedViewer(
+        inviter_id=current_user.id,
+        invited_email=None,  # No email for link invites
+        invited_name=None,
+        invite_token=invite_token,
+        status='pending'
+    )
+
+    db.add(new_invite)
+    db.commit()
+    db.refresh(new_invite)
+
+    return InviteLinkResponse(
+        token=invite_token,
+        invite_url=f"{INVITE_BASE_URL}/join/{invite_token}",
+        message="Created new invite link"
+    )
 
 @router.post("", response_model=InvitationResponse)
 def create_invitation(

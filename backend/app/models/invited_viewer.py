@@ -14,7 +14,7 @@ class InvitedViewer(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     inviter_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    invited_email = Column(String, nullable=False, index=True)
+    invited_email = Column(String, nullable=True, index=True)  # Nullable for link-based invites
     invited_name = Column(String, nullable=True)  # Display name provided by inviter
 
     # Secure token for signup link
