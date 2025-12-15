@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './Timeline.module.css'
 import apiService from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -24,6 +24,7 @@ const getCategoryIcon = (category) => {
 
 function Timeline() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [filteredEvents, setFilteredEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -40,10 +41,19 @@ function Timeline() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState(null) // For day popup
 
+  // Require login to view Timeline
   useEffect(() => {
-    loadEvents()
-    loadFollowing()
-  }, [])
+    if (!user) {
+      navigate('/login', { state: { from: '/timeline', message: 'Please sign in to view the timeline' } })
+    }
+  }, [user, navigate])
+
+  useEffect(() => {
+    if (user) {
+      loadEvents()
+      loadFollowing()
+    }
+  }, [user])
 
   const loadFollowing = async () => {
     if (user) {

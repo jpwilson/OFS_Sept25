@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-markercluster'
 import L from 'leaflet'
@@ -32,6 +32,7 @@ const CATEGORIES = [
 
 function Map() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [filteredEvents, setFilteredEvents] = useState([])
   const [filter, setFilter] = useState('all') // all, following, self
@@ -44,10 +45,20 @@ function Map() {
   const [center, setCenter] = useState([20, 0]) // World center
   const [zoom, setZoom] = useState(2)
   const [following, setFollowing] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Require login to view Map
+  useEffect(() => {
+    if (!user) {
+      navigate('/login', { state: { from: '/map', message: 'Please sign in to view the map' } })
+    }
+  }, [user, navigate])
 
   useEffect(() => {
-    loadEvents()
-    loadFollowing()
+    if (user) {
+      loadEvents()
+      loadFollowing()
+    }
   }, [])
 
   const loadFollowing = async () => {

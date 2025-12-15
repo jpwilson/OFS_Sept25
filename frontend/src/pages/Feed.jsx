@@ -45,10 +45,19 @@ function Feed() {
   const [searchingUsers, setSearchingUsers] = useState(false)
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
 
+  // Require login to view Feed
   useEffect(() => {
-    loadEvents()
-    loadFollowing()
-  }, [])
+    if (!user && !loading) {
+      navigate('/login', { state: { from: '/feed', message: 'Please sign in to view your feed' } })
+    }
+  }, [user, loading, navigate])
+
+  useEffect(() => {
+    if (user) {
+      loadEvents()
+      loadFollowing()
+    }
+  }, [user])
 
   // Helper to get clean excerpt text
   const getExcerpt = (event) => {
