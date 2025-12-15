@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from ..core.database import get_db
 from ..core.security import verify_password, get_password_hash, create_access_token
 from ..core.supabase_auth import validate_supabase_token
