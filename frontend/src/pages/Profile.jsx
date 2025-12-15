@@ -6,6 +6,7 @@ import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import FollowRequestsModal from '../components/FollowRequestsModal'
+import InviteFamilyModal from '../components/InviteFamilyModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
 import styles from './Profile.module.css'
@@ -30,6 +31,7 @@ function Profile() {
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
   const [showRequestsModal, setShowRequestsModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
   const [requestCount, setRequestCount] = useState(0)
   const [editingExpiry, setEditingExpiry] = useState(null) // event_id being edited
@@ -40,6 +42,13 @@ function Profile() {
   })
 
   const isOwnProfile = currentUser && currentUser.username === username
+
+  // Require login to view any profile
+  useEffect(() => {
+    if (!currentUser && !loading) {
+      navigate('/login', { state: { from: `/profile/${username}`, message: 'Please sign in to view profiles' } })
+    }
+  }, [currentUser, loading, navigate, username])
 
   // Apply theme globally
   useEffect(() => {
@@ -378,11 +387,11 @@ function Profile() {
                 )}
               </button>
               <button
-                onClick={() => copyToClipboard(`https://www.ourfamilysocials.com/profile/${username}`, 'Profile link')}
-                className={styles.shareButton}
-                title="Share your profile link"
+                onClick={() => setShowInviteModal(true)}
+                className={styles.inviteButton}
+                title="Invite family members to follow you"
               >
-                Share Profile
+                Invite Family
               </button>
               <Link to="/create" className={styles.createButton}>
                 Create Event
@@ -404,14 +413,16 @@ function Profile() {
           ) : null}
         </div>
 
-        {/* Theme Toggle - positioned to the right */}
-        <button
-          onClick={toggleTheme}
-          className={styles.themeToggle}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
+        {/* Theme Toggle - only for logged-in users */}
+        {currentUser && (
+          <button
+            onClick={toggleTheme}
+            className={styles.themeToggle}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+        )}
       </div>
 
       {/* Show upgrade ribbon if user is at limit (5/5 events) */}
@@ -732,6 +743,11 @@ function Profile() {
         isOpen={showRequestsModal}
         onClose={() => setShowRequestsModal(false)}
         onRequestHandled={handleRequestHandled}
+      />
+
+      <InviteFamilyModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
       />
 
       {/* Logout at bottom - only for own profile */}

@@ -245,26 +245,44 @@ def create_supabase_profile(
         except Exception as e:
             print(f"🟡 Failed to check other invitations: {e}")
 
-        # Auto-create Follow relationships for all processed invitations
+        # Auto-create BI-DIRECTIONAL Follow relationships for all processed invitations
+        # Both the invitee follows the inviter AND the inviter follows the invitee
         for inv in invitations_processed:
             try:
-                # Check if follow already exists
-                existing_follow = db.query(Follow).filter(
+                # 1. Invitee follows Inviter (already existed)
+                existing_follow_1 = db.query(Follow).filter(
                     Follow.follower_id == user.id,
                     Follow.following_id == inv.inviter_id
                 ).first()
 
-                if not existing_follow:
-                    # Create auto-accepted follow (user follows their inviter)
-                    follow = Follow(
+                if not existing_follow_1:
+                    follow_1 = Follow(
                         follower_id=user.id,
                         following_id=inv.inviter_id,
                         status='accepted',
                         invited_viewer_follow=True,
                         invitation_id=inv.id
                     )
-                    db.add(follow)
-                    print(f"🟢 Created follow relationship: {user.id} -> {inv.inviter_id}")
+                    db.add(follow_1)
+                    print(f"🟢 Created follow: invitee {user.id} -> inviter {inv.inviter_id}")
+
+                # 2. Inviter follows Invitee (NEW - bi-directional)
+                existing_follow_2 = db.query(Follow).filter(
+                    Follow.follower_id == inv.inviter_id,
+                    Follow.following_id == user.id
+                ).first()
+
+                if not existing_follow_2:
+                    follow_2 = Follow(
+                        follower_id=inv.inviter_id,
+                        following_id=user.id,
+                        status='accepted',
+                        invited_viewer_follow=True,
+                        invitation_id=inv.id
+                    )
+                    db.add(follow_2)
+                    print(f"🟢 Created follow: inviter {inv.inviter_id} -> invitee {user.id}")
+
             except Exception as e:
                 print(f"🟡 Failed to create follow for invitation {inv.id}: {e}")
 

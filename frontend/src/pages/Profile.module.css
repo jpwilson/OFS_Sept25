@@ -333,6 +333,28 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
+.inviteButton {
+  padding: 10px 24px;
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inviteButton:hover {
+  background: #4caf50;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
 .themeToggle {
   padding: 10px 16px;
   background: var(--bg-secondary);
