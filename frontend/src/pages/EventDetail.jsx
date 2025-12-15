@@ -305,13 +305,14 @@ function EventDetail() {
       const data = await apiService.getEventLocations(id)
       const eventLocations = data || []
 
-      // Add primary event location as the first location (if it exists)
+      // Add primary event location as the first location (if coordinates exist)
       // This is the location from the "Location" field in the event form
-      if (event?.latitude && event?.longitude && event?.location_name) {
+      // Show map even for single-location events - only hide if NO coordinates at all
+      if (event?.latitude && event?.longitude) {
         const primaryLocation = {
           id: 'primary',
           event_id: event.id,
-          location_name: event.location_name,
+          location_name: event.location_name || 'Event Location',
           latitude: event.latitude,
           longitude: event.longitude,
           location_type: 'primary',

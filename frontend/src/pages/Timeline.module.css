@@ -17,7 +17,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleAndToggle {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .pageTitle {
@@ -25,6 +34,36 @@
   font-weight: 600;
   color: #fff;
   margin: 0;
+}
+
+/* View Mode Toggle (Timeline/Calendar) */
+.viewToggle {
+  display: flex;
+  background: #2a2a2a;
+  border-radius: 24px;
+  padding: 4px;
+  border: 1px solid #444;
+}
+
+.toggleOption {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.toggleOption:hover {
+  color: #fff;
+}
+
+.toggleOption.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
 }
 
 .filterToggle {
@@ -43,6 +82,14 @@
   border-color: #667eea;
 }
 
+.arrowGreen {
+  color: #00ff88;
+}
+
+.arrowRed {
+  color: #ff6b6b;
+}
+
 .filters {
   display: flex;
   align-items: center;
@@ -51,6 +98,33 @@
   margin-top: 16px;
 }
 
+/* Date Selector */
+.dateSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  color: #999;
+  font-size: 13px;
+}
+
+.dateSelector input {
+  padding: 6px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+}
+
+.dateSelector input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Category Dropdown with Checkboxes */
 .categorySelector {
   display: flex;
   align-items: center;
@@ -65,8 +139,12 @@
   color: #999;
 }
 
-.categoryDropdown {
-  padding: 6px 10px;
+.categoryDropdownWrapper {
+  position: relative;
+}
+
+.categoryDropdownButton {
+  padding: 6px 12px;
   border: 1px solid #444;
   border-radius: 6px;
   background: #1a1a1a;
@@ -74,11 +152,72 @@
   font-size: 13px;
   cursor: pointer;
   min-width: 150px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
-.categoryDropdown:focus {
-  outline: none;
+.categoryDropdownButton:hover {
   border-color: #667eea;
+}
+
+.dropdownArrow {
+  font-size: 10px;
+  color: #999;
+}
+
+.categoryDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #ccc;
+  transition: background 0.2s ease;
+}
+
+.categoryOption:hover {
+  background: #333;
+}
+
+.categoryOption input[type="checkbox"] {
+  accent-color: #667eea;
+  width: 16px;
+  height: 16px;
+}
+
+.clearCategoriesBtn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid #667eea;
+  border-radius: 6px;
+  color: #667eea;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearCategoriesBtn:hover {
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .filterButton {
@@ -116,8 +255,267 @@
   color: var(--text-tertiary);
 }
 
+/* ==================== CALENDAR VIEW ==================== */
+.calendarContainer {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.monthNavButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.monthNavButton:hover {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+.monthTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  min-width: 200px;
+}
+
+.todayButton {
+  margin-left: auto;
+  padding: 8px 20px;
+  border: 1px solid #667eea;
+  background: transparent;
+  color: #667eea;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.todayButton:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #333;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dayHeader {
+  background: #2a2a2a;
+  color: #999;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendarDay {
+  background: #1a1a1a;
+  min-height: 100px;
+  padding: 8px;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.calendarDay.emptyDay {
+  background: #151515;
+}
+
+.calendarDay.hasEvents {
+  cursor: pointer;
+}
+
+.calendarDay.hasEvents:hover {
+  background: #252525;
+}
+
+.calendarDay.today {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.calendarDay.today .dayNumber {
+  background: #667eea;
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayNumber {
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.dayEvents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.eventIcon {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.moreEvents {
+  font-size: 11px;
+  color: #667eea;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: rgba(102, 126, 234, 0.2);
+  border-radius: 10px;
+}
+
+/* Day Popup */
+.dayPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.dayPopup {
+  background: #1a1a1a;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.dayPopupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #333;
+}
+
+.dayPopupHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.closePopup {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #333;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.closePopup:hover {
+  background: #667eea;
+}
+
+.dayPopupContent {
+  padding: 16px;
+  overflow-y: auto;
+  max-height: calc(80vh - 80px);
+}
+
+.dayPopupEvent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #2a2a2a;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dayPopupEvent:hover {
+  background: #333;
+  transform: translateX(4px);
+}
+
+.popupEventIcon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.popupEventInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.popupEventTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popupEventMeta {
+  font-size: 13px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.popupEventImage {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ==================== TIMELINE VIEW ==================== */
 .timeline {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 60px auto;
   padding: 0 40px;
   position: relative;
@@ -189,7 +587,8 @@
 }
 
 .timelineContent {
-  max-width: 450px;
+  max-width: 550px;
+  width: 100%;
   position: relative;
 }
 
@@ -229,10 +628,25 @@
 
 .eventImage {
   width: 100%;
-  height: 280px;
+  height: 300px;
   background-size: cover;
   background-position: center;
   position: relative;
+}
+
+.categoryBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 28px;
+  background: rgba(0, 0, 0, 0.5);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
 }
 
 .eventOverlay {
@@ -288,6 +702,73 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .header {
+    padding: 16px;
+  }
+
+  .headerTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .titleAndToggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .viewToggle {
+    flex-shrink: 0;
+  }
+
+  .toggleOption {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dateSelector {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Calendar mobile */
+  .calendarContainer {
+    padding: 0 10px;
+    margin: 20px auto;
+  }
+
+  .calendarHeader {
+    flex-wrap: wrap;
+  }
+
+  .monthTitle {
+    font-size: 18px;
+    min-width: auto;
+  }
+
+  .calendarDay {
+    min-height: 60px;
+    padding: 4px;
+  }
+
+  .dayNumber {
+    font-size: 12px;
+  }
+
+  .eventIcon {
+    font-size: 14px;
+  }
+
+  .dayHeader {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+
+  /* Timeline mobile */
   .timeline {
     padding: 0 20px;
   }
