@@ -26,14 +26,22 @@ class InvitationCreate(BaseModel):
     personal_message: Optional[str] = None
 
 
+class SignedUpUserInfo(BaseModel):
+    id: int
+    username: str
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
 class InvitationResponse(BaseModel):
     id: int
     inviter_id: int
-    invited_email: str
-    invited_name: Optional[str]
+    invited_email: Optional[str] = None
+    invited_name: Optional[str] = None
     status: str
     created_at: datetime
-    signed_up_at: Optional[datetime]
+    signed_up_at: Optional[datetime] = None
+    resulting_user: Optional[SignedUpUserInfo] = None
 
     class Config:
         from_attributes = True
@@ -198,9 +206,36 @@ def list_invitations(
 
     invitations = query.order_by(InvitedViewer.created_at.desc()).all()
 
+    # Build response with resulting user info
+    invitation_responses = []
+    for inv in invitations:
+        response = InvitationResponse(
+            id=inv.id,
+            inviter_id=inv.inviter_id,
+            invited_email=inv.invited_email,
+            invited_name=inv.invited_name,
+            status=inv.status,
+            created_at=inv.created_at,
+            signed_up_at=inv.signed_up_at,
+            resulting_user=None
+        )
+
+        # If they signed up, get their user info
+        if inv.resulting_user_id:
+            resulting_user = db.query(User).filter(User.id == inv.resulting_user_id).first()
+            if resulting_user:
+                response.resulting_user = SignedUpUserInfo(
+                    id=resulting_user.id,
+                    username=resulting_user.username,
+                    display_name=resulting_user.display_name,
+                    avatar_url=resulting_user.avatar_url
+                )
+
+        invitation_responses.append(response)
+
     return InvitationListResponse(
-        invitations=invitations,
-        total=len(invitations)
+        invitations=invitation_responses,
+        total=len(invitation_responses)
     )
 
 

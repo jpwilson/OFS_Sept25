@@ -355,6 +355,24 @@
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
+.viewInvitationsLink {
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-secondary, #888);
+  border: 1px solid var(--border-color, #444);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.viewInvitationsLink:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, 0.1));
+  color: var(--text-primary, #fff);
+  border-color: var(--text-secondary, #666);
+}
+
 .themeToggle {
   padding: 10px 16px;
   background: var(--bg-secondary);

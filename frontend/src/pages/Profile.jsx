@@ -393,6 +393,9 @@ function Profile() {
               >
                 Invite Family
               </button>
+              <Link to="/invitations" className={styles.viewInvitationsLink} title="View sent invitations">
+                View Sent
+              </Link>
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>
