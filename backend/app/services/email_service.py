@@ -550,7 +550,7 @@ def send_viewer_invitation_email(
                 {message_html}
 
                 <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                    Join to see their photos, stories, and adventures. You'll get a <strong>30-day free trial</strong> to explore everything!
+                    Join to see their photos, stories, and adventures. <strong>You'll always have free access to {inviter_name}'s events</strong> — no subscription needed to stay connected with their memories.
                 </p>
 
                 <div style="text-align: center; margin: 32px 0;">
@@ -562,8 +562,8 @@ def send_viewer_invitation_email(
                 <div style="background: #f0f7ff; border-radius: 8px; padding: 16px; margin: 20px 0;">
                     <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
                         <strong>What you'll get:</strong><br>
-                        • See {inviter_name}'s family photos and stories<br>
-                        • 30-day free trial with full access<br>
+                        • View {inviter_name}'s events forever, completely free<br>
+                        • 30-day free trial to create your own events<br>
                         • Stay connected with family memories
                     </p>
                 </div>
