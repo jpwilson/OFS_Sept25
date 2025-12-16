@@ -24,7 +24,6 @@ import InviteLanding from './pages/InviteLanding'
 import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
 import InvitedSignup from './pages/InvitedSignup'
-import Invitations from './pages/Invitations'
 import Layout from './components/Layout'
 
 // Redirect from old /signup?invite=TOKEN format to new /join/TOKEN format
@@ -71,7 +70,6 @@ function App() {
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/edit" element={<EditProfile />} />
               <Route path="/settings/notifications" element={<NotificationSettings />} />
-              <Route path="/invitations" element={<Invitations />} />
               <Route path="/create" element={<CreateEvent />} />
               <Route path="/map" element={<Map />} />
               <Route path="/timeline" element={<Timeline />} />

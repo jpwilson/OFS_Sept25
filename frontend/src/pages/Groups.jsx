@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
-import InviteViewerForm from '../components/InviteViewerForm'
+import InviteFamilyModal from '../components/InviteFamilyModal'
 import styles from './Groups.module.css'
 
 function Groups() {
@@ -16,6 +16,8 @@ function Groups() {
   const [following, setFollowing] = useState([])
   const [pendingRequests, setPendingRequests] = useState([])
   const [sentInvitations, setSentInvitations] = useState([])
+  const [shareLinks, setShareLinks] = useState([])
+  const [inviteUrl, setInviteUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showInviteModal, setShowInviteModal] = useState(false)
@@ -23,7 +25,7 @@ function Groups() {
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [selectedMembers, setSelectedMembers] = useState([])
   const [expandedGroup, setExpandedGroup] = useState(null)
-  const [activeSection, setActiveSection] = useState('followers') // followers, following, invites
+  const [shareLinkFilter, setShareLinkFilter] = useState('active') // active, expired
 
   useEffect(() => {
     loadAllData()
@@ -36,7 +38,9 @@ function Groups() {
       loadFollowers(),
       loadFollowing(),
       loadPendingRequests(),
-      loadInvitations()
+      loadInvitations(),
+      loadShareLinks(),
+      loadInviteLink()
     ])
     setLoading(false)
   }
@@ -80,9 +84,33 @@ function Groups() {
   async function loadInvitations() {
     try {
       const data = await apiService.getInvitations()
-      setSentInvitations(data)
+      // Filter to only email invitations (exclude link-based)
+      const emailInvitations = data.filter(inv => inv.invited_email)
+      setSentInvitations(emailInvitations)
     } catch (error) {
       console.error('Error loading invitations:', error)
+    }
+  }
+
+  async function loadShareLinks() {
+    try {
+      const data = await apiService.getAllShareLinks()
+      setShareLinks(data)
+    } catch (error) {
+      console.error('Error loading share links:', error)
+    }
+  }
+
+  async function loadInviteLink() {
+    try {
+      const response = await apiService.createInviteLink()
+      setInviteUrl(response.invite_url)
+    } catch (error) {
+      console.error('Error loading invite link:', error)
+      // Fallback to profile URL
+      if (user?.username) {
+        setInviteUrl(`https://www.ourfamilysocials.com/profile/${user.username}`)
+      }
     }
   }
 
@@ -252,10 +280,82 @@ function Groups() {
     try {
       await apiService.resendInvitation(invitationId)
       showToast('Invitation resent', 'success')
+      loadInvitations() // Reload to update resend count
     } catch (error) {
       console.error('Error resending invitation:', error)
-      showToast('Failed to resend invitation', 'error')
+      const errorMsg = error.message || 'Failed to resend invitation'
+      showToast(errorMsg, 'error')
     }
+  }
+
+  function copyToClipboard(text, successMessage = 'Copied!') {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast(successMessage, 'success'))
+      .catch(() => showToast('Failed to copy', 'error'))
+  }
+
+  function copyInviteLink() {
+    copyToClipboard(inviteUrl, 'Invite link copied!')
+  }
+
+  function copyInviteMessage() {
+    const displayName = user?.display_name || user?.full_name || user?.username
+    const message = `Hi! I'd love for you to join me on Our Family Socials - it's a private space where I share family memories, photos, and life events with the people I care about.
+
+Click this link to see what I'm sharing and sign up:
+${inviteUrl}
+
+Looking forward to sharing our memories together!
+- ${displayName}`
+    copyToClipboard(message, 'Invite message copied!')
+  }
+
+  async function handleCopyShareLink(link) {
+    const url = `https://www.ourfamilysocials.com/shared/${link.token}`
+    copyToClipboard(url, 'Event link copied!')
+  }
+
+  async function handleExtendShareLink(link) {
+    try {
+      await apiService.extendShareLink(link.id)
+      showToast('Link extended by 7 days', 'success')
+      loadShareLinks()
+    } catch (error) {
+      console.error('Error extending link:', error)
+      showToast('Failed to extend link', 'error')
+    }
+  }
+
+  async function handleDisableShareLink(link) {
+    const confirmed = await confirm({
+      title: 'Disable Link',
+      message: `Are you sure you want to disable the link for "${link.event_title}"? People won't be able to access the event via this link anymore.`,
+      confirmText: 'Disable',
+      isDangerous: true
+    })
+
+    if (confirmed) {
+      try {
+        await apiService.deleteShareLink(link.id)
+        showToast('Link disabled', 'success')
+        loadShareLinks()
+      } catch (error) {
+        console.error('Error disabling link:', error)
+        showToast('Failed to disable link', 'error')
+      }
+    }
+  }
+
+  function formatExpiryDate(expiresAt) {
+    if (!expiresAt) return 'No expiry'
+    const expiry = new Date(expiresAt)
+    const now = new Date()
+    const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24))
+
+    if (diffDays < 0) return 'Expired'
+    if (diffDays === 0) return 'Expires today'
+    if (diffDays === 1) return 'Expires tomorrow'
+    return `Expires in ${diffDays} days`
   }
 
   if (loading) {
@@ -281,6 +381,91 @@ function Groups() {
       <div className={styles.description}>
         Manage who can see your events and invite new people to follow you.
       </div>
+
+      {/* Invite Link Section */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Your Invite Link</h2>
+        </div>
+        <div className={styles.inviteLinkCard}>
+          <div className={styles.linkDisplay}>
+            <span className={styles.linkIcon}>🔗</span>
+            <span className={styles.linkText}>{inviteUrl || 'Loading...'}</span>
+          </div>
+          <div className={styles.linkButtons}>
+            <button
+              className={styles.copyButton}
+              onClick={copyInviteLink}
+              disabled={!inviteUrl}
+            >
+              Copy Link
+            </button>
+            <button
+              className={styles.copyMessageButton}
+              onClick={copyInviteMessage}
+              disabled={!inviteUrl}
+            >
+              Copy Message
+            </button>
+          </div>
+        </div>
+        <p className={styles.linkHint}>
+          Share this link via text, WhatsApp, or any messaging app. When they sign up, you'll automatically follow each other.
+        </p>
+      </div>
+
+      {/* Pending Email Invitations */}
+      {sentInvitations.filter(inv => inv.status === 'pending').length > 0 && (
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Pending Invitations</h2>
+            <span className={styles.count}>{sentInvitations.filter(inv => inv.status === 'pending').length}</span>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Sent</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sentInvitations.filter(inv => inv.status === 'pending').map(invite => (
+                  <tr key={invite.id}>
+                    <td>{invite.invited_name || '—'}</td>
+                    <td className={styles.emailCell}>{invite.invited_email}</td>
+                    <td className={styles.dateCell}>
+                      {new Date(invite.created_at).toLocaleDateString()}
+                    </td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        {(invite.resends_remaining === undefined || invite.resends_remaining > 0) ? (
+                          <button
+                            className={styles.resendBtn}
+                            onClick={() => handleResendInvitation(invite.id)}
+                          >
+                            Resend {invite.resends_remaining !== undefined ? `(${invite.resends_remaining})` : ''}
+                          </button>
+                        ) : (
+                          <span className={styles.noResends}>No resends left</span>
+                        )}
+                        <button
+                          className={styles.cancelBtn}
+                          onClick={() => handleCancelInvitation(invite.id)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Followers Section */}
       <div className={styles.section}>
@@ -373,45 +558,78 @@ function Groups() {
         </div>
       )}
 
-      {/* Sent Invitations */}
-      {sentInvitations.length > 0 && (
+      {/* Shared Event Links Section */}
+      {shareLinks.length > 0 && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Sent Invitations</h2>
-            <span className={styles.count}>{sentInvitations.length}</span>
+            <h2 className={styles.sectionTitle}>Shared Event Links</h2>
+            <div className={styles.shareLinkFilters}>
+              <button
+                className={`${styles.filterBtn} ${shareLinkFilter === 'active' ? styles.activeFilter : ''}`}
+                onClick={() => setShareLinkFilter('active')}
+              >
+                Active ({shareLinks.filter(l => !l.expires_at || new Date(l.expires_at) > new Date()).length})
+              </button>
+              <button
+                className={`${styles.filterBtn} ${shareLinkFilter === 'expired' ? styles.activeFilter : ''}`}
+                onClick={() => setShareLinkFilter('expired')}
+              >
+                Expired ({shareLinks.filter(l => l.expires_at && new Date(l.expires_at) <= new Date()).length})
+              </button>
+            </div>
           </div>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sentInvitations.map(invite => (
-                  <tr key={invite.id}>
-                    <td>{invite.invited_name || '—'}</td>
-                    <td className={styles.emailCell}>{invite.invited_email}</td>
-                    <td>
-                      <span className={`${styles.statusBadge} ${invite.status === 'signed_up' ? styles.success : styles.pending}`}>
-                        {invite.status === 'signed_up' ? 'Signed Up' : 'Pending'}
+          <div className={styles.shareLinksList}>
+            {shareLinks
+              .filter(link => {
+                const isExpired = link.expires_at && new Date(link.expires_at) <= new Date()
+                return shareLinkFilter === 'active' ? !isExpired : isExpired
+              })
+              .map(link => (
+                <div key={link.id} className={styles.shareLinkCard}>
+                  <div className={styles.shareLinkInfo}>
+                    <Link to={`/events/${link.event_id}`} className={styles.shareLinkTitle}>
+                      {link.event_title}
+                    </Link>
+                    <div className={styles.shareLinkMeta}>
+                      <span className={link.expires_at && new Date(link.expires_at) <= new Date() ? styles.expired : ''}>
+                        {formatExpiryDate(link.expires_at)}
                       </span>
-                    </td>
-                    <td>
-                      {invite.status === 'pending' && (
-                        <div className={styles.actionButtons}>
-                          <button className={styles.resendBtn} onClick={() => handleResendInvitation(invite.id)}>Resend</button>
-                          <button className={styles.cancelBtn} onClick={() => handleCancelInvitation(invite.id)}>Cancel</button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <span className={styles.separator}>•</span>
+                      <span>{link.view_count || 0} views</span>
+                    </div>
+                  </div>
+                  <div className={styles.shareLinkActions}>
+                    <button
+                      className={styles.copyBtn}
+                      onClick={() => handleCopyShareLink(link)}
+                    >
+                      Copy
+                    </button>
+                    {(!link.expires_at || new Date(link.expires_at) > new Date()) && (
+                      <button
+                        className={styles.extendBtn}
+                        onClick={() => handleExtendShareLink(link)}
+                      >
+                        Extend
+                      </button>
+                    )}
+                    <button
+                      className={styles.disableBtn}
+                      onClick={() => handleDisableShareLink(link)}
+                    >
+                      {link.expires_at && new Date(link.expires_at) <= new Date() ? 'Delete' : 'Disable'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            {shareLinks.filter(link => {
+              const isExpired = link.expires_at && new Date(link.expires_at) <= new Date()
+              return shareLinkFilter === 'active' ? !isExpired : isExpired
+            }).length === 0 && (
+              <div className={styles.emptyTable}>
+                <p>No {shareLinkFilter} event links</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -487,25 +705,13 @@ function Groups() {
       </div>
 
       {/* Invite Modal */}
-      {showInviteModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowInviteModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Invite Someone</h2>
-              <button className={styles.closeButton} onClick={() => setShowInviteModal(false)}>×</button>
-            </div>
-            <div className={styles.modalContent}>
-              <InviteViewerForm
-                onInviteSent={() => {
-                  loadInvitations()
-                  setShowInviteModal(false)
-                }}
-                onClose={() => setShowInviteModal(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <InviteFamilyModal
+        isOpen={showInviteModal}
+        onClose={() => {
+          setShowInviteModal(false)
+          loadInvitations()
+        }}
+      />
 
       {/* Create/Edit Group Modal */}
       {showCreateModal && (

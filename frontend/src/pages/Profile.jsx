@@ -6,7 +6,6 @@ import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import FollowRequestsModal from '../components/FollowRequestsModal'
-import InviteFamilyModal from '../components/InviteFamilyModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
 import styles from './Profile.module.css'
@@ -23,19 +22,15 @@ function Profile() {
   const [events, setEvents] = useState([])
   const [drafts, setDrafts] = useState([])
   const [trash, setTrash] = useState([])
-  const [sharedLinks, setSharedLinks] = useState([])
   const [loading, setLoading] = useState(true)
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, trash, or shared
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, or trash
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
   const [showRequestsModal, setShowRequestsModal] = useState(false)
-  const [showInviteModal, setShowInviteModal] = useState(false)
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
   const [requestCount, setRequestCount] = useState(0)
-  const [editingExpiry, setEditingExpiry] = useState(null) // event_id being edited
-  const [sharedSubTab, setSharedSubTab] = useState('active') // 'active' or 'expired'
   const [theme, setTheme] = useState(() => {
     // Get theme from localStorage, default to 'dark'
     return localStorage.getItem('theme') || 'dark'
@@ -66,7 +61,6 @@ function Profile() {
     if (isOwnProfile) {
       loadDrafts()
       loadTrash()
-      loadSharedLinks()
       loadRequestCount()
     }
     if (currentUser && !isOwnProfile) {
@@ -105,15 +99,6 @@ function Profile() {
       setTrash(trashEvents)
     } catch (error) {
       console.error('Failed to load trash:', error)
-    }
-  }
-
-  async function loadSharedLinks() {
-    try {
-      const links = await apiService.getAllShareLinks()
-      setSharedLinks(links)
-    } catch (error) {
-      console.error('Failed to load shared links:', error)
     }
   }
 
@@ -247,45 +232,6 @@ function Profile() {
     }
   }
 
-  async function handleUpdateExpiry(eventId, newDays) {
-    try {
-      await apiService.updateShareLink(eventId, newDays)
-      showToast('Share link expiry updated', 'success')
-      setEditingExpiry(null)
-      loadSharedLinks() // Reload shared links
-    } catch (error) {
-      console.error('Failed to update expiry:', error)
-      showToast('Failed to update expiry', 'error')
-    }
-  }
-
-  async function handleDisableShareLink(eventId, eventTitle) {
-    const confirmed = await confirm({
-      title: 'Disable Share Link',
-      message: `Disable public sharing for "${eventTitle}"? The link will no longer work.`,
-      confirmText: 'Disable',
-      cancelText: 'Cancel',
-      danger: true
-    })
-
-    if (!confirmed) return
-
-    try {
-      await apiService.deleteShareLink(eventId)
-      showToast('Share link disabled', 'success')
-      loadSharedLinks() // Reload shared links
-    } catch (error) {
-      console.error('Failed to disable share link:', error)
-      showToast('Failed to disable share link', 'error')
-    }
-  }
-
-  function copyToClipboard(text, label = 'Link') {
-    navigator.clipboard.writeText(text)
-      .then(() => showToast(`${label} copied to clipboard`, 'success'))
-      .catch(() => showToast('Failed to copy to clipboard', 'error'))
-  }
-
   function handleLogout() {
     logout()
     navigate('/login')
@@ -386,16 +332,6 @@ function Profile() {
                   <span className={styles.requestsBadge}>{requestCount}</span>
                 )}
               </button>
-              <button
-                onClick={() => setShowInviteModal(true)}
-                className={styles.inviteButton}
-                title="Invite family members to follow you"
-              >
-                Invite Family
-              </button>
-              <Link to="/invitations" className={styles.viewInvitationsLink} title="View sent invitations">
-                View Sent
-              </Link>
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>
@@ -451,12 +387,6 @@ function Profile() {
                 onClick={() => setActiveTab('drafts')}
               >
                 Drafts ({drafts.length})
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'shared' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('shared')}
-              >
-                Shared Links ({sharedLinks.length})
               </button>
               <button
                 className={`${styles.tab} ${activeTab === 'trash' ? styles.activeTab : ''}`}
@@ -571,126 +501,6 @@ function Profile() {
           )
         )}
 
-        {activeTab === 'shared' && (
-          <>
-            <div className={styles.subTabs}>
-              <button
-                className={`${styles.subTab} ${sharedSubTab === 'active' ? styles.activeSubTab : ''}`}
-                onClick={() => setSharedSubTab('active')}
-              >
-                Active ({sharedLinks.filter(l => !l.is_expired).length})
-              </button>
-              <button
-                className={`${styles.subTab} ${sharedSubTab === 'expired' ? styles.activeSubTab : ''}`}
-                onClick={() => setSharedSubTab('expired')}
-              >
-                Expired ({sharedLinks.filter(l => l.is_expired).length})
-              </button>
-            </div>
-
-            {sharedLinks.filter(l => sharedSubTab === 'active' ? !l.is_expired : l.is_expired).length === 0 ? (
-              <div className={styles.noEvents}>
-                <p>No {sharedSubTab} share links.</p>
-                {sharedSubTab === 'active' && (
-                  <p className={styles.hint}>Share events with temporary public links from the event page.</p>
-                )}
-              </div>
-            ) : (
-              <div className={styles.sharedLinksList}>
-                {sharedLinks
-                  .filter(l => sharedSubTab === 'active' ? !l.is_expired : l.is_expired)
-                  .map(link => {
-                    const fullUrl = `${window.location.origin}${link.share_url}`
-                    const expiresAt = new Date(link.expires_at)
-                    const isExpired = link.is_expired
-
-                    return (
-                      <div key={link.event_id} className={styles.sharedLinkCard}>
-                        <div className={styles.sharedLinkInfo}>
-                          <h3 className={styles.sharedLinkTitle}>
-                            {link.event_title}
-                            {isExpired && <span className={styles.expiredBadge}>EXPIRED</span>}
-                          </h3>
-                      <div className={styles.sharedLinkUrl}>
-                        <input
-                          type="text"
-                          value={fullUrl}
-                          readOnly
-                          className={styles.urlInput}
-                        />
-                        <button
-                          onClick={() => copyToClipboard(fullUrl, 'Share link')}
-                          className={styles.copyButton}
-                          title="Copy to clipboard"
-                        >
-                          📋 Copy
-                        </button>
-                      </div>
-                      <div className={styles.sharedLinkMeta}>
-                        <span>👁 {link.view_count} views</span>
-                        <span>·</span>
-                        <span>
-                          {isExpired ? 'Expired' : 'Expires'} {expiresAt.toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                      {editingExpiry === link.event_id ? (
-                        <div className={styles.expiryEditor}>
-                          <label htmlFor={`expiry-${link.event_id}`} className={styles.expiryLabel}>
-                            Extend link for:
-                          </label>
-                          <select
-                            id={`expiry-${link.event_id}`}
-                            className={styles.expirySelect}
-                            onChange={(e) => handleUpdateExpiry(link.event_id, parseInt(e.target.value))}
-                          >
-                            <option value="">Select days...</option>
-                            <option value="1">1 day</option>
-                            <option value="2">2 days</option>
-                            <option value="3">3 days</option>
-                            <option value="4">4 days</option>
-                            <option value="5">5 days</option>
-                          </select>
-                          <button
-                            className={styles.cancelEdit}
-                            onClick={() => setEditingExpiry(null)}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className={styles.sharedLinkActions}>
-                      {!isExpired && (
-                        <>
-                          <button
-                            className={styles.editExpiryButton}
-                            onClick={() => setEditingExpiry(link.event_id)}
-                          >
-                            📅 Edit Expiry
-                          </button>
-                          <button
-                            className={styles.disableButton}
-                            onClick={() => handleDisableShareLink(link.event_id, link.event_title)}
-                          >
-                            🔗 Disable Link
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                    )
-                  })}
-              </div>
-            )}
-          </>
-        )}
-
         {activeTab === 'trash' && (
           trash.length === 0 ? (
             <div className={styles.noEvents}>
@@ -746,11 +556,6 @@ function Profile() {
         isOpen={showRequestsModal}
         onClose={() => setShowRequestsModal(false)}
         onRequestHandled={handleRequestHandled}
-      />
-
-      <InviteFamilyModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
       />
 
       {/* Logout at bottom - only for own profile */}
