@@ -414,58 +414,73 @@ Looking forward to sharing our memories together!
         </p>
       </div>
 
-      {/* Pending Email Invitations */}
-      {sentInvitations.filter(inv => inv.status === 'pending').length > 0 && (
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Pending Invitations</h2>
-            <span className={styles.count}>{sentInvitations.filter(inv => inv.status === 'pending').length}</span>
+      {/* Email Invitations */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Email Invitations</h2>
+          <span className={styles.count}>{sentInvitations.length}</span>
+        </div>
+        {sentInvitations.length === 0 ? (
+          <div className={styles.emptyTable}>
+            <p>No email invitations sent yet.</p>
+            <p className={styles.emptyHint}>Use "+ Invite Someone" to send email invitations.</p>
           </div>
+        ) : (
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Status</th>
                   <th>Sent</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {sentInvitations.filter(inv => inv.status === 'pending').map(invite => (
+                {sentInvitations.map(invite => (
                   <tr key={invite.id}>
                     <td>{invite.invited_name || '—'}</td>
                     <td className={styles.emailCell}>{invite.invited_email}</td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${invite.status === 'signed_up' ? styles.success : styles.pending}`}>
+                        {invite.status === 'signed_up' ? 'Signed Up' : 'Pending'}
+                      </span>
+                    </td>
                     <td className={styles.dateCell}>
                       {new Date(invite.created_at).toLocaleDateString()}
                     </td>
                     <td>
-                      <div className={styles.actionButtons}>
-                        {(invite.resends_remaining === undefined || invite.resends_remaining > 0) ? (
+                      {invite.status === 'pending' ? (
+                        <div className={styles.actionButtons}>
+                          {(invite.resends_remaining === undefined || invite.resends_remaining > 0) ? (
+                            <button
+                              className={styles.resendBtn}
+                              onClick={() => handleResendInvitation(invite.id)}
+                            >
+                              Resend {invite.resends_remaining !== undefined ? `(${invite.resends_remaining})` : ''}
+                            </button>
+                          ) : (
+                            <span className={styles.noResends}>No resends left</span>
+                          )}
                           <button
-                            className={styles.resendBtn}
-                            onClick={() => handleResendInvitation(invite.id)}
+                            className={styles.cancelBtn}
+                            onClick={() => handleCancelInvitation(invite.id)}
                           >
-                            Resend {invite.resends_remaining !== undefined ? `(${invite.resends_remaining})` : ''}
+                            Cancel
                           </button>
-                        ) : (
-                          <span className={styles.noResends}>No resends left</span>
-                        )}
-                        <button
-                          className={styles.cancelBtn}
-                          onClick={() => handleCancelInvitation(invite.id)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                        </div>
+                      ) : (
+                        <span className={styles.signedUpNote}>Now following you</span>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Followers Section */}
       <div className={styles.section}>

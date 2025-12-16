@@ -854,6 +854,20 @@
   font-style: italic;
 }
 
+/* Empty hint text */
+.emptyHint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+/* Signed up note */
+.signedUpNote {
+  font-size: 13px;
+  color: #27ae60;
+  font-style: italic;
+}
+
 /* Shared Event Links */
 .shareLinkFilters {
   display: flex;
