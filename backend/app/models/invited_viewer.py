@@ -26,6 +26,10 @@ class InvitedViewer(Base):
     # Links to the user account when they sign up
     resulting_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
+    # Resend tracking (max 2 resends = 3 total sends)
+    resend_count = Column(Integer, default=0)
+    last_sent_at = Column(DateTime, default=datetime.utcnow)
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     signed_up_at = Column(DateTime, nullable=True)

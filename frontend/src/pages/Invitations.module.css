@@ -333,6 +333,12 @@
   color: #ef4444;
 }
 
+.noResendsLeft {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #666);
+  font-style: italic;
+}
+
 .viewProfileBtn {
   padding: 6px 12px;
   font-size: 0.8rem;

@@ -42,6 +42,9 @@ class InvitationResponse(BaseModel):
     created_at: datetime
     signed_up_at: Optional[datetime] = None
     resulting_user: Optional[SignedUpUserInfo] = None
+    resend_count: int = 0
+    last_sent_at: Optional[datetime] = None
+    resends_remaining: int = 2  # Computed field
 
     class Config:
         from_attributes = True
@@ -207,8 +210,10 @@ def list_invitations(
     invitations = query.order_by(InvitedViewer.created_at.desc()).all()
 
     # Build response with resulting user info
+    MAX_RESENDS = 2
     invitation_responses = []
     for inv in invitations:
+        resend_count = inv.resend_count or 0
         response = InvitationResponse(
             id=inv.id,
             inviter_id=inv.inviter_id,
@@ -217,7 +222,10 @@ def list_invitations(
             status=inv.status,
             created_at=inv.created_at,
             signed_up_at=inv.signed_up_at,
-            resulting_user=None
+            resulting_user=None,
+            resend_count=resend_count,
+            last_sent_at=inv.last_sent_at,
+            resends_remaining=max(0, MAX_RESENDS - resend_count)
         )
 
         # If they signed up, get their user info
@@ -326,7 +334,10 @@ def resend_invitation(
     """
     Resend an invitation email.
     Only for pending invitations.
+    Maximum 2 resends allowed (3 total sends).
     """
+    MAX_RESENDS = 2  # 3 total sends: initial + 2 resends
+
     invitation = db.query(InvitedViewer).filter(
         InvitedViewer.id == invitation_id,
         InvitedViewer.inviter_id == current_user.id
@@ -339,6 +350,14 @@ def resend_invitation(
         raise HTTPException(
             status_code=400,
             detail="Cannot resend - this person has already signed up"
+        )
+
+    # Check resend limit
+    current_resend_count = invitation.resend_count or 0
+    if current_resend_count >= MAX_RESENDS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Maximum resends reached. You can only send {MAX_RESENDS + 1} emails per invitation."
         )
 
     # Resend email
@@ -354,7 +373,16 @@ def resend_invitation(
         personal_message=None
     )
 
-    return {"message": "Invitation resent"}
+    # Update resend count and timestamp
+    invitation.resend_count = current_resend_count + 1
+    invitation.last_sent_at = datetime.utcnow()
+    db.commit()
+
+    remaining = MAX_RESENDS - invitation.resend_count
+    if remaining > 0:
+        return {"message": f"Invitation resent! ({remaining} resend{'s' if remaining > 1 else ''} remaining)"}
+    else:
+        return {"message": "Invitation resent! (no more resends available)"}
 
 
 @router.get("/{invitation_id}", response_model=InvitationResponse)

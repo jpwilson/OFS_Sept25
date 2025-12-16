@@ -37,10 +37,12 @@ export default function Invitations() {
 
   async function handleResend(invitationId) {
     try {
-      await apiService.resendInvitation(invitationId)
-      showToast('Invitation resent!', 'success')
+      const result = await apiService.resendInvitation(invitationId)
+      showToast(result.message || 'Invitation resent!', 'success')
+      loadInvitations() // Refresh to update resend count
     } catch (error) {
-      showToast('Failed to resend invitation', 'error')
+      const detail = error.response?.data?.detail || error.message || 'Failed to resend invitation'
+      showToast(detail, 'error')
     }
   }
 
@@ -217,13 +219,19 @@ export default function Invitations() {
 
                   {invitation.status === 'pending' && (
                     <div className={styles.actionButtons}>
-                      <button
-                        className={styles.resendBtn}
-                        onClick={() => handleResend(invitation.id)}
-                        title="Resend invitation email"
-                      >
-                        Resend
-                      </button>
+                      {invitation.resends_remaining > 0 ? (
+                        <button
+                          className={styles.resendBtn}
+                          onClick={() => handleResend(invitation.id)}
+                          title={`Resend invitation (${invitation.resends_remaining} remaining)`}
+                        >
+                          Resend ({invitation.resends_remaining})
+                        </button>
+                      ) : (
+                        <span className={styles.noResendsLeft} title="Maximum resends reached">
+                          No resends left
+                        </span>
+                      )}
                       <button
                         className={styles.cancelBtn}
                         onClick={() => handleCancel(invitation.id)}
