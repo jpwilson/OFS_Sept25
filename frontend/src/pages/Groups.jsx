@@ -84,8 +84,10 @@ function Groups() {
   async function loadInvitations() {
     try {
       const data = await apiService.getInvitations()
+      // API returns { invitations: [...], total: N }
+      const invitations = data.invitations || data || []
       // Filter to only email invitations (exclude link-based)
-      const emailInvitations = data.filter(inv => inv.invited_email)
+      const emailInvitations = invitations.filter(inv => inv.invited_email)
       setSentInvitations(emailInvitations)
     } catch (error) {
       console.error('Error loading invitations:', error)
