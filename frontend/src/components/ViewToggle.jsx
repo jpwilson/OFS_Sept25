@@ -1,10 +1,10 @@
 import styles from './ViewToggle.module.css'
 
 const VIEW_CONFIG = [
-  { id: 'feed', label: 'Feed', color: '#4a9eff' },
-  { id: 'calendar', label: 'Calendar', color: '#a855f7' },
-  { id: 'map', label: 'Map', color: '#22c55e' },
-  { id: 'timeline', label: 'Timeline', color: '#f97316' }
+  { id: 'feed', label: 'Feed', icon: '⊞' },
+  { id: 'calendar', label: 'Calendar', icon: '📅' },
+  { id: 'map', label: 'Map', icon: '🗺️' },
+  { id: 'timeline', label: 'Timeline', icon: '⏳' }
 ]
 
 export default function ViewToggle({ activeView, onChange }) {
@@ -14,15 +14,11 @@ export default function ViewToggle({ activeView, onChange }) {
         <button
           key={view.id}
           className={`${styles.button} ${activeView === view.id ? styles.active : ''}`}
-          style={{
-            '--view-color': view.color,
-            '--view-color-light': `${view.color}15`,
-            '--view-color-hover': `${view.color}25`
-          }}
           onClick={() => onChange(view.id)}
           aria-pressed={activeView === view.id}
         >
-          {view.label}
+          <span className={styles.icon}>{view.icon}</span>
+          <span className={styles.label}>{view.label}</span>
         </button>
       ))}
     </div>

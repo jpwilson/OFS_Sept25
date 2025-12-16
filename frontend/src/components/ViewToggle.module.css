@@ -1,56 +1,75 @@
 .container {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 4px 0;
-  scrollbar-width: none;
-}
-
-.container::-webkit-scrollbar {
-  display: none;
+  background: #2a2a2a;
+  border-radius: 28px;
+  padding: 4px;
+  border: 1px solid #3a3a3a;
+  gap: 2px;
 }
 
 .button {
-  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  border: 2px solid var(--view-color);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--view-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border-radius: 24px;
+  transition: all 0.25s ease;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .button:hover:not(.active) {
-  background: var(--view-color-hover);
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .button.active {
-  background: var(--view-color);
-  color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.35);
 }
 
-/* Mobile responsive */
+.icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.label {
+  line-height: 1;
+}
+
+/* Hide labels on smaller screens, show only icons */
 @media (max-width: 640px) {
   .container {
-    gap: 6px;
+    border-radius: 24px;
+    padding: 3px;
   }
 
   .button {
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .icon {
+    font-size: 18px;
   }
 }
 
-/* Small mobile */
-@media (max-width: 400px) {
+/* Very small screens */
+@media (max-width: 380px) {
   .button {
     padding: 8px 12px;
-    font-size: 12px;
+  }
+
+  .icon {
+    font-size: 16px;
   }
 }
