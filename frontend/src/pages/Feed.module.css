@@ -16,7 +16,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .pageTitle {
@@ -402,6 +403,12 @@
   margin-top: 12px;
   font-size: 13px;
   color: #999;
+}
+
+.viewContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 28px 40px;
 }
 
 .feed {

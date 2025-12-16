@@ -1,0 +1,376 @@
+.filtersContainer {
+  background: #1a1a1a;
+  padding: 16px 24px;
+  border-bottom: 1px solid #333;
+}
+
+.filtersHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.filterToggle {
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.filterToggle:hover {
+  background: #333;
+}
+
+.arrowGreen {
+  color: #00ff88;
+}
+
+.arrowRed {
+  color: #ff4757;
+}
+
+.filters {
+  margin-top: 12px;
+}
+
+/* User Search Section */
+.userSearchSection {
+  width: 100%;
+  padding: 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.userSearchSection label {
+  display: block;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.userSearchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.userSearchInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.searchLoading {
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.userSearchResults {
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.userSearchResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.userSearchResult:hover {
+  background: #222;
+  border-color: #667eea;
+}
+
+.userSearchInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px;
+  margin: -4px;
+  transition: background 0.2s;
+}
+
+.userSearchInfo:hover {
+  background: var(--bg-primary);
+}
+
+.userSearchAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.userSearchDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userSearchName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.userSearchUsername {
+  font-size: 13px;
+  color: #999;
+}
+
+.followButton,
+.followingButton,
+.followRequestedButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.followButton {
+  background: #667eea;
+  color: white;
+}
+
+.followButton:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.followingButton {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: 1px solid #667eea;
+  cursor: default;
+}
+
+.followRequestedButton {
+  background: rgba(150, 150, 150, 0.1);
+  color: #999;
+  border: 1px solid #555;
+  cursor: default;
+}
+
+/* Filter Row */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dateSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.dateSelector span {
+  font-size: 13px;
+  color: #999;
+}
+
+.dateSelector input {
+  padding: 6px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+}
+
+.dateSelector input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.categorySelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.categorySelector label {
+  font-size: 13px;
+  color: #999;
+}
+
+.categoryDropdownWrapper {
+  position: relative;
+}
+
+.categoryDropdownButton {
+  padding: 6px 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 150px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryDropdownButton:hover {
+  border-color: #667eea;
+}
+
+.dropdownArrow {
+  font-size: 10px;
+  color: #999;
+}
+
+.categoryDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  min-width: 180px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #ccc;
+  transition: background 0.2s ease;
+}
+
+.categoryOption:hover {
+  background: #2a2a2a;
+}
+
+.categoryOption input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.clearCategoriesBtn {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid #333;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.clearCategoriesBtn:hover {
+  background: #2a2a2a;
+  color: #ff4757;
+}
+
+.personFilter {
+  display: flex;
+  gap: 8px;
+}
+
+.filterButton {
+  padding: 10px 20px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filterButton:hover {
+  background: #333;
+  border-color: #667eea;
+}
+
+.filterButton.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filtersContainer {
+    padding: 12px 16px;
+  }
+
+  .filterRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dateSelector {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .personFilter {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

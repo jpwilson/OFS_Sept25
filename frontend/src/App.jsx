@@ -10,8 +10,6 @@ import EditProfile from './pages/EditProfile'
 import CreateEvent from './pages/CreateEvent'
 import EditEvent from './pages/EditEvent'
 import Login from './pages/Login'
-import Map from './pages/Map'
-import Timeline from './pages/Timeline'
 import Checkout from './pages/Checkout'
 import PricingPage from './pages/PricingPage'
 import Privacy from './pages/Privacy'
@@ -71,8 +69,9 @@ function App() {
               <Route path="/profile/:username/edit" element={<EditProfile />} />
               <Route path="/settings/notifications" element={<NotificationSettings />} />
               <Route path="/create" element={<CreateEvent />} />
-              <Route path="/map" element={<Map />} />
-              <Route path="/timeline" element={<Timeline />} />
+              {/* Legacy routes - redirect to unified explorer with view param */}
+              <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
+              <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />
               <Route path="/groups" element={<Groups />} />
             </Route>
           </Routes>

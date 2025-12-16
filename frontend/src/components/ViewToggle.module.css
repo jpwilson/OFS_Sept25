@@ -1,0 +1,56 @@
+.container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
+  scrollbar-width: none;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid var(--view-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--view-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.button:hover:not(.active) {
+  background: var(--view-color-hover);
+}
+
+.button.active {
+  background: var(--view-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .container {
+    gap: 6px;
+  }
+
+  .button {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 400px) {
+  .button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

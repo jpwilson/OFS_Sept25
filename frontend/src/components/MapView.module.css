@@ -1,0 +1,270 @@
+.mapContainer {
+  position: relative;
+  min-height: 600px;
+  height: calc(100vh - 250px);
+}
+
+.map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.eventTimeline {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timelineTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 20px;
+  transition: transform 0.3s;
+}
+
+.expandButton:hover {
+  color: var(--text-primary);
+}
+
+.eventScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.eventScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.eventScroll::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 3px;
+}
+
+.eventScroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.eventThumb {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.eventThumb:hover {
+  transform: scale(1.05);
+}
+
+.eventThumbLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.zoomToEventBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.zoomToEventBtn:hover {
+  background: rgba(34, 197, 94, 0.9);
+  transform: scale(1.1);
+}
+
+.eventThumbOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
+  padding: 12px 8px 8px;
+  color: white;
+}
+
+.eventThumbTitle {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventDate {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.eventPopup {
+  min-width: 280px;
+}
+
+.popupImage {
+  width: 100%;
+  height: 150px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px 8px 0 0;
+  margin: -15px -15px 12px -15px;
+}
+
+.popupTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.popupMeta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.viewButton {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #22c55e;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.viewButton:hover {
+  background: #16a34a;
+}
+
+.noEvents {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-tertiary);
+}
+
+/* Cluster marker styles */
+.clusterIcon {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  border: 3px solid white;
+  font-weight: 700;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.clusterIcon span {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.markerClusterSmall {
+  width: 35px;
+  height: 35px;
+}
+
+.markerClusterSmall span {
+  font-size: 12px;
+}
+
+.markerClusterMedium {
+  width: 45px;
+  height: 45px;
+}
+
+.markerClusterMedium span {
+  font-size: 15px;
+}
+
+.markerClusterLarge {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.markerClusterLarge span {
+  font-size: 16px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 768px) {
+  .mapContainer {
+    min-height: 400px;
+    height: calc(100vh - 300px);
+  }
+
+  .eventTimeline {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .eventThumb {
+    width: 100px;
+    height: 100px;
+  }
+}

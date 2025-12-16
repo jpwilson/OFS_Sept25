@@ -80,9 +80,7 @@ function Header() {
         {user && user.subscription_tier === 'free' && (
           <Link to="/billing" className={styles.premiumLink}>Go Premium</Link>
         )}
-        <Link to="/feed">Feed</Link>
-        <Link to="/map">Map</Link>
-        <Link to="/timeline">Timeline</Link>
+        <Link to="/feed">Explore</Link>
         <Link to="/groups">Sharing</Link>
         <Link to="/create">Create</Link>
         {user ? (
@@ -113,9 +111,7 @@ function Header() {
             {user && user.subscription_tier === 'free' && (
               <Link to="/billing" className={styles.premiumLink} onClick={closeMobileMenu}>Go Premium</Link>
             )}
-            <Link to="/feed" onClick={closeMobileMenu}>Feed</Link>
-            <Link to="/map" onClick={closeMobileMenu}>Map</Link>
-            <Link to="/timeline" onClick={closeMobileMenu}>Timeline</Link>
+            <Link to="/feed" onClick={closeMobileMenu}>Explore</Link>
             <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
             <Link to="/create" onClick={closeMobileMenu}>Create</Link>
             {user ? (
