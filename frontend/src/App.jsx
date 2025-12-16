@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './components/Toast'
 import { ConfirmProvider } from './components/ConfirmModal'
@@ -26,6 +26,18 @@ import NotificationSettings from './pages/NotificationSettings'
 import InvitedSignup from './pages/InvitedSignup'
 import Layout from './components/Layout'
 
+// Redirect from old /signup?invite=TOKEN format to new /join/TOKEN format
+function SignupInviteRedirect() {
+  const [searchParams] = useSearchParams()
+  const inviteToken = searchParams.get('invite')
+
+  if (inviteToken) {
+    return <Navigate to={`/join/${inviteToken}`} replace />
+  }
+  // No invite token, redirect to login with signup tab
+  return <Navigate to="/login?signup=true" replace />
+}
+
 // Component to handle root route redirect
 function RootRedirect() {
   const { user } = useAuth()
@@ -40,6 +52,7 @@ function App() {
           <Routes>
             <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignupInviteRedirect />} />
             <Route path="/signup/invited" element={<InvitedSignup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />

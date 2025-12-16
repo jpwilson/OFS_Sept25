@@ -151,8 +151,20 @@
   font-weight: 400;
 }
 
+.bioSection {
+  margin-bottom: 24px;
+}
+
+.bioLabel {
+  display: block;
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
 .bio {
-  margin: 0 0 24px;
+  margin: 0;
   padding: 16px 24px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;

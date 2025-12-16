@@ -178,13 +178,16 @@ export default function InviteLanding() {
 
           <h1 className={styles.headline}>
             <span className={styles.inviterName}>{inviterName}</span>
-            <span className={styles.inviteText}>invited you to join</span>
+            <span className={styles.inviteText}>invited you to join their Family Socials page</span>
           </h1>
 
           {inviter.bio && (
-            <blockquote className={styles.bio}>
-              "{inviter.bio}"
-            </blockquote>
+            <div className={styles.bioSection}>
+              <span className={styles.bioLabel}>{inviterName}'s bio:</span>
+              <blockquote className={styles.bio}>
+                "{inviter.bio}"
+              </blockquote>
+            </div>
           )}
 
           <div className={styles.stats}>

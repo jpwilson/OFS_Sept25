@@ -511,7 +511,7 @@ def send_viewer_invitation_email(
     Send invitation email to non-user.
     Includes signup link with invite token.
     """
-    signup_url = f"https://www.ourfamilysocials.com/signup?invite={invite_token}"
+    signup_url = f"https://www.ourfamilysocials.com/join/{invite_token}"
 
     message_html = ""
     if personal_message:
