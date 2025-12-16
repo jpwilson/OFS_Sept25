@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import styles from './UpgradeModal.module.css'
 
-export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays = 30 }) {
+export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays = 30, context = 'general' }) {
   const navigate = useNavigate()
 
   // Don't render if not open
@@ -14,6 +14,14 @@ export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays
 
   const handleMaybeLater = () => {
     if (onClose) onClose()
+  }
+
+  // Context-specific messaging
+  const getDescription = () => {
+    if (context === 'create') {
+      return "Subscribe to create new events and share your family memories. You can still view events from people you follow for free!"
+    }
+    return "Subscribe to continue creating events and viewing all content. You can still view events from people you follow for free!"
   }
 
   return (
@@ -34,7 +42,7 @@ export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays
         <h2 className={styles.title}>Your {trialDays}-Day Free Trial Has Ended</h2>
 
         <p className={styles.description}>
-          Subscribe to continue creating events and viewing all content. You can still browse the feed to see what's happening!
+          {getDescription()}
         </p>
 
         <ul className={styles.features}>

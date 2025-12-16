@@ -16,7 +16,7 @@ import styles from './CreateEvent.module.css'
 
 function CreateEvent() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isTrialExpired, canAccessContent } = useAuth()
   const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: '',
@@ -287,6 +287,22 @@ function CreateEvent() {
     } finally {
       setIsUploading(false)
     }
+  }
+
+  // Block expired trial users from creating events - show upgrade modal immediately
+  if (user && isTrialExpired && !canAccessContent) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.formWrapper}>
+          <h1 className={styles.title}>Create New Event</h1>
+          <UpgradeModal
+            isOpen={true}
+            onClose={() => navigate('/feed')}
+            context="create"
+          />
+        </div>
+      </div>
+    )
   }
 
   return (

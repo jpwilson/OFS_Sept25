@@ -683,20 +683,8 @@ function EventDetail() {
     return <div className={styles.loading}>Loading...</div>
   }
 
-  // Check if trial expired - show upgrade modal
-  if (user && isTrialExpired && !canAccessContent) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.blurredPreview}>
-          <div className={styles.blurredContent}>
-            <h1>Event Preview</h1>
-            <p>This is a preview of the event content...</p>
-          </div>
-        </div>
-        <UpgradeModal isOpen={true} onClose={() => navigate('/feed')} />
-      </div>
-    )
-  }
+  // Note: Trial expired check is now handled per-event by the backend
+  // Expired trial users can still view events from people they follow
 
   if (privacyError) {
     // Check if this is a subscription access error
