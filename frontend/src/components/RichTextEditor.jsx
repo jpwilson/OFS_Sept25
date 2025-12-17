@@ -20,6 +20,7 @@ const MAX_VIDEOS_PER_EVENT = 10
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange }) {
   const [isUploading, setIsUploading] = useState(false)
+  const [imageUploadProgress, setImageUploadProgress] = useState({ current: 0, total: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -190,10 +191,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       }
 
       setIsUploading(true)
+      setImageUploadProgress({ current: 0, total: files.length })
       const uploadedUrls = []
 
-      for (const file of files) {
-        const url = await uploadImage(file)
+      for (let i = 0; i < files.length; i++) {
+        setImageUploadProgress({ current: i + 1, total: files.length })
+        const url = await uploadImage(files[i])
         if (url) {
           uploadedUrls.push(url)
         }
@@ -208,11 +211,13 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
             html += '<p><br /></p>'
           }
         }
-        editor.chain().focus().insertContent(html).run()
+        // Add trailing paragraph so cursor has clear position for next insert
+        editor.chain().focus().insertContent(html + '<p></p>').run()
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded`, 'success')
       }
 
       setIsUploading(false)
+      setImageUploadProgress({ current: 0, total: 0 })
     }
 
     input.click()
@@ -326,8 +331,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
             thumbnailUrl,
           })
 
-          // Insert video into editor
-          editor.chain().focus().setVideo({ src: videoUrl }).run()
+          // Insert video into editor with trailing paragraph for cursor position
+          editor.chain().focus().setVideo({ src: videoUrl }).insertContent('<p></p>').run()
 
           showToast('Video uploaded successfully! Cloudinary is optimizing it.', 'success')
         } else {
@@ -492,9 +497,11 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     // Handle images
     if (imageFiles.length > 0) {
       setIsUploading(true)
+      setImageUploadProgress({ current: 0, total: imageFiles.length })
       const uploadedUrls = []
-      for (const file of imageFiles) {
-        const url = await uploadImage(file)
+      for (let i = 0; i < imageFiles.length; i++) {
+        setImageUploadProgress({ current: i + 1, total: imageFiles.length })
+        const url = await uploadImage(imageFiles[i])
         if (url) {
           uploadedUrls.push(url)
         }
@@ -511,13 +518,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
           }
         }
 
-        // Insert all content at once at the current cursor position
-        editor.chain().focus().insertContent(html).run()
+        // Insert all content at once with trailing paragraph for cursor position
+        editor.chain().focus().insertContent(html + '<p></p>').run()
 
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully`, 'success')
       }
 
       setIsUploading(false)
+      setImageUploadProgress({ current: 0, total: 0 })
     }
 
     // Handle videos
@@ -658,7 +666,11 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
             title="Add Image (or drag & drop)"
             className={styles.imageButton}
           >
-            {isUploading ? 'Uploading...' : '📷 Image'}
+            {isUploading
+              ? imageUploadProgress.total > 1
+                ? `${imageUploadProgress.current}/${imageUploadProgress.total}...`
+                : 'Uploading...'
+              : '📷 Image'}
           </button>
           <button
             type="button"
