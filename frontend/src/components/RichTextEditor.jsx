@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { useCallback, useState, useEffect } from 'react'
 import styles from './RichTextEditor.module.css'
@@ -28,6 +29,9 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const [showVideoTrimmer, setShowVideoTrimmer] = useState(false)
   const [selectedVideoFile, setSelectedVideoFile] = useState(null)
   const [videoTasks, setVideoTasks] = useState([]) // Track video upload/compression tasks
+  const [showLinkModal, setShowLinkModal] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkText, setLinkText] = useState('')
   const { showToast } = useToast()
 
   // Notify parent component about video task changes
@@ -102,6 +106,14 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         allowBase64: true
       }),
       VideoNode,
+      Link.configure({
+        openOnClick: false, // Don't open links while editing
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          class: 'editor-link'
+        }
+      }),
       Placeholder.configure({
         placeholder
       }),
@@ -572,6 +584,76 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     showToast('Location marker added', 'success')
   }, [editor, showToast])
 
+  // Open link modal - pre-fill with selected text if any
+  const openLinkModal = useCallback(() => {
+    if (!editor) return
+
+    const { from, to } = editor.state.selection
+    const selectedText = editor.state.doc.textBetween(from, to, '')
+
+    // Check if cursor is on existing link
+    const existingLink = editor.getAttributes('link').href
+
+    setLinkText(selectedText || '')
+    setLinkUrl(existingLink || '')
+    setShowLinkModal(true)
+  }, [editor])
+
+  // Insert or update link
+  const handleLinkSubmit = useCallback(() => {
+    if (!editor) return
+
+    const url = linkUrl.trim()
+    if (!url) {
+      showToast('Please enter a URL', 'error')
+      return
+    }
+
+    // Add https:// if no protocol specified
+    const finalUrl = url.match(/^https?:\/\//) ? url : `https://${url}`
+
+    const text = linkText.trim()
+
+    if (text) {
+      // Insert new link with text
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`)
+        .run()
+    } else {
+      // Apply link to selection or insert URL as text
+      const { from, to } = editor.state.selection
+      if (from === to) {
+        // No selection, insert URL as both text and link
+        editor
+          .chain()
+          .focus()
+          .insertContent(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${finalUrl}</a>`)
+          .run()
+      } else {
+        // Apply link to selection
+        editor
+          .chain()
+          .focus()
+          .setLink({ href: finalUrl })
+          .run()
+      }
+    }
+
+    setShowLinkModal(false)
+    setLinkUrl('')
+    setLinkText('')
+    showToast('Link added', 'success')
+  }, [editor, linkUrl, linkText, showToast])
+
+  // Remove link from selection
+  const removeLink = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().unsetLink().run()
+    showToast('Link removed', 'success')
+  }, [editor, showToast])
+
   if (!editor) {
     return null
   }
@@ -602,6 +684,24 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
           >
             <em>I</em>
           </button>
+          <button
+            type="button"
+            onClick={openLinkModal}
+            className={editor.isActive('link') ? styles.active : ''}
+            title="Add Link"
+          >
+            🔗
+          </button>
+          {editor.isActive('link') && (
+            <button
+              type="button"
+              onClick={removeLink}
+              className={styles.removeLink}
+              title="Remove Link"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         <div className={styles.buttonGroup}>
@@ -748,6 +848,43 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         videoFile={selectedVideoFile}
         onTrimComplete={handleTrimComplete}
       />
+
+      {/* Link Modal */}
+      {showLinkModal && (
+        <div className={styles.linkModalOverlay} onClick={() => setShowLinkModal(false)}>
+          <div className={styles.linkModal} onClick={e => e.stopPropagation()}>
+            <h3>Add Link</h3>
+            <div className={styles.linkField}>
+              <label>Display Text (optional)</label>
+              <input
+                type="text"
+                value={linkText}
+                onChange={e => setLinkText(e.target.value)}
+                placeholder="e.g., our Hawaii trip"
+                autoFocus
+              />
+            </div>
+            <div className={styles.linkField}>
+              <label>URL</label>
+              <input
+                type="text"
+                value={linkUrl}
+                onChange={e => setLinkUrl(e.target.value)}
+                placeholder="e.g., https://example.com"
+                onKeyDown={e => e.key === 'Enter' && handleLinkSubmit()}
+              />
+            </div>
+            <div className={styles.linkButtons}>
+              <button type="button" onClick={() => setShowLinkModal(false)} className={styles.cancelButton}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleLinkSubmit} className={styles.submitButton}>
+                Add Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

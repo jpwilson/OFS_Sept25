@@ -278,3 +278,133 @@
     font-size: 11px;
   }
 }
+
+/* Link styles in editor */
+.editor :global(.ProseMirror a),
+.editor :global(.ProseMirror a.editor-link) {
+  color: #667eea;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.editor :global(.ProseMirror a:hover) {
+  color: #5a6fd6;
+}
+
+/* Remove link button */
+.removeLink {
+  background: #ff4757 !important;
+  border-color: #ff4757 !important;
+  color: white !important;
+  font-size: 10px !important;
+  padding: 6px 8px !important;
+  min-width: 28px !important;
+}
+
+.removeLink:hover {
+  background: #ff3344 !important;
+  border-color: #ff3344 !important;
+}
+
+/* Link Modal */
+.linkModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.linkModal {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.linkModal h3 {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.linkField {
+  margin-bottom: 16px;
+}
+
+.linkField label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.linkField input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.linkField input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.linkField input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.linkButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.submitButton {
+  padding: 10px 20px;
+  border: none;
+  background: #667eea;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitButton:hover {
+  background: #5a6fd6;
+}
