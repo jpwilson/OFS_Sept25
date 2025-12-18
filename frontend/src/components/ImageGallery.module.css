@@ -201,16 +201,17 @@
   font-weight: 500;
 }
 
-/* Engagement Panel (fixed position overlay for lightbox) */
+/* Engagement Panel (inside lightbox slideFooter) */
 .engagementPanel {
   position: fixed;
   bottom: 140px; /* Above thumbnails */
   right: 20px;
-  z-index: 10001; /* Above lightbox */
+  z-index: 100; /* Within lightbox context */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  pointer-events: auto; /* Ensure clicks work */
 }
 
 .engagementPanel.panelExpanded {
@@ -277,6 +278,7 @@
 .commentsPanel {
   position: fixed;
   right: 20px;
+  pointer-events: auto;
   bottom: 280px;
   width: 320px;
   max-height: 400px;
