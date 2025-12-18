@@ -324,6 +324,65 @@
   color: var(--text-secondary);
 }
 
+/* Modern link styling for content */
+.description a,
+.richContent a {
+  color: #a78bfa;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
+  transition: all 0.2s ease;
+}
+
+.description a:hover,
+.richContent a:hover {
+  color: #c4b5fd;
+  border-bottom-color: #c4b5fd;
+}
+
+/* Rich content class (same as description) */
+.richContent {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.richContent img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.richContent h1 {
+  font-size: 32px;
+  margin: 32px 0 16px 0;
+}
+
+.richContent h2 {
+  font-size: 28px;
+  margin: 28px 0 14px 0;
+}
+
+.richContent h3 {
+  font-size: 24px;
+  margin: 24px 0 12px 0;
+}
+
+.richContent p {
+  margin: 16px 0;
+}
+
+.richContent ul,
+.richContent ol {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.richContent li {
+  margin: 8px 0;
+}
+
 /* CTA Footer */
 .ctaFooter {
   text-align: center;

@@ -279,17 +279,20 @@
   }
 }
 
-/* Link styles in editor */
+/* Link styles in editor - modern purple, subtle underline */
 .editor :global(.ProseMirror a),
 .editor :global(.ProseMirror a.editor-link) {
-  color: #667eea;
-  text-decoration: underline;
+  color: #a78bfa;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .editor :global(.ProseMirror a:hover) {
-  color: #5a6fd6;
+  color: #c4b5fd;
+  border-bottom-color: #c4b5fd;
 }
 
 /* Remove link button */
