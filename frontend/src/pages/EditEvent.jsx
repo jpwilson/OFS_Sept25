@@ -392,6 +392,11 @@ function EditEvent() {
                 dateFormat="MMMM d, yyyy"
                 placeholderText="Select start date"
                 className={styles.datePicker}
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
                 required
               />
             </div>
@@ -409,6 +414,11 @@ function EditEvent() {
                 dateFormat="MMMM d, yyyy"
                 placeholderText="Select end date"
                 className={styles.datePicker}
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
               />
             </div>
           </div>
