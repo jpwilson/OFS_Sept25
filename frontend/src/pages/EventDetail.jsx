@@ -44,6 +44,8 @@ function EventDetail() {
   const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
+  const likesSectionRef = useRef(null)
+  const commentsSectionRef = useRef(null)
 
   // Hide/show inline images in content
   useEffect(() => {
@@ -446,6 +448,24 @@ function EventDetail() {
     setShowAllLikes(!showAllLikes)
   }
 
+  function scrollToLikes() {
+    if (likesSectionRef.current) {
+      const offset = 80
+      const elementPosition = likesSectionRef.current.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - offset
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+    }
+  }
+
+  function scrollToComments() {
+    if (commentsSectionRef.current) {
+      const offset = 80
+      const elementPosition = commentsSectionRef.current.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - offset
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+    }
+  }
+
   function formatCommentDate(dateString) {
     const date = new Date(dateString)
     const now = new Date()
@@ -833,6 +853,24 @@ function EventDetail() {
             <span className={styles.dateMobile}>{formatDateRange(event.start_date, event.end_date, true)}</span>
             <span>·</span>
             <ShortLocation locationName={event.location_name} maxWords={3} />
+            <span className={styles.engagementStats}>
+              <button
+                className={styles.statButton}
+                onClick={scrollToLikes}
+                aria-label={`${likeStats.like_count} likes`}
+              >
+                <span className={styles.statIcon}>{likeStats.is_liked ? '♥' : '♡'}</span>
+                <span>{likeStats.like_count}</span>
+              </button>
+              <button
+                className={styles.statButton}
+                onClick={scrollToComments}
+                aria-label={`${comments.length} comments`}
+              >
+                <span className={styles.statIcon}>💬</span>
+                <span>{comments.length}</span>
+              </button>
+            </span>
           </div>
         </div>
       </div>
@@ -972,7 +1010,7 @@ function EventDetail() {
         </div>
       )}
 
-      <div className={styles.interactions}>
+      <div className={styles.interactions} ref={likesSectionRef}>
         <div className={styles.likeSection}>
           <button
             className={`${styles.likeButton} ${likeStats.is_liked ? styles.liked : ''}`}
@@ -1038,7 +1076,7 @@ function EventDetail() {
         </div>
       </div>
 
-      <div className={styles.commentsSection}>
+      <div className={styles.commentsSection} ref={commentsSectionRef}>
         <h3 className={styles.commentsTitle}>Comments ({comments.length})</h3>
 
         {user ? (

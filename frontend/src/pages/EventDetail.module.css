@@ -308,6 +308,42 @@
   border-bottom-color: #8a9ff8;
 }
 
+/* Engagement stats in header */
+.engagementStats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.statButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.statButton:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.statIcon {
+  font-size: 14px;
+}
+
+.statButton:first-child .statIcon {
+  color: #e63946;
+}
+
 .avatar {
   width: 32px;
   height: 32px;
