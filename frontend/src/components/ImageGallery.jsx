@@ -361,7 +361,7 @@ function ImageGallery({
           fade: 300
         }}
         controller={{
-          closeOnBackdropClick: true
+          closeOnBackdropClick: !enableEngagement
         }}
         on={{
           view: ({ index: currentIndex }) => {
