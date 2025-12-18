@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_optional_current_user
+from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.event_image import EventImage
 from ..models.media_like import MediaLike
@@ -109,7 +109,7 @@ def unlike_media(
 @router.get("/{media_id}/likes", response_model=MediaLikeStats)
 def get_media_likes(
     media_id: int,
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """Get likes for a media item"""
@@ -146,7 +146,7 @@ def get_media_likes(
 @router.get("/batch/likes", response_model=List[BatchMediaLikeStats])
 def get_batch_media_likes(
     ids: str = Query(..., description="Comma-separated list of media IDs"),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """Get like stats for multiple media items at once (for efficient loading)"""
