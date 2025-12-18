@@ -232,12 +232,12 @@
   font-weight: 500;
 }
 
-/* Engagement Panel (inside lightbox slideFooter) */
+/* Engagement Panel (rendered via Portal above lightbox) */
 .engagementPanel {
   position: fixed;
   bottom: 140px; /* Above thumbnails */
   right: 20px;
-  z-index: 100; /* Within lightbox context */
+  z-index: 10000; /* Above lightbox which uses ~9999 */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
