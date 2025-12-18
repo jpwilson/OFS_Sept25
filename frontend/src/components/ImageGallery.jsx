@@ -359,12 +359,20 @@ function ImageGallery({
 
       {/* Lightbox Engagement Panel (renders outside lightbox for better control) */}
       {enableEngagement && actualOpen && currentMediaId && (
-        <div className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}>
+        <div
+          className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           {/* Like and Comment buttons */}
-          <div className={styles.engagementActions}>
+          <div className={styles.engagementActions} onClick={(e) => e.stopPropagation()}>
             <button
               className={`${styles.engagementBtn} ${currentMediaLikes?.is_liked ? styles.liked : ''}`}
-              onClick={() => handleLikeMedia(currentMediaId)}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleLikeMedia(currentMediaId)
+              }}
               disabled={!user || likingMedia === currentMediaId}
               title={user ? (currentMediaLikes?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
             >
@@ -376,7 +384,9 @@ function ImageGallery({
 
             <button
               className={`${styles.engagementBtn} ${showComments ? styles.active : ''}`}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
                 setShowComments(!showComments)
                 if (!showComments && currentMediaId) {
                   loadMediaComments(currentMediaId)
@@ -391,12 +401,15 @@ function ImageGallery({
 
           {/* Comments Panel */}
           {showComments && (
-            <div className={styles.commentsPanel}>
+            <div className={styles.commentsPanel} onClick={(e) => e.stopPropagation()}>
               <div className={styles.commentsHeader}>
                 <span>Comments</span>
                 <button
                   className={styles.closeComments}
-                  onClick={() => setShowComments(false)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowComments(false)
+                  }}
                 >
                   ✕
                 </button>
@@ -420,7 +433,10 @@ function ImageGallery({
                         {user && user.id === comment.author_id && (
                           <button
                             className={styles.deleteComment}
-                            onClick={() => handleDeleteComment(comment.id)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteComment(comment.id)
+                            }}
                             title="Delete comment"
                           >
                             ✕
@@ -434,11 +450,15 @@ function ImageGallery({
               </div>
 
               {user ? (
-                <form className={styles.commentForm} onSubmit={handleAddComment}>
+                <form className={styles.commentForm} onSubmit={(e) => {
+                  e.stopPropagation()
+                  handleAddComment(e)
+                }}>
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     placeholder="Add a comment..."
                     className={styles.commentInput}
                     maxLength={1000}
@@ -447,6 +467,7 @@ function ImageGallery({
                     type="submit"
                     className={styles.submitComment}
                     disabled={!newComment.trim()}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Post
                   </button>
