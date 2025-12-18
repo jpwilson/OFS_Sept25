@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import Lightbox from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
@@ -45,6 +45,31 @@ function ImageGallery({
   const [newComment, setNewComment] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
+  const engagementPanelRef = useRef(null)
+
+  // Use native event listeners in capture phase to prevent lightbox from closing
+  useEffect(() => {
+    const panel = engagementPanelRef.current
+    if (!panel) return
+
+    const stopEvent = (e) => {
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+    }
+
+    // Capture phase listeners to intercept events before they reach lightbox
+    panel.addEventListener('click', stopEvent, true)
+    panel.addEventListener('mousedown', stopEvent, true)
+    panel.addEventListener('pointerdown', stopEvent, true)
+    panel.addEventListener('touchstart', stopEvent, true)
+
+    return () => {
+      panel.removeEventListener('click', stopEvent, true)
+      panel.removeEventListener('mousedown', stopEvent, true)
+      panel.removeEventListener('pointerdown', stopEvent, true)
+      panel.removeEventListener('touchstart', stopEvent, true)
+    }
+  }, [actualOpen, enableEngagement, currentMediaId])
 
   // Load batch media stats when component mounts or images change
   useEffect(() => {
@@ -282,17 +307,21 @@ function ImageGallery({
                   backgroundImage: `url(${getThumbnailUrl(item)})`
                 }}
               >
-                {/* Stats overlay - shows like and comment counts */}
-                {enableEngagement && stats && mediaId && (
+                {/* Stats overlay - only shows when there's actual engagement */}
+                {enableEngagement && stats && mediaId && (stats.like_count > 0 || stats.comment_count > 0) && (
                   <div className={styles.statsOverlay}>
-                    <span className={styles.statItem}>
-                      <span className={styles.statIcon}>♥</span>
-                      <span className={styles.statCount}>{stats.like_count}</span>
-                    </span>
-                    <span className={styles.statItem}>
-                      <span className={styles.statIcon}>💬</span>
-                      <span className={styles.statCount}>{stats.comment_count}</span>
-                    </span>
+                    {stats.like_count > 0 && (
+                      <span className={styles.statItem}>
+                        <span className={styles.statIcon}>♥</span>
+                        <span className={styles.statCount}>{stats.like_count}</span>
+                      </span>
+                    )}
+                    {stats.comment_count > 0 && (
+                      <span className={styles.statItem}>
+                        <span className={styles.statIcon}>💬</span>
+                        <span className={styles.statCount}>{stats.comment_count}</span>
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -385,31 +414,30 @@ function ImageGallery({
       {/* Engagement Panel - Rendered via Portal when lightbox is open */}
       {actualOpen && enableEngagement && currentMediaId && createPortal(
         <div
+          ref={engagementPanelRef}
           className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Like and Comment buttons */}
           <div className={styles.engagementActions}>
             <button
+              type="button"
               className={`${styles.engagementBtn} ${currentMediaStats?.is_liked ? styles.liked : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleLikeMedia(currentMediaId)
-              }}
+              onClick={() => handleLikeMedia(currentMediaId)}
               disabled={!user || likingMedia === currentMediaId}
               title={user ? (currentMediaStats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
             >
               <span className={styles.engagementIcon}>
                 {currentMediaStats?.is_liked ? '♥' : '♡'}
               </span>
-              <span className={styles.engagementCount}>{currentMediaStats?.like_count || 0}</span>
+              {currentMediaStats?.like_count > 0 && (
+                <span className={styles.engagementCount}>{currentMediaStats.like_count}</span>
+              )}
             </button>
 
             <button
+              type="button"
               className={`${styles.engagementBtn} ${showComments ? styles.active : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
+              onClick={() => {
                 setShowComments(!showComments)
                 if (!showComments && currentMediaId) {
                   loadMediaComments(currentMediaId)
@@ -418,21 +446,20 @@ function ImageGallery({
               title="Comments"
             >
               <span className={styles.engagementIcon}>💬</span>
-              <span className={styles.engagementCount}>{currentMediaStats?.comment_count || 0}</span>
+              {currentMediaStats?.comment_count > 0 && (
+                <span className={styles.engagementCount}>{currentMediaStats.comment_count}</span>
+              )}
             </button>
           </div>
 
           {/* Comments Panel */}
           {showComments && (
-            <div className={styles.commentsPanel} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.commentsPanel}>
               <div className={styles.commentsHeader}>
                 <span>Comments</span>
                 <button
                   className={styles.closeComments}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowComments(false)
-                  }}
+                  onClick={() => setShowComments(false)}
                 >
                   ✕
                 </button>
@@ -456,10 +483,7 @@ function ImageGallery({
                         {user && user.id === comment.author_id && (
                           <button
                             className={styles.deleteComment}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDeleteComment(comment.id)
-                            }}
+                            onClick={() => handleDeleteComment(comment.id)}
                           >
                             ✕
                           </button>
@@ -472,16 +496,11 @@ function ImageGallery({
               </div>
 
               {user ? (
-                <form className={styles.commentForm} onSubmit={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleAddComment(e)
-                }}>
+                <form className={styles.commentForm} onSubmit={handleAddComment}>
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
                     placeholder="Add a comment..."
                     className={styles.commentInput}
                     maxLength={1000}
@@ -490,7 +509,6 @@ function ImageGallery({
                     type="submit"
                     className={styles.submitComment}
                     disabled={!newComment.trim()}
-                    onClick={(e) => e.stopPropagation()}
                   >
                     Post
                   </button>
