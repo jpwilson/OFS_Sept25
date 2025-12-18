@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Lightbox from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
@@ -10,8 +10,21 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import styles from './ImageGallery.module.css'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
-function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, onViewModeChange, lightboxOpen, lightboxIndex, onLightboxChange, showCaptions = false }) {
+function ImageGallery({
+  images,
+  initialIndex = 0,
+  viewMode: controlledViewMode,
+  onViewModeChange,
+  lightboxOpen,
+  lightboxIndex,
+  onLightboxChange,
+  showCaptions = false,
+  enableEngagement = false  // New prop to enable per-media likes/comments
+}) {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
 
@@ -23,6 +36,126 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
   // Use controlled viewMode if provided, otherwise use internal state
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
   const setViewMode = onViewModeChange || setInternalViewMode
+
+  // Media engagement state
+  const [mediaLikes, setMediaLikes] = useState({}) // { mediaId: { like_count, is_liked } }
+  const [showComments, setShowComments] = useState(false)
+  const [mediaComments, setMediaComments] = useState([])
+  const [newComment, setNewComment] = useState('')
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
+
+  // Load batch media likes when component mounts or images change
+  useEffect(() => {
+    if (enableEngagement && images.length > 0) {
+      loadBatchMediaLikes()
+    }
+  }, [enableEngagement, images])
+
+  // Load comments when lightbox opens or index changes
+  useEffect(() => {
+    if (enableEngagement && actualOpen && showComments) {
+      const currentMedia = images[actualIndex]
+      if (currentMedia?.id) {
+        loadMediaComments(currentMedia.id)
+      }
+    }
+  }, [enableEngagement, actualOpen, actualIndex, showComments])
+
+  const loadBatchMediaLikes = async () => {
+    const mediaIds = images
+      .filter(img => img.id)
+      .map(img => img.id)
+
+    if (mediaIds.length === 0) return
+
+    try {
+      const stats = await api.getBatchMediaLikes(mediaIds)
+      const likesMap = {}
+      stats.forEach(stat => {
+        likesMap[stat.media_id] = {
+          like_count: stat.like_count,
+          is_liked: stat.is_liked
+        }
+      })
+      setMediaLikes(likesMap)
+    } catch (error) {
+      console.error('Failed to load media likes:', error)
+    }
+  }
+
+  const loadMediaComments = async (mediaId) => {
+    setLoadingComments(true)
+    try {
+      const comments = await api.getMediaComments(mediaId)
+      setMediaComments(comments)
+    } catch (error) {
+      console.error('Failed to load media comments:', error)
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  const handleLikeMedia = async (mediaId) => {
+    if (!user || likingMedia) return
+
+    setLikingMedia(mediaId)
+    const currentLikes = mediaLikes[mediaId] || { like_count: 0, is_liked: false }
+
+    try {
+      if (currentLikes.is_liked) {
+        await api.unlikeMedia(mediaId)
+        setMediaLikes(prev => ({
+          ...prev,
+          [mediaId]: {
+            like_count: Math.max(0, currentLikes.like_count - 1),
+            is_liked: false
+          }
+        }))
+      } else {
+        await api.likeMedia(mediaId)
+        setMediaLikes(prev => ({
+          ...prev,
+          [mediaId]: {
+            like_count: currentLikes.like_count + 1,
+            is_liked: true
+          }
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to toggle media like:', error)
+    } finally {
+      setLikingMedia(null)
+    }
+  }
+
+  const handleAddComment = async (e) => {
+    e.preventDefault()
+    if (!user || !newComment.trim()) return
+
+    const currentMedia = images[actualIndex]
+    if (!currentMedia?.id) return
+
+    try {
+      const comment = await api.createMediaComment(currentMedia.id, newComment.trim())
+      setMediaComments(prev => [...prev, comment])
+      setNewComment('')
+    } catch (error) {
+      console.error('Failed to add comment:', error)
+    }
+  }
+
+  const handleDeleteComment = async (commentId) => {
+    const currentMedia = images[actualIndex]
+    if (!currentMedia?.id) return
+
+    try {
+      await api.deleteMediaComment(currentMedia.id, commentId)
+      setMediaComments(prev => prev.filter(c => c.id !== commentId))
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    }
+  }
 
   // Helper to get full URL or extract full size from image object
   const getFullUrl = (img) => {
@@ -88,6 +221,7 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
       setIndex(imageIndex)
       setOpen(true)
     }
+    setShowComments(false) // Reset comments panel when opening
   }
 
   const closeLightbox = () => {
@@ -96,11 +230,18 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
     } else {
       setOpen(false)
     }
+    setShowComments(false)
+    setMediaComments([])
   }
 
   if (images.length === 0) {
     return null
   }
+
+  // Get current media info for lightbox
+  const currentMedia = images[actualIndex]
+  const currentMediaId = currentMedia?.id
+  const currentMediaLikes = currentMediaId ? (mediaLikes[currentMediaId] || { like_count: 0, is_liked: false }) : null
 
   return (
     <>
@@ -109,6 +250,9 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
         <div className={styles.grid}>
           {images.map((item, idx) => {
             const isVideo = item.type === 'video'
+            const mediaId = item.id
+            const likes = mediaId ? (mediaLikes[mediaId] || { like_count: 0, is_liked: false }) : null
+
             return (
               <div
                 key={idx}
@@ -118,6 +262,14 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
                   backgroundImage: `url(${getThumbnailUrl(item)})`
                 }}
               >
+                {/* Like count overlay (always visible if has likes) */}
+                {enableEngagement && likes && likes.like_count > 0 && (
+                  <div className={styles.likeOverlay}>
+                    <span className={styles.likeIcon}>♥</span>
+                    <span className={styles.likeCount}>{likes.like_count}</span>
+                  </div>
+                )}
+
                 <div className={styles.gridOverlay}>
                   {isVideo ? (
                     // Video play icon
@@ -188,6 +340,10 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
             } else {
               setIndex(currentIndex)
             }
+            // Load comments for new slide if panel is open
+            if (showComments && images[currentIndex]?.id) {
+              loadMediaComments(images[currentIndex].id)
+            }
           }
         }}
         render={{
@@ -200,6 +356,110 @@ function ImageGallery({ images, initialIndex = 0, viewMode: controlledViewMode, 
           captionsContainer: showCaptions ? {} : { display: 'none' }
         }}
       />
+
+      {/* Lightbox Engagement Panel (renders outside lightbox for better control) */}
+      {enableEngagement && actualOpen && currentMediaId && (
+        <div className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}>
+          {/* Like and Comment buttons */}
+          <div className={styles.engagementActions}>
+            <button
+              className={`${styles.engagementBtn} ${currentMediaLikes?.is_liked ? styles.liked : ''}`}
+              onClick={() => handleLikeMedia(currentMediaId)}
+              disabled={!user || likingMedia === currentMediaId}
+              title={user ? (currentMediaLikes?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
+            >
+              <span className={styles.engagementIcon}>
+                {currentMediaLikes?.is_liked ? '♥' : '♡'}
+              </span>
+              <span className={styles.engagementCount}>{currentMediaLikes?.like_count || 0}</span>
+            </button>
+
+            <button
+              className={`${styles.engagementBtn} ${showComments ? styles.active : ''}`}
+              onClick={() => {
+                setShowComments(!showComments)
+                if (!showComments && currentMediaId) {
+                  loadMediaComments(currentMediaId)
+                }
+              }}
+              title="Comments"
+            >
+              <span className={styles.engagementIcon}>💬</span>
+              <span className={styles.engagementCount}>{mediaComments.length}</span>
+            </button>
+          </div>
+
+          {/* Comments Panel */}
+          {showComments && (
+            <div className={styles.commentsPanel}>
+              <div className={styles.commentsHeader}>
+                <span>Comments</span>
+                <button
+                  className={styles.closeComments}
+                  onClick={() => setShowComments(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className={styles.commentsList}>
+                {loadingComments ? (
+                  <div className={styles.loadingComments}>Loading...</div>
+                ) : mediaComments.length === 0 ? (
+                  <div className={styles.noComments}>No comments yet</div>
+                ) : (
+                  mediaComments.map(comment => (
+                    <div key={comment.id} className={styles.comment}>
+                      <div className={styles.commentHeader}>
+                        <span className={styles.commentAuthor}>
+                          {comment.author_display_name || comment.author_username}
+                        </span>
+                        <span className={styles.commentDate}>
+                          {new Date(comment.created_at).toLocaleDateString()}
+                        </span>
+                        {user && user.id === comment.author_id && (
+                          <button
+                            className={styles.deleteComment}
+                            onClick={() => handleDeleteComment(comment.id)}
+                            title="Delete comment"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <div className={styles.commentContent}>{comment.content}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {user ? (
+                <form className={styles.commentForm} onSubmit={handleAddComment}>
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className={styles.commentInput}
+                    maxLength={1000}
+                  />
+                  <button
+                    type="submit"
+                    className={styles.submitComment}
+                    disabled={!newComment.trim()}
+                  >
+                    Post
+                  </button>
+                </form>
+              ) : (
+                <div className={styles.loginPrompt}>
+                  Login to comment
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </>
   )
 }

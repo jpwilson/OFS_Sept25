@@ -32,3 +32,5 @@ class EventImage(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     event = relationship("Event", back_populates="images")
+    media_likes = relationship("MediaLike", back_populates="event_image", cascade="all, delete-orphan")
+    media_comments = relationship("MediaComment", back_populates="event_image", cascade="all, delete-orphan")

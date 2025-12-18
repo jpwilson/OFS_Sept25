@@ -1343,6 +1343,108 @@ class ApiService {
       return { inviters: [], count: 0 }
     }
   }
+
+  // ========================================
+  // MEDIA ENGAGEMENT (Per-image/video likes & comments)
+  // ========================================
+
+  async getMediaLikes(mediaId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/likes`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch media likes')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching media likes:', error)
+      return { like_count: 0, is_liked: false, recent_likes: [] }
+    }
+  }
+
+  async likeMedia(mediaId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/likes`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to like media')
+      return await response.json()
+    } catch (error) {
+      console.error('Error liking media:', error)
+      throw error
+    }
+  }
+
+  async unlikeMedia(mediaId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/likes`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to unlike media')
+      return await response.json()
+    } catch (error) {
+      console.error('Error unliking media:', error)
+      throw error
+    }
+  }
+
+  async getBatchMediaLikes(mediaIds) {
+    try {
+      if (!mediaIds || mediaIds.length === 0) return []
+      const response = await fetch(`${API_BASE}/media/batch/likes?ids=${mediaIds.join(',')}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch batch media likes')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching batch media likes:', error)
+      return []
+    }
+  }
+
+  async getMediaComments(mediaId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments`)
+      if (!response.ok) throw new Error('Failed to fetch media comments')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching media comments:', error)
+      return []
+    }
+  }
+
+  async createMediaComment(mediaId, content) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ content })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create comment')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating media comment:', error)
+      throw error
+    }
+  }
+
+  async deleteMediaComment(mediaId, commentId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete media comment')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting media comment:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()

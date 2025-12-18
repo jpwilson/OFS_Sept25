@@ -9,3 +9,5 @@ from .share_token import ShareToken
 from .follow import Follow
 from .invited_viewer import InvitedViewer
 from .viewer_notification_log import ViewerNotificationLog
+from .media_like import MediaLike
+from .media_comment import MediaComment

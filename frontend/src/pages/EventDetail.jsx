@@ -984,6 +984,7 @@ function EventDetail() {
             lightboxOpen={lightboxState.open}
             lightboxIndex={lightboxState.index}
             onLightboxChange={setLightboxState}
+            enableEngagement={true}
           />
         </div>
       )}
