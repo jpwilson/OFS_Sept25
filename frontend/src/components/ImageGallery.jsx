@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Lightbox from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
@@ -45,36 +45,12 @@ function ImageGallery({
   const [newComment, setNewComment] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
-  const engagementPanelRef = useRef(null)
 
   // Get current media info for lightbox (moved up so it can be used in useEffect)
   const currentMedia = images[actualIndex]
   const currentMediaId = currentMedia?.id
   const currentMediaStats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
 
-  // Use native event listeners in capture phase to prevent lightbox from closing
-  useEffect(() => {
-    const panel = engagementPanelRef.current
-    if (!panel) return
-
-    const stopEvent = (e) => {
-      e.stopPropagation()
-      e.stopImmediatePropagation()
-    }
-
-    // Capture phase listeners to intercept events before they reach lightbox
-    panel.addEventListener('click', stopEvent, true)
-    panel.addEventListener('mousedown', stopEvent, true)
-    panel.addEventListener('pointerdown', stopEvent, true)
-    panel.addEventListener('touchstart', stopEvent, true)
-
-    return () => {
-      panel.removeEventListener('click', stopEvent, true)
-      panel.removeEventListener('mousedown', stopEvent, true)
-      panel.removeEventListener('pointerdown', stopEvent, true)
-      panel.removeEventListener('touchstart', stopEvent, true)
-    }
-  }, [actualOpen, enableEngagement, currentMediaId])
 
   // Load batch media stats when component mounts or images change
   useEffect(() => {
@@ -414,15 +390,20 @@ function ImageGallery({
       {/* Engagement Panel - Rendered via Portal when lightbox is open */}
       {actualOpen && enableEngagement && currentMediaId && createPortal(
         <div
-          ref={engagementPanelRef}
           className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Like and Comment buttons */}
           <div className={styles.engagementActions}>
             <button
               type="button"
               className={`${styles.engagementBtn} ${currentMediaStats?.is_liked ? styles.liked : ''}`}
-              onClick={() => handleLikeMedia(currentMediaId)}
+              onClick={(e) => {
+                e.stopPropagation()
+                console.log('Like button clicked for media:', currentMediaId)
+                handleLikeMedia(currentMediaId)
+              }}
               disabled={!user || likingMedia === currentMediaId}
               title={user ? (currentMediaStats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
             >
@@ -437,7 +418,9 @@ function ImageGallery({
             <button
               type="button"
               className={`${styles.engagementBtn} ${showComments ? styles.active : ''}`}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
+                console.log('Comment button clicked, showComments:', !showComments)
                 setShowComments(!showComments)
                 if (!showComments && currentMediaId) {
                   loadMediaComments(currentMediaId)
