@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Lightbox from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
@@ -46,6 +46,11 @@ function ImageGallery({
   const [loadingComments, setLoadingComments] = useState(false)
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
   const engagementPanelRef = useRef(null)
+
+  // Get current media info for lightbox (moved up so it can be used in useEffect)
+  const currentMedia = images[actualIndex]
+  const currentMediaId = currentMedia?.id
+  const currentMediaStats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
 
   // Use native event listeners in capture phase to prevent lightbox from closing
   useEffect(() => {
@@ -282,11 +287,6 @@ function ImageGallery({
   if (images.length === 0) {
     return null
   }
-
-  // Get current media info for lightbox
-  const currentMedia = images[actualIndex]
-  const currentMediaId = currentMedia?.id
-  const currentMediaStats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
 
   return (
     <>
