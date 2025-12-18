@@ -527,7 +527,12 @@ def get_event(
 
     event.view_count += 1
     db.commit()
-    db.refresh(event)
+
+    # Re-query with relationships loaded (refresh doesn't preserve joinedloads)
+    event = db.query(Event).options(
+        joinedload(Event.locations),
+        joinedload(Event.images)
+    ).filter(Event.id == event_id).first()
 
     event_dict = build_event_dict(event)
     return EventResponse.model_validate(event_dict)
