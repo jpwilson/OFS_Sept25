@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect, useRef } from 'react'
 import styles from './RichTextEditor.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
@@ -129,6 +129,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       }
     }
   })
+
+  // Keep a ref to the editor for async callbacks (like XHR)
+  const editorRef = useRef(editor)
+  useEffect(() => {
+    editorRef.current = editor
+  }, [editor])
 
   // Count existing media in editor content
   const countMedia = useCallback(() => {
@@ -344,9 +350,18 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
           })
 
           // Insert video into editor with trailing paragraph for cursor position
-          editor.chain().focus().setVideo({ src: videoUrl }).insertContent('<p></p>').run()
-
-          showToast('Video uploaded successfully! Cloudinary is optimizing it.', 'success')
+          // Use editorRef to get current editor (avoids stale closure in async callback)
+          const currentEditor = editorRef.current
+          if (currentEditor && !currentEditor.isDestroyed) {
+            currentEditor.chain().focus().insertContent([
+              { type: 'video', attrs: { src: videoUrl } },
+              { type: 'paragraph' }
+            ]).run()
+            showToast('Video uploaded successfully!', 'success')
+          } else {
+            console.error('Editor not available when trying to insert video')
+            showToast('Video uploaded but editor unavailable. Please try again.', 'error')
+          }
         } else {
           throw new Error(`Upload failed with status ${xhr.status}`)
         }
