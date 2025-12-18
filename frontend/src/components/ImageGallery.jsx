@@ -38,17 +38,17 @@ function ImageGallery({
   const setViewMode = onViewModeChange || setInternalViewMode
 
   // Media engagement state
-  const [mediaLikes, setMediaLikes] = useState({}) // { mediaId: { like_count, is_liked } }
+  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked } }
   const [showComments, setShowComments] = useState(false)
   const [mediaComments, setMediaComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
 
-  // Load batch media likes when component mounts or images change
+  // Load batch media stats when component mounts or images change
   useEffect(() => {
     if (enableEngagement && images.length > 0) {
-      loadBatchMediaLikes()
+      loadBatchMediaStats()
     }
   }, [enableEngagement, images])
 
@@ -62,7 +62,7 @@ function ImageGallery({
     }
   }, [enableEngagement, actualOpen, actualIndex, showComments])
 
-  const loadBatchMediaLikes = async () => {
+  const loadBatchMediaStats = async () => {
     const mediaIds = images
       .filter(img => img.id)
       .map(img => img.id)
@@ -70,17 +70,18 @@ function ImageGallery({
     if (mediaIds.length === 0) return
 
     try {
-      const stats = await api.getBatchMediaLikes(mediaIds)
-      const likesMap = {}
+      const stats = await api.getBatchMediaStats(mediaIds)
+      const statsMap = {}
       stats.forEach(stat => {
-        likesMap[stat.media_id] = {
+        statsMap[stat.media_id] = {
           like_count: stat.like_count,
+          comment_count: stat.comment_count,
           is_liked: stat.is_liked
         }
       })
-      setMediaLikes(likesMap)
+      setMediaStats(statsMap)
     } catch (error) {
-      console.error('Failed to load media likes:', error)
+      console.error('Failed to load media stats:', error)
     }
   }
 
@@ -100,24 +101,26 @@ function ImageGallery({
     if (!user || likingMedia) return
 
     setLikingMedia(mediaId)
-    const currentLikes = mediaLikes[mediaId] || { like_count: 0, is_liked: false }
+    const currentStats = mediaStats[mediaId] || { like_count: 0, comment_count: 0, is_liked: false }
 
     try {
-      if (currentLikes.is_liked) {
+      if (currentStats.is_liked) {
         await api.unlikeMedia(mediaId)
-        setMediaLikes(prev => ({
+        setMediaStats(prev => ({
           ...prev,
           [mediaId]: {
-            like_count: Math.max(0, currentLikes.like_count - 1),
+            ...currentStats,
+            like_count: Math.max(0, currentStats.like_count - 1),
             is_liked: false
           }
         }))
       } else {
         await api.likeMedia(mediaId)
-        setMediaLikes(prev => ({
+        setMediaStats(prev => ({
           ...prev,
           [mediaId]: {
-            like_count: currentLikes.like_count + 1,
+            ...currentStats,
+            like_count: currentStats.like_count + 1,
             is_liked: true
           }
         }))
@@ -140,6 +143,14 @@ function ImageGallery({
       const comment = await api.createMediaComment(currentMedia.id, newComment.trim())
       setMediaComments(prev => [...prev, comment])
       setNewComment('')
+      // Update comment count in stats
+      setMediaStats(prev => ({
+        ...prev,
+        [currentMedia.id]: {
+          ...prev[currentMedia.id],
+          comment_count: (prev[currentMedia.id]?.comment_count || 0) + 1
+        }
+      }))
     } catch (error) {
       console.error('Failed to add comment:', error)
     }
@@ -152,6 +163,14 @@ function ImageGallery({
     try {
       await api.deleteMediaComment(currentMedia.id, commentId)
       setMediaComments(prev => prev.filter(c => c.id !== commentId))
+      // Update comment count in stats
+      setMediaStats(prev => ({
+        ...prev,
+        [currentMedia.id]: {
+          ...prev[currentMedia.id],
+          comment_count: Math.max(0, (prev[currentMedia.id]?.comment_count || 1) - 1)
+        }
+      }))
     } catch (error) {
       console.error('Failed to delete comment:', error)
     }
@@ -241,7 +260,7 @@ function ImageGallery({
   // Get current media info for lightbox
   const currentMedia = images[actualIndex]
   const currentMediaId = currentMedia?.id
-  const currentMediaLikes = currentMediaId ? (mediaLikes[currentMediaId] || { like_count: 0, is_liked: false }) : null
+  const currentMediaStats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
 
   return (
     <>
@@ -251,7 +270,7 @@ function ImageGallery({
           {images.map((item, idx) => {
             const isVideo = item.type === 'video'
             const mediaId = item.id
-            const likes = mediaId ? (mediaLikes[mediaId] || { like_count: 0, is_liked: false }) : null
+            const stats = mediaId ? (mediaStats[mediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
 
             return (
               <div
@@ -262,11 +281,17 @@ function ImageGallery({
                   backgroundImage: `url(${getThumbnailUrl(item)})`
                 }}
               >
-                {/* Like count overlay (always visible if has likes) */}
-                {enableEngagement && likes && likes.like_count > 0 && (
-                  <div className={styles.likeOverlay}>
-                    <span className={styles.likeIcon}>♥</span>
-                    <span className={styles.likeCount}>{likes.like_count}</span>
+                {/* Stats overlay - shows like and comment counts */}
+                {enableEngagement && stats && mediaId && (
+                  <div className={styles.statsOverlay}>
+                    <span className={styles.statItem}>
+                      <span className={styles.statIcon}>♥</span>
+                      <span className={styles.statCount}>{stats.like_count}</span>
+                    </span>
+                    <span className={styles.statItem}>
+                      <span className={styles.statIcon}>💬</span>
+                      <span className={styles.statCount}>{stats.comment_count}</span>
+                    </span>
                   </div>
                 )}
 
@@ -359,19 +384,19 @@ function ImageGallery({
               {/* Like and Comment buttons */}
               <div className={styles.engagementActions}>
                 <button
-                  className={`${styles.engagementBtn} ${currentMediaLikes?.is_liked ? styles.liked : ''}`}
+                  className={`${styles.engagementBtn} ${currentMediaStats?.is_liked ? styles.liked : ''}`}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleLikeMedia(currentMediaId)
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
                   disabled={!user || likingMedia === currentMediaId}
-                  title={user ? (currentMediaLikes?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
+                  title={user ? (currentMediaStats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
                 >
                   <span className={styles.engagementIcon}>
-                    {currentMediaLikes?.is_liked ? '♥' : '♡'}
+                    {currentMediaStats?.is_liked ? '♥' : '♡'}
                   </span>
-                  <span className={styles.engagementCount}>{currentMediaLikes?.like_count || 0}</span>
+                  <span className={styles.engagementCount}>{currentMediaStats?.like_count || 0}</span>
                 </button>
 
                 <button

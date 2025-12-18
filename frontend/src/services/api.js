@@ -1403,6 +1403,20 @@ class ApiService {
     }
   }
 
+  async getBatchMediaStats(mediaIds) {
+    try {
+      if (!mediaIds || mediaIds.length === 0) return []
+      const response = await fetch(`${API_BASE}/media/batch/stats?ids=${mediaIds.join(',')}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch batch media stats')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching batch media stats:', error)
+      return []
+    }
+  }
+
   async getMediaComments(mediaId) {
     try {
       const response = await fetch(`${API_BASE}/media/${mediaId}/comments`)

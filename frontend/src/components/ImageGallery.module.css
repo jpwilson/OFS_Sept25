@@ -177,7 +177,38 @@
   color: white;
 }
 
-/* Like overlay on grid thumbnails */
+/* Stats overlay on grid thumbnails (like Instagram style) */
+.statsOverlay {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: white;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statIcon {
+  font-size: 14px;
+}
+
+.statCount {
+  font-weight: 600;
+}
+
+/* Legacy like overlay (keeping for backwards compatibility) */
 .likeOverlay {
   position: absolute;
   bottom: 8px;

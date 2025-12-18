@@ -52,7 +52,57 @@ class BatchMediaLikeStats(BaseModel):
     like_count: int
     is_liked: bool
 
+class BatchMediaStats(BaseModel):
+    media_id: int
+    like_count: int
+    comment_count: int
+    is_liked: bool
+
 # ============ Batch Endpoints (must be before parameterized routes) ============
+
+@router.get("/batch/stats", response_model=List[BatchMediaStats])
+def get_batch_media_stats(
+    ids: str = Query(..., description="Comma-separated list of media IDs"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    """Get like and comment stats for multiple media items at once"""
+    try:
+        media_ids = [int(id.strip()) for id in ids.split(",") if id.strip()]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid media IDs format")
+
+    if not media_ids:
+        return []
+
+    if len(media_ids) > 100:
+        raise HTTPException(status_code=400, detail="Maximum 100 media IDs per request")
+
+    results = []
+    for media_id in media_ids:
+        like_count = db.query(MediaLike).filter(
+            MediaLike.event_image_id == media_id
+        ).count()
+
+        comment_count = db.query(MediaComment).filter(
+            MediaComment.event_image_id == media_id
+        ).count()
+
+        is_liked = False
+        if current_user:
+            is_liked = db.query(MediaLike).filter(
+                MediaLike.event_image_id == media_id,
+                MediaLike.user_id == current_user.id
+            ).first() is not None
+
+        results.append(BatchMediaStats(
+            media_id=media_id,
+            like_count=like_count,
+            comment_count=comment_count,
+            is_liked=is_liked
+        ))
+
+    return results
 
 @router.get("/batch/likes", response_model=List[BatchMediaLikeStats])
 def get_batch_media_likes(
