@@ -373,6 +373,7 @@ function EditEvent() {
               placeholder="Share your experience... Add text, images, and tell your story in a beautiful magazine-style layout."
               eventStartDate={formData.start_date}
               eventEndDate={formData.end_date}
+              eventId={parseInt(id)}
             />
             <span className={styles.hint}>
               Use the toolbar to format text, add headings, and insert images. Your content will be displayed like a blog post.

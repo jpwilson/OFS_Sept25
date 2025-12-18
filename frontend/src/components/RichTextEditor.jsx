@@ -19,7 +19,7 @@ import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from
 const MAX_IMAGES_PER_EVENT = 100
 const MAX_VIDEOS_PER_EVENT = 10
 
-function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange }) {
+function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange, eventId = null }) {
   const [isUploading, setIsUploading] = useState(false)
   const [imageUploadProgress, setImageUploadProgress] = useState({ current: 0, total: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -159,28 +159,50 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
 
     try {
-      const result = await apiService.uploadImage(file)
+      let result
 
-      // Extract GPS data if enabled and available
-      if (gpsExtractionEnabled && onGPSExtracted && result.metadata?.gps) {
-        const gpsData = result.metadata.gps
-        const dateTaken = result.metadata.date_taken
+      // If we have an eventId, use uploadEventImage to track in database
+      if (eventId) {
+        result = await apiService.uploadEventImage(file, eventId)
+        // uploadEventImage returns a different format with image_url
+        const url = result.image_url
 
-        onGPSExtracted({
-          latitude: gpsData.latitude,
-          longitude: gpsData.longitude,
-          timestamp: dateTaken,
-          image_url: result.url
-        })
+        // Extract GPS data if enabled and available
+        if (gpsExtractionEnabled && onGPSExtracted && (result.latitude || result.longitude)) {
+          onGPSExtracted({
+            latitude: result.latitude,
+            longitude: result.longitude,
+            timestamp: result.timestamp,
+            image_url: url
+          })
+        }
+
+        return url
+      } else {
+        // Fallback to generic upload (for CreateEvent where no eventId yet)
+        result = await apiService.uploadImage(file)
+
+        // Extract GPS data if enabled and available
+        if (gpsExtractionEnabled && onGPSExtracted && result.metadata?.gps) {
+          const gpsData = result.metadata.gps
+          const dateTaken = result.metadata.date_taken
+
+          onGPSExtracted({
+            latitude: gpsData.latitude,
+            longitude: gpsData.longitude,
+            timestamp: dateTaken,
+            image_url: result.url
+          })
+        }
+
+        return result.url
       }
-
-      return result.url
     } catch (error) {
       console.error('Error uploading image:', error)
       showToast('Failed to upload image. Please try again.', 'error')
       return null
     }
-  }, [showToast, gpsExtractionEnabled, onGPSExtracted])
+  }, [showToast, gpsExtractionEnabled, onGPSExtracted, eventId])
 
   const addImage = useCallback(async () => {
     if (!editor) return

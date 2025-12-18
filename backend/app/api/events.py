@@ -2,16 +2,73 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
+import re
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
 from ..models.event_location import EventLocation
+from ..models.event_image import EventImage
 from ..models.follow import Follow
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
 from ..utils.location_validator import validate_location_count, extract_location_markers
 from ..services.email_service import send_new_event_notification_email
+
+
+def extract_media_urls(html_content: str) -> List[dict]:
+    """Extract image and video URLs from HTML content"""
+    media = []
+    if not html_content:
+        return media
+
+    # Extract image sources
+    img_pattern = r'<img[^>]+src=["\']([^"\']+)["\']'
+    for match in re.finditer(img_pattern, html_content):
+        url = match.group(1)
+        if url and url.startswith('http'):
+            media.append({'url': url, 'type': 'image'})
+
+    # Extract video sources
+    video_pattern = r'<video[^>]+src=["\']([^"\']+)["\']'
+    for match in re.finditer(video_pattern, html_content):
+        url = match.group(1)
+        if url and url.startswith('http'):
+            media.append({'url': url, 'type': 'video'})
+
+    return media
+
+
+def sync_event_images(event_id: int, html_content: str, db: Session):
+    """Sync event_images table with media URLs in HTML content"""
+    media_urls = extract_media_urls(html_content)
+
+    # Get existing event_images for this event
+    existing_images = db.query(EventImage).filter(EventImage.event_id == event_id).all()
+    existing_urls = {img.image_url for img in existing_images}
+
+    # Add new images that don't exist yet
+    for idx, media in enumerate(media_urls):
+        url = media['url']
+        # Normalize URL - check against full/medium/thumbnail variants
+        normalized = url.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
+
+        # Check if any variant exists
+        url_exists = any(
+            normalized == existing.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
+            for existing in existing_urls
+        )
+
+        if not url_exists:
+            event_image = EventImage(
+                event_id=event_id,
+                image_url=normalized,
+                media_type=media['type'],
+                order_index=idx
+            )
+            db.add(event_image)
+
+    db.commit()
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -293,6 +350,11 @@ def create_event(
     # Refresh event to get updated locations
     db.refresh(event)
 
+    # Sync event_images table with media URLs in HTML content
+    if event.description:
+        sync_event_images(event.id, event.description, db)
+        db.refresh(event)
+
     # Send notification to followers if event is published
     if is_published:
         try:
@@ -547,6 +609,11 @@ def update_event(
 
         db.commit()
         db.refresh(event)  # Refresh to get updated locations with timestamps
+
+    # Sync event_images table with media URLs in HTML content
+    if event.description:
+        sync_event_images(event.id, event.description, db)
+        db.refresh(event)
 
     event_dict = build_event_dict(event)
     return EventResponse.model_validate(event_dict)
