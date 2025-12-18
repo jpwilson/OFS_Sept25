@@ -835,3 +835,27 @@ def add_like(
     db.commit()
 
     return {"message": "Liked successfully"}
+
+
+@router.post("/admin/sync-event-images")
+def sync_all_event_images(
+    db: Session = Depends(get_db)
+):
+    """One-time migration to sync event_images for all existing events"""
+    events = db.query(Event).filter(Event.description.isnot(None)).all()
+    synced_count = 0
+    images_added = 0
+
+    for event in events:
+        if event.description:
+            before_count = db.query(EventImage).filter(EventImage.event_id == event.id).count()
+            sync_event_images(event.id, event.description, db)
+            after_count = db.query(EventImage).filter(EventImage.event_id == event.id).count()
+            if after_count > before_count:
+                synced_count += 1
+                images_added += (after_count - before_count)
+
+    return {
+        "message": f"Synced {synced_count} events, added {images_added} new image records",
+        "events_processed": len(events)
+    }
