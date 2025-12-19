@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useCallback, useState, useEffect, useRef } from 'react'
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react'
 import styles from './RichTextEditor.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
@@ -62,63 +62,66 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
   }, [videoTasks])
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3]
-        }
-      }),
-      Image.extend({
-        addNodeView() {
-          return ({ node }) => {
-            const wrapper = document.createElement('div')
-            wrapper.classList.add('image-wrapper')
+  // Memoize extensions to prevent duplicate registration warning in StrictMode
+  const extensions = useMemo(() => [
+    StarterKit.configure({
+      heading: {
+        levels: [1, 2, 3]
+      }
+    }),
+    Image.extend({
+      addNodeView() {
+        return ({ node }) => {
+          const wrapper = document.createElement('div')
+          wrapper.classList.add('image-wrapper')
 
-            const img = document.createElement('img')
-            img.src = node.attrs.src
-            img.alt = node.attrs.alt || ''
-            img.style.maxWidth = '200px'
-            img.style.width = 'auto'
-            img.style.height = 'auto'
-            img.style.display = 'block'
-            img.style.borderRadius = '8px'
-            img.style.margin = '16px 0'
-            img.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-            img.style.cursor = 'pointer'
+          const img = document.createElement('img')
+          img.src = node.attrs.src
+          img.alt = node.attrs.alt || ''
+          img.style.maxWidth = '200px'
+          img.style.width = 'auto'
+          img.style.height = 'auto'
+          img.style.display = 'block'
+          img.style.borderRadius = '8px'
+          img.style.margin = '16px 0'
+          img.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+          img.style.cursor = 'pointer'
 
-            wrapper.appendChild(img)
+          wrapper.appendChild(img)
 
-            return {
-              dom: wrapper,
-              contentDOM: null,
-              update: (updatedNode) => {
-                if (updatedNode.type.name !== 'image') return false
-                img.src = updatedNode.attrs.src
-                img.alt = updatedNode.attrs.alt || ''
-                return true
-              }
+          return {
+            dom: wrapper,
+            contentDOM: null,
+            update: (updatedNode) => {
+              if (updatedNode.type.name !== 'image') return false
+              img.src = updatedNode.attrs.src
+              img.alt = updatedNode.attrs.alt || ''
+              return true
             }
           }
         }
-      }).configure({
-        inline: false,
-        allowBase64: true
-      }),
-      VideoNode,
-      Link.configure({
-        openOnClick: false, // Don't open links while editing
-        HTMLAttributes: {
-          target: '_blank',
-          rel: 'noopener noreferrer',
-          class: 'editor-link'
-        }
-      }),
-      Placeholder.configure({
-        placeholder
-      }),
-      LocationMarker
-    ],
+      }
+    }).configure({
+      inline: false,
+      allowBase64: true
+    }),
+    VideoNode,
+    Link.configure({
+      openOnClick: false, // Don't open links while editing
+      HTMLAttributes: {
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        class: 'editor-link'
+      }
+    }),
+    Placeholder.configure({
+      placeholder
+    }),
+    LocationMarker
+  ], [placeholder])
+
+  const editor = useEditor({
+    extensions,
     content: content || '',
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
