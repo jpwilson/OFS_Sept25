@@ -76,6 +76,11 @@ function LocationPicker({ isOpen, onClose, onSelect, eventStartDate, eventEndDat
               minDate={minDate}
               maxDate={maxDate}
               className={styles.datePicker}
+              showYearDropdown
+              showMonthDropdown
+              dropdownMode="select"
+              yearDropdownItemNumber={100}
+              scrollableYearDropdown
             />
             {minDate && maxDate && (
               <p className={styles.hint}>
