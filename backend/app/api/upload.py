@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 import os
@@ -252,10 +252,10 @@ async def upload_file(file: UploadFile = File(...)):
 @router.post("/upload/event-image", response_model=EventImageResponse)
 async def upload_event_image(
     file: UploadFile = File(...),
-    event_id: int = None,
-    caption: Optional[str] = None,
-    order_index: int = 0,
-    alt_text: Optional[str] = None,
+    event_id: int = Form(...),
+    caption: Optional[str] = Form(None),
+    order_index: int = Form(0),
+    alt_text: Optional[str] = Form(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -263,12 +263,6 @@ async def upload_event_image(
     Upload an image for an event and save it to the event_images table
     Extracts GPS data from EXIF if available
     """
-    if not event_id:
-        raise HTTPException(
-            status_code=400,
-            detail="event_id is required"
-        )
-
     # Verify event exists and user has permission
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
@@ -551,11 +545,11 @@ async def upload_video(file: UploadFile = File(...)):
 @router.post("/upload/event-video", response_model=EventImageResponse)
 async def upload_event_video(
     file: UploadFile = File(...),
-    event_id: int = None,
-    caption: Optional[str] = None,
-    order_index: int = 0,
-    duration_seconds: Optional[int] = None,
-    thumbnail_url: Optional[str] = None,
+    event_id: int = Form(...),
+    caption: Optional[str] = Form(None),
+    order_index: int = Form(0),
+    duration_seconds: Optional[int] = Form(None),
+    thumbnail_url: Optional[str] = Form(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -563,12 +557,6 @@ async def upload_event_video(
     Upload a video for an event and save it to the event_images table
     The thumbnail should be uploaded separately first
     """
-    if not event_id:
-        raise HTTPException(
-            status_code=400,
-            detail="event_id is required"
-        )
-
     # Verify event exists and user has permission
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
