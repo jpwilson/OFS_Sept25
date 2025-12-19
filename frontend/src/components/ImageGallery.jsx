@@ -329,19 +329,26 @@ function ImageGallery({
             }
           }
         }}
-        render={{
-          buttonPrev: slides.length <= 1 ? () => null : undefined,
-          buttonNext: slides.length <= 1 ? () => null : undefined,
-          // Render engagement toolbar inside lightbox (uses useLightboxState hook)
-          iconSlideshowPlay: enableEngagement ? () => (
+        toolbar={{
+          buttons: enableEngagement ? [
             <EngagementToolbar
+              key="engagement"
               images={images}
               mediaStats={mediaStats}
               onLike={handleLikeMedia}
               user={user}
               likingMedia={likingMedia}
-            />
-          ) : undefined
+            />,
+            "slideshow",
+            "fullscreen",
+            "thumbnails",
+            "zoom",
+            "close"
+          ] : undefined
+        }}
+        render={{
+          buttonPrev: slides.length <= 1 ? () => null : undefined,
+          buttonNext: slides.length <= 1 ? () => null : undefined
         }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
