@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
-import Lightbox from "yet-another-react-lightbox"
+import { useState, useEffect, useCallback } from 'react'
+import Lightbox, { useLightboxState } from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
@@ -13,6 +12,48 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import styles from './ImageGallery.module.css'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+
+// Custom engagement toolbar component - must be rendered inside lightbox
+function EngagementToolbar({
+  images,
+  mediaStats,
+  onLike,
+  onToggleComments,
+  showComments,
+  user,
+  likingMedia
+}) {
+  const { currentIndex } = useLightboxState()
+  const currentMedia = images[currentIndex]
+  const currentMediaId = currentMedia?.id
+  const stats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
+
+  if (!currentMediaId) return null
+
+  return (
+    <div className={styles.engagementToolbar}>
+      <button
+        type="button"
+        className={`${styles.toolbarBtn} ${stats?.is_liked ? styles.liked : ''}`}
+        onClick={() => onLike(currentMediaId)}
+        disabled={!user || likingMedia === currentMediaId}
+        title={user ? (stats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
+      >
+        <span>{stats?.is_liked ? '♥' : '♡'}</span>
+        {stats?.like_count > 0 && <span>{stats.like_count}</span>}
+      </button>
+      <button
+        type="button"
+        className={`${styles.toolbarBtn} ${showComments ? styles.active : ''}`}
+        onClick={() => onToggleComments(currentMediaId)}
+        title="Comments"
+      >
+        <span>💬</span>
+        {stats?.comment_count > 0 && <span>{stats.comment_count}</span>}
+      </button>
+    </div>
+  )
+}
 
 function ImageGallery({
   images,
@@ -378,7 +419,24 @@ function ImageGallery({
         }}
         render={{
           buttonPrev: slides.length <= 1 ? () => null : undefined,
-          buttonNext: slides.length <= 1 ? () => null : undefined
+          buttonNext: slides.length <= 1 ? () => null : undefined,
+          // Render engagement toolbar inside lightbox (uses useLightboxState hook)
+          iconSlideshowPlay: enableEngagement ? () => (
+            <EngagementToolbar
+              images={images}
+              mediaStats={mediaStats}
+              onLike={handleLikeMedia}
+              onToggleComments={(mediaId) => {
+                setShowComments(!showComments)
+                if (!showComments && mediaId) {
+                  loadMediaComments(mediaId)
+                }
+              }}
+              showComments={showComments}
+              user={user}
+              likingMedia={likingMedia}
+            />
+          ) : undefined
         }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
@@ -387,124 +445,75 @@ function ImageGallery({
         }}
       />
 
-      {/* Engagement Panel - Rendered via Portal when lightbox is open */}
-      {actualOpen && enableEngagement && currentMediaId && createPortal(
-        <div
-          className={`${styles.engagementPanel} ${showComments ? styles.panelExpanded : ''}`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          {/* Like and Comment buttons */}
-          <div className={styles.engagementActions}>
-            <button
-              type="button"
-              className={`${styles.engagementBtn} ${currentMediaStats?.is_liked ? styles.liked : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                console.log('Like button clicked for media:', currentMediaId)
-                handleLikeMedia(currentMediaId)
-              }}
-              disabled={!user || likingMedia === currentMediaId}
-              title={user ? (currentMediaStats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
-            >
-              <span className={styles.engagementIcon}>
-                {currentMediaStats?.is_liked ? '♥' : '♡'}
-              </span>
-              {currentMediaStats?.like_count > 0 && (
-                <span className={styles.engagementCount}>{currentMediaStats.like_count}</span>
-              )}
-            </button>
+      {/* Comments Panel - Rendered outside lightbox but synced with lightbox state */}
+      {actualOpen && enableEngagement && showComments && currentMediaId && (
+        <div className={styles.commentsOverlay}>
+          <div className={styles.commentsPanel}>
+            <div className={styles.commentsHeader}>
+              <span>Comments</span>
+              <button
+                className={styles.closeComments}
+                onClick={() => setShowComments(false)}
+              >
+                ✕
+              </button>
+            </div>
 
-            <button
-              type="button"
-              className={`${styles.engagementBtn} ${showComments ? styles.active : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                console.log('Comment button clicked, showComments:', !showComments)
-                setShowComments(!showComments)
-                if (!showComments && currentMediaId) {
-                  loadMediaComments(currentMediaId)
-                }
-              }}
-              title="Comments"
-            >
-              <span className={styles.engagementIcon}>💬</span>
-              {currentMediaStats?.comment_count > 0 && (
-                <span className={styles.engagementCount}>{currentMediaStats.comment_count}</span>
-              )}
-            </button>
-          </div>
-
-          {/* Comments Panel */}
-          {showComments && (
-            <div className={styles.commentsPanel}>
-              <div className={styles.commentsHeader}>
-                <span>Comments</span>
-                <button
-                  className={styles.closeComments}
-                  onClick={() => setShowComments(false)}
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className={styles.commentsList}>
-                {loadingComments ? (
-                  <div className={styles.loadingComments}>Loading...</div>
-                ) : mediaComments.length === 0 ? (
-                  <div className={styles.noComments}>No comments yet</div>
-                ) : (
-                  mediaComments.map(comment => (
-                    <div key={comment.id} className={styles.comment}>
-                      <div className={styles.commentHeader}>
-                        <span className={styles.commentAuthor}>
-                          {comment.author_display_name || comment.author_username}
-                        </span>
-                        <span className={styles.commentDate}>
-                          {new Date(comment.created_at).toLocaleDateString()}
-                        </span>
-                        {user && user.id === comment.author_id && (
-                          <button
-                            className={styles.deleteComment}
-                            onClick={() => handleDeleteComment(comment.id)}
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.commentContent}>{comment.content}</div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {user ? (
-                <form className={styles.commentForm} onSubmit={handleAddComment}>
-                  <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    className={styles.commentInput}
-                    maxLength={1000}
-                  />
-                  <button
-                    type="submit"
-                    className={styles.submitComment}
-                    disabled={!newComment.trim()}
-                  >
-                    Post
-                  </button>
-                </form>
+            <div className={styles.commentsList}>
+              {loadingComments ? (
+                <div className={styles.loadingComments}>Loading...</div>
+              ) : mediaComments.length === 0 ? (
+                <div className={styles.noComments}>No comments yet</div>
               ) : (
-                <div className={styles.loginPrompt}>
-                  Login to comment
-                </div>
+                mediaComments.map(comment => (
+                  <div key={comment.id} className={styles.comment}>
+                    <div className={styles.commentHeader}>
+                      <span className={styles.commentAuthor}>
+                        {comment.author_display_name || comment.author_username}
+                      </span>
+                      <span className={styles.commentDate}>
+                        {new Date(comment.created_at).toLocaleDateString()}
+                      </span>
+                      {user && user.id === comment.author_id && (
+                        <button
+                          className={styles.deleteComment}
+                          onClick={() => handleDeleteComment(comment.id)}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <div className={styles.commentContent}>{comment.content}</div>
+                  </div>
+                ))
               )}
             </div>
-          )}
-        </div>,
-        document.body
+
+            {user ? (
+              <form className={styles.commentForm} onSubmit={handleAddComment}>
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className={styles.commentInput}
+                  maxLength={1000}
+                />
+                <button
+                  type="submit"
+                  className={styles.submitComment}
+                  disabled={!newComment.trim()}
+                >
+                  Post
+                </button>
+              </form>
+            ) : (
+              <div className={styles.loginPrompt}>
+                Login to comment
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </>
   )

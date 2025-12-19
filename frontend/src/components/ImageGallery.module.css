@@ -349,21 +349,32 @@
   text-align: center;
 }
 
+/* Comments overlay container */
+.commentsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10001;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px;
+}
+
 /* Comments Panel */
 .commentsPanel {
-  position: fixed;
-  right: 20px;
   pointer-events: auto;
-  bottom: 280px;
   width: 320px;
-  max-height: 400px;
+  max-height: 80vh;
   background: rgba(20, 20, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(10px);
-  z-index: 10001;
 }
 
 .commentsHeader {
