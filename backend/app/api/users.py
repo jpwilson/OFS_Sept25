@@ -715,14 +715,14 @@ def get_user_events(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Get their published events
+    # Get their published events, ordered by start_date (most recent first)
     events = db.query(Event).options(
         selectinload(Event.author)
     ).filter(
         Event.author_id == user.id,
         Event.is_published == True,
         Event.is_deleted == False
-    ).order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+    ).order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 
     # Build response
     response = []

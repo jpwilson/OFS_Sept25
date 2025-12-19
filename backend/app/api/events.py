@@ -176,8 +176,8 @@ def get_events(
         if category:
             query = query.filter(Event.category == category)
 
-        # Apply pagination and ordering
-        events = query.order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+        # Apply pagination and ordering - order by start_date (most recent first)
+        events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 
         print(f"[EVENTS] Found {len(events)} events")
 
@@ -448,7 +448,7 @@ def get_user_drafts(
         Event.author_id == current_user.id,
         Event.is_published == False,
         Event.is_deleted == False
-    ).order_by(Event.updated_at.desc()).all()
+    ).order_by(Event.start_date.desc()).all()
 
     response = []
     for event in drafts:
@@ -469,7 +469,7 @@ def get_user_trash(
     ).filter(
         Event.author_id == current_user.id,
         Event.is_deleted == True
-    ).order_by(Event.updated_at.desc()).all()
+    ).order_by(Event.start_date.desc()).all()
 
     response = []
     for event in trash:

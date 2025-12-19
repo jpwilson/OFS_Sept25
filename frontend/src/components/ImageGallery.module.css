@@ -202,6 +202,7 @@
 
 .statIcon {
   font-size: 14px;
+  color: #e63946;
 }
 
 .statCount {
@@ -274,6 +275,42 @@
 .toolbarCount {
   font-size: 14px;
   font-weight: 500;
+}
+
+/* Like button in lightbox toolbar */
+.toolbarLikeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(230, 57, 70, 0.15);
+  border: 2px solid rgba(230, 57, 70, 0.6);
+  border-radius: 20px;
+  color: white;
+  padding: 8px 14px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbarLikeBtn:hover:not(:disabled) {
+  background: rgba(230, 57, 70, 0.25);
+  border-color: #e63946;
+  transform: scale(1.05);
+}
+
+.toolbarLikeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbarLikeBtn.liked {
+  background: rgba(230, 57, 70, 0.3);
+  border-color: #e63946;
+}
+
+.toolbarHeart {
+  font-size: 18px;
+  color: #e63946;
 }
 
 /* Engagement Panel (rendered via Portal above lightbox) */

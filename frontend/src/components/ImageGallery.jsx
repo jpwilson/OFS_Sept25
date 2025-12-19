@@ -18,8 +18,6 @@ function EngagementToolbar({
   images,
   mediaStats,
   onLike,
-  onToggleComments,
-  showComments,
   user,
   likingMedia
 }) {
@@ -34,22 +32,13 @@ function EngagementToolbar({
     <div className={styles.engagementToolbar}>
       <button
         type="button"
-        className={`${styles.toolbarBtn} ${stats?.is_liked ? styles.liked : ''}`}
+        className={`${styles.toolbarLikeBtn} ${stats?.is_liked ? styles.liked : ''}`}
         onClick={() => onLike(currentMediaId)}
         disabled={!user || likingMedia === currentMediaId}
         title={user ? (stats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
       >
-        <span>{stats?.is_liked ? '♥' : '♡'}</span>
-        {stats?.like_count > 0 && <span>{stats.like_count}</span>}
-      </button>
-      <button
-        type="button"
-        className={`${styles.toolbarBtn} ${showComments ? styles.active : ''}`}
-        onClick={() => onToggleComments(currentMediaId)}
-        title="Comments"
-      >
-        <span>💬</span>
-        {stats?.comment_count > 0 && <span>{stats.comment_count}</span>}
+        <span className={styles.toolbarHeart}>{stats?.is_liked ? '♥' : '♡'}</span>
+        {stats?.like_count > 0 && <span className={styles.toolbarCount}>{stats.like_count}</span>}
       </button>
     </div>
   )
@@ -79,12 +68,8 @@ function ImageGallery({
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
   const setViewMode = onViewModeChange || setInternalViewMode
 
-  // Media engagement state
-  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked } }
-  const [showComments, setShowComments] = useState(false)
-  const [mediaComments, setMediaComments] = useState([])
-  const [newComment, setNewComment] = useState('')
-  const [loadingComments, setLoadingComments] = useState(false)
+  // Media engagement state (likes only - comments removed for now)
+  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, is_liked } }
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
 
   // Get current media info for lightbox (moved up so it can be used in useEffect)
@@ -99,16 +84,6 @@ function ImageGallery({
       loadBatchMediaStats()
     }
   }, [enableEngagement, images])
-
-  // Load comments when lightbox opens or index changes
-  useEffect(() => {
-    if (enableEngagement && actualOpen && showComments) {
-      const currentMedia = images[actualIndex]
-      if (currentMedia?.id) {
-        loadMediaComments(currentMedia.id)
-      }
-    }
-  }, [enableEngagement, actualOpen, actualIndex, showComments])
 
   const loadBatchMediaStats = async () => {
     const mediaIds = images
@@ -130,18 +105,6 @@ function ImageGallery({
       setMediaStats(statsMap)
     } catch (error) {
       console.error('Failed to load media stats:', error)
-    }
-  }
-
-  const loadMediaComments = async (mediaId) => {
-    setLoadingComments(true)
-    try {
-      const comments = await api.getMediaComments(mediaId)
-      setMediaComments(comments)
-    } catch (error) {
-      console.error('Failed to load media comments:', error)
-    } finally {
-      setLoadingComments(false)
     }
   }
 
@@ -177,50 +140,6 @@ function ImageGallery({
       console.error('Failed to toggle media like:', error)
     } finally {
       setLikingMedia(null)
-    }
-  }
-
-  const handleAddComment = async (e) => {
-    e.preventDefault()
-    if (!user || !newComment.trim()) return
-
-    const currentMedia = images[actualIndex]
-    if (!currentMedia?.id) return
-
-    try {
-      const comment = await api.createMediaComment(currentMedia.id, newComment.trim())
-      setMediaComments(prev => [...prev, comment])
-      setNewComment('')
-      // Update comment count in stats
-      setMediaStats(prev => ({
-        ...prev,
-        [currentMedia.id]: {
-          ...prev[currentMedia.id],
-          comment_count: (prev[currentMedia.id]?.comment_count || 0) + 1
-        }
-      }))
-    } catch (error) {
-      console.error('Failed to add comment:', error)
-    }
-  }
-
-  const handleDeleteComment = async (commentId) => {
-    const currentMedia = images[actualIndex]
-    if (!currentMedia?.id) return
-
-    try {
-      await api.deleteMediaComment(currentMedia.id, commentId)
-      setMediaComments(prev => prev.filter(c => c.id !== commentId))
-      // Update comment count in stats
-      setMediaStats(prev => ({
-        ...prev,
-        [currentMedia.id]: {
-          ...prev[currentMedia.id],
-          comment_count: Math.max(0, (prev[currentMedia.id]?.comment_count || 1) - 1)
-        }
-      }))
-    } catch (error) {
-      console.error('Failed to delete comment:', error)
     }
   }
 
@@ -288,7 +207,6 @@ function ImageGallery({
       setIndex(imageIndex)
       setOpen(true)
     }
-    setShowComments(false) // Reset comments panel when opening
   }
 
   const closeLightbox = () => {
@@ -297,8 +215,6 @@ function ImageGallery({
     } else {
       setOpen(false)
     }
-    setShowComments(false)
-    setMediaComments([])
   }
 
   if (images.length === 0) {
@@ -411,10 +327,6 @@ function ImageGallery({
             } else {
               setIndex(currentIndex)
             }
-            // Load comments for new slide if panel is open
-            if (showComments && images[currentIndex]?.id) {
-              loadMediaComments(images[currentIndex].id)
-            }
           }
         }}
         render={{
@@ -426,13 +338,6 @@ function ImageGallery({
               images={images}
               mediaStats={mediaStats}
               onLike={handleLikeMedia}
-              onToggleComments={(mediaId) => {
-                setShowComments(!showComments)
-                if (!showComments && mediaId) {
-                  loadMediaComments(mediaId)
-                }
-              }}
-              showComments={showComments}
               user={user}
               likingMedia={likingMedia}
             />
@@ -444,77 +349,6 @@ function ImageGallery({
           captionsContainer: showCaptions ? {} : { display: 'none' }
         }}
       />
-
-      {/* Comments Panel - Rendered outside lightbox but synced with lightbox state */}
-      {actualOpen && enableEngagement && showComments && currentMediaId && (
-        <div className={styles.commentsOverlay}>
-          <div className={styles.commentsPanel}>
-            <div className={styles.commentsHeader}>
-              <span>Comments</span>
-              <button
-                className={styles.closeComments}
-                onClick={() => setShowComments(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className={styles.commentsList}>
-              {loadingComments ? (
-                <div className={styles.loadingComments}>Loading...</div>
-              ) : mediaComments.length === 0 ? (
-                <div className={styles.noComments}>No comments yet</div>
-              ) : (
-                mediaComments.map(comment => (
-                  <div key={comment.id} className={styles.comment}>
-                    <div className={styles.commentHeader}>
-                      <span className={styles.commentAuthor}>
-                        {comment.author_display_name || comment.author_username}
-                      </span>
-                      <span className={styles.commentDate}>
-                        {new Date(comment.created_at).toLocaleDateString()}
-                      </span>
-                      {user && user.id === comment.author_id && (
-                        <button
-                          className={styles.deleteComment}
-                          onClick={() => handleDeleteComment(comment.id)}
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                    <div className={styles.commentContent}>{comment.content}</div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {user ? (
-              <form className={styles.commentForm} onSubmit={handleAddComment}>
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className={styles.commentInput}
-                  maxLength={1000}
-                />
-                <button
-                  type="submit"
-                  className={styles.submitComment}
-                  disabled={!newComment.trim()}
-                >
-                  Post
-                </button>
-              </form>
-            ) : (
-              <div className={styles.loginPrompt}>
-                Login to comment
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </>
   )
 }
