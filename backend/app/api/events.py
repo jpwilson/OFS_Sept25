@@ -169,6 +169,13 @@ def get_events(
             Event.is_deleted == False
         )
 
+        # TEMPORARY: Exclude seed/demo data users from the feed
+        # To re-enable demo data, comment out or remove these lines
+        # Demo users: sarahw, tomw, emmaw (IDs 1, 2, 3 from supabase_seed.sql)
+        DEMO_USER_IDS = [1, 2, 3]
+        query = query.filter(~Event.author_id.in_(DEMO_USER_IDS))
+        # END TEMPORARY
+
         # Apply privacy filtering
         query = filter_events_by_privacy(query, current_user, db)
 
