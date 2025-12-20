@@ -1,11 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LocationAutocomplete from './LocationAutocomplete';
 import DatePicker from 'react-datepicker';
 import styles from './LocationPicker.module.css';
 
 function LocationPicker({ isOpen, onClose, onSelect, eventStartDate, eventEndDate }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [timestamp, setTimestamp] = useState(new Date());
+
+  // Initialize timestamp to event start date if available, otherwise today
+  const getInitialTimestamp = () => {
+    if (eventStartDate) {
+      return new Date(eventStartDate);
+    }
+    return new Date();
+  };
+
+  const [timestamp, setTimestamp] = useState(getInitialTimestamp);
+
+  // Update timestamp when event dates change or modal opens
+  useEffect(() => {
+    if (isOpen && eventStartDate) {
+      const startDate = new Date(eventStartDate);
+      const now = new Date();
+      // If current timestamp is outside event range, reset to start date
+      if (timestamp < startDate || (eventEndDate && timestamp > new Date(eventEndDate))) {
+        setTimestamp(startDate);
+      }
+    }
+  }, [isOpen, eventStartDate, eventEndDate]);
 
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
