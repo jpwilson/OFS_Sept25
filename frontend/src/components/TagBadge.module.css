@@ -1,0 +1,81 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  background: #e8f4e8;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.badge.pending {
+  background: #fff3e0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.link:hover .label {
+  text-decoration: underline;
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2d5a27;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.pending .avatarPlaceholder {
+  background: #ff9800;
+}
+
+.label {
+  color: #2d5a27;
+  font-weight: 500;
+}
+
+.badge.pending .label {
+  color: #e65100;
+}
+
+.pendingLabel {
+  font-size: 10px;
+  color: #e65100;
+  background: rgba(255, 152, 0, 0.2);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 16px;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+.removeButton:hover {
+  color: #c62828;
+}

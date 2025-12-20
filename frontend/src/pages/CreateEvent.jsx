@@ -11,6 +11,8 @@ import LocationAutocomplete from '../components/LocationAutocomplete'
 import UpgradeModal from '../components/UpgradeModal'
 import PrivacySelector from '../components/PrivacySelector'
 import CategorySelector from '../components/CategorySelector'
+import TagPicker from '../components/TagPicker'
+import CreateTagProfileModal from '../components/CreateTagProfileModal'
 import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
@@ -49,6 +51,9 @@ function CreateEvent() {
   const [imageCaptions, setImageCaptions] = useState({})
   const [shortTitleExpanded, setShortTitleExpanded] = useState(false)
   const [isDraggingCover, setIsDraggingCover] = useState(false)
+  const [selectedTags, setSelectedTags] = useState([])
+  const [showTagProfileModal, setShowTagProfileModal] = useState(false)
+  const [newTagProfileName, setNewTagProfileName] = useState('')
 
   const handleGPSExtracted = (gpsData) => {
     setGpsLocations(prev => [...prev, gpsData])
@@ -192,6 +197,15 @@ function CreateEvent() {
       })
 
       await Promise.all(captionPromises)
+
+      // Save tags to the event
+      if (selectedTags.length > 0) {
+        const tagsToAdd = selectedTags.map(tag => ({
+          user_id: tag.type === 'user' ? tag.id : null,
+          profile_id: tag.type === 'profile' ? tag.id : null
+        }))
+        await apiService.addEventTags(event.id, tagsToAdd)
+      }
 
       showToast(isPublished ? 'Event published successfully!' : 'Draft saved successfully!', 'success')
 
@@ -358,6 +372,21 @@ function CreateEvent() {
             value={formData.category}
             onChange={(value) => setFormData({ ...formData, category: value })}
           />
+
+          <div className={styles.formGroup}>
+            <label>Tag People (Optional)</label>
+            <TagPicker
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              onCreateProfile={(name) => {
+                setNewTagProfileName(name)
+                setShowTagProfileModal(true)
+              }}
+            />
+            <span className={styles.hint}>
+              Tag family members, friends, or pets who are in this event
+            </span>
+          </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="description">Event Story</label>
@@ -562,6 +591,26 @@ function CreateEvent() {
         isOpen={showUpgradeModal}
         onClose={handleUpgradeModalClose}
         onSaveAsDraft={handleUpgradeModalSaveAsDraft}
+      />
+
+      <CreateTagProfileModal
+        isOpen={showTagProfileModal}
+        onClose={() => {
+          setShowTagProfileModal(false)
+          setNewTagProfileName('')
+        }}
+        onCreated={(profile) => {
+          // Add the newly created profile to selected tags
+          setSelectedTags(prev => [...prev, {
+            type: 'profile',
+            id: profile.id,
+            name: profile.name,
+            photo_url: profile.photo_url,
+            relationship_to_creator: profile.relationship_to_creator,
+            created_by_username: user?.username
+          }])
+        }}
+        initialName={newTagProfileName}
       />
     </div>
   )

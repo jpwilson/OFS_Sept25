@@ -40,6 +40,7 @@ class User(Base):
     notify_event_shared = Column(Boolean, default=True)  # When someone views your shared event
     notify_new_event_from_followed = Column(Boolean, default=True)  # When someone you follow posts an event
     notify_invitee_new_event = Column(Boolean, default=True)  # Receive notifications from people who invited you
+    notify_tag_request = Column(Boolean, default=True)  # Receive notifications when tagged in events
 
     # Invited Viewer fields
     is_invited_viewer = Column(Boolean, default=False)  # True if signed up via invitation

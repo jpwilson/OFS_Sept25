@@ -11,3 +11,5 @@ from .invited_viewer import InvitedViewer
 from .viewer_notification_log import ViewerNotificationLog
 from .media_like import MediaLike
 from .media_comment import MediaComment
+from .tag_profile import TagProfile
+from .event_tag import EventTag

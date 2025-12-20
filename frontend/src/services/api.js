@@ -1459,6 +1459,249 @@ class ApiService {
       throw error
     }
   }
+
+  // ========================================
+  // TAG PROFILES (for non-users: pets, kids, relatives)
+  // ========================================
+
+  async searchTagProfiles(query) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/search?q=${encodeURIComponent(query)}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to search tag profiles')
+      return await response.json()
+    } catch (error) {
+      console.error('Error searching tag profiles:', error)
+      return []
+    }
+  }
+
+  async createTagProfile(profileData) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to create tag profile')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating tag profile:', error)
+      throw error
+    }
+  }
+
+  async getTagProfile(profileId) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tag profile')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile:', error)
+      return null
+    }
+  }
+
+  async getTagProfileEvents(profileId, skip = 0, limit = 20) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/events?skip=${skip}&limit=${limit}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tag profile events')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile events:', error)
+      return []
+    }
+  }
+
+  async getMyTagProfiles() {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/mine`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch my tag profiles')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching my tag profiles:', error)
+      return []
+    }
+  }
+
+  async updateTagProfile(profileId, profileData) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}`, {
+        method: 'PUT',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to update tag profile')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating tag profile:', error)
+      throw error
+    }
+  }
+
+  async deleteTagProfile(profileId) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete tag profile')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting tag profile:', error)
+      throw error
+    }
+  }
+
+  // ========================================
+  // EVENT TAGS (tagging users/profiles in events)
+  // ========================================
+
+  async getEventTags(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/tags`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch event tags')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching event tags:', error)
+      return []
+    }
+  }
+
+  async addEventTags(eventId, tags) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/tags`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ tags })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to add event tags')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error adding event tags:', error)
+      throw error
+    }
+  }
+
+  async removeEventTag(eventId, tagId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/tags/${tagId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to remove event tag')
+      return await response.json()
+    } catch (error) {
+      console.error('Error removing event tag:', error)
+      throw error
+    }
+  }
+
+  // ========================================
+  // TAG REQUESTS (for tagged users)
+  // ========================================
+
+  async getTagRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-requests`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tag requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag requests:', error)
+      return []
+    }
+  }
+
+  async getTagRequestCount() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-requests/count`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { count: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag request count:', error)
+      return { count: 0 }
+    }
+  }
+
+  async acceptTagRequest(tagId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-requests/${tagId}/accept`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to accept tag request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error accepting tag request:', error)
+      throw error
+    }
+  }
+
+  async rejectTagRequest(tagId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-requests/${tagId}/reject`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to reject tag request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error rejecting tag request:', error)
+      throw error
+    }
+  }
+
+  async getTaggedEvents(skip = 0, limit = 20) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tagged-events?skip=${skip}&limit=${limit}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tagged events')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tagged events:', error)
+      return []
+    }
+  }
+
+  // ========================================
+  // COMBINED TAG SEARCH (users + profiles)
+  // ========================================
+
+  async searchTaggable(query) {
+    try {
+      const response = await fetch(`${API_BASE}/search/taggable?q=${encodeURIComponent(query)}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to search taggable')
+      return await response.json()
+    } catch (error) {
+      console.error('Error searching taggable:', error)
+      return []
+    }
+  }
 }
 
 export default new ApiService()

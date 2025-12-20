@@ -10,6 +10,7 @@ import ImageGallery from '../components/ImageGallery'
 import EventNavigation from '../components/EventNavigation'
 import EventMap from '../components/EventMap'
 import ShortLocation from '../components/ShortLocation'
+import TagBadge from '../components/TagBadge'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
@@ -42,6 +43,7 @@ function EventDetail() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [hideInlineImages, setHideInlineImages] = useState(false)
   const [showFloatingTOC, setShowFloatingTOC] = useState(false)
+  const [eventTags, setEventTags] = useState([])
   const contentRef = useRef(null)
   const mapRef = useRef(null)
   const likesSectionRef = useRef(null)
@@ -209,10 +211,20 @@ function EventDetail() {
     loadEvent()
     loadComments()
     loadLocations()
+    loadTags()
     if (user) {
       loadLikes()
     }
   }, [id, user])
+
+  async function loadTags() {
+    try {
+      const tags = await apiService.getEventTags(id)
+      setEventTags(tags || [])
+    } catch (error) {
+      console.error('Error loading event tags:', error)
+    }
+  }
 
   async function handleDelete() {
     const confirmed = await confirm({
@@ -872,6 +884,14 @@ function EventDetail() {
               </button>
             </span>
           </div>
+          {eventTags.length > 0 && (
+            <div className={styles.taggedPeople}>
+              <span className={styles.taggedLabel}>Tagged:</span>
+              {eventTags.filter(tag => tag.status === 'accepted').map((tag) => (
+                <TagBadge key={tag.id} tag={tag} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

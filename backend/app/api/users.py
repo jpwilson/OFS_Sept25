@@ -25,6 +25,7 @@ class NotificationPreferencesUpdate(BaseModel):
     notify_event_shared: Optional[bool] = None
     notify_new_event_from_followed: Optional[bool] = None
     notify_invitee_new_event: Optional[bool] = None
+    notify_tag_request: Optional[bool] = None
 
 @router.get("/me")
 def get_current_user_profile(
@@ -613,7 +614,8 @@ def get_notification_preferences(
         "notify_trial_reminder": current_user.notify_trial_reminder if current_user.notify_trial_reminder is not None else True,
         "notify_event_shared": current_user.notify_event_shared if current_user.notify_event_shared is not None else True,
         "notify_new_event_from_followed": current_user.notify_new_event_from_followed if current_user.notify_new_event_from_followed is not None else True,
-        "notify_invitee_new_event": current_user.notify_invitee_new_event if current_user.notify_invitee_new_event is not None else True
+        "notify_invitee_new_event": current_user.notify_invitee_new_event if current_user.notify_invitee_new_event is not None else True,
+        "notify_tag_request": current_user.notify_tag_request if current_user.notify_tag_request is not None else True
     }
 
 
@@ -638,6 +640,8 @@ def update_notification_preferences(
         current_user.notify_new_event_from_followed = preferences.notify_new_event_from_followed
     if preferences.notify_invitee_new_event is not None:
         current_user.notify_invitee_new_event = preferences.notify_invitee_new_event
+    if preferences.notify_tag_request is not None:
+        current_user.notify_tag_request = preferences.notify_tag_request
 
     db.commit()
     db.refresh(current_user)
@@ -649,7 +653,8 @@ def update_notification_preferences(
         "notify_trial_reminder": current_user.notify_trial_reminder,
         "notify_event_shared": current_user.notify_event_shared,
         "notify_new_event_from_followed": current_user.notify_new_event_from_followed,
-        "notify_invitee_new_event": current_user.notify_invitee_new_event
+        "notify_invitee_new_event": current_user.notify_invitee_new_event,
+        "notify_tag_request": current_user.notify_tag_request
     }
 
 

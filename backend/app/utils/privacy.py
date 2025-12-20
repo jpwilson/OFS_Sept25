@@ -8,6 +8,7 @@ from ..models.event import Event
 from ..models.follow import Follow
 from ..models.custom_group import CustomGroupMember
 from ..models.user import User
+from ..models.event_tag import EventTag
 
 
 def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
@@ -74,7 +75,23 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
             CustomGroupMember.group_id == event.custom_group_id,
             CustomGroupMember.user_id == viewer.id
         ).first()
-        return member is not None
+        if member:
+            return True
+
+    # Check if viewer follows someone who is tagged in this event
+    # This applies to all privacy levels except private
+    if event.privacy_level != "private":
+        tagged_followed = db.query(EventTag).join(
+            Follow,
+            (Follow.following_id == EventTag.tagged_user_id) &
+            (Follow.follower_id == viewer.id) &
+            (Follow.status == "accepted")
+        ).filter(
+            EventTag.event_id == event.id,
+            EventTag.status == "accepted"
+        ).first()
+        if tagged_followed:
+            return True
 
     # Default: deny access
     return False
@@ -189,8 +206,22 @@ def filter_events_by_privacy(
         (Event.custom_group_id.in_(group_ids))
     )
 
-    # Apply all conditions with OR
-    return query.filter(or_(*conditions))
+    # Add events where a followed user is tagged (with accepted tag)
+    # This allows viewers to see events where someone they follow is tagged
+    tagged_events = db.query(EventTag.event_id).filter(
+        EventTag.tagged_user_id.in_(
+            db.query(Follow.following_id).filter(
+                Follow.follower_id == viewer.id,
+                Follow.status == "accepted"
+            )
+        ),
+        EventTag.status == "accepted"
+    ).subquery()
+
+    conditions.append(Event.id.in_(tagged_events))
+
+    # Apply all conditions with OR (using distinct to avoid duplicates)
+    return query.filter(or_(*conditions)).distinct()
 
 
 def is_event_hidden_due_to_expired_subscription(event: Event) -> bool:

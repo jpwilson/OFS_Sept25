@@ -9,6 +9,9 @@ import LocationSelectionModal from '../components/LocationSelectionModal'
 import LocationAutocomplete from '../components/LocationAutocomplete'
 import PrivacySelector from '../components/PrivacySelector'
 import CategorySelector from '../components/CategorySelector'
+import TagPicker from '../components/TagPicker'
+import CreateTagProfileModal from '../components/CreateTagProfileModal'
+import TagBadge from '../components/TagBadge'
 import { validateLocationCount } from '../utils/locationExtractor'
 import styles from './CreateEvent.module.css'
 
@@ -47,6 +50,10 @@ function EditEvent() {
   const [captionsExpanded, setCaptionsExpanded] = useState(false)
   const [imageCaptions, setImageCaptions] = useState({})
   const [existingEventImages, setExistingEventImages] = useState([])
+  const [selectedTags, setSelectedTags] = useState([])
+  const [existingTags, setExistingTags] = useState([])
+  const [showTagProfileModal, setShowTagProfileModal] = useState(false)
+  const [newTagProfileName, setNewTagProfileName] = useState('')
 
   useEffect(() => {
     loadEvent()
@@ -103,6 +110,37 @@ function EditEvent() {
       } catch (error) {
         console.error('Error loading event images:', error)
         // Non-critical, continue loading
+      }
+
+      // Load existing tags
+      try {
+        const tags = await apiService.getEventTags(id)
+        setExistingTags(tags || [])
+        // Convert to TagPicker format
+        const tagPickerFormat = (tags || []).map(tag => {
+          if (tag.tagged_user_id) {
+            return {
+              type: 'user',
+              id: tag.tagged_user_id,
+              name: tag.tagged_user_display_name || tag.tagged_user_username,
+              display_name: tag.tagged_user_display_name,
+              photo_url: tag.tagged_user_avatar_url,
+              username: tag.tagged_user_username
+            }
+          } else {
+            return {
+              type: 'profile',
+              id: tag.tag_profile_id,
+              name: tag.tag_profile_name,
+              photo_url: tag.tag_profile_photo_url,
+              relationship_to_creator: tag.tag_profile_relationship,
+              created_by_username: tag.tag_profile_created_by_username
+            }
+          }
+        })
+        setSelectedTags(tagPickerFormat)
+      } catch (error) {
+        console.error('Error loading event tags:', error)
       }
 
       setLoading(false)
@@ -258,6 +296,37 @@ function EditEvent() {
 
       await Promise.all(captionPromises)
 
+      // Handle tags - remove old ones that are no longer selected, add new ones
+      // First, find tags to remove
+      const currentTagKeys = selectedTags.map(t =>
+        t.type === 'user' ? `user:${t.id}` : `profile:${t.id}`
+      )
+      const existingTagKeys = existingTags.map(t =>
+        t.tagged_user_id ? `user:${t.tagged_user_id}` : `profile:${t.tag_profile_id}`
+      )
+
+      // Remove tags that were deleted
+      for (const tag of existingTags) {
+        const key = tag.tagged_user_id ? `user:${tag.tagged_user_id}` : `profile:${tag.tag_profile_id}`
+        if (!currentTagKeys.includes(key)) {
+          await apiService.removeEventTag(id, tag.id)
+        }
+      }
+
+      // Add new tags
+      const newTags = selectedTags.filter(t => {
+        const key = t.type === 'user' ? `user:${t.id}` : `profile:${t.id}`
+        return !existingTagKeys.includes(key)
+      })
+
+      if (newTags.length > 0) {
+        const tagsToAdd = newTags.map(tag => ({
+          user_id: tag.type === 'user' ? tag.id : null,
+          profile_id: tag.type === 'profile' ? tag.id : null
+        }))
+        await apiService.addEventTags(id, tagsToAdd)
+      }
+
       const action = shouldPublish !== undefined
         ? (shouldPublish ? 'published' : 'saved as draft')
         : 'updated'
@@ -348,6 +417,21 @@ function EditEvent() {
             value={formData.category}
             onChange={(value) => setFormData({ ...formData, category: value })}
           />
+
+          <div className={styles.formGroup}>
+            <label>Tag People (Optional)</label>
+            <TagPicker
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              onCreateProfile={(name) => {
+                setNewTagProfileName(name)
+                setShowTagProfileModal(true)
+              }}
+            />
+            <span className={styles.hint}>
+              Tag family members, friends, or pets who are in this event
+            </span>
+          </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="summary">Summary (Optional)</label>
@@ -553,6 +637,26 @@ function EditEvent() {
         onClose={() => setShowLocationModal(false)}
         locations={allLocations}
         onConfirm={handleLocationConfirm}
+      />
+
+      <CreateTagProfileModal
+        isOpen={showTagProfileModal}
+        onClose={() => {
+          setShowTagProfileModal(false)
+          setNewTagProfileName('')
+        }}
+        onCreated={(profile) => {
+          // Add the newly created profile to selected tags
+          setSelectedTags(prev => [...prev, {
+            type: 'profile',
+            id: profile.id,
+            name: profile.name,
+            photo_url: profile.photo_url,
+            relationship_to_creator: profile.relationship_to_creator,
+            created_by_username: profile.created_by_username
+          }])
+        }}
+        initialName={newTagProfileName}
       />
     </div>
   )
