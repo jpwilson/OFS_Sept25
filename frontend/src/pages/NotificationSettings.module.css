@@ -504,11 +504,53 @@ input:disabled + .slider {
   margin-bottom: 32px;
 }
 
+.subsectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
 .subsectionTitle {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
+}
+
+/* Create buttons */
+.createButton {
+  padding: 8px 16px;
+  background: #2d5a27;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.createButton:hover {
+  background: #1e3d1a;
+}
+
+.createButtonLarge {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: #2d5a27;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.createButtonLarge:hover {
+  background: #1e3d1a;
 }
 
 /* Status badges for sent requests */

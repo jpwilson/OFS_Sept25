@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
+import CreateTagProfileModal from '../components/CreateTagProfileModal'
 import apiService from '../services/api'
 import styles from './NotificationSettings.module.css'
 
@@ -39,6 +40,7 @@ export default function NotificationSettings() {
   const [tagsLoading, setTagsLoading] = useState(false)
   const [processingTag, setProcessingTag] = useState(null)
   const [showTagHistory, setShowTagHistory] = useState(false)
+  const [showCreateTagModal, setShowCreateTagModal] = useState(false)
 
   // Scroll to top on mount
   useEffect(() => {
@@ -157,6 +159,11 @@ export default function NotificationSettings() {
     } finally {
       setProcessingTag(null)
     }
+  }
+
+  function handleTagProfileCreated(profile) {
+    setMyTagProfiles(prev => [profile, ...prev])
+    showToast('Tag profile created', 'success')
   }
 
   // --- Preferences Handlers ---
@@ -514,16 +521,31 @@ export default function NotificationSettings() {
 
                 {/* My Tag Profiles */}
                 <div className={styles.subsection}>
-                  <h2 className={styles.subsectionTitle}>Your Tag Profiles</h2>
-                  <p className={styles.sectionDescription}>
-                    People without accounts that you've created for tagging (pets, kids, relatives)
-                  </p>
+                  <div className={styles.subsectionHeader}>
+                    <div>
+                      <h2 className={styles.subsectionTitle}>Your Tag Profiles</h2>
+                      <p className={styles.sectionDescription}>
+                        People without accounts that you've created for tagging (pets, kids, relatives)
+                      </p>
+                    </div>
+                    <button
+                      className={styles.createButton}
+                      onClick={() => setShowCreateTagModal(true)}
+                    >
+                      + Create
+                    </button>
+                  </div>
 
                   {myTagProfiles.length === 0 ? (
                     <div className={styles.emptyState}>
                       <span className={styles.emptyIcon}>👤</span>
                       <p>No tag profiles created yet</p>
-                      <p className={styles.emptyHint}>Create tag profiles when tagging people in your events</p>
+                      <button
+                        className={styles.createButtonLarge}
+                        onClick={() => setShowCreateTagModal(true)}
+                      >
+                        + Create Tag Profile
+                      </button>
                     </div>
                   ) : (
                     <div className={styles.requestsList}>
@@ -554,6 +576,13 @@ export default function NotificationSettings() {
                     </div>
                   )}
                 </div>
+
+                {/* Create Tag Profile Modal */}
+                <CreateTagProfileModal
+                  isOpen={showCreateTagModal}
+                  onClose={() => setShowCreateTagModal(false)}
+                  onCreated={handleTagProfileCreated}
+                />
               </>
             )}
           </div>
