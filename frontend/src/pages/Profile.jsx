@@ -5,7 +5,6 @@ import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
-import FollowRequestsModal from '../components/FollowRequestsModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
 import styles from './Profile.module.css'
@@ -28,9 +27,7 @@ function Profile() {
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'published') // published, drafts, or trash
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
-  const [showRequestsModal, setShowRequestsModal] = useState(false)
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
-  const [requestCount, setRequestCount] = useState(0)
   const [theme, setTheme] = useState(() => {
     // Get theme from localStorage, default to 'dark'
     return localStorage.getItem('theme') || 'dark'
@@ -61,7 +58,6 @@ function Profile() {
     if (isOwnProfile) {
       loadDrafts()
       loadTrash()
-      loadRequestCount()
     }
     if (currentUser && !isOwnProfile) {
       checkFollowStatus()
@@ -146,25 +142,6 @@ function Profile() {
   function handleShowFollowing() {
     setFollowModalType('following')
     setShowFollowModal(true)
-  }
-
-  function handleShowRequests() {
-    setShowRequestsModal(true)
-  }
-
-  async function loadRequestCount() {
-    try {
-      const data = await apiService.getFollowRequestCount()
-      setRequestCount(data.count || 0)
-    } catch (error) {
-      console.error('Failed to load follow request count:', error)
-    }
-  }
-
-  async function handleRequestHandled() {
-    // Reload profile to update follower counts and request count
-    await loadProfile()
-    await loadRequestCount()
   }
 
   async function handleRestore(eventId) {
@@ -323,15 +300,6 @@ function Profile() {
               <Link to="/settings/notifications" className={styles.notificationsButton}>
                 Notifications
               </Link>
-              <button
-                onClick={handleShowRequests}
-                className={styles.requestsButton}
-              >
-                Follow Requests
-                {requestCount > 0 && (
-                  <span className={styles.requestsBadge}>{requestCount}</span>
-                )}
-              </button>
               <Link to="/create" className={styles.createButton}>
                 Create Event
               </Link>
@@ -550,12 +518,6 @@ function Profile() {
         onClose={() => setShowFollowModal(false)}
         username={username}
         type={followModalType}
-      />
-
-      <FollowRequestsModal
-        isOpen={showRequestsModal}
-        onClose={() => setShowRequestsModal(false)}
-        onRequestHandled={handleRequestHandled}
       />
 
       {/* Logout at bottom - only for own profile */}

@@ -116,11 +116,11 @@ export default function NotificationSettings() {
 
   // --- Follow Handlers ---
 
-  async function handleAcceptFollow(followerId) {
-    setProcessingFollow(followerId)
+  async function handleAcceptFollow(requestId) {
+    setProcessingFollow(requestId)
     try {
-      await apiService.acceptFollowRequest(followerId)
-      setFollowRequestsToYou(prev => prev.filter(r => r.id !== followerId))
+      await apiService.acceptFollowRequest(requestId)
+      setFollowRequestsToYou(prev => prev.filter(r => r.request_id !== requestId))
       showToast('Follow request accepted', 'success')
     } catch (error) {
       showToast('Failed to accept follow request', 'error')
@@ -129,14 +129,27 @@ export default function NotificationSettings() {
     }
   }
 
-  async function handleRejectFollow(followerId) {
-    setProcessingFollow(followerId)
+  async function handleRejectFollow(requestId) {
+    setProcessingFollow(requestId)
     try {
-      await apiService.rejectFollowRequest(followerId)
-      setFollowRequestsToYou(prev => prev.filter(r => r.id !== followerId))
+      await apiService.rejectFollowRequest(requestId)
+      setFollowRequestsToYou(prev => prev.filter(r => r.request_id !== requestId))
       showToast('Follow request rejected', 'success')
     } catch (error) {
       showToast('Failed to reject follow request', 'error')
+    } finally {
+      setProcessingFollow(null)
+    }
+  }
+
+  async function handleCancelFollow(username, fullName) {
+    setProcessingFollow(username)
+    try {
+      await apiService.unfollowUser(username)
+      setFollowRequestsByYou(prev => prev.filter(r => r.username !== username))
+      showToast(`Cancelled follow request to ${fullName || username}`, 'success')
+    } catch (error) {
+      showToast('Failed to cancel request', 'error')
     } finally {
       setProcessingFollow(null)
     }
@@ -293,9 +306,9 @@ export default function NotificationSettings() {
     return '← Back to Profile'
   }
 
-  // Counts for badges
-  const pendingFollowsToYou = followRequestsToYou.filter(r => r.status === 'pending' || !r.status).length
-  const pendingTagsToYou = tagRequestsToYou.filter(r => r.status === 'pending').length
+  // Counts for badges (API already returns only pending requests)
+  const pendingFollowsToYou = followRequestsToYou.length
+  const pendingTagsToYou = tagRequestsToYou.length
   const pendingClaimsToYou = profileClaimsToYou.filter(c => c.status === 'pending').length
   const totalPendingTags = pendingTagsToYou + pendingClaimsToYou
 
@@ -375,40 +388,40 @@ export default function NotificationSettings() {
                     People who want to follow you
                   </p>
 
-                  {followRequestsToYou.filter(r => r.status === 'pending' || !r.status).length === 0 ? (
+                  {followRequestsToYou.length === 0 ? (
                     <div className={styles.emptyState}>
                       <span className={styles.emptyIcon}>👥</span>
                       <p>No pending follow requests</p>
                     </div>
                   ) : (
                     <div className={styles.requestsList}>
-                      {followRequestsToYou.filter(r => r.status === 'pending' || !r.status).map(request => (
-                        <div key={request.id} className={styles.requestItem}>
-                          <Link to={`/profile/${request.follower_username}`} className={styles.requestInfo}>
+                      {followRequestsToYou.map(request => (
+                        <div key={request.request_id} className={styles.requestItem}>
+                          <Link to={`/profile/${request.username}`} className={styles.requestInfo}>
                             {request.avatar_url ? (
                               <img src={request.avatar_url} alt="" className={styles.requestAvatar} />
                             ) : (
                               <div className={styles.requestAvatarPlaceholder}>
-                                {request.follower_username?.[0]?.toUpperCase() || '?'}
+                                {request.username?.[0]?.toUpperCase() || '?'}
                               </div>
                             )}
                             <div className={styles.requestDetails}>
-                              <strong>{request.display_name || request.follower_username}</strong>
-                              <p>@{request.follower_username}</p>
+                              <strong>{request.full_name || request.username}</strong>
+                              <p>@{request.username}</p>
                             </div>
                           </Link>
                           <div className={styles.requestActions}>
                             <button
                               className={styles.acceptButton}
-                              onClick={() => handleAcceptFollow(request.id)}
-                              disabled={processingFollow === request.id}
+                              onClick={() => handleAcceptFollow(request.request_id)}
+                              disabled={processingFollow === request.request_id}
                             >
                               Accept
                             </button>
                             <button
                               className={styles.rejectButton}
-                              onClick={() => handleRejectFollow(request.id)}
-                              disabled={processingFollow === request.id}
+                              onClick={() => handleRejectFollow(request.request_id)}
+                              disabled={processingFollow === request.request_id}
                             >
                               Reject
                             </button>
@@ -434,24 +447,28 @@ export default function NotificationSettings() {
                   ) : (
                     <div className={styles.requestsList}>
                       {followRequestsByYou.map(request => (
-                        <div key={request.id} className={styles.requestItem}>
-                          <Link to={`/profile/${request.following_username}`} className={styles.requestInfo}>
+                        <div key={request.request_id} className={styles.requestItem}>
+                          <Link to={`/profile/${request.username}`} className={styles.requestInfo}>
                             {request.avatar_url ? (
                               <img src={request.avatar_url} alt="" className={styles.requestAvatar} />
                             ) : (
                               <div className={styles.requestAvatarPlaceholder}>
-                                {request.following_username?.[0]?.toUpperCase() || '?'}
+                                {request.username?.[0]?.toUpperCase() || '?'}
                               </div>
                             )}
                             <div className={styles.requestDetails}>
-                              <strong>{request.display_name || request.following_username}</strong>
-                              <p>@{request.following_username}</p>
+                              <strong>{request.full_name || request.username}</strong>
+                              <p>@{request.username}</p>
                             </div>
                           </Link>
-                          <div className={styles.statusBadge}>
-                            <span className={`${styles.status} ${styles[request.status || 'pending']}`}>
-                              {request.status || 'Pending'}
-                            </span>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => handleCancelFollow(request.username, request.full_name)}
+                              disabled={processingFollow === request.username}
+                            >
+                              Cancel
+                            </button>
                           </div>
                         </div>
                       ))}
