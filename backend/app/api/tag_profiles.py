@@ -2,17 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from typing import List, Optional
+from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.tag_profile import TagProfile
+from ..models.tag_profile_claim import TagProfileClaim
 from ..models.follow import Follow
 from ..models.event_tag import EventTag
 from ..schemas.tag_profile import (
     TagProfileCreate,
     TagProfileUpdate,
     TagProfileResponse,
-    TagProfileSearchResult
+    TagProfileSearchResult,
+    TagProfileClaimCreate,
+    TagProfileClaimResponse,
+    TagProfileClaimSentResponse
 )
 
 router = APIRouter(prefix="/tag-profiles", tags=["tag-profiles"])
@@ -303,3 +308,275 @@ def delete_tag_profile(
     db.commit()
 
     return {"message": "Tag profile deleted"}
+
+
+# ============================================================================
+# Tag Profile Claim Endpoints
+# ============================================================================
+
+claims_router = APIRouter(prefix="/me", tags=["tag-profile-claims"])
+
+
+@router.post("/{profile_id}/claim", response_model=TagProfileClaimSentResponse)
+def create_claim_request(
+    profile_id: int,
+    claim_data: TagProfileClaimCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Request to claim a tag profile as your identity.
+    The tag profile creator will need to approve this request.
+    """
+    profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tag profile not found"
+        )
+
+    if profile.is_merged:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This tag profile has already been claimed"
+        )
+
+    if profile.created_by_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot claim your own tag profile"
+        )
+
+    # Check for existing pending claim
+    existing_claim = db.query(TagProfileClaim).filter(
+        TagProfileClaim.tag_profile_id == profile_id,
+        TagProfileClaim.claimant_id == current_user.id,
+        TagProfileClaim.status == "pending"
+    ).first()
+
+    if existing_claim:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You already have a pending claim for this profile"
+        )
+
+    # Create the claim
+    claim = TagProfileClaim(
+        tag_profile_id=profile_id,
+        claimant_id=current_user.id,
+        message=claim_data.message
+    )
+    db.add(claim)
+    db.commit()
+    db.refresh(claim)
+
+    creator = db.query(User).filter(User.id == profile.created_by_id).first()
+
+    return TagProfileClaimSentResponse(
+        id=claim.id,
+        tag_profile_id=profile.id,
+        tag_profile_name=profile.name,
+        tag_profile_photo_url=profile.photo_url,
+        tag_profile_relationship=profile.relationship_to_creator,
+        profile_creator_id=profile.created_by_id,
+        profile_creator_username=creator.username if creator else None,
+        profile_creator_display_name=creator.display_name or creator.full_name if creator else None,
+        message=claim.message,
+        status=claim.status,
+        created_at=claim.created_at
+    )
+
+
+@claims_router.get("/tag-profile-claims", response_model=List[TagProfileClaimResponse])
+def get_claims_to_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all pending claims on tag profiles I created."""
+    claims = db.query(TagProfileClaim).join(
+        TagProfile, TagProfileClaim.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfile.created_by_id == current_user.id,
+        TagProfileClaim.status == "pending"
+    ).order_by(TagProfileClaim.created_at.desc()).all()
+
+    results = []
+    for claim in claims:
+        profile = claim.tag_profile
+        claimant = claim.claimant
+
+        results.append(TagProfileClaimResponse(
+            id=claim.id,
+            tag_profile_id=profile.id,
+            tag_profile_name=profile.name,
+            tag_profile_photo_url=profile.photo_url,
+            tag_profile_relationship=profile.relationship_to_creator,
+            claimant_id=claimant.id,
+            claimant_username=claimant.username,
+            claimant_display_name=claimant.display_name or claimant.full_name,
+            claimant_avatar_url=claimant.avatar_url,
+            message=claim.message,
+            status=claim.status,
+            created_at=claim.created_at
+        ))
+
+    return results
+
+
+@claims_router.get("/tag-profile-claims/count")
+def get_claims_count(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get count of pending claims on my tag profiles for notification badges."""
+    count = db.query(TagProfileClaim).join(
+        TagProfile, TagProfileClaim.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfile.created_by_id == current_user.id,
+        TagProfileClaim.status == "pending"
+    ).count()
+
+    return {"count": count}
+
+
+@claims_router.get("/tag-profile-claims/sent", response_model=List[TagProfileClaimSentResponse])
+def get_claims_by_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all claims I have sent."""
+    claims = db.query(TagProfileClaim).filter(
+        TagProfileClaim.claimant_id == current_user.id
+    ).order_by(TagProfileClaim.created_at.desc()).all()
+
+    results = []
+    for claim in claims:
+        profile = claim.tag_profile
+        creator = db.query(User).filter(User.id == profile.created_by_id).first()
+
+        results.append(TagProfileClaimSentResponse(
+            id=claim.id,
+            tag_profile_id=profile.id,
+            tag_profile_name=profile.name,
+            tag_profile_photo_url=profile.photo_url,
+            tag_profile_relationship=profile.relationship_to_creator,
+            profile_creator_id=profile.created_by_id,
+            profile_creator_username=creator.username if creator else None,
+            profile_creator_display_name=creator.display_name or creator.full_name if creator else None,
+            message=claim.message,
+            status=claim.status,
+            created_at=claim.created_at
+        ))
+
+    return results
+
+
+@claims_router.post("/tag-profile-claims/{claim_id}/approve")
+def approve_claim(
+    claim_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Approve a claim request. This merges the tag profile with the claimant's account.
+    All event tags pointing to this profile will now reference the user directly.
+    """
+    claim = db.query(TagProfileClaim).filter(TagProfileClaim.id == claim_id).first()
+    if not claim:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Claim not found"
+        )
+
+    profile = claim.tag_profile
+    if profile.created_by_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only approve claims on your own tag profiles"
+        )
+
+    if claim.status != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This claim has already been processed"
+        )
+
+    # Update the claim
+    claim.status = "approved"
+    claim.resolved_at = datetime.utcnow()
+
+    # Merge the profile with the user
+    profile.merged_user_id = claim.claimant_id
+    profile.is_merged = True
+
+    # Transfer all event tags from this profile to the user
+    # Note: We keep the tag_profile_id and add tagged_user_id for history
+    # Actually, for simplicity, let's update the event tags to point to the user
+    event_tags = db.query(EventTag).filter(
+        EventTag.tag_profile_id == profile.id
+    ).all()
+
+    for tag in event_tags:
+        # Check if user is already tagged in this event
+        existing_user_tag = db.query(EventTag).filter(
+            EventTag.event_id == tag.event_id,
+            EventTag.tagged_user_id == claim.claimant_id
+        ).first()
+
+        if existing_user_tag:
+            # User already tagged, delete the profile tag
+            db.delete(tag)
+        else:
+            # Transfer the tag to the user
+            tag.tagged_user_id = claim.claimant_id
+            tag.tag_profile_id = None
+            tag.status = "accepted"  # Auto-accept since they claimed it
+
+    # Reject all other pending claims for this profile
+    other_claims = db.query(TagProfileClaim).filter(
+        TagProfileClaim.tag_profile_id == profile.id,
+        TagProfileClaim.id != claim_id,
+        TagProfileClaim.status == "pending"
+    ).all()
+
+    for other_claim in other_claims:
+        other_claim.status = "rejected"
+        other_claim.resolved_at = datetime.utcnow()
+
+    db.commit()
+
+    return {"message": "Claim approved and profile merged"}
+
+
+@claims_router.post("/tag-profile-claims/{claim_id}/reject")
+def reject_claim(
+    claim_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Reject a claim request."""
+    claim = db.query(TagProfileClaim).filter(TagProfileClaim.id == claim_id).first()
+    if not claim:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Claim not found"
+        )
+
+    profile = claim.tag_profile
+    if profile.created_by_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only reject claims on your own tag profiles"
+        )
+
+    if claim.status != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This claim has already been processed"
+        )
+
+    claim.status = "rejected"
+    claim.resolved_at = datetime.utcnow()
+    db.commit()
+
+    return {"message": "Claim rejected"}

@@ -606,6 +606,13 @@ input:disabled + .slider {
   margin-top: 4px;
 }
 
+.claimMessage {
+  font-style: italic;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  font-size: 12px;
+}
+
 @media (max-width: 500px) {
   .mainTabs {
     flex-direction: column;

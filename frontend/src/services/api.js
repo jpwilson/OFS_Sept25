@@ -1715,6 +1715,95 @@ class ApiService {
       return []
     }
   }
+
+  // ========================================
+  // TAG PROFILE CLAIMS (claiming a tag profile as your identity)
+  // ========================================
+
+  async claimTagProfile(profileId, message = null) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/claim`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ tag_profile_id: profileId, message })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to claim tag profile')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error claiming tag profile:', error)
+      throw error
+    }
+  }
+
+  async getTagProfileClaimsToMe() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-claims`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tag profile claims')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile claims:', error)
+      return []
+    }
+  }
+
+  async getTagProfileClaimCount() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-claims/count`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { count: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile claim count:', error)
+      return { count: 0 }
+    }
+  }
+
+  async getSentTagProfileClaims() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-claims/sent`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch sent tag profile claims')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching sent tag profile claims:', error)
+      return []
+    }
+  }
+
+  async approveTagProfileClaim(claimId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-claims/${claimId}/approve`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to approve claim')
+      return await response.json()
+    } catch (error) {
+      console.error('Error approving tag profile claim:', error)
+      throw error
+    }
+  }
+
+  async rejectTagProfileClaim(claimId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-claims/${claimId}/reject`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to reject claim')
+      return await response.json()
+    } catch (error) {
+      console.error('Error rejecting tag profile claim:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()

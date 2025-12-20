@@ -42,6 +42,11 @@ export default function NotificationSettings() {
   const [showTagHistory, setShowTagHistory] = useState(false)
   const [showCreateTagModal, setShowCreateTagModal] = useState(false)
 
+  // Profile claim state
+  const [profileClaimsToYou, setProfileClaimsToYou] = useState([])
+  const [profileClaimsByYou, setProfileClaimsByYou] = useState([])
+  const [processingClaim, setProcessingClaim] = useState(null)
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -90,14 +95,18 @@ export default function NotificationSettings() {
   async function loadTagData() {
     setTagsLoading(true)
     try {
-      const [toYou, byYou, profiles] = await Promise.all([
+      const [toYou, byYou, profiles, claimsToYou, claimsByYou] = await Promise.all([
         apiService.getTagRequests(),
         apiService.getSentTagRequests(),
-        apiService.getMyTagProfiles()
+        apiService.getMyTagProfiles(),
+        apiService.getTagProfileClaimsToMe(),
+        apiService.getSentTagProfileClaims()
       ])
       setTagRequestsToYou(toYou || [])
       setTagRequestsByYou(byYou || [])
       setMyTagProfiles(profiles || [])
+      setProfileClaimsToYou(claimsToYou || [])
+      setProfileClaimsByYou(claimsByYou || [])
     } catch (error) {
       console.error('Failed to load tag data:', error)
     } finally {
@@ -164,6 +173,39 @@ export default function NotificationSettings() {
   function handleTagProfileCreated(profile) {
     setMyTagProfiles(prev => [profile, ...prev])
     showToast('Tag profile created', 'success')
+  }
+
+  // --- Profile Claim Handlers ---
+
+  async function handleApproveClaim(claimId) {
+    setProcessingClaim(claimId)
+    try {
+      await apiService.approveTagProfileClaim(claimId)
+      setProfileClaimsToYou(prev => prev.filter(c => c.id !== claimId))
+      // Also remove the merged profile from myTagProfiles
+      const claim = profileClaimsToYou.find(c => c.id === claimId)
+      if (claim) {
+        setMyTagProfiles(prev => prev.filter(p => p.id !== claim.tag_profile_id))
+      }
+      showToast('Profile claim approved and merged', 'success')
+    } catch (error) {
+      showToast('Failed to approve claim', 'error')
+    } finally {
+      setProcessingClaim(null)
+    }
+  }
+
+  async function handleRejectClaim(claimId) {
+    setProcessingClaim(claimId)
+    try {
+      await apiService.rejectTagProfileClaim(claimId)
+      setProfileClaimsToYou(prev => prev.filter(c => c.id !== claimId))
+      showToast('Profile claim rejected', 'success')
+    } catch (error) {
+      showToast('Failed to reject claim', 'error')
+    } finally {
+      setProcessingClaim(null)
+    }
   }
 
   // --- Preferences Handlers ---
@@ -254,6 +296,8 @@ export default function NotificationSettings() {
   // Counts for badges
   const pendingFollowsToYou = followRequestsToYou.filter(r => r.status === 'pending' || !r.status).length
   const pendingTagsToYou = tagRequestsToYou.filter(r => r.status === 'pending').length
+  const pendingClaimsToYou = profileClaimsToYou.filter(c => c.status === 'pending').length
+  const totalPendingTags = pendingTagsToYou + pendingClaimsToYou
 
   if (loading) {
     return (
@@ -311,8 +355,8 @@ export default function NotificationSettings() {
             onClick={() => setActiveTab('tags')}
           >
             Tags
-            {pendingTagsToYou > 0 && (
-              <span className={styles.badge}>{pendingTagsToYou}</span>
+            {totalPendingTags > 0 && (
+              <span className={styles.badge}>{totalPendingTags}</span>
             )}
           </button>
         </div>
@@ -576,6 +620,103 @@ export default function NotificationSettings() {
                     </div>
                   )}
                 </div>
+
+                {/* Profile Claim Requests TO You */}
+                {profileClaimsToYou.filter(c => c.status === 'pending').length > 0 && (
+                  <div className={styles.subsection}>
+                    <h2 className={styles.subsectionTitle}>Profile Claim Requests</h2>
+                    <p className={styles.sectionDescription}>
+                      People claiming to be one of your tag profiles
+                    </p>
+
+                    <div className={styles.requestsList}>
+                      {profileClaimsToYou.filter(c => c.status === 'pending').map(claim => (
+                        <div key={claim.id} className={styles.requestItem}>
+                          <div className={styles.requestInfo}>
+                            {claim.claimant_avatar_url ? (
+                              <img src={claim.claimant_avatar_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {claim.claimant_username?.[0]?.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>
+                                <Link to={`/profile/${claim.claimant_username}`}>
+                                  {claim.claimant_display_name || claim.claimant_username}
+                                </Link>
+                              </strong>
+                              <p>
+                                wants to claim "{claim.tag_profile_name}"
+                                {claim.tag_profile_relationship && ` (your ${claim.tag_profile_relationship})`}
+                              </p>
+                              {claim.message && (
+                                <p className={styles.claimMessage}>"{claim.message}"</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.acceptButton}
+                              onClick={() => handleApproveClaim(claim.id)}
+                              disabled={processingClaim === claim.id}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => handleRejectClaim(claim.id)}
+                              disabled={processingClaim === claim.id}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Profile Claims BY You */}
+                {profileClaimsByYou.length > 0 && (
+                  <div className={styles.subsection}>
+                    <h2 className={styles.subsectionTitle}>Your Profile Claims</h2>
+                    <p className={styles.sectionDescription}>
+                      Tag profiles you've requested to claim as your identity
+                    </p>
+
+                    <div className={styles.requestsList}>
+                      {profileClaimsByYou.map(claim => (
+                        <div key={claim.id} className={styles.requestItem}>
+                          <div className={styles.requestInfo}>
+                            {claim.tag_profile_photo_url ? (
+                              <img src={claim.tag_profile_photo_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {claim.tag_profile_name?.[0]?.toUpperCase() || '#'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>{claim.tag_profile_name}</strong>
+                              <p>
+                                Created by{' '}
+                                <Link to={`/profile/${claim.profile_creator_username}`}>
+                                  {claim.profile_creator_display_name || claim.profile_creator_username}
+                                </Link>
+                                {claim.tag_profile_relationship && ` (their ${claim.tag_profile_relationship})`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={styles.statusBadge}>
+                            <span className={`${styles.status} ${styles[claim.status]}`}>
+                              {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Create Tag Profile Modal */}
                 <CreateTagProfileModal

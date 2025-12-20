@@ -47,3 +47,47 @@ class TagProfileSearchResult(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Tag Profile Claim schemas
+class TagProfileClaimCreate(BaseModel):
+    """Request to claim a tag profile."""
+    tag_profile_id: int
+    message: Optional[str] = None
+
+
+class TagProfileClaimResponse(BaseModel):
+    """Claim request response."""
+    id: int
+    tag_profile_id: int
+    tag_profile_name: str
+    tag_profile_photo_url: Optional[str] = None
+    tag_profile_relationship: Optional[str] = None
+    claimant_id: int
+    claimant_username: str
+    claimant_display_name: Optional[str] = None
+    claimant_avatar_url: Optional[str] = None
+    message: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TagProfileClaimSentResponse(BaseModel):
+    """Claim request response for sent claims (from claimant perspective)."""
+    id: int
+    tag_profile_id: int
+    tag_profile_name: str
+    tag_profile_photo_url: Optional[str] = None
+    tag_profile_relationship: Optional[str] = None
+    profile_creator_id: int
+    profile_creator_username: str
+    profile_creator_display_name: Optional[str] = None
+    message: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
