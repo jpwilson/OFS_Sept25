@@ -1686,6 +1686,19 @@ class ApiService {
     }
   }
 
+  async getSentTagRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-requests/sent`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch sent tag requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching sent tag requests:', error)
+      return []
+    }
+  }
+
   // ========================================
   // COMBINED TAG SEARCH (users + profiles)
   // ========================================

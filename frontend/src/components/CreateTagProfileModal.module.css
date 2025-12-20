@@ -142,3 +142,152 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Photo Upload Styles */
+.dropZone {
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropZone:hover {
+  border-color: #2d5a27;
+  background: rgba(45, 90, 39, 0.05);
+}
+
+.dropZoneDragging {
+  border-color: #2d5a27;
+  background: rgba(45, 90, 39, 0.1);
+}
+
+.dropZoneIcon {
+  font-size: 32px;
+}
+
+.dropZoneText {
+  color: #666;
+  font-size: 14px;
+}
+
+.uploading {
+  color: #2d5a27;
+  font-size: 14px;
+  padding: 8px;
+}
+
+.photoPreviewContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.photoPreview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e8f4e8;
+}
+
+.photoActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.changePhotoButton,
+.removePhotoButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+}
+
+.changePhotoButton {
+  background: #2d5a27;
+  color: white;
+}
+
+.changePhotoButton:hover:not(:disabled) {
+  background: #1e3d1a;
+}
+
+.removePhotoButton {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.removePhotoButton:hover:not(:disabled) {
+  background: #eee;
+  color: #c62828;
+}
+
+.changePhotoButton:disabled,
+.removePhotoButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: var(--bg-secondary, #1a1a1a);
+  }
+
+  .header {
+    border-color: var(--border-color, #333);
+  }
+
+  .header h2 {
+    color: var(--text-primary, #fff);
+  }
+
+  .closeButton {
+    color: var(--text-secondary, #aaa);
+  }
+
+  .description {
+    color: var(--text-secondary, #aaa);
+  }
+
+  .field label {
+    color: var(--text-primary, #fff);
+  }
+
+  .field input,
+  .field select {
+    background: var(--bg-tertiary, #2a2a2a);
+    border-color: var(--border-color, #444);
+    color: var(--text-primary, #fff);
+  }
+
+  .dropZone {
+    border-color: var(--border-color, #444);
+  }
+
+  .dropZone:hover {
+    background: rgba(45, 90, 39, 0.15);
+  }
+
+  .dropZoneText {
+    color: var(--text-secondary, #aaa);
+  }
+
+  .cancelButton {
+    background: var(--bg-tertiary, #2a2a2a);
+    color: var(--text-primary, #fff);
+  }
+
+  .removePhotoButton {
+    background: var(--bg-tertiary, #2a2a2a);
+    color: var(--text-secondary, #aaa);
+  }
+}

@@ -57,6 +57,12 @@ class TagRequestResponse(BaseModel):
     status: str
     created_at: datetime
 
+    # For sent requests (show who was tagged)
+    tagged_user_id: Optional[int] = None
+    tagged_user_username: Optional[str] = None
+    tagged_user_display_name: Optional[str] = None
+    tagged_user_avatar_url: Optional[str] = None
+
     class Config:
         from_attributes = True
 

@@ -325,6 +325,44 @@ def reject_tag_request(
     return {"message": "Tag rejected"}
 
 
+@tag_requests_router.get("/tag-requests/sent", response_model=List[TagRequestResponse])
+def get_my_sent_tag_requests(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all tag requests that the current user has sent (where they are the tagger)."""
+    tags = db.query(EventTag).filter(
+        EventTag.tagged_by_id == current_user.id,
+        EventTag.tagged_user_id.isnot(None)  # Only user tags, not profile tags
+    ).order_by(EventTag.created_at.desc()).all()
+
+    results = []
+    for tag in tags:
+        event = db.query(Event).filter(Event.id == tag.event_id).first()
+        tagged_user = db.query(User).filter(User.id == tag.tagged_user_id).first()
+
+        if event and tagged_user:
+            results.append(TagRequestResponse(
+                id=tag.id,
+                event_id=tag.event_id,
+                event_title=event.title,
+                event_cover_image_url=event.cover_image_url,
+                tagged_by_id=tag.tagged_by_id,
+                tagged_by_username=current_user.username,
+                tagged_by_display_name=current_user.display_name or current_user.full_name,
+                tagged_by_avatar_url=current_user.avatar_url,
+                status=tag.status,
+                created_at=tag.created_at,
+                # Add tagged user info for sent requests
+                tagged_user_id=tag.tagged_user_id,
+                tagged_user_username=tagged_user.username,
+                tagged_user_display_name=tagged_user.display_name or tagged_user.full_name,
+                tagged_user_avatar_url=tagged_user.avatar_url
+            ))
+
+    return results
+
+
 @tag_requests_router.get("/tagged-events")
 def get_tagged_events(
     skip: int = 0,

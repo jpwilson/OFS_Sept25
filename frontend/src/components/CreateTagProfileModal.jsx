@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import api from '../services/api'
+import ImageCropper from './ImageCropper'
 import styles from './CreateTagProfileModal.module.css'
 
 const RELATIONSHIP_OPTIONS = [
@@ -28,8 +29,14 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
   const [name, setName] = useState(initialName)
   const [relationship, setRelationship] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const [cropperImage, setCropperImage] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+
+  const fileInputRef = useRef(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -61,8 +68,104 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
     setName('')
     setRelationship('')
     setPhotoUrl('')
+    setPhotoPreview(null)
+    setCropperImage(null)
     setError('')
+    setIsDragging(false)
     onClose()
+  }
+
+  const handleFileSelect = (file) => {
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file')
+      return
+    }
+
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image must be less than 10MB')
+      return
+    }
+
+    // Create preview URL for cropper
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCropperImage(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleInputChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+    // Reset input so same file can be selected again
+    e.target.value = ''
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const file = e.dataTransfer.files?.[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleCropComplete = async (croppedBlob) => {
+    setIsUploading(true)
+    setCropperImage(null)
+    setError('')
+
+    try {
+      const file = new File([croppedBlob], 'tag-profile-photo.jpg', { type: 'image/jpeg' })
+      const data = await api.uploadImage(file)
+
+      const imageUrl = data.url || data.urls?.medium || data.urls?.full
+
+      if (!imageUrl) {
+        throw new Error('No URL returned from upload')
+      }
+
+      setPhotoUrl(imageUrl)
+      setPhotoPreview(imageUrl)
+    } catch (err) {
+      setError('Failed to upload image. Please try again.')
+      console.error('Upload error:', err)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleCropCancel = () => {
+    setCropperImage(null)
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoUrl('')
+    setPhotoPreview(null)
+  }
+
+  const handlePhotoAreaClick = () => {
+    fileInputRef.current?.click()
   }
 
   if (!isOpen) return null
@@ -83,6 +186,60 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
           </p>
 
           {error && <div className={styles.error}>{error}</div>}
+
+          {/* Photo Upload */}
+          <div className={styles.field}>
+            <label>Photo (optional)</label>
+            {photoPreview ? (
+              <div className={styles.photoPreviewContainer}>
+                <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
+                <div className={styles.photoActions}>
+                  <button
+                    type="button"
+                    className={styles.changePhotoButton}
+                    onClick={handlePhotoAreaClick}
+                    disabled={isUploading}
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.removePhotoButton}
+                    onClick={handleRemovePhoto}
+                    disabled={isUploading}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className={`${styles.dropZone} ${isDragging ? styles.dropZoneDragging : ''}`}
+                onClick={handlePhotoAreaClick}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                {isUploading ? (
+                  <div className={styles.uploading}>Uploading...</div>
+                ) : (
+                  <>
+                    <span className={styles.dropZoneIcon}>📷</span>
+                    <span className={styles.dropZoneText}>
+                      {isDragging ? 'Drop image here' : 'Tap to select or drag photo here'}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleInputChange}
+              style={{ display: 'none' }}
+            />
+          </div>
 
           <div className={styles.field}>
             <label htmlFor="name">Name *</label>
@@ -115,17 +272,6 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
             </p>
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="photo">Photo URL (optional)</label>
-            <input
-              id="photo"
-              type="url"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-
           <div className={styles.actions}>
             <button
               type="button"
@@ -137,13 +283,24 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={isSubmitting || !name.trim()}
+              disabled={isSubmitting || isUploading || !name.trim()}
             >
               {isSubmitting ? 'Creating...' : 'Create Profile'}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Image Cropper Modal */}
+      {cropperImage && (
+        <ImageCropper
+          image={cropperImage}
+          aspect={1}
+          shape="round"
+          onComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   )
 }

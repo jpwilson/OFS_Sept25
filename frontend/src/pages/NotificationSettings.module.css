@@ -499,6 +499,71 @@ input:disabled + .slider {
   cursor: not-allowed;
 }
 
+/* Subsections */
+.subsection {
+  margin-bottom: 32px;
+}
+
+.subsectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+/* Status badges for sent requests */
+.statusBadge {
+  flex-shrink: 0;
+}
+
+.status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status.accepted {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status.rejected {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Clickable items (tag profiles) */
+.clickableItem {
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.clickableItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.viewArrow {
+  color: var(--text-tertiary);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Empty state hint */
+.emptyHint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
 @media (max-width: 500px) {
   .mainTabs {
     flex-direction: column;
@@ -516,5 +581,10 @@ input:disabled + .slider {
 
   .requestActions {
     justify-content: flex-end;
+  }
+
+  .statusBadge {
+    align-self: flex-end;
+    margin-top: 8px;
   }
 }
