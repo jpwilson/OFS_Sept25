@@ -206,6 +206,7 @@
 }
 
 .notificationsButton {
+  position: relative;
   padding: 10px 24px;
   background: transparent;
   color: var(--text-secondary);

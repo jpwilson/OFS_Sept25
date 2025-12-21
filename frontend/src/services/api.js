@@ -1645,6 +1645,19 @@ class ApiService {
     }
   }
 
+  async getNotificationCounts() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/notification-counts`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { total: 0, follow_requests: 0, tag_requests: 0, profile_claims: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching notification counts:', error)
+      return { total: 0, follow_requests: 0, tag_requests: 0, profile_claims: 0 }
+    }
+  }
+
   async acceptTagRequest(tagId) {
     try {
       const response = await fetch(`${API_BASE}/me/tag-requests/${tagId}/accept`, {

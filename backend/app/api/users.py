@@ -558,6 +558,56 @@ def get_follow_request_count(
 
     return {"count": count}
 
+
+@router.get("/me/notification-counts")
+def get_notification_counts(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all notification counts for the current user.
+    Returns counts for follow requests, tag requests, and profile claims.
+    Used for showing notification badges in the UI.
+    """
+    from ..models.event_tag import EventTag
+    from ..models.tag_profile import TagProfile
+
+    # Count pending incoming follow requests
+    follow_request_count = db.query(Follow).filter(
+        Follow.following_id == current_user.id,
+        Follow.status == "pending"
+    ).count()
+
+    # Count pending tag requests (where I am tagged and need to accept)
+    tag_request_count = db.query(EventTag).filter(
+        EventTag.tagged_user_id == current_user.id,
+        EventTag.status == "pending"
+    ).count()
+
+    # Count pending claims on tag profiles I created
+    try:
+        from ..models.tag_profile_claim import TagProfileClaim
+        profile_claim_count = db.query(TagProfileClaim).join(
+            TagProfile, TagProfileClaim.tag_profile_id == TagProfile.id
+        ).filter(
+            TagProfile.created_by_id == current_user.id,
+            TagProfileClaim.status == "pending"
+        ).count()
+    except Exception:
+        # TagProfileClaim table might not exist yet
+        profile_claim_count = 0
+
+    # Total for the main notification badge
+    total = follow_request_count + tag_request_count + profile_claim_count
+
+    return {
+        "total": total,
+        "follow_requests": follow_request_count,
+        "tag_requests": tag_request_count,
+        "profile_claims": profile_claim_count
+    }
+
+
 @router.put("/me/profile")
 def update_profile(
     profile_data: ProfileUpdate,

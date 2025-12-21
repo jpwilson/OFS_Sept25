@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import apiService from '../services/api'
+import NotificationDot from './NotificationDot'
 import styles from './Header.module.css'
 
 function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [requestCount, setRequestCount] = useState(0)
+  const [notificationCounts, setNotificationCounts] = useState({
+    total: 0,
+    follow_requests: 0,
+    tag_requests: 0,
+    profile_claims: 0
+  })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
 
@@ -23,38 +29,39 @@ function Header() {
   useEffect(() => {
     if (!user) return
 
-    // Load initial count
-    loadRequestCount()
+    // Load initial counts
+    loadNotificationCounts()
 
-    // Poll for new requests every 30 seconds
-    const interval = setInterval(loadRequestCount, 30000)
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(loadNotificationCounts, 30000)
 
     return () => clearInterval(interval)
   }, [user])
 
   useEffect(() => {
-    // Check if user has dismissed this count
-    const dismissedCount = localStorage.getItem('dismissedFollowRequestCount')
-    if (dismissedCount && parseInt(dismissedCount) === requestCount) {
+    // Check if user has dismissed notifications this session
+    // Use sessionStorage so it resets when browser closes
+    const dismissedTotal = sessionStorage.getItem('dismissedNotificationTotal')
+    if (dismissedTotal && parseInt(dismissedTotal) >= notificationCounts.total) {
       setIsDismissed(true)
     } else {
+      // New notifications came in, show the dot again
       setIsDismissed(false)
     }
-  }, [requestCount])
+  }, [notificationCounts.total])
 
-  async function loadRequestCount() {
+  async function loadNotificationCounts() {
     try {
-      const data = await apiService.getFollowRequestCount()
-      setRequestCount(data.count || 0)
+      const data = await apiService.getNotificationCounts()
+      setNotificationCounts(data)
     } catch (error) {
-      console.error('Failed to load follow request count:', error)
+      console.error('Failed to load notification counts:', error)
     }
   }
 
-  function handleDismiss(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    localStorage.setItem('dismissedFollowRequestCount', requestCount.toString())
+  function handleDismiss() {
+    // Store in sessionStorage so it resets on new browser session
+    sessionStorage.setItem('dismissedNotificationTotal', notificationCounts.total.toString())
     setIsDismissed(true)
   }
 
@@ -86,17 +93,13 @@ function Header() {
         {user ? (
           <span className={styles.profileLink}>
             <Link to={`/profile/${user.username}`}>Profile</Link>
-            {requestCount > 0 && !isDismissed && (
-              <span className={styles.badge}>
-                {requestCount}
-                <button
-                  className={styles.dismissButton}
-                  onClick={handleDismiss}
-                  title="Dismiss notification"
-                >
-                  ×
-                </button>
-              </span>
+            {notificationCounts.total > 0 && !isDismissed && (
+              <NotificationDot
+                count={notificationCounts.total}
+                dismissable={true}
+                onDismiss={handleDismiss}
+                size="small"
+              />
             )}
           </span>
         ) : (
@@ -119,17 +122,13 @@ function Header() {
                 <Link to={`/profile/${user.username}`} onClick={closeMobileMenu}>
                   Profile
                 </Link>
-                {requestCount > 0 && !isDismissed && (
-                  <span className={styles.badge}>
-                    {requestCount}
-                    <button
-                      className={styles.dismissButton}
-                      onClick={handleDismiss}
-                      title="Dismiss notification"
-                    >
-                      ×
-                    </button>
-                  </span>
+                {notificationCounts.total > 0 && !isDismissed && (
+                  <NotificationDot
+                    count={notificationCounts.total}
+                    dismissable={true}
+                    onDismiss={handleDismiss}
+                    size="small"
+                  />
                 )}
               </span>
             ) : (

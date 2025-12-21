@@ -7,6 +7,7 @@ import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
+import NotificationDot from '../components/NotificationDot'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
 
@@ -31,6 +32,12 @@ function Profile() {
   const [theme, setTheme] = useState(() => {
     // Get theme from localStorage, default to 'dark'
     return localStorage.getItem('theme') || 'dark'
+  })
+  const [notificationCounts, setNotificationCounts] = useState({
+    total: 0,
+    follow_requests: 0,
+    tag_requests: 0,
+    profile_claims: 0
   })
 
   const isOwnProfile = currentUser && currentUser.username === username
@@ -58,11 +65,21 @@ function Profile() {
     if (isOwnProfile) {
       loadDrafts()
       loadTrash()
+      loadNotificationCounts()
     }
     if (currentUser && !isOwnProfile) {
       checkFollowStatus()
     }
   }, [username, currentUser])
+
+  async function loadNotificationCounts() {
+    try {
+      const counts = await apiService.getNotificationCounts()
+      setNotificationCounts(counts)
+    } catch (error) {
+      console.error('Failed to load notification counts:', error)
+    }
+  }
 
   async function loadProfile() {
     const profileData = await apiService.getUserProfile(username)
@@ -299,6 +316,13 @@ function Profile() {
               </Link>
               <Link to="/settings/notifications" className={styles.notificationsButton}>
                 Notifications
+                {notificationCounts.total > 0 && (
+                  <NotificationDot
+                    count={notificationCounts.total}
+                    dismissable={false}
+                    size="small"
+                  />
+                )}
               </Link>
               <Link to="/create" className={styles.createButton}>
                 Create Event

@@ -1,0 +1,78 @@
+.dot {
+  position: absolute;
+  background: #ef4444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.small {
+  width: 10px;
+  height: 10px;
+  top: -2px;
+  right: -2px;
+}
+
+.medium {
+  width: 18px;
+  height: 18px;
+  top: -4px;
+  right: -4px;
+}
+
+.count {
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  line-height: 1;
+}
+
+.dismissButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.small .dismissButton {
+  font-size: 10px;
+}
+
+.medium .dismissButton {
+  font-size: 14px;
+}
+
+/* Pulse animation for attention */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.dot {
+  animation: pulse 2s infinite;
+}
+
+.dot:hover {
+  animation: none;
+  transform: scale(1.1);
+}
