@@ -98,7 +98,38 @@ function TagProfilePage() {
   }
 
   const isOwner = user && user.id === profile.created_by_id
-  const canClaim = user && !isOwner && !profile.is_merged
+
+  // Check if user's name matches the tag profile name (first and last name)
+  // This determines if they should see the "This is me" button
+  const checkNameMatch = () => {
+    if (!user || !profile) return false
+
+    // Get user's first and last name from their full_name or display_name
+    const userFullName = (user.full_name || user.display_name || '').toLowerCase().trim()
+    const profileName = (profile.name || '').toLowerCase().trim()
+
+    if (!userFullName || !profileName) return false
+
+    // Split names into parts
+    const userParts = userFullName.split(/\s+/)
+    const profileParts = profileName.split(/\s+/)
+
+    // Need at least first and last name
+    if (userParts.length < 2 || profileParts.length < 2) return false
+
+    // Compare first name
+    const userFirstName = userParts[0]
+    const profileFirstName = profileParts[0]
+
+    // Compare last name (last word in each)
+    const userLastName = userParts[userParts.length - 1]
+    const profileLastName = profileParts[profileParts.length - 1]
+
+    return userFirstName === profileFirstName && userLastName === profileLastName
+  }
+
+  const nameMatches = checkNameMatch()
+  const canClaim = user && !isOwner && !profile.is_merged && nameMatches
 
   return (
     <div className={styles.container}>

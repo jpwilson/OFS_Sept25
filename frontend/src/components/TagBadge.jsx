@@ -5,7 +5,8 @@ function TagBadge({ tag, showRemove = false, onRemove }) {
   const isUser = tag.tagged_user_id != null
   const isProfile = tag.tag_profile_id != null
 
-  const getLabel = () => {
+  // Full name for tooltip
+  const getFullName = () => {
     if (isUser) {
       return tag.tagged_user_display_name || tag.tagged_user_username
     }
@@ -13,6 +14,13 @@ function TagBadge({ tag, showRemove = false, onRemove }) {
       return tag.tag_profile_name
     }
     return 'Unknown'
+  }
+
+  // First name only for display on larger viewports
+  const getFirstName = () => {
+    const fullName = getFullName()
+    const parts = fullName.split(/\s+/)
+    return parts[0] || fullName
   }
 
   const getLink = () => {
@@ -36,18 +44,20 @@ function TagBadge({ tag, showRemove = false, onRemove }) {
   }
 
   const isPending = tag.status === 'pending'
+  const fullName = getFullName()
+  const firstName = getFirstName()
 
   return (
-    <div className={`${styles.badge} ${isPending ? styles.pending : ''}`}>
+    <div className={`${styles.badge} ${isPending ? styles.pending : ''}`} title={fullName}>
       <Link to={getLink()} className={styles.link}>
         {getAvatar() ? (
-          <img src={getAvatar()} alt="" className={styles.avatar} />
+          <img src={getAvatar()} alt={fullName} className={styles.avatar} />
         ) : (
           <div className={styles.avatarPlaceholder}>
             {isUser ? '@' : '#'}
           </div>
         )}
-        <span className={styles.label}>{getLabel()}</span>
+        <span className={styles.label}>{firstName}</span>
       </Link>
       {isPending && (
         <span className={styles.pendingLabel}>Pending</span>

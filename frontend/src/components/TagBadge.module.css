@@ -1,21 +1,22 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px 4px 4px;
-  background: #e8f4e8;
+  gap: 4px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   font-size: 13px;
+  cursor: pointer;
 }
 
 .badge.pending {
-  background: #fff3e0;
+  background: rgba(255, 152, 0, 0.2);
 }
 
 .link {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   text-decoration: none;
   color: inherit;
 }
@@ -25,15 +26,16 @@
 }
 
 .avatar {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .avatarPlaceholder {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #2d5a27;
   color: white;
@@ -42,6 +44,7 @@
   justify-content: center;
   font-size: 12px;
   font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .badge.pending .avatarPlaceholder {
@@ -49,18 +52,20 @@
 }
 
 .label {
-  color: #2d5a27;
+  color: white;
   font-weight: 500;
+  padding-right: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .badge.pending .label {
-  color: #e65100;
+  color: #ffcc80;
 }
 
 .pendingLabel {
   font-size: 10px;
-  color: #e65100;
-  background: rgba(255, 152, 0, 0.2);
+  color: #ffcc80;
+  background: rgba(255, 152, 0, 0.3);
   padding: 1px 5px;
   border-radius: 4px;
 }
@@ -68,7 +73,7 @@
 .removeButton {
   background: none;
   border: none;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   padding: 0 4px;
   font-size: 16px;
@@ -77,5 +82,36 @@
 }
 
 .removeButton:hover {
-  color: #c62828;
+  color: #ff6b6b;
+}
+
+/* Mobile: only show avatar, hide label */
+@media (max-width: 768px) {
+  .badge {
+    padding: 0;
+    background: transparent;
+  }
+
+  .link {
+    gap: 0;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .avatarPlaceholder {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .pendingLabel {
+    display: none;
+  }
 }
