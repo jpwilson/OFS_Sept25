@@ -884,14 +884,21 @@ function EventDetail() {
               </button>
             </span>
           </div>
-          {eventTags.filter(tag => tag.status === 'accepted').length > 0 && (
-            <div className={styles.taggedPeople}>
-              <span className={styles.taggedLabel}>Tagged:</span>
-              {eventTags.filter(tag => tag.status === 'accepted').map((tag) => (
-                <TagBadge key={tag.id} tag={tag} />
-              ))}
-            </div>
-          )}
+          {(() => {
+            // Author sees all tags (including pending), others see only accepted
+            const visibleTags = isAuthor
+              ? eventTags.filter(tag => tag.status !== 'rejected')
+              : eventTags.filter(tag => tag.status === 'accepted')
+
+            return visibleTags.length > 0 && (
+              <div className={styles.taggedPeople}>
+                <span className={styles.taggedLabel}>Tagged:</span>
+                {visibleTags.map((tag) => (
+                  <TagBadge key={tag.id} tag={tag} />
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
 

@@ -51,6 +51,11 @@
   background: #ff9800;
 }
 
+.badge.pending .avatar {
+  border-color: #ff9800;
+  opacity: 0.7;
+}
+
 .label {
   color: white;
   font-weight: 500;
