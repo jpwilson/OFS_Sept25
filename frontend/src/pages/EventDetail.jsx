@@ -884,7 +884,7 @@ function EventDetail() {
               </button>
             </span>
           </div>
-          {eventTags.length > 0 && (
+          {eventTags.filter(tag => tag.status === 'accepted').length > 0 && (
             <div className={styles.taggedPeople}>
               <span className={styles.taggedLabel}>Tagged:</span>
               {eventTags.filter(tag => tag.status === 'accepted').map((tag) => (
