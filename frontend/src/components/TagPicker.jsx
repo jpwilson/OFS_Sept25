@@ -13,6 +13,17 @@ function TagPicker({ selectedTags, onTagsChange, onCreateProfile }) {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
+      // Don't close if clicking inside a modal (CreateTagProfileModal, ImageCropper, etc.)
+      // Modals have overlay classes or data attributes we can check
+      const isInsideModal = e.target.closest('[class*="overlay"]') ||
+                            e.target.closest('[class*="modal"]') ||
+                            e.target.closest('[class*="Modal"]') ||
+                            e.target.closest('[class*="Cropper"]')
+
+      if (isInsideModal) {
+        return // Don't close dropdown when interacting with modals
+      }
+
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(e.target) &&
