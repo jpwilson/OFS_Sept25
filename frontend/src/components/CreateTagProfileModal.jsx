@@ -170,6 +170,19 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
 
   if (!isOpen) return null
 
+  // If cropper is open, only show the cropper (not the form modal)
+  if (cropperImage) {
+    return (
+      <ImageCropper
+        image={cropperImage}
+        aspect={1}
+        shape="round"
+        onComplete={handleCropComplete}
+        onCancel={handleCropCancel}
+      />
+    )
+  }
+
   return (
     <div className={styles.overlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -290,17 +303,6 @@ function CreateTagProfileModal({ isOpen, onClose, onCreated, initialName = '' })
           </div>
         </form>
       </div>
-
-      {/* Image Cropper Modal */}
-      {cropperImage && (
-        <ImageCropper
-          image={cropperImage}
-          aspect={1}
-          shape="round"
-          onComplete={handleCropComplete}
-          onCancel={handleCropCancel}
-        />
-      )}
     </div>
   )
 }

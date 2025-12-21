@@ -21,8 +21,8 @@ function ImageCropper({ image, onComplete, onCancel, aspect = 1, shape = 'round'
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h3 className={styles.title}>Crop Image</h3>
         </div>
@@ -41,7 +41,7 @@ function ImageCropper({ image, onComplete, onCancel, aspect = 1, shape = 'round'
           />
         </div>
 
-        <div className={styles.controls}>
+        <div className={styles.controls} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
           <div className={styles.zoomControl}>
             <label>Zoom</label>
             <input
@@ -50,7 +50,9 @@ function ImageCropper({ image, onComplete, onCancel, aspect = 1, shape = 'round'
               max={3}
               step={0.1}
               value={zoom}
-              onChange={(e) => setZoom(e.target.value)}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className={styles.slider}
             />
           </div>
