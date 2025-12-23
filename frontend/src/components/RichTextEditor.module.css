@@ -279,20 +279,27 @@
   }
 }
 
-/* Link styles in editor - modern purple, subtle underline */
+/* Link styles in editor - clearly visible purple with underline */
 .editor :global(.ProseMirror a),
-.editor :global(.ProseMirror a.editor-link) {
-  color: #a78bfa;
-  text-decoration: none;
+.editor :global(.ProseMirror a.editor-link),
+.editor :global(.ProseMirror [href]) {
+  color: #a78bfa !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(167, 139, 250, 0.5) !important;
+  text-underline-offset: 2px;
   font-weight: 500;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
   cursor: pointer;
   transition: all 0.2s ease;
+  background-color: rgba(167, 139, 250, 0.1);
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
-.editor :global(.ProseMirror a:hover) {
-  color: #c4b5fd;
-  border-bottom-color: #c4b5fd;
+.editor :global(.ProseMirror a:hover),
+.editor :global(.ProseMirror [href]:hover) {
+  color: #c4b5fd !important;
+  text-decoration-color: #c4b5fd !important;
+  background-color: rgba(167, 139, 250, 0.2);
 }
 
 /* Remove link button */
