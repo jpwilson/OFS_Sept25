@@ -279,27 +279,21 @@
   }
 }
 
-/* Link styles in editor - clearly visible purple with underline */
+/* Link styles in editor - visible purple so you can see what's a link while editing */
 .editor :global(.ProseMirror a),
 .editor :global(.ProseMirror a.editor-link),
 .editor :global(.ProseMirror [href]) {
   color: #a78bfa !important;
-  text-decoration: underline !important;
-  text-decoration-color: rgba(167, 139, 250, 0.5) !important;
-  text-underline-offset: 2px;
-  font-weight: 500;
-  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(167, 139, 250, 0.6);
+  cursor: text;
   transition: all 0.2s ease;
-  background-color: rgba(167, 139, 250, 0.1);
-  padding: 0 2px;
-  border-radius: 2px;
 }
 
 .editor :global(.ProseMirror a:hover),
 .editor :global(.ProseMirror [href]:hover) {
   color: #c4b5fd !important;
-  text-decoration-color: #c4b5fd !important;
-  background-color: rgba(167, 139, 250, 0.2);
+  border-bottom-color: #c4b5fd;
 }
 
 /* Remove link button */
