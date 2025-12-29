@@ -54,6 +54,7 @@ function EditEvent() {
   const [existingTags, setExistingTags] = useState([])
   const [showTagProfileModal, setShowTagProfileModal] = useState(false)
   const [newTagProfileName, setNewTagProfileName] = useState('')
+  const [isDraggingCover, setIsDraggingCover] = useState(false)
 
   useEffect(() => {
     loadEvent()
@@ -196,11 +197,61 @@ function EditEvent() {
     setIsUploading(true)
     try {
       const result = await apiService.uploadImage(file)
-      setFormData({
-        ...formData,
+      // Use functional update to avoid stale closure issues
+      setFormData(prev => ({
+        ...prev,
         cover_image_url: result.url
-      })
+      }))
       showToast('Image uploaded successfully!', 'success')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      showToast('Failed to upload image. Please try again.', 'error')
+      setSelectedFile(null)
+      setPreviewUrl('')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  // Handle cover image drop (drag and drop)
+  const handleCoverDrop = async (e) => {
+    e.preventDefault()
+    setIsDraggingCover(false)
+
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showToast('Please drop an image file', 'error')
+      return
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image must be smaller than 10MB', 'error')
+      return
+    }
+
+    setSelectedFile(file)
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result)
+    }
+    reader.readAsDataURL(file)
+
+    // Upload immediately
+    setIsUploading(true)
+    try {
+      const result = await apiService.uploadImage(file)
+      // Use functional update to avoid stale closure issues
+      setFormData(prev => ({
+        ...prev,
+        cover_image_url: result.url
+      }))
+      showToast('Cover image uploaded!', 'success')
     } catch (error) {
       console.error('Error uploading image:', error)
       showToast('Failed to upload image. Please try again.', 'error')
@@ -541,16 +592,24 @@ function EditEvent() {
               <div
                 className={styles.previewImage}
                 style={{ backgroundImage: `url(${previewUrl || formData.cover_image_url})` }}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingCover(true) }}
+                onDragLeave={() => setIsDraggingCover(false)}
+                onDrop={handleCoverDrop}
               ></div>
             ) : (
-              <div className={styles.previewPlaceholder}>
+              <div
+                className={`${styles.previewPlaceholder} ${isDraggingCover ? styles.dragging : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingCover(true) }}
+                onDragLeave={() => setIsDraggingCover(false)}
+                onDrop={handleCoverDrop}
+              >
                 <div>
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.3, marginBottom: '8px' }}>
                     <path d="M4 5h13v7h2V5c0-1.103-.897-2-2-2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h8v-2H4V5z"/>
                     <path d="m8 11-3 4h11l-4-6-3 4z"/>
                     <path d="M19 14h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/>
                   </svg>
-                  <p>Select an image to see a preview</p>
+                  <p>{isDraggingCover ? 'Drop image here' : 'Drag & drop or select an image'}</p>
                 </div>
               </div>
             )}

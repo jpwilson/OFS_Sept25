@@ -133,10 +133,11 @@ function CreateEvent() {
     setIsUploading(true)
     try {
       const result = await apiService.uploadImage(file)
-      setFormData({
-        ...formData,
+      // Use functional update to avoid stale closure issues
+      setFormData(prev => ({
+        ...prev,
         cover_image_url: result.url
-      })
+      }))
       showToast('Image uploaded successfully!', 'success')
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -288,10 +289,11 @@ function CreateEvent() {
     setIsUploading(true)
     try {
       const result = await apiService.uploadImage(file)
-      setFormData({
-        ...formData,
+      // Use functional update to avoid stale closure issues
+      setFormData(prev => ({
+        ...prev,
         cover_image_url: result.url
-      })
+      }))
       showToast('Cover image uploaded!', 'success')
     } catch (error) {
       console.error('Error uploading image:', error)
