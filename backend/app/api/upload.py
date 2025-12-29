@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import os
 import uuid
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageOps
 from PIL.ExifTags import TAGS, GPSTAGS
 import io
 from datetime import datetime
@@ -207,8 +207,15 @@ async def upload_file(file: UploadFile = File(...)):
         # Open image with Pillow
         image = Image.open(io.BytesIO(contents))
 
-        # Extract EXIF metadata before resizing
+        # Extract EXIF metadata before any processing
         metadata = extract_exif_metadata(image)
+
+        # Apply EXIF orientation - this fixes upside-down/rotated photos from phones
+        # Must be done AFTER extracting metadata but BEFORE resizing
+        try:
+            image = ImageOps.exif_transpose(image)
+        except Exception:
+            pass  # If EXIF transpose fails, continue with original image
 
         # Process and upload all image sizes to Supabase
         sizes = {

@@ -414,8 +414,12 @@ class ApiService {
   // Event Image methods (for caption system)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
     try {
+      // Compress image for faster uploads and to fix EXIF orientation
+      // Canvas API automatically applies EXIF orientation when drawing
+      const processedFile = await this.compressImage(file)
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', processedFile)
       formData.append('event_id', eventId.toString())
       if (caption) formData.append('caption', caption)
       formData.append('order_index', orderIndex.toString())
