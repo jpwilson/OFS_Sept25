@@ -649,24 +649,31 @@ function EventDetail() {
 
     // Inject captions under images (must be done here, not in useEffect,
     // because React will overwrite DOM changes made after render)
+    console.log('[parsedContent] eventImages count:', eventImages?.length || 0)
     if (eventImages && eventImages.length > 0) {
       const images = doc.querySelectorAll('img')
+      console.log('[parsedContent] HTML images count:', images.length)
       const normalizeUrl = (url) => {
         if (!url) return ''
         return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
       }
       const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
 
-      images.forEach(img => {
-        const imgSrc = img.getAttribute('src') || ''
+      images.forEach((img, idx) => {
+        // Use img.src (resolved URL) or getAttribute('src') (raw attribute) - same as allMedia
+        const imgSrc = img.src || img.getAttribute('src') || ''
         const normalizedImgSrc = normalizeUrl(imgSrc)
         const imgFilename = getFilename(imgSrc)
+
+        console.log(`[parsedContent] Image ${idx}: src="${imgSrc.substring(0, 60)}...", filename="${imgFilename}"`)
 
         // Find matching caption
         let matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc)
         if (!matchingImage) {
           matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename)
         }
+
+        console.log(`[parsedContent] Image ${idx}: match found=${!!matchingImage}, caption="${matchingImage?.caption || 'none'}"`)
 
         if (matchingImage && matchingImage.caption) {
           // Create caption element and insert after image
