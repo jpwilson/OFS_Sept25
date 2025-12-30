@@ -14,7 +14,7 @@ from ..core.deps import get_current_user
 from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
-from ..schemas.event_image import EventImageCreate, EventImageResponse
+from ..schemas.event_image import EventImageCreate, EventImageResponse, EventImageUpdate
 
 try:
     from supabase import create_client, Client
@@ -408,12 +408,12 @@ async def get_event_images(
 @router.patch("/upload/event-image/{image_id}", response_model=EventImageResponse)
 async def update_event_image_caption(
     image_id: int,
-    caption: Optional[str] = None,
+    update_data: EventImageUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Update an event image's caption
+    Update an event image's caption and other fields
     """
     # Get the image record
     event_image = db.query(EventImage).filter(EventImage.id == image_id).first()
@@ -428,9 +428,17 @@ async def update_event_image_caption(
             detail="You don't have permission to edit this image"
         )
 
-    # Update caption
-    if caption is not None:
-        event_image.caption = caption
+    # Update fields from the update_data
+    # For caption: always update since frontend explicitly sends null to clear
+    # Using model_dump to get only the fields that were actually sent
+    update_dict = update_data.model_dump(exclude_unset=True)
+
+    if 'caption' in update_dict:
+        event_image.caption = update_dict['caption']
+    if 'order_index' in update_dict:
+        event_image.order_index = update_dict['order_index']
+    if 'alt_text' in update_dict:
+        event_image.alt_text = update_dict['alt_text']
 
     db.commit()
     db.refresh(event_image)

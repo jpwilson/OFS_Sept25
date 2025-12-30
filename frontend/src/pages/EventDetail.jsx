@@ -146,7 +146,16 @@ function EventDetail() {
       img.style.cursor = 'pointer'
 
       // Find matching caption from eventImages
-      const matchingImage = eventImages?.find(ei => img.src.includes(ei.image_url) || ei.image_url.includes(img.src))
+      // Normalize URLs by removing /medium/, /full/, /thumbnails/ for comparison
+      const normalizeUrl = (url) => {
+        if (!url) return ''
+        return url.replace('/medium/', '/X/').replace('/full/', '/X/').replace('/thumbnails/', '/X/')
+      }
+      const normalizedImgSrc = normalizeUrl(img.src)
+      const matchingImage = eventImages?.find(ei => {
+        const normalizedEiUrl = normalizeUrl(ei.image_url)
+        return normalizedImgSrc.includes(normalizedEiUrl) || normalizedEiUrl.includes(normalizedImgSrc)
+      })
 
       if (matchingImage && matchingImage.caption) {
         // Check if caption already exists
@@ -1012,6 +1021,7 @@ function EventDetail() {
             lightboxIndex={lightboxState.index}
             onLightboxChange={setLightboxState}
             enableEngagement={true}
+            showCaptions={true}
           />
         </div>
       )}
