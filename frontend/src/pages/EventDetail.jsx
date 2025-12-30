@@ -515,12 +515,23 @@ function EventDetail() {
       return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
     }
 
-    // Helper to add media if not duplicate
+    // Helper to add media if not duplicate, or update caption if already exists
     const addMedia = (src, type = 'image', caption = null, id = null, alt = null, duration = null) => {
       const normalizedUrl = normalizeUrl(src)
       if (!mediaUrls.has(normalizedUrl)) {
         mediaUrls.add(normalizedUrl)
         media.push({ src, type, caption, id, alt, duration })
+      } else if (caption || id) {
+        // Update caption/metadata for existing item if we now have it
+        // This handles the case where image was added from HTML first (no caption)
+        // then we try to add from eventImages (has caption) - don't skip, update instead
+        const existing = media.find(m => normalizeUrl(m.src) === normalizedUrl)
+        if (existing) {
+          if (caption && !existing.caption) existing.caption = caption
+          if (id && !existing.id) existing.id = id
+          if (alt && !existing.alt) existing.alt = alt
+          if (duration && !existing.duration) existing.duration = duration
+        }
       }
     }
 
