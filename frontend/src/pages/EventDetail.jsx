@@ -682,8 +682,16 @@ function EventDetail() {
 
         console.log(`[parsedContent] Image ${idx}: src="${imgSrc.substring(0, 60)}...", filename="${imgFilename}"`)
 
-        // Find matching caption
-        let matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc)
+        // Find matching caption - PRIORITIZE matches that have captions
+        // (there may be duplicate eventImage records, some with captions some without)
+        let matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc && ei.caption)
+        if (!matchingImage) {
+          matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename && ei.caption)
+        }
+        // If no captioned match found, try without caption requirement (for ID/metadata)
+        if (!matchingImage) {
+          matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc)
+        }
         if (!matchingImage) {
           matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename)
         }
