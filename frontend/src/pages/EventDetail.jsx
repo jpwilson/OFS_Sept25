@@ -125,7 +125,7 @@ function EventDetail() {
     }
   }
 
-  // Make rich HTML images clickable with event delegation and add captions
+  // Make rich HTML images clickable with event delegation
   useEffect(() => {
     if (!contentRef.current) return
 
@@ -140,61 +140,16 @@ function EventDetail() {
     const content = contentRef.current
     content.addEventListener('click', handleClick)
 
-    // Add cursor pointer style to all images and insert captions if they exist
+    // Add cursor pointer style to all images
     const images = content.querySelectorAll('img')
     images.forEach(img => {
       img.style.cursor = 'pointer'
-
-      // Find matching caption from eventImages
-      // Use same normalization as allMedia (remove /full/, /medium/, /thumbnails/)
-      const normalizeUrl = (url) => {
-        if (!url) return ''
-        return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
-      }
-      const normalizedImgSrc = normalizeUrl(img.src)
-
-      // Try to find matching image - first by exact match, then by filename
-      let matchingImage = eventImages?.find(ei => {
-        const normalizedEiUrl = normalizeUrl(ei.image_url)
-        return normalizedEiUrl === normalizedImgSrc
-      })
-
-      // Fallback: match by filename only (last part of URL)
-      if (!matchingImage) {
-        const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
-        const imgFilename = getFilename(img.src)
-        matchingImage = eventImages?.find(ei => getFilename(ei.image_url) === imgFilename)
-      }
-
-      if (matchingImage && matchingImage.caption) {
-        // Check if caption already exists
-        let captionDiv = img.nextElementSibling
-        if (!captionDiv || !captionDiv.classList.contains('image-caption')) {
-          // Create caption div
-          captionDiv = document.createElement('div')
-          captionDiv.classList.add('image-caption')
-          captionDiv.style.fontSize = '14px'
-          captionDiv.style.color = '#888'
-          captionDiv.style.fontStyle = 'italic'
-          captionDiv.style.textAlign = 'center'
-          captionDiv.style.marginTop = '8px'
-          captionDiv.style.marginBottom = '20px'
-          captionDiv.textContent = matchingImage.caption
-
-          // Insert after image
-          img.parentNode.insertBefore(captionDiv, img.nextSibling)
-        }
-        // Captions are always visible
-      }
     })
 
     return () => {
       content.removeEventListener('click', handleClick)
-      // Clean up caption divs
-      const captions = content.querySelectorAll('.image-caption')
-      captions.forEach(cap => cap.remove())
     }
-  }, [event, eventImages]) // Re-run when event or eventImages changes
+  }, [event]) // Re-run when event changes
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -658,6 +613,7 @@ function EventDetail() {
   }, [event, eventImages])
 
   // Parse headings from rich HTML content and generate sections
+  // Also inject captions under images
   const parsedContent = useMemo(() => {
     if (!event || !event.description) return { sections: [], html: '' }
 
@@ -691,11 +647,43 @@ function EventDetail() {
       }
     })
 
+    // Inject captions under images (must be done here, not in useEffect,
+    // because React will overwrite DOM changes made after render)
+    if (eventImages && eventImages.length > 0) {
+      const images = doc.querySelectorAll('img')
+      const normalizeUrl = (url) => {
+        if (!url) return ''
+        return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+      }
+      const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
+
+      images.forEach(img => {
+        const imgSrc = img.getAttribute('src') || ''
+        const normalizedImgSrc = normalizeUrl(imgSrc)
+        const imgFilename = getFilename(imgSrc)
+
+        // Find matching caption
+        let matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc)
+        if (!matchingImage) {
+          matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename)
+        }
+
+        if (matchingImage && matchingImage.caption) {
+          // Create caption element and insert after image
+          const captionDiv = doc.createElement('div')
+          captionDiv.className = 'image-caption'
+          captionDiv.style.cssText = 'font-size: 14px; color: #888; font-style: italic; text-align: center; margin-top: 8px; margin-bottom: 20px;'
+          captionDiv.textContent = matchingImage.caption
+          img.parentNode.insertBefore(captionDiv, img.nextSibling)
+        }
+      })
+    }
+
     // Serialize the modified document back to HTML
     const html = doc.body.innerHTML
 
     return { sections, html }
-  }, [event])
+  }, [event, eventImages])
 
   // Update sections when content is parsed
   useEffect(() => {
