@@ -649,38 +649,19 @@ function EventDetail() {
 
     // Inject captions under images (must be done here, not in useEffect,
     // because React will overwrite DOM changes made after render)
-    console.log('[parsedContent] eventImages count:', eventImages?.length || 0)
-    // Log first 3 eventImages to see their structure
     if (eventImages && eventImages.length > 0) {
-      console.log('[parsedContent] First 3 eventImages:', eventImages.slice(0, 3).map(ei => ({
-        id: ei.id,
-        caption: ei.caption,
-        image_url: ei.image_url?.substring(0, 50) + '...',
-        allKeys: Object.keys(ei)
-      })))
-      // Log any eventImages that have captions - show FULL URLs for comparison
-      const withCaptions = eventImages.filter(ei => ei.caption)
-      console.log('[parsedContent] eventImages WITH captions:', withCaptions.length)
-      withCaptions.forEach((ei, i) => {
-        const filename = ei.image_url?.split('/').pop()?.split('?')[0] || 'unknown'
-        console.log(`[CAPTION ${i}] "${ei.caption}" -> filename: ${filename}`)
-        console.log(`[CAPTION ${i}] full URL: ${ei.image_url}`)
-      })
       const images = doc.querySelectorAll('img')
-      console.log('[parsedContent] HTML images count:', images.length)
       const normalizeUrl = (url) => {
         if (!url) return ''
         return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
       }
       const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
 
-      images.forEach((img, idx) => {
-        // Use img.src (resolved URL) or getAttribute('src') (raw attribute) - same as allMedia
+      images.forEach((img) => {
+        // Use img.src (resolved URL) or getAttribute('src') (raw attribute)
         const imgSrc = img.src || img.getAttribute('src') || ''
         const normalizedImgSrc = normalizeUrl(imgSrc)
         const imgFilename = getFilename(imgSrc)
-
-        console.log(`[parsedContent] Image ${idx}: src="${imgSrc.substring(0, 60)}...", filename="${imgFilename}"`)
 
         // Find matching caption - PRIORITIZE matches that have captions
         // (there may be duplicate eventImage records, some with captions some without)
@@ -688,15 +669,6 @@ function EventDetail() {
         if (!matchingImage) {
           matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename && ei.caption)
         }
-        // If no captioned match found, try without caption requirement (for ID/metadata)
-        if (!matchingImage) {
-          matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc)
-        }
-        if (!matchingImage) {
-          matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename)
-        }
-
-        console.log(`[parsedContent] Image ${idx}: match found=${!!matchingImage}, caption="${matchingImage?.caption || 'none'}"`)
 
         if (matchingImage && matchingImage.caption) {
           // Create caption element and insert after image

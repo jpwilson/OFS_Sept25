@@ -101,10 +101,41 @@ function EditEvent() {
         setExistingEventImages(eventImages || [])
 
         // Pre-populate imageCaptions state with existing captions
+        // Need to map eventImage URLs to HTML URLs (may differ in /full/ vs /medium/ path)
         const captionMap = {}
+
+        // Helper to normalize URLs for matching
+        const normalizeUrlForMatch = (url) => {
+          if (!url) return ''
+          return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+        }
+        const getFilenameFromUrl = (url) => url?.split('/').pop()?.split('?')[0] || ''
+
+        // Extract HTML image URLs from the loaded description
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = event.description || ''
+        const htmlImages = Array.from(tempDiv.querySelectorAll('img, video'))
+        const htmlUrls = htmlImages.map(el => el.src)
+
+        // For each eventImage with a caption, find matching HTML URL
         eventImages.forEach(img => {
           if (img.caption) {
-            captionMap[img.image_url] = img.caption
+            const normalizedImgUrl = normalizeUrlForMatch(img.image_url)
+            const imgFilename = getFilenameFromUrl(img.image_url)
+
+            // Find matching HTML URL
+            let matchingHtmlUrl = htmlUrls.find(url => normalizeUrlForMatch(url) === normalizedImgUrl)
+            if (!matchingHtmlUrl) {
+              matchingHtmlUrl = htmlUrls.find(url => getFilenameFromUrl(url) === imgFilename)
+            }
+
+            // Store caption under the HTML URL (which is used for lookups)
+            if (matchingHtmlUrl) {
+              captionMap[matchingHtmlUrl] = img.caption
+            } else {
+              // Fallback: store under original eventImage URL
+              captionMap[img.image_url] = img.caption
+            }
           }
         })
         setImageCaptions(captionMap)
@@ -262,6 +293,15 @@ function EditEvent() {
     }
   }
 
+  // Normalize URL for comparison (handles /full/, /medium/, /thumbnails/ variations)
+  const normalizeUrl = (url) => {
+    if (!url) return ''
+    return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+  }
+
+  // Get filename from URL for fallback matching
+  const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
+
   // Extract image URLs from HTML content
   const extractMediaFromContent = () => {
     if (!formData.description) return []
@@ -319,7 +359,15 @@ function EditEvent() {
       const contentMedia = extractMediaFromContent()
       const captionPromises = contentMedia.map((media, index) => {
         const caption = imageCaptions[media.url]
-        const existingImage = existingEventImages.find(ei => ei.image_url === media.url)
+
+        // Find existing image using normalized URL matching (handles /full/, /medium/, /thumbnails/ variations)
+        const normalizedMediaUrl = normalizeUrl(media.url)
+        const mediaFilename = getFilename(media.url)
+        let existingImage = existingEventImages.find(ei => normalizeUrl(ei.image_url) === normalizedMediaUrl)
+        // Fallback to filename matching if URL match fails
+        if (!existingImage) {
+          existingImage = existingEventImages.find(ei => getFilename(ei.image_url) === mediaFilename)
+        }
 
         if (caption && caption.trim()) {
           if (existingImage) {
@@ -328,7 +376,7 @@ function EditEvent() {
               return apiService.updateEventImageCaption(existingImage.id, caption.trim())
             }
           } else {
-            // Create new event image record
+            // Create new event image record (only if truly no existing record)
             return apiService.createEventImage({
               event_id: parseInt(id),
               image_url: media.url,
