@@ -672,9 +672,10 @@ function EventDetail() {
 
         if (matchingImage && matchingImage.caption) {
           // Create caption element and insert after image
+          // Styling: smaller than body, bold, close to image, more space before next element
           const captionDiv = doc.createElement('div')
           captionDiv.className = 'image-caption'
-          captionDiv.style.cssText = 'font-size: 14px; color: #888; font-style: italic; text-align: center; margin-top: 8px; margin-bottom: 20px;'
+          captionDiv.style.cssText = 'font-size: 0.85em; color: #999; font-weight: 500; text-align: center; margin-top: 6px; margin-bottom: 28px; line-height: 1.4;'
           captionDiv.textContent = matchingImage.caption
           img.parentNode.insertBefore(captionDiv, img.nextSibling)
         }
