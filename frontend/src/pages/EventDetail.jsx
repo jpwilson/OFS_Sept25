@@ -146,16 +146,25 @@ function EventDetail() {
       img.style.cursor = 'pointer'
 
       // Find matching caption from eventImages
-      // Normalize URLs by removing /medium/, /full/, /thumbnails/ for comparison
+      // Use same normalization as allMedia (remove /full/, /medium/, /thumbnails/)
       const normalizeUrl = (url) => {
         if (!url) return ''
-        return url.replace('/medium/', '/X/').replace('/full/', '/X/').replace('/thumbnails/', '/X/')
+        return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
       }
       const normalizedImgSrc = normalizeUrl(img.src)
-      const matchingImage = eventImages?.find(ei => {
+
+      // Try to find matching image - first by exact match, then by filename
+      let matchingImage = eventImages?.find(ei => {
         const normalizedEiUrl = normalizeUrl(ei.image_url)
-        return normalizedImgSrc.includes(normalizedEiUrl) || normalizedEiUrl.includes(normalizedImgSrc)
+        return normalizedEiUrl === normalizedImgSrc
       })
+
+      // Fallback: match by filename only (last part of URL)
+      if (!matchingImage) {
+        const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
+        const imgFilename = getFilename(img.src)
+        matchingImage = eventImages?.find(ei => getFilename(ei.image_url) === imgFilename)
+      }
 
       if (matchingImage && matchingImage.caption) {
         // Check if caption already exists
