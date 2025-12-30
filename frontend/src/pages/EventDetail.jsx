@@ -650,7 +650,20 @@ function EventDetail() {
     // Inject captions under images (must be done here, not in useEffect,
     // because React will overwrite DOM changes made after render)
     console.log('[parsedContent] eventImages count:', eventImages?.length || 0)
+    // Log first 3 eventImages to see their structure
     if (eventImages && eventImages.length > 0) {
+      console.log('[parsedContent] First 3 eventImages:', eventImages.slice(0, 3).map(ei => ({
+        id: ei.id,
+        caption: ei.caption,
+        image_url: ei.image_url?.substring(0, 50) + '...',
+        allKeys: Object.keys(ei)
+      })))
+      // Log any eventImages that have captions
+      const withCaptions = eventImages.filter(ei => ei.caption)
+      console.log('[parsedContent] eventImages WITH captions:', withCaptions.length, withCaptions.map(ei => ({
+        caption: ei.caption,
+        url: ei.image_url?.substring(0, 50) + '...'
+      })))
       const images = doc.querySelectorAll('img')
       console.log('[parsedContent] HTML images count:', images.length)
       const normalizeUrl = (url) => {
