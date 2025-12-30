@@ -658,12 +658,14 @@ function EventDetail() {
         image_url: ei.image_url?.substring(0, 50) + '...',
         allKeys: Object.keys(ei)
       })))
-      // Log any eventImages that have captions
+      // Log any eventImages that have captions - show FULL URLs for comparison
       const withCaptions = eventImages.filter(ei => ei.caption)
-      console.log('[parsedContent] eventImages WITH captions:', withCaptions.length, withCaptions.map(ei => ({
-        caption: ei.caption,
-        url: ei.image_url?.substring(0, 50) + '...'
-      })))
+      console.log('[parsedContent] eventImages WITH captions:', withCaptions.length)
+      withCaptions.forEach((ei, i) => {
+        const filename = ei.image_url?.split('/').pop()?.split('?')[0] || 'unknown'
+        console.log(`[CAPTION ${i}] "${ei.caption}" -> filename: ${filename}`)
+        console.log(`[CAPTION ${i}] full URL: ${ei.image_url}`)
+      })
       const images = doc.querySelectorAll('img')
       console.log('[parsedContent] HTML images count:', images.length)
       const normalizeUrl = (url) => {
