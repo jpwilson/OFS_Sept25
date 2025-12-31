@@ -325,7 +325,7 @@ export default function Billing() {
                 onClick={handleManageSubscription}
                 disabled={loading}
               >
-                {isSubscriptionCanceled ? 'Resubscribe' : 'Manage Subscription'}
+                {isSubscriptionCanceled ? 'Resubscribe' : 'View Stripe Billing'}
               </button>
             </div>
           ) : isTrialActive ? (
@@ -376,7 +376,9 @@ export default function Billing() {
                 )}
                 {subscriptionEndsAt && !isSubscriptionCanceled && (
                   <div className={styles.planDetailRow}>
-                    <span className={styles.planDetailLabel}>Next billing date</span>
+                    <span className={styles.planDetailLabel}>
+                      {paymentHistory.payments.length === 0 ? 'First billing date' : 'Next billing date'}
+                    </span>
                     <span className={styles.planDetailValue}>
                       {subscriptionEndsAt.toLocaleDateString('en-US', {
                         month: 'long',
@@ -384,6 +386,11 @@ export default function Billing() {
                         year: 'numeric'
                       })}
                     </span>
+                  </div>
+                )}
+                {paymentHistory.payments.length === 0 && subscriptionEndsAt && (
+                  <div className={styles.trialNotice}>
+                    You're in your free trial period. Billing starts on the date above.
                   </div>
                 )}
               </div>
