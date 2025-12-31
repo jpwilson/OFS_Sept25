@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import List, Optional
 from datetime import datetime, timedelta
 import stripe
 
@@ -8,6 +9,11 @@ from ..core.database import get_db
 from ..core.config import settings
 from ..core.deps import get_current_user
 from ..models.user import User
+from ..services.email_service import (
+    send_subscription_confirmed_email,
+    send_billing_history_email,
+    send_payment_receipt_email
+)
 
 router = APIRouter(prefix="/stripe", tags=["stripe"])
 
@@ -27,6 +33,23 @@ class CheckoutResponse(BaseModel):
 
 class PortalResponse(BaseModel):
     portal_url: str
+
+
+class PaymentHistoryItem(BaseModel):
+    date: str
+    description: str
+    amount: str
+    status: str
+    invoice_pdf_url: Optional[str] = None
+
+
+class PaymentHistoryResponse(BaseModel):
+    payments: List[PaymentHistoryItem]
+    total_spent: str
+
+
+class ReceiptPreferenceRequest(BaseModel):
+    enabled: bool
 
 
 def get_price_id(price_type: str) -> str:
@@ -244,6 +267,17 @@ async def handle_checkout_completed(session, db: Session):
     db.commit()
     print(f"Checkout completed for user {user.id} ({user.email})")
 
+    # Send subscription confirmation email
+    try:
+        send_subscription_confirmed_email(
+            to_email=user.email,
+            username=user.display_name or user.username,
+            plan_type=price_type or 'monthly'
+        )
+        print(f"Subscription confirmation email sent to {user.email}")
+    except Exception as e:
+        print(f"Failed to send subscription confirmation email: {e}")
+
 
 async def handle_subscription_created(subscription, db: Session):
     """Handle new subscription creation"""
@@ -351,6 +385,39 @@ async def handle_payment_succeeded(invoice, db: Session):
     db.commit()
     print(f"Payment succeeded for user {user.id}")
 
+    # Send payment receipt email if user has opted in
+    if user.notify_payment_receipts:
+        try:
+            amount_paid = invoice.get('amount_paid', 0)
+            amount_dollars = amount_paid / 100 if amount_paid else 0
+
+            # Get description from invoice lines
+            description = "Subscription payment"
+            lines = invoice.get('lines', {}).get('data', [])
+            if lines:
+                first_line = lines[0]
+                if first_line.get('description'):
+                    description = first_line['description']
+
+            # Get invoice date
+            created = invoice.get('created')
+            invoice_date = datetime.fromtimestamp(created).strftime("%B %d, %Y") if created else datetime.utcnow().strftime("%B %d, %Y")
+
+            # Get invoice PDF URL
+            invoice_url = invoice.get('invoice_pdf')
+
+            send_payment_receipt_email(
+                to_email=user.email,
+                username=user.display_name or user.username,
+                amount=f"{amount_dollars:.2f}",
+                description=description,
+                date=invoice_date,
+                invoice_url=invoice_url
+            )
+            print(f"Payment receipt email sent to {user.email}")
+        except Exception as e:
+            print(f"Failed to send payment receipt email: {e}")
+
 
 async def handle_payment_failed(invoice, db: Session):
     """Handle failed recurring payment"""
@@ -385,4 +452,183 @@ def get_subscription_status(
         "can_access_content": current_user.can_access_content(),
         "has_active_subscription": current_user.has_active_subscription(),
         "subscribed_within_5_days": current_user.subscribed_within_5_days
+    }
+
+
+@router.get("/payment-history", response_model=PaymentHistoryResponse)
+def get_payment_history(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user's payment history from Stripe"""
+
+    if not settings.STRIPE_SECRET_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Stripe is not configured"
+        )
+
+    if not current_user.stripe_customer_id:
+        # No payments yet
+        return PaymentHistoryResponse(payments=[], total_spent="$0.00")
+
+    try:
+        # Fetch invoices from Stripe
+        invoices = stripe.Invoice.list(
+            customer=current_user.stripe_customer_id,
+            limit=100
+        )
+
+        # Also fetch charges for one-time payments (lifetime)
+        charges = stripe.Charge.list(
+            customer=current_user.stripe_customer_id,
+            limit=100
+        )
+
+        payments = []
+        total_cents = 0
+
+        # Process invoices (subscriptions)
+        for invoice in invoices.data:
+            if invoice.status == 'paid' and invoice.amount_paid > 0:
+                amount_dollars = invoice.amount_paid / 100
+                total_cents += invoice.amount_paid
+
+                # Get description from line items
+                description = "Subscription payment"
+                if invoice.lines and invoice.lines.data:
+                    first_line = invoice.lines.data[0]
+                    if first_line.description:
+                        description = first_line.description
+                    elif first_line.price and first_line.price.nickname:
+                        description = first_line.price.nickname
+
+                payments.append(PaymentHistoryItem(
+                    date=datetime.fromtimestamp(invoice.created).strftime("%b %d, %Y"),
+                    description=description,
+                    amount=f"${amount_dollars:.2f}",
+                    status="Paid",
+                    invoice_pdf_url=invoice.invoice_pdf
+                ))
+
+        # Process charges not associated with invoices (one-time payments)
+        for charge in charges.data:
+            if charge.paid and not charge.invoice:
+                amount_dollars = charge.amount / 100
+                total_cents += charge.amount
+
+                description = charge.description or "Lifetime membership"
+
+                payments.append(PaymentHistoryItem(
+                    date=datetime.fromtimestamp(charge.created).strftime("%b %d, %Y"),
+                    description=description,
+                    amount=f"${amount_dollars:.2f}",
+                    status="Paid",
+                    invoice_pdf_url=charge.receipt_url
+                ))
+
+        # Sort by date (most recent first)
+        payments.sort(key=lambda x: datetime.strptime(x.date, "%b %d, %Y"), reverse=True)
+
+        total_dollars = total_cents / 100
+        return PaymentHistoryResponse(
+            payments=payments,
+            total_spent=f"${total_dollars:.2f}"
+        )
+
+    except stripe.error.StripeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post("/email-billing-history")
+def email_billing_history(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Email the user their billing history (rate limited to once per week)"""
+
+    if not current_user.stripe_customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No payment history found"
+        )
+
+    # Rate limit: once per week
+    if current_user.last_billing_email_sent_at:
+        days_since_last = (datetime.utcnow() - current_user.last_billing_email_sent_at).days
+        if days_since_last < 7:
+            days_remaining = 7 - days_since_last
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"You can request another billing email in {days_remaining} day{'s' if days_remaining != 1 else ''}"
+            )
+
+    # Get payment history
+    history_response = get_payment_history(current_user, db)
+
+    if not history_response.payments:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No payments to include in history"
+        )
+
+    # Convert to dict format for email template
+    payments_for_email = [
+        {
+            "date": p.date,
+            "description": p.description,
+            "amount": p.amount,
+            "status": p.status
+        }
+        for p in history_response.payments
+    ]
+
+    # Send the email
+    success = send_billing_history_email(
+        to_email=current_user.email,
+        username=current_user.display_name or current_user.username,
+        payments=payments_for_email
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send email"
+        )
+
+    # Update rate limit timestamp
+    current_user.last_billing_email_sent_at = datetime.utcnow()
+    db.commit()
+
+    return {"message": "Billing history sent to your email"}
+
+
+@router.put("/receipt-preference")
+def update_receipt_preference(
+    request: ReceiptPreferenceRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update user's preference for receiving payment receipt emails"""
+
+    current_user.notify_payment_receipts = request.enabled
+    db.commit()
+
+    return {
+        "message": "Receipt preference updated",
+        "notify_payment_receipts": current_user.notify_payment_receipts
+    }
+
+
+@router.get("/receipt-preference")
+def get_receipt_preference(
+    current_user: User = Depends(get_current_user)
+):
+    """Get user's payment receipt email preference"""
+
+    return {
+        "notify_payment_receipts": current_user.notify_payment_receipts
     }

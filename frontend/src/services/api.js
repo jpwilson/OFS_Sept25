@@ -1821,6 +1821,68 @@ class ApiService {
       throw error
     }
   }
+
+  // ========================================
+  // BILLING & PAYMENT HISTORY
+  // ========================================
+
+  async getPaymentHistory() {
+    try {
+      const response = await fetch(`${API_BASE}/stripe/payment-history`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch payment history')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching payment history:', error)
+      return { payments: [], total_spent: '$0.00' }
+    }
+  }
+
+  async emailBillingHistory() {
+    try {
+      const response = await fetch(`${API_BASE}/stripe/email-billing-history`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to send billing history email')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error emailing billing history:', error)
+      throw error
+    }
+  }
+
+  async getReceiptPreference() {
+    try {
+      const response = await fetch(`${API_BASE}/stripe/receipt-preference`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { notify_payment_receipts: false }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching receipt preference:', error)
+      return { notify_payment_receipts: false }
+    }
+  }
+
+  async updateReceiptPreference(enabled) {
+    try {
+      const response = await fetch(`${API_BASE}/stripe/receipt-preference`, {
+        method: 'PUT',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ enabled })
+      })
+      if (!response.ok) throw new Error('Failed to update receipt preference')
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating receipt preference:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()

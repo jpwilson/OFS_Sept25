@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import confetti from 'canvas-confetti'
+import api from '../services/api'
 import styles from './Billing.module.css'
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
@@ -20,6 +21,7 @@ export default function Billing() {
     isPaidSubscriber,
     isSubscriptionCanceled,
     subscriptionEndsAt,
+    subscriptionStartedAt,
     isTrialExpired,
     subscriptionTier
   } = useAuth()
@@ -27,6 +29,16 @@ export default function Billing() {
   const [billingPeriod, setBillingPeriod] = useState('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  // Payment history state
+  const [paymentHistory, setPaymentHistory] = useState({ payments: [], total_spent: '$0.00' })
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [emailingHistory, setEmailingHistory] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+
+  // Receipt preference state
+  const [receiptPreference, setReceiptPreference] = useState(false)
+  const [savingPreference, setSavingPreference] = useState(false)
 
   // Check for success/cancel query params - must be before any conditional returns
   const urlParams = new URLSearchParams(window.location.search)
@@ -75,6 +87,59 @@ export default function Billing() {
       }, 500)
     }
   }, [isSuccess, user])
+
+  // Load payment history and preferences for paid subscribers
+  useEffect(() => {
+    const loadBillingData = async () => {
+      if (!isPaidSubscriber) return
+
+      setHistoryLoading(true)
+      try {
+        const [historyData, prefData] = await Promise.all([
+          api.getPaymentHistory(),
+          api.getReceiptPreference()
+        ])
+        setPaymentHistory(historyData)
+        setReceiptPreference(prefData.notify_payment_receipts)
+      } catch (err) {
+        console.error('Failed to load billing data:', err)
+      } finally {
+        setHistoryLoading(false)
+      }
+    }
+
+    loadBillingData()
+  }, [isPaidSubscriber])
+
+  const handleEmailHistory = async () => {
+    setEmailingHistory(true)
+    setEmailSent(false)
+    setError(null)
+    try {
+      await api.emailBillingHistory()
+      setEmailSent(true)
+      setTimeout(() => setEmailSent(false), 5000)
+    } catch (err) {
+      // Show rate limit errors inline instead of as a general error
+      setError(err.message || 'Failed to send billing history')
+      setTimeout(() => setError(null), 8000)
+    } finally {
+      setEmailingHistory(false)
+    }
+  }
+
+  const handleReceiptToggle = async () => {
+    setSavingPreference(true)
+    try {
+      const newValue = !receiptPreference
+      await api.updateReceiptPreference(newValue)
+      setReceiptPreference(newValue)
+    } catch (err) {
+      setError(err.message || 'Failed to update preference')
+    } finally {
+      setSavingPreference(false)
+    }
+  }
 
   const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -283,6 +348,118 @@ export default function Billing() {
             </div>
           )}
         </div>
+
+        {/* Payment History Section (show if paid) */}
+        {isPaidSubscriber && (
+          <>
+            {/* Plan Details */}
+            <div className={styles.planDetailsCard}>
+              <h2>Plan Details</h2>
+              <div className={styles.planDetails}>
+                <div className={styles.planDetailRow}>
+                  <span className={styles.planDetailLabel}>Plan</span>
+                  <span className={styles.planDetailValue}>
+                    {subscriptionTier === 'premium' ? 'Pro' : subscriptionTier}
+                  </span>
+                </div>
+                {subscriptionStartedAt && (
+                  <div className={styles.planDetailRow}>
+                    <span className={styles.planDetailLabel}>Member since</span>
+                    <span className={styles.planDetailValue}>
+                      {new Date(subscriptionStartedAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                )}
+                {subscriptionEndsAt && !isSubscriptionCanceled && (
+                  <div className={styles.planDetailRow}>
+                    <span className={styles.planDetailLabel}>Next billing date</span>
+                    <span className={styles.planDetailValue}>
+                      {subscriptionEndsAt.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment History */}
+            <div className={styles.paymentHistoryCard}>
+              <div className={styles.paymentHistoryHeader}>
+                <h2>Payment History</h2>
+                {paymentHistory.payments.length > 0 && (
+                  <span className={styles.totalSpent}>
+                    Total: {paymentHistory.total_spent}
+                  </span>
+                )}
+              </div>
+
+              {historyLoading ? (
+                <p className={styles.loadingText}>Loading payment history...</p>
+              ) : paymentHistory.payments.length === 0 ? (
+                <p className={styles.emptyText}>No payments yet</p>
+              ) : (
+                <div className={styles.paymentTable}>
+                  <div className={styles.paymentTableHeader}>
+                    <span>Date</span>
+                    <span>Description</span>
+                    <span>Amount</span>
+                    <span>Status</span>
+                  </div>
+                  {paymentHistory.payments.map((payment, idx) => (
+                    <div key={idx} className={styles.paymentRow}>
+                      <span>{payment.date}</span>
+                      <span>{payment.description}</span>
+                      <span>{payment.amount}</span>
+                      <span className={styles.statusPaid}>{payment.status}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {paymentHistory.payments.length > 0 && (
+                <div className={styles.paymentActions}>
+                  <button
+                    className={styles.emailHistoryButton}
+                    onClick={handleEmailHistory}
+                    disabled={emailingHistory}
+                  >
+                    {emailingHistory ? 'Sending...' : 'Email My Billing History'}
+                  </button>
+                  {emailSent && (
+                    <span className={styles.emailSentMessage}>Sent to your email!</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Billing Settings */}
+            <div className={styles.billingSettingsCard}>
+              <h2>Billing Settings</h2>
+              <div className={styles.settingRow}>
+                <div className={styles.settingInfo}>
+                  <span className={styles.settingLabel}>Email payment receipts</span>
+                  <span className={styles.settingDescription}>
+                    Receive an email receipt each time your subscription renews
+                  </span>
+                </div>
+                <button
+                  className={`${styles.toggleButton} ${receiptPreference ? styles.toggleOn : ''}`}
+                  onClick={handleReceiptToggle}
+                  disabled={savingPreference}
+                >
+                  <span className={styles.toggleKnob} />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Pricing Section (show if not paid) */}
         {!isPaidSubscriber && (

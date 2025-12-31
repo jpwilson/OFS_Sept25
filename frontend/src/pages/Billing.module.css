@@ -461,3 +461,271 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Plan Details Card */
+.planDetailsCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.planDetailsCard h2 {
+  color: white;
+  font-size: 18px;
+  margin: 0 0 20px 0;
+}
+
+.planDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planDetailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.planDetailLabel {
+  color: #888;
+  font-size: 14px;
+}
+
+.planDetailValue {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Payment History Card */
+.paymentHistoryCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.paymentHistoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.paymentHistoryHeader h2 {
+  color: white;
+  font-size: 18px;
+  margin: 0;
+}
+
+.totalSpent {
+  color: #667eea;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.loadingText,
+.emptyText {
+  color: #888;
+  font-size: 14px;
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+
+.paymentTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paymentTableHeader {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 0.75fr;
+  gap: 12px;
+  padding: 8px 12px;
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.paymentRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 0.75fr;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 14px;
+  align-items: center;
+}
+
+.paymentRow span:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusPaid {
+  color: #48bb78;
+  font-weight: 500;
+}
+
+.paymentActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emailHistoryButton {
+  padding: 10px 20px;
+  background: transparent;
+  color: #667eea;
+  border: 1px solid #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emailHistoryButton:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.emailHistoryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.emailSentMessage {
+  color: #48bb78;
+  font-size: 14px;
+}
+
+/* Billing Settings Card */
+.billingSettingsCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.billingSettingsCard h2 {
+  color: white;
+  font-size: 18px;
+  margin: 0 0 20px 0;
+}
+
+.settingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.settingInfo {
+  flex: 1;
+}
+
+.settingLabel {
+  display: block;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.settingDescription {
+  display: block;
+  color: #888;
+  font-size: 13px;
+}
+
+/* Toggle Button */
+.toggleButton {
+  width: 52px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggleButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleButton.toggleOn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.toggleButton.toggleOn .toggleKnob {
+  transform: translateX(24px);
+}
+
+/* Mobile Responsiveness for Payment Table */
+@media (max-width: 600px) {
+  .paymentTableHeader {
+    display: none;
+  }
+
+  .paymentRow {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 4px 12px;
+  }
+
+  .paymentRow span:nth-child(1) {
+    order: 1;
+    font-size: 13px;
+  }
+
+  .paymentRow span:nth-child(2) {
+    order: 3;
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: #888;
+    white-space: normal;
+  }
+
+  .paymentRow span:nth-child(3) {
+    order: 2;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .paymentRow span:nth-child(4) {
+    display: none;
+  }
+}

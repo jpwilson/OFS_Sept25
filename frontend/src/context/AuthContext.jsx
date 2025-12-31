@@ -310,6 +310,7 @@ export function AuthProvider({ children }) {
   // Subscription helper values (derived from user object)
   const subscriptionStatus = user?.subscription_status || 'trial'
   const subscriptionTier = user?.subscription_tier || 'free'
+  const subscriptionStartedAt = user?.subscription_started_at ? new Date(user.subscription_started_at) : null
   const subscriptionEndsAt = user?.subscription_ends_at ? new Date(user.subscription_ends_at) : null
   const trialDaysRemaining = user?.trial_days_remaining ?? 30 // Default to 30 if not set
   const isWithinFirst5Days = user?.is_within_first_5_days || false
@@ -340,6 +341,7 @@ export function AuthProvider({ children }) {
     // Subscription helpers
     subscriptionStatus,
     subscriptionTier,
+    subscriptionStartedAt,
     subscriptionEndsAt,
     trialDaysRemaining,
     isWithinFirst5Days,
