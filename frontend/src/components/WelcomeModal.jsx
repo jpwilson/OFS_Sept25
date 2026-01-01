@@ -11,12 +11,16 @@ export default function WelcomeModal() {
   useEffect(() => {
     if (!user || isPaidSubscriber) return
 
+    // Check if user permanently dismissed the modal
+    const dismissedKey = `welcome_dismissed_${user.id}`
+    if (localStorage.getItem(dismissedKey) === 'true') return
+
     // Check how many times we've shown this modal
     const welcomeKey = `welcome_shown_${user.id}`
     const shownCount = parseInt(localStorage.getItem(welcomeKey) || '0', 10)
 
-    // Show first 4 times
-    if (shownCount < 4) {
+    // Show first 5 times
+    if (shownCount < 5) {
       setIsVisible(true)
       localStorage.setItem(welcomeKey, String(shownCount + 1))
     }
@@ -28,16 +32,27 @@ export default function WelcomeModal() {
     setIsVisible(false)
   }
 
-  const handleSubscribe = () => {
-    navigate('/billing')
+  const handleDontShowAgain = () => {
+    const dismissedKey = `welcome_dismissed_${user.id}`
+    localStorage.setItem(dismissedKey, 'true')
     setIsVisible(false)
   }
 
+  const handleSubscribe = () => {
+    setIsVisible(false)
+    navigate('/billing')
+  }
+
+  const handleStartExploring = () => {
+    setIsVisible(false)
+    navigate('/feed')
+  }
+
   return (
-    <div className={styles.overlay} onClick={handleClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeX} onClick={handleClose}>&times;</button>
-        
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <button className={styles.closeX} onClick={handleClose} aria-label="Close">&times;</button>
+
         <div className={styles.header}>
           <span className={styles.wave}>👋</span>
           <h2>Welcome to Our Family Socials!</h2>
@@ -61,7 +76,7 @@ export default function WelcomeModal() {
               <div className={styles.bonusContent}>
                 <strong>Early Bird Bonus!</strong>
                 <p>
-                  Subscribe within the next 5 days and get your <strong>first month FREE</strong> &mdash; 
+                  Subscribe within the next 5 days and get your <strong>first month FREE</strong> &mdash;
                   that's 60 days total before any charge!
                 </p>
                 <button className={styles.claimButton} onClick={handleSubscribe}>
@@ -82,8 +97,12 @@ export default function WelcomeModal() {
           </div>
         </div>
 
-        <button className={styles.startButton} onClick={handleClose}>
+        <button className={styles.startButton} onClick={handleStartExploring}>
           Start Exploring
+        </button>
+
+        <button className={styles.dontShowButton} onClick={handleDontShowAgain}>
+          Don't show this again
         </button>
       </div>
     </div>

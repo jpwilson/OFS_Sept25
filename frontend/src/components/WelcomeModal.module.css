@@ -202,6 +202,22 @@
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
+.dontShowButton {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #666;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-top: 12px;
+}
+
+.dontShowButton:hover {
+  color: #999;
+}
+
 @media (max-width: 500px) {
   .modal {
     padding: 24px 20px;
