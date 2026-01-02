@@ -252,49 +252,15 @@ def get_following(
     following_list = []
     for follow in follows:
         user = follow.following
-        # Safely get notify_new_events with fallback
-        try:
-            notify = follow.notify_new_events if follow.notify_new_events is not None else True
-        except:
-            notify = True
         following_list.append({
             "id": user.id,
             "user_id": user.id,
             "username": user.username,
             "full_name": user.full_name,
-            "avatar_url": user.avatar_url,
-            "notify_new_events": notify
+            "avatar_url": user.avatar_url
         })
 
     return following_list
-
-
-@router.patch("/me/following/{user_id}/notify-events")
-def toggle_event_notifications(
-    user_id: int,
-    notify: bool,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Toggle event notifications for a specific user you follow"""
-    try:
-        follow = db.query(Follow).filter(
-            Follow.follower_id == current_user.id,
-            Follow.following_id == user_id,
-            Follow.status == "accepted"
-        ).first()
-
-        if not follow:
-            raise HTTPException(status_code=404, detail="You are not following this user")
-
-        follow.notify_new_events = notify
-        db.commit()
-        return {"success": True, "notify_new_events": notify}
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Column might not exist yet
-        return {"success": False, "error": "Feature not yet available", "notify_new_events": True}
 
 
 @router.get("/me/followers")
