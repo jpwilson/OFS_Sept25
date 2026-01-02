@@ -75,15 +75,22 @@ export default function TrialBanner() {
     )
   }
 
+  // Calculate Early Bird days remaining (first 5 days of 30-day trial)
+  const earlyBirdDaysRemaining = Math.max(0, trialDaysRemaining - 25)
+
   // Show active trial banner
   if (isTrialActive) {
     // Early bird bonus banner (first 5 days)
     if (isWithinFirst5Days) {
+      const urgencyText = earlyBirdDaysRemaining === 1
+        ? 'Last chance!'
+        : `${earlyBirdDaysRemaining} days left!`
+
       return (
         <div className={`${styles.banner} ${styles.earlyBird}`}>
           <div className={styles.content}>
             <span className={styles.message}>
-              <span className={styles.highlight}>Early Bird Bonus!</span> Subscribe now and get your first month FREE (60 days total instead of 30)
+              <span className={styles.highlight}>Early Bird Bonus!</span> Subscribe now and get your first month FREE (60 days total). <span className={styles.urgency}>{urgencyText}</span>
             </span>
             <button
               className={styles.upgradeButton}

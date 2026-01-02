@@ -5,34 +5,48 @@ import styles from './WelcomeModal.module.css'
 
 export default function WelcomeModal() {
   const [isVisible, setIsVisible] = useState(false)
-  const [currentShowCount, setCurrentShowCount] = useState(1)
   const { user, trialDaysRemaining, isWithinFirst5Days, isPaidSubscriber } = useAuth()
   const navigate = useNavigate()
 
+  // Calculate Early Bird days remaining (first 5 days of 30-day trial)
+  const earlyBirdDaysRemaining = Math.max(0, trialDaysRemaining - 25)
+
   useEffect(() => {
     if (!user || isPaidSubscriber) return
+
+    // Only show during first 5 days
+    if (!isWithinFirst5Days) return
 
     // Check if user permanently dismissed the modal
     const dismissedKey = `welcome_dismissed_${user.id}`
     if (localStorage.getItem(dismissedKey) === 'true') return
 
-    // Check how many times we've shown this modal
-    const welcomeKey = `welcome_shown_${user.id}`
-    const shownCount = parseInt(localStorage.getItem(welcomeKey) || '0', 10)
+    // Check if dismissed within last 24 hours
+    const tempDismissKey = `welcome_temp_dismissed_${user.id}`
+    const dismissedAt = localStorage.getItem(tempDismissKey)
+    if (dismissedAt) {
+      const dismissedTime = parseInt(dismissedAt, 10)
+      const now = Date.now()
+      const twentyFourHours = 24 * 60 * 60 * 1000
 
-    // Show first 5 times
-    if (shownCount < 5) {
-      const newCount = shownCount + 1
-      setCurrentShowCount(newCount)
-      setIsVisible(true)
-      localStorage.setItem(welcomeKey, String(newCount))
+      if (now - dismissedTime < twentyFourHours) {
+        // Still within 24 hours, don't show
+        return
+      } else {
+        // More than 24 hours, clear dismissal
+        localStorage.removeItem(tempDismissKey)
+      }
     }
-  }, [user, isPaidSubscriber])
+
+    setIsVisible(true)
+  }, [user, isPaidSubscriber, isWithinFirst5Days])
 
   if (!isVisible || !user) return null
 
-  // X button just closes for this session, doesn't permanently dismiss
+  // X button dismisses for 24 hours
   const handleClose = () => {
+    const tempDismissKey = `welcome_temp_dismissed_${user.id}`
+    localStorage.setItem(tempDismissKey, Date.now().toString())
     setIsVisible(false)
   }
 
@@ -80,8 +94,11 @@ export default function WelcomeModal() {
               <div className={styles.bonusIcon}>🎁</div>
               <div className={styles.bonusContent}>
                 <strong>Early Bird Bonus!</strong>
+                <span className={styles.urgencyBadge}>
+                  {earlyBirdDaysRemaining === 1 ? 'Last chance!' : `${earlyBirdDaysRemaining} days left`}
+                </span>
                 <p>
-                  Subscribe within the next 5 days and get your <strong>first month FREE</strong> &mdash;
+                  Subscribe now and get your <strong>first month FREE</strong> &mdash;
                   that's 60 days total before any charge!
                 </p>
                 <button className={styles.claimButton} onClick={handleSubscribe}>
@@ -109,10 +126,6 @@ export default function WelcomeModal() {
         <button className={styles.dontShowButton} onClick={handleDontShowAgain}>
           Don't show this again
         </button>
-
-        <div className={styles.showCounter}>
-          Showing {currentShowCount} of 5 times
-        </div>
       </div>
     </div>
   )

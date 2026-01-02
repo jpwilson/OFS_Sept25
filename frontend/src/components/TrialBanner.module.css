@@ -71,6 +71,14 @@
   font-size: 16px;
 }
 
+.urgency {
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
 .upgradeButton {
   background: rgba(255, 255, 255, 0.95);
   color: #333;
