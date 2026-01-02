@@ -258,7 +258,7 @@ def get_following(
             "username": user.username,
             "full_name": user.full_name,
             "avatar_url": user.avatar_url,
-            "notify_new_events": follow.notify_new_events
+            "notify_new_events": getattr(follow, 'notify_new_events', True)  # Default True if column missing
         })
 
     return following_list

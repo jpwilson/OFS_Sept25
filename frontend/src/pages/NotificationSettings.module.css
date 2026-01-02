@@ -82,20 +82,39 @@
 /* Tab with tooltip */
 .tabWithTooltip {
   position: relative;
-  display: inline-flex;
 }
 
 .comingSoonTooltip {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
   color: white;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
   white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+}
+
+.comingSoonTooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+.tabWithTooltip:hover .comingSoonTooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Master Toggle */

@@ -741,12 +741,10 @@ export default function NotificationSettings() {
               <button className={`${styles.tab} ${styles.activeTab}`}>
                 ✉️ Email
               </button>
-              <div className={styles.tabWithTooltip}>
-                <button className={`${styles.tab} ${styles.disabledTab}`} disabled>
-                  🔔 Push
-                </button>
+              <button className={`${styles.tab} ${styles.disabledTab} ${styles.tabWithTooltip}`} disabled>
+                🔔 Push
                 <span className={styles.comingSoonTooltip}>Coming soon</span>
-              </div>
+              </button>
             </div>
 
             {/* Master Toggle */}
