@@ -5,6 +5,7 @@ import styles from './WelcomeModal.module.css'
 
 export default function WelcomeModal() {
   const [isVisible, setIsVisible] = useState(false)
+  const [currentShowCount, setCurrentShowCount] = useState(1)
   const { user, trialDaysRemaining, isWithinFirst5Days, isPaidSubscriber } = useAuth()
   const navigate = useNavigate()
 
@@ -21,17 +22,21 @@ export default function WelcomeModal() {
 
     // Show first 5 times
     if (shownCount < 5) {
+      const newCount = shownCount + 1
+      setCurrentShowCount(newCount)
       setIsVisible(true)
-      localStorage.setItem(welcomeKey, String(shownCount + 1))
+      localStorage.setItem(welcomeKey, String(newCount))
     }
   }, [user, isPaidSubscriber])
 
   if (!isVisible || !user) return null
 
+  // X button just closes for this session, doesn't permanently dismiss
   const handleClose = () => {
     setIsVisible(false)
   }
 
+  // "Don't show again" permanently dismisses
   const handleDontShowAgain = () => {
     const dismissedKey = `welcome_dismissed_${user.id}`
     localStorage.setItem(dismissedKey, 'true')
@@ -104,6 +109,10 @@ export default function WelcomeModal() {
         <button className={styles.dontShowButton} onClick={handleDontShowAgain}>
           Don't show this again
         </button>
+
+        <div className={styles.showCounter}>
+          Showing {currentShowCount} of 5 times
+        </div>
       </div>
     </div>
   )

@@ -384,6 +384,61 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
+/* Preferences Section */
+.preferenceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.preferenceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preferenceLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.preferenceDescription {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.themeToggleButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.themeToggleButton:hover {
+  border-color: #667eea;
+  background: var(--bg-primary);
+}
+
+.themeIcon {
+  font-size: 18px;
+}
+
+.themeText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .container {

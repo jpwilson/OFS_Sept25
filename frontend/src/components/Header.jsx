@@ -16,19 +16,12 @@ function Header() {
   })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark'
-  })
 
-  // Apply theme globally and persist
+  // Apply saved theme on mount
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }
+    const savedTheme = localStorage.getItem('theme') || 'dark'
+    document.documentElement.setAttribute('data-theme', savedTheme)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -151,16 +144,6 @@ function Header() {
         </div>
       )}
 
-      {/* Theme toggle - below header, top right (only when logged in) */}
-      {user && (
-        <button
-          onClick={toggleTheme}
-          className={styles.themeToggle}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-      )}
     </header>
   )
 }

@@ -18,6 +18,11 @@ function EditProfile() {
     banner_url: ''
   })
 
+  // Theme preference
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark'
+  })
+
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [bannerPreview, setBannerPreview] = useState(null)
   const [cropperImage, setCropperImage] = useState(null)
@@ -134,6 +139,13 @@ function EditProfile() {
   const handleRemoveBanner = () => {
     setBannerPreview(null)
     setFormData(prev => ({ ...prev, banner_url: '' }))
+  }
+
+  const handleThemeToggle = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(newTheme)
+    localStorage.setItem('theme', newTheme)
+    document.documentElement.setAttribute('data-theme', newTheme)
   }
 
   const handleSubmit = async (e) => {
@@ -323,6 +335,27 @@ function EditProfile() {
               <span className={styles.hint}>
                 {formData.bio?.length || 0} / 500 characters
               </span>
+            </div>
+          </div>
+
+          {/* Preferences Section */}
+          <div className={styles.section}>
+            <label className={styles.sectionLabel}>Preferences</label>
+            <div className={styles.preferenceRow}>
+              <div className={styles.preferenceInfo}>
+                <span className={styles.preferenceLabel}>Theme</span>
+                <span className={styles.preferenceDescription}>
+                  Choose your preferred color scheme
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.themeToggleButton}
+                onClick={handleThemeToggle}
+              >
+                <span className={styles.themeIcon}>{theme === 'dark' ? '🌙' : '☀️'}</span>
+                <span className={styles.themeText}>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+              </button>
             </div>
           </div>
 

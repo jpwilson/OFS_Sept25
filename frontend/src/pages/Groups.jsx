@@ -26,10 +26,33 @@ function Groups() {
   const [selectedMembers, setSelectedMembers] = useState([])
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [shareLinkFilter, setShareLinkFilter] = useState('active') // active, expired
+  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [userSearchResults, setUserSearchResults] = useState([])
+  const [searchingUsers, setSearchingUsers] = useState(false)
 
   useEffect(() => {
     loadAllData()
   }, [])
+
+  // User search with debouncing
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (userSearchQuery.trim().length >= 2) {
+        setSearchingUsers(true)
+        try {
+          const results = await apiService.searchUsers(userSearchQuery)
+          setUserSearchResults(results)
+        } catch (error) {
+          console.error('Search error:', error)
+        }
+        setSearchingUsers(false)
+      } else {
+        setUserSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [userSearchQuery])
 
   async function loadAllData() {
     setLoading(true)
@@ -312,6 +335,20 @@ Looking forward to sharing our memories together!
     copyToClipboard(message, 'Invite message copied!')
   }
 
+  async function handleFollowFromSearch(username) {
+    try {
+      await apiService.followUser(username)
+      showToast('Follow request sent!', 'success')
+      setUserSearchResults(prev => prev.map(u =>
+        u.username === username ? { ...u, followRequested: true } : u
+      ))
+      loadFollowing()
+    } catch (error) {
+      console.error('Error following user:', error)
+      showToast('Failed to send follow request', 'error')
+    }
+  }
+
   async function handleCopyShareLink(link) {
     const url = `https://www.ourfamilysocials.com/shared/${link.token}`
     copyToClipboard(url, 'Event link copied!')
@@ -382,6 +419,57 @@ Looking forward to sharing our memories together!
 
       <div className={styles.description}>
         Manage who can see your events and invite new people to follow you.
+      </div>
+
+      {/* User Search Section */}
+      <div className={styles.searchSection}>
+        <label htmlFor="user-search" className={styles.searchLabel}>Find your family and friends</label>
+        <input
+          type="text"
+          id="user-search"
+          placeholder="Search for users by name or username..."
+          value={userSearchQuery}
+          onChange={(e) => setUserSearchQuery(e.target.value)}
+          className={styles.searchInput}
+        />
+        {searchingUsers && (
+          <div className={styles.searchLoading}>Searching...</div>
+        )}
+        {userSearchResults.length > 0 && (
+          <div className={styles.searchResults}>
+            {userSearchResults.map(result => (
+              <div key={result.id} className={styles.searchResult}>
+                <Link to={`/profile/${result.username}`} className={styles.searchResultInfo}>
+                  <div className={styles.searchResultAvatar}>
+                    {result.avatar_url ? (
+                      <img src={result.avatar_url} alt="" />
+                    ) : (
+                      result.full_name?.charAt(0) || result.username.charAt(0)
+                    )}
+                  </div>
+                  <div className={styles.searchResultDetails}>
+                    <div className={styles.searchResultName}>
+                      {result.full_name || result.username}
+                    </div>
+                    <div className={styles.searchResultUsername}>@{result.username}</div>
+                  </div>
+                </Link>
+                {result.followRequested ? (
+                  <span className={styles.requestSentBadge}>Request Sent</span>
+                ) : following.some(f => f.username === result.username) ? (
+                  <span className={styles.followingBadge}>Following</span>
+                ) : (
+                  <button
+                    className={styles.followSearchBtn}
+                    onClick={() => handleFollowFromSearch(result.username)}
+                  >
+                    Follow
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Invite Link Section */}
