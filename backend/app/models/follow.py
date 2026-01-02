@@ -11,7 +11,6 @@ class Follow(Base):
     following_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     status = Column(String, default="pending", nullable=False)  # 'pending', 'accepted', 'rejected'
     is_close_family = Column(Boolean, default=False, nullable=False)  # Mark as close family member
-    notify_new_events = Column(Boolean, default=True, nullable=False)  # Receive notifications for new events from this user
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Invited viewer fields

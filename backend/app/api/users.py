@@ -257,34 +257,10 @@ def get_following(
             "user_id": user.id,  # For frontend compatibility
             "username": user.username,
             "full_name": user.full_name,
-            "avatar_url": user.avatar_url,
-            "notify_new_events": getattr(follow, 'notify_new_events', True)  # Default True if column missing
+            "avatar_url": user.avatar_url
         })
 
     return following_list
-
-
-@router.patch("/me/following/{user_id}/notify-events")
-def toggle_event_notifications(
-    user_id: int,
-    notify: bool,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Toggle event notifications for a specific user you follow"""
-    follow = db.query(Follow).filter(
-        Follow.follower_id == current_user.id,
-        Follow.following_id == user_id,
-        Follow.status == "accepted"
-    ).first()
-
-    if not follow:
-        raise HTTPException(status_code=404, detail="You are not following this user")
-
-    follow.notify_new_events = notify
-    db.commit()
-
-    return {"success": True, "notify_new_events": notify}
 
 @router.get("/me/followers")
 def get_followers(
