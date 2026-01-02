@@ -47,6 +47,11 @@ export default function NotificationSettings() {
   const [profileClaimsByYou, setProfileClaimsByYou] = useState([])
   const [processingClaim, setProcessingClaim] = useState(null)
 
+  // Per-user event notification state
+  const [followingList, setFollowingList] = useState([])
+  const [followingExpanded, setFollowingExpanded] = useState(false)
+  const [updatingNotifyUser, setUpdatingNotifyUser] = useState(null)
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -60,6 +65,7 @@ export default function NotificationSettings() {
     loadPreferences()
     loadFollowData()
     loadTagData()
+    loadFollowingList()
   }, [user])
 
   // --- Data Loading ---
@@ -111,6 +117,33 @@ export default function NotificationSettings() {
       console.error('Failed to load tag data:', error)
     } finally {
       setTagsLoading(false)
+    }
+  }
+
+  async function loadFollowingList() {
+    try {
+      const data = await apiService.getFollowing()
+      setFollowingList(data || [])
+    } catch (error) {
+      console.error('Failed to load following list:', error)
+    }
+  }
+
+  // --- Per-user Notification Handler ---
+
+  async function handleToggleUserNotifications(userId, notify) {
+    setUpdatingNotifyUser(userId)
+    try {
+      await apiService.toggleEventNotifications(userId, notify)
+      setFollowingList(prev => prev.map(f =>
+        f.user_id === userId ? { ...f, notify_new_events: notify } : f
+      ))
+      showToast(notify ? 'Notifications enabled' : 'Notifications disabled', 'success')
+    } catch (error) {
+      console.error('Failed to update notification preference:', error)
+      showToast('Failed to update notification preference', 'error')
+    } finally {
+      setUpdatingNotifyUser(null)
     }
   }
 
@@ -259,36 +292,6 @@ export default function NotificationSettings() {
     }
   }
 
-  async function handleEnableAll() {
-    const newPreferences = {
-      email_notifications_enabled: true,
-      notify_new_follower: true,
-      notify_new_comment: true,
-      notify_trial_reminder: true,
-      notify_event_shared: true,
-      notify_new_event_from_followed: true,
-      notify_invitee_new_event: true,
-      notify_tag_request: true
-    }
-    setPreferences(newPreferences)
-    await savePreferences(newPreferences)
-  }
-
-  async function handleDisableAll() {
-    const newPreferences = {
-      email_notifications_enabled: false,
-      notify_new_follower: false,
-      notify_new_comment: false,
-      notify_trial_reminder: false,
-      notify_event_shared: false,
-      notify_new_event_from_followed: false,
-      notify_invitee_new_event: false,
-      notify_tag_request: false
-    }
-    setPreferences(newPreferences)
-    await savePreferences(newPreferences)
-  }
-
   // --- Helpers ---
 
   const getBackDestination = () => {
@@ -319,22 +322,6 @@ export default function NotificationSettings() {
       </div>
     )
   }
-
-  const allEnabled = preferences.notify_new_follower &&
-                     preferences.notify_new_comment &&
-                     preferences.notify_trial_reminder &&
-                     preferences.notify_event_shared &&
-                     preferences.notify_new_event_from_followed &&
-                     preferences.notify_invitee_new_event &&
-                     preferences.notify_tag_request
-
-  const allDisabled = !preferences.notify_new_follower &&
-                      !preferences.notify_new_comment &&
-                      !preferences.notify_trial_reminder &&
-                      !preferences.notify_event_shared &&
-                      !preferences.notify_new_event_from_followed &&
-                      !preferences.notify_invitee_new_event &&
-                      !preferences.notify_tag_request
 
   return (
     <div className={styles.container}>
@@ -754,9 +741,12 @@ export default function NotificationSettings() {
               <button className={`${styles.tab} ${styles.activeTab}`}>
                 ✉️ Email
               </button>
-              <button className={`${styles.tab} ${styles.disabledTab}`} disabled title="Coming soon">
-                🔔 Push
-              </button>
+              <div className={styles.tabWithTooltip}>
+                <button className={`${styles.tab} ${styles.disabledTab}`} disabled>
+                  🔔 Push
+                </button>
+                <span className={styles.comingSoonTooltip}>Coming soon</span>
+              </div>
             </div>
 
             {/* Master Toggle */}
@@ -777,46 +767,9 @@ export default function NotificationSettings() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className={styles.quickActions}>
-              <button
-                className={styles.quickButton}
-                onClick={handleEnableAll}
-                disabled={allEnabled || saving}
-              >
-                Enable All
-              </button>
-              <button
-                className={styles.quickButton}
-                onClick={handleDisableAll}
-                disabled={allDisabled || saving}
-              >
-                Disable All
-              </button>
-            </div>
-
             {/* Individual Notifications */}
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Activity</h2>
-
-              <div className={styles.notificationItem}>
-                <div className={styles.notificationInfo}>
-                  <span className={styles.notificationIcon}>👤</span>
-                  <div>
-                    <h4>New Followers</h4>
-                    <p>When someone starts following you</p>
-                  </div>
-                </div>
-                <label className={styles.switch}>
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_new_follower}
-                    onChange={() => handleToggle('notify_new_follower')}
-                    disabled={!preferences.email_notifications_enabled}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-              </div>
 
               <div className={styles.notificationItem}>
                 <div className={styles.notificationInfo}>
@@ -837,23 +790,70 @@ export default function NotificationSettings() {
                 </label>
               </div>
 
-              <div className={styles.notificationItem}>
-                <div className={styles.notificationInfo}>
-                  <span className={styles.notificationIcon}>📸</span>
-                  <div>
-                    <h4>New Events from Following</h4>
-                    <p>When someone you follow shares a new event</p>
+              {/* New Events from Following - Expandable */}
+              <div className={styles.notificationItemExpandable}>
+                <div
+                  className={styles.notificationItemHeader}
+                  onClick={() => setFollowingExpanded(!followingExpanded)}
+                >
+                  <div className={styles.notificationInfo}>
+                    <span className={styles.notificationIcon}>📸</span>
+                    <div>
+                      <h4>New Events from Following</h4>
+                      <p>When someone you follow shares a new event</p>
+                    </div>
+                  </div>
+                  <div className={styles.expandToggle}>
+                    <label className={styles.switch} onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={preferences.notify_new_event_from_followed}
+                        onChange={() => handleToggle('notify_new_event_from_followed')}
+                        disabled={!preferences.email_notifications_enabled}
+                      />
+                      <span className={styles.slider}></span>
+                    </label>
+                    <span className={`${styles.expandArrow} ${followingExpanded ? styles.expanded : ''}`}>
+                      ▼
+                    </span>
                   </div>
                 </div>
-                <label className={styles.switch}>
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_new_event_from_followed}
-                    onChange={() => handleToggle('notify_new_event_from_followed')}
-                    disabled={!preferences.email_notifications_enabled}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
+
+                {followingExpanded && preferences.notify_new_event_from_followed && (
+                  <div className={styles.expandedContent}>
+                    {followingList.length === 0 ? (
+                      <p className={styles.noFollowing}>You're not following anyone yet</p>
+                    ) : (
+                      <div className={styles.followingNotifyList}>
+                        {followingList.map(follow => (
+                          <div key={follow.user_id} className={styles.followingNotifyItem}>
+                            <div className={styles.followingUser}>
+                              {follow.avatar_url ? (
+                                <img src={follow.avatar_url} alt="" className={styles.followingAvatar} />
+                              ) : (
+                                <div className={styles.followingAvatarPlaceholder}>
+                                  {(follow.full_name || follow.username)?.[0]?.toUpperCase() || '?'}
+                                </div>
+                              )}
+                              <span className={styles.followingName}>
+                                {follow.full_name || follow.username}
+                              </span>
+                            </div>
+                            <label className={styles.switch} onClick={e => e.stopPropagation()}>
+                              <input
+                                type="checkbox"
+                                checked={follow.notify_new_events !== false}
+                                onChange={() => handleToggleUserNotifications(follow.user_id, !follow.notify_new_events)}
+                                disabled={updatingNotifyUser === follow.user_id}
+                              />
+                              <span className={styles.slider}></span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.notificationItem}>

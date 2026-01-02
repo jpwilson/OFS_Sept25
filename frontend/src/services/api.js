@@ -542,6 +542,21 @@ class ApiService {
     }
   }
 
+  async toggleEventNotifications(userId, notify) {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/following/${userId}/notify-events?notify=${notify}`, {
+        method: 'PATCH',
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) throw new Error('Failed to update notification preference')
+      return await response.json()
+    } catch (error) {
+      console.error('Error updating notification preference:', error)
+      throw error
+    }
+  }
+
   async followUser(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/follow`, {

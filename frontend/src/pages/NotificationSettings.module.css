@@ -79,6 +79,25 @@
   cursor: not-allowed;
 }
 
+/* Tab with tooltip */
+.tabWithTooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.comingSoonTooltip {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 /* Master Toggle */
 .masterSection {
   background: var(--bg-secondary);
@@ -192,6 +211,111 @@
   font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
+}
+
+/* Expandable Notification Item */
+.notificationItemExpandable {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.notificationItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notificationItemHeader:hover {
+  background: var(--bg-tertiary);
+}
+
+.expandToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expandArrow {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+}
+
+.expandArrow.expanded {
+  transform: rotate(180deg);
+}
+
+.expandedContent {
+  border-top: 1px solid var(--border-color);
+  padding: 12px 16px;
+  background: var(--bg-primary);
+}
+
+.noFollowing {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: 12px;
+  margin: 0;
+}
+
+.followingNotifyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.followingNotifyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.followingUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.followingAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.followingAvatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.followingName {
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Toggle Switch */
