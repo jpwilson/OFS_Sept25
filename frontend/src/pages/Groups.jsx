@@ -410,20 +410,9 @@ Looking forward to sharing our memories together!
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Sharing</h1>
-        <button className={styles.inviteButton} onClick={() => setShowInviteModal(true)}>
-          + Invite Someone
-        </button>
-      </div>
-
-      <div className={styles.description}>
-        Manage who can see your events and invite new people to follow you.
-      </div>
-
-      {/* User Search Section */}
+      {/* User Search Section - Above everything */}
       <div className={styles.searchSection}>
-        <label htmlFor="user-search" className={styles.searchLabel}>Find your family and friends</label>
+        <h2 className={styles.searchHeading}>Find Your Family and Friends</h2>
         <input
           type="text"
           id="user-search"
@@ -470,6 +459,18 @@ Looking forward to sharing our memories together!
             ))}
           </div>
         )}
+      </div>
+
+      {/* Page Header */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>Sharing</h1>
+        <button className={styles.inviteButton} onClick={() => setShowInviteModal(true)}>
+          + Invite Someone
+        </button>
+      </div>
+
+      <div className={styles.description}>
+        Manage who can see your events and invite new people to follow you.
       </div>
 
       {/* Invite Link Section */}

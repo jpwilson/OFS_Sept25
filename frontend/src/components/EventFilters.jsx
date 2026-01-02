@@ -96,7 +96,7 @@ export default function EventFilters({
         <div className={styles.filters}>
           {/* User Search */}
           <div className={styles.userSearchSection}>
-            <label htmlFor="user-search">Find your family and friends</label>
+            <h3 className={styles.userSearchHeading}>Find Your Family and Friends</h3>
             <input
               type="text"
               id="user-search"
