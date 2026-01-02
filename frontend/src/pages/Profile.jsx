@@ -29,10 +29,6 @@ function Profile() {
   const [showFollowModal, setShowFollowModal] = useState(false)
   const [followModalType, setFollowModalType] = useState('followers') // 'followers' or 'following'
   const [followStatus, setFollowStatus] = useState(null) // null, 'pending', 'accepted'
-  const [theme, setTheme] = useState(() => {
-    // Get theme from localStorage, default to 'dark'
-    return localStorage.getItem('theme') || 'dark'
-  })
   const [notificationCounts, setNotificationCounts] = useState({
     total: 0,
     follow_requests: 0,
@@ -48,16 +44,6 @@ function Profile() {
       navigate('/login', { state: { from: `/profile/${username}`, message: 'Please sign in to view profiles' } })
     }
   }, [currentUser, loading, navigate, username])
-
-  // Apply theme globally
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  function toggleTheme() {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }
 
   useEffect(() => {
     loadProfile()
@@ -343,17 +329,6 @@ function Profile() {
             </button>
           ) : null}
         </div>
-
-        {/* Theme Toggle - only for logged-in users */}
-        {currentUser && (
-          <button
-            onClick={toggleTheme}
-            className={styles.themeToggle}
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-        )}
       </div>
 
       {/* Show upgrade ribbon if user is at limit (5/5 events) */}

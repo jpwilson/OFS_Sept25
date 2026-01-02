@@ -374,27 +374,6 @@
   border-color: var(--text-secondary, #666);
 }
 
-.themeToggle {
-  padding: 10px 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.themeToggle:hover {
-  background: var(--bg-primary);
-  border-color: #667eea;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-}
-
 .followButton.following:hover {
   background: #fee;
   color: #c33;
