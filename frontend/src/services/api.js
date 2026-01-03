@@ -253,8 +253,12 @@ class ApiService {
     if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
       console.log(`Converting HEIC file: ${file.name}`)
       try {
+        // Read file as ArrayBuffer and create proper Blob for heic2any
+        const arrayBuffer = await file.arrayBuffer()
+        const heicBlob = new Blob([arrayBuffer], { type: 'image/heic' })
+
         const convertedBlob = await heic2any({
-          blob: file,
+          blob: heicBlob,
           toType: 'image/jpeg',
           quality: 0.85
         })
