@@ -1,5 +1,6 @@
 import { mockEventsForFeed } from '../data/mockEvents'
 import { supabase } from '../lib/supabaseClient'
+import heic2any from 'heic2any'
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
   ? (import.meta.env.VITE_API_URL || 'https://ofs-sept25.vercel.app')
@@ -247,16 +248,32 @@ class ApiService {
 
   // Compress image to stay under Vercel's 4.5MB limit
   async compressImage(file, maxSizeMB = 4) {
-    return new Promise((resolve) => {
-      // HEIC files cannot be decoded by browser's Image/Canvas API
-      // Skip compression and let the backend handle HEIC conversion
-      const fileName = file.name.toLowerCase()
-      if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
-        console.log(`Skipping compression for HEIC file: ${file.name} (backend will convert)`)
-        resolve(file)
-        return
+    // HEIC files need to be converted to JPEG first (browser can't decode HEIC)
+    const fileName = file.name.toLowerCase()
+    if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+      console.log(`Converting HEIC file: ${file.name}`)
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.85
+        })
+        // heic2any may return array for multi-image HEIC, take first
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+        const convertedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg'), {
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        })
+        console.log(`Converted HEIC: ${(file.size/1024/1024).toFixed(2)}MB -> ${(convertedFile.size/1024/1024).toFixed(2)}MB`)
+        // Now compress the converted file if needed
+        file = convertedFile
+      } catch (error) {
+        console.error('HEIC conversion failed:', error)
+        throw new Error('Failed to convert iPhone photo. Please try a different image.')
       }
+    }
 
+    return new Promise((resolve) => {
       // If file is already small enough, return as-is
       if (file.size <= maxSizeMB * 1024 * 1024) {
         resolve(file)

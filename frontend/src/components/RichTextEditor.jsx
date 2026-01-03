@@ -295,9 +295,9 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded`, 'success')
       }
 
-      // Clean up completed/failed tasks after a delay
+      // Clean up completed tasks after a delay (keep failed for retry)
       setTimeout(() => {
-        setImageTasks(prev => prev.filter(t => t.status === 'uploading'))
+        setImageTasks(prev => prev.filter(t => t.status !== 'complete'))
       }, 3000)
     }
 
@@ -634,9 +634,9 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully`, 'success')
       }
 
-      // Clean up completed/failed tasks after a delay
+      // Clean up completed tasks after a delay (keep failed for retry)
       setTimeout(() => {
-        setImageTasks(prev => prev.filter(t => t.status === 'uploading'))
+        setImageTasks(prev => prev.filter(t => t.status !== 'complete'))
       }, 3000)
     }
 
