@@ -5,7 +5,8 @@
 
 export const CLOUDINARY_CONFIG = {
   cloudName: 'dejjei389',
-  uploadPreset: 'ofs-videos',
+  uploadPreset: 'ofs-videos',  // Used for videos
+  imageUploadPreset: 'ofs-videos',  // Reuse for images (can create separate later)
 
   // Upload settings
   maxFileSize: 100 * 1024 * 1024, // 100MB (Cloudinary free tier unsigned upload limit)

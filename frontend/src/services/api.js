@@ -1,6 +1,5 @@
 import { mockEventsForFeed } from '../data/mockEvents'
 import { supabase } from '../lib/supabaseClient'
-import heic2any from 'heic2any'
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
   ? (import.meta.env.VITE_API_URL || 'https://ofs-sept25.vercel.app')
@@ -246,36 +245,59 @@ class ApiService {
     }
   }
 
+  // Check if file is HEIC format
+  isHeicFile(file) {
+    const fileName = file.name.toLowerCase()
+    return fileName.endsWith('.heic') || fileName.endsWith('.heif')
+  }
+
+  // Upload HEIC file directly to Cloudinary (supports HEIC natively, auto-converts)
+  async uploadHeicFile(file, eventId) {
+    console.log(`Uploading HEIC file to Cloudinary: ${file.name}`)
+
+    // Import Cloudinary config
+    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
+
+    // Upload directly to Cloudinary as an image
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', CLOUDINARY_CONFIG.imageUploadPreset)
+    formData.append('folder', 'ofs/images')
+
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
+
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Cloudinary upload error:', error)
+      throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
+    }
+
+    const result = await response.json()
+    console.log('HEIC uploaded to Cloudinary:', result.secure_url)
+
+    // Get optimized JPEG URL from Cloudinary (auto format/quality)
+    const imageUrl = result.secure_url.replace('/upload/', '/upload/q_auto,f_jpg/')
+
+    // Return in the same format as uploadEventImage expects
+    return {
+      image_url: imageUrl,
+      id: Date.now(), // Temporary ID since we're not saving to DB here
+      event_id: eventId,
+      latitude: null,
+      longitude: null,
+      timestamp: null
+    }
+  }
+
   // Compress image to stay under Vercel's 4.5MB limit
   async compressImage(file, maxSizeMB = 4) {
-    // HEIC files need to be converted to JPEG first (browser can't decode HEIC)
-    const fileName = file.name.toLowerCase()
-    if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
-      console.log(`Converting HEIC file: ${file.name}`)
-      try {
-        // Read file as ArrayBuffer and create proper Blob for heic2any
-        const arrayBuffer = await file.arrayBuffer()
-        const heicBlob = new Blob([arrayBuffer], { type: 'image/heic' })
-
-        const convertedBlob = await heic2any({
-          blob: heicBlob,
-          toType: 'image/jpeg',
-          quality: 0.85
-        })
-        // heic2any may return array for multi-image HEIC, take first
-        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
-        const convertedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg'), {
-          type: 'image/jpeg',
-          lastModified: Date.now()
-        })
-        console.log(`Converted HEIC: ${(file.size/1024/1024).toFixed(2)}MB -> ${(convertedFile.size/1024/1024).toFixed(2)}MB`)
-        // Now compress the converted file if needed
-        file = convertedFile
-      } catch (error) {
-        console.error('HEIC conversion failed:', error)
-        throw new Error('Failed to convert iPhone photo. Please try a different image.')
-      }
-    }
+    // HEIC files are handled separately via direct Supabase upload
+    // This function should not receive HEIC files anymore
 
     return new Promise((resolve) => {
       // If file is already small enough, return as-is
@@ -444,6 +466,12 @@ class ApiService {
   // Event Image methods (for caption system)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
     try {
+      // HEIC files need special handling - upload directly to Supabase, process on backend
+      if (this.isHeicFile(file)) {
+        const result = await this.uploadHeicFile(file, eventId)
+        return result
+      }
+
       // Compress image for faster uploads and to fix EXIF orientation
       // Canvas API automatically applies EXIF orientation when drawing
       const processedFile = await this.compressImage(file)
