@@ -248,6 +248,15 @@ class ApiService {
   // Compress image to stay under Vercel's 4.5MB limit
   async compressImage(file, maxSizeMB = 4) {
     return new Promise((resolve) => {
+      // HEIC files cannot be decoded by browser's Image/Canvas API
+      // Skip compression and let the backend handle HEIC conversion
+      const fileName = file.name.toLowerCase()
+      if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+        console.log(`Skipping compression for HEIC file: ${file.name} (backend will convert)`)
+        resolve(file)
+        return
+      }
+
       // If file is already small enough, return as-is
       if (file.size <= maxSizeMB * 1024 * 1024) {
         resolve(file)
