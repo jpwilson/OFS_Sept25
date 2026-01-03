@@ -2,20 +2,30 @@ import { useState } from 'react'
 import styles from './ProgressRibbon.module.css'
 
 /**
- * Progress ribbon that shows video upload/compression status
+ * Progress ribbon that shows video and image upload status
  * Displays in top-right corner, non-blocking, allows user to continue editing
  */
-function ProgressRibbon({ videoTasks = [], onCancel }) {
+function ProgressRibbon({ videoTasks = [], imageTasks = [], onCancel, onCancelImage }) {
   const [isMinimized, setIsMinimized] = useState(false)
 
-  if (videoTasks.length === 0) return null
+  // Combine all tasks for display
+  const allTasks = [
+    ...imageTasks.map(t => ({ ...t, type: 'image' })),
+    ...videoTasks.map(t => ({ ...t, type: 'video' }))
+  ]
 
-  // Count only videos that are actively being processed
-  const activeVideos = videoTasks.filter(
+  if (allTasks.length === 0) return null
+
+  // Count active tasks
+  const activeTasks = allTasks.filter(
     task => task.status === 'uploading' || task.status === 'compressing'
   )
-  const allComplete = videoTasks.every(task => task.status === 'complete')
-  const anyFailed = videoTasks.some(task => task.status === 'failed')
+  const allComplete = allTasks.every(task => task.status === 'complete')
+  const anyFailed = allTasks.some(task => task.status === 'failed')
+
+  // Separate counts for title
+  const activeVideos = videoTasks.filter(t => t.status === 'uploading' || t.status === 'compressing')
+  const activeImages = imageTasks.filter(t => t.status === 'uploading')
 
   return (
     <div
@@ -24,8 +34,14 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
     >
       <div className={styles.header}>
         <div className={styles.title}>
-          {allComplete ? '✅ Videos Ready' : '📹 Processing Videos'}
-          {activeVideos.length > 1 && ` (${activeVideos.length})`}
+          {allComplete ? '✅ Uploads Complete' : (
+            <>
+              {activeImages.length > 0 && `📷 ${activeImages.length} image${activeImages.length > 1 ? 's' : ''}`}
+              {activeImages.length > 0 && activeVideos.length > 0 && ', '}
+              {activeVideos.length > 0 && `📹 ${activeVideos.length} video${activeVideos.length > 1 ? 's' : ''}`}
+              {activeTasks.length === 0 && anyFailed && '⚠️ Upload failed'}
+            </>
+          )}
         </div>
         <div className={styles.headerButtons}>
           <button
@@ -47,6 +63,7 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
                 e.stopPropagation()
                 e.preventDefault()
                 onCancel && onCancel('all')
+                onCancelImage && onCancelImage('all')
               }}
               title="Dismiss"
               type="button"
@@ -60,19 +77,19 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
       {!isMinimized && (
         <>
           {/* User guidance message */}
-          {activeVideos.length > 0 && (
+          {activeTasks.length > 0 && (
             <div className={styles.guidanceMessage}>
-              💡 You can continue editing your event while videos process. Publishing will be available once compression completes.
+              💡 You can continue editing while uploads process.
             </div>
           )}
 
           <div className={styles.taskList}>
-            {videoTasks.map((task) => (
+            {allTasks.map((task) => (
             <div key={task.id} className={styles.task}>
-              {/* Thumbnail preview */}
-              {task.thumbnailUrl && (
+              {/* Thumbnail preview - for videos or images */}
+              {(task.thumbnailUrl || (task.type === 'image' && task.previewUrl)) && (
                 <div className={styles.thumbnail}>
-                  <img src={task.thumbnailUrl} alt="Video thumbnail" />
+                  <img src={task.thumbnailUrl || task.previewUrl} alt={task.type === 'image' ? 'Image preview' : 'Video thumbnail'} />
                   {task.status === 'complete' && <div className={styles.checkmark}>✓</div>}
                   {task.status === 'failed' && <div className={styles.failmark}>✗</div>}
                 </div>
@@ -110,7 +127,11 @@ function ProgressRibbon({ videoTasks = [], onCancel }) {
                       onClick={(e) => {
                         e.stopPropagation()
                         e.preventDefault()
-                        onCancel && onCancel(task.id)
+                        if (task.type === 'image') {
+                          onCancelImage && onCancelImage(task.id)
+                        } else {
+                          onCancel && onCancel(task.id)
+                        }
                       }}
                       type="button"
                     >

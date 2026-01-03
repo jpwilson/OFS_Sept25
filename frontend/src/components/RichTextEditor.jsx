@@ -20,19 +20,19 @@ const MAX_IMAGES_PER_EVENT = 100
 const MAX_VIDEOS_PER_EVENT = 30
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange, eventId = null }) {
-  const [isUploading, setIsUploading] = useState(false)
-  const [imageUploadProgress, setImageUploadProgress] = useState({ current: 0, total: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadType, setUploadType] = useState('') // 'image' or 'video'
   const [showVideoTrimmer, setShowVideoTrimmer] = useState(false)
   const [selectedVideoFile, setSelectedVideoFile] = useState(null)
   const [videoTasks, setVideoTasks] = useState([]) // Track video upload/compression tasks
+  const [imageTasks, setImageTasks] = useState([]) // Track image upload tasks
   const [showLinkModal, setShowLinkModal] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
   const [linkText, setLinkText] = useState('')
   const { showToast } = useToast()
+
+  // Upload timeout (30 seconds)
+  const UPLOAD_TIMEOUT_MS = 30000
 
   // Notify parent component about video task changes
   useEffect(() => {
@@ -150,7 +150,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     return { images, videos }
   }, [editor])
 
-  const uploadImage = useCallback(async (file) => {
+  // Upload a single image with task tracking and timeout
+  const uploadImage = useCallback(async (file, taskId) => {
     // Check if file is an image (including HEIC from iPhones)
     const isImage = file.type.startsWith('image/') ||
                     file.name.toLowerCase().endsWith('.heic') ||
@@ -165,53 +166,72 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       return null
     }
 
-    try {
-      let result
-
-      // If we have an eventId, use uploadEventImage to track in database
-      if (eventId) {
-        result = await apiService.uploadEventImage(file, eventId)
-        // uploadEventImage returns a different format with image_url
-        const url = result.image_url
-
-        // Extract GPS data if enabled and available
-        if (gpsExtractionEnabled && onGPSExtracted && (result.latitude || result.longitude)) {
-          onGPSExtracted({
-            latitude: result.latitude,
-            longitude: result.longitude,
-            timestamp: result.timestamp,
-            image_url: url
-          })
-        }
-
-        return url
-      } else {
-        // Fallback to generic upload (for CreateEvent where no eventId yet)
-        result = await apiService.uploadImage(file)
-
-        // Extract GPS data if enabled and available
-        if (gpsExtractionEnabled && onGPSExtracted && result.metadata?.gps) {
-          const gpsData = result.metadata.gps
-          const dateTaken = result.metadata.date_taken
-
-          onGPSExtracted({
-            latitude: gpsData.latitude,
-            longitude: gpsData.longitude,
-            timestamp: dateTaken,
-            image_url: result.url
-          })
-        }
-
-        return result.url
+    // Helper to update task status
+    const updateTask = (updates) => {
+      if (taskId) {
+        setImageTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } : t))
       }
+    }
+
+    try {
+      // Create promise race between upload and timeout
+      const uploadPromise = (async () => {
+        let result
+
+        // If we have an eventId, use uploadEventImage to track in database
+        if (eventId) {
+          result = await apiService.uploadEventImage(file, eventId)
+          // uploadEventImage returns a different format with image_url
+          const url = result.image_url
+
+          // Extract GPS data if enabled and available
+          if (gpsExtractionEnabled && onGPSExtracted && (result.latitude || result.longitude)) {
+            onGPSExtracted({
+              latitude: result.latitude,
+              longitude: result.longitude,
+              timestamp: result.timestamp,
+              image_url: url
+            })
+          }
+
+          return url
+        } else {
+          // Fallback to generic upload (for CreateEvent where no eventId yet)
+          result = await apiService.uploadImage(file)
+
+          // Extract GPS data if enabled and available
+          if (gpsExtractionEnabled && onGPSExtracted && result.metadata?.gps) {
+            const gpsData = result.metadata.gps
+            const dateTaken = result.metadata.date_taken
+
+            onGPSExtracted({
+              latitude: gpsData.latitude,
+              longitude: gpsData.longitude,
+              timestamp: dateTaken,
+              image_url: result.url
+            })
+          }
+
+          return result.url
+        }
+      })()
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Upload timed out. Please try again.')), UPLOAD_TIMEOUT_MS)
+      })
+
+      const url = await Promise.race([uploadPromise, timeoutPromise])
+      updateTask({ status: 'complete', progress: 100 })
+      return url
     } catch (error) {
       console.error('Error uploading image:', error)
       // Show backend error message if available, otherwise generic message
       const errorMessage = error.response?.data?.detail || error.message || 'Failed to upload image. Please try again.'
+      updateTask({ status: 'failed', error: errorMessage })
       showToast(errorMessage, 'error')
       return null
     }
-  }, [showToast, gpsExtractionEnabled, onGPSExtracted, eventId])
+  }, [showToast, gpsExtractionEnabled, onGPSExtracted, eventId, UPLOAD_TIMEOUT_MS])
 
   const addImage = useCallback(async () => {
     if (!editor) return
@@ -239,34 +259,46 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         return
       }
 
-      setIsUploading(true)
-      setImageUploadProgress({ current: 0, total: files.length })
+      // Create tasks for each image
+      const newTasks = files.map((file, index) => {
+        const taskId = `img-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`
+        // Create a preview URL for the thumbnail
+        const previewUrl = URL.createObjectURL(file)
+        return {
+          id: taskId,
+          filename: file.name,
+          status: 'uploading',
+          progress: 0,
+          previewUrl,
+          file
+        }
+      })
+
+      setImageTasks(prev => [...prev, ...newTasks])
+
       const uploadedUrls = []
 
-      for (let i = 0; i < files.length; i++) {
-        setImageUploadProgress({ current: i + 1, total: files.length })
-        const url = await uploadImage(files[i])
+      // Upload images in parallel (but limit to 3 concurrent uploads)
+      for (let i = 0; i < newTasks.length; i++) {
+        const task = newTasks[i]
+        const url = await uploadImage(task.file, task.id)
         if (url) {
           uploadedUrls.push(url)
+          // Insert image immediately as it completes
+          editor.chain().focus().insertContent(`<img src="${url}"><p></p>`).run()
         }
+        // Revoke object URL to free memory
+        URL.revokeObjectURL(task.previewUrl)
       }
 
-      // Insert all images with line breaks between them
       if (uploadedUrls.length > 0) {
-        let html = ''
-        for (let i = 0; i < uploadedUrls.length; i++) {
-          html += `<img src="${uploadedUrls[i]}">`
-          if (i < uploadedUrls.length - 1) {
-            html += '<p><br /></p>'
-          }
-        }
-        // Add trailing paragraph so cursor has clear position for next insert
-        editor.chain().focus().insertContent(html + '<p></p>').run()
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded`, 'success')
       }
 
-      setIsUploading(false)
-      setImageUploadProgress({ current: 0, total: 0 })
+      // Clean up completed/failed tasks after a delay
+      setTimeout(() => {
+        setImageTasks(prev => prev.filter(t => t.status === 'uploading'))
+      }, 3000)
     }
 
     input.click()
@@ -503,6 +535,15 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
   }, [])
 
+  // Cancel image upload
+  const handleCancelImage = useCallback((taskId) => {
+    if (taskId === 'all') {
+      setImageTasks([])
+    } else {
+      setImageTasks(prev => prev.filter(task => task.id !== taskId))
+    }
+  }, [])
+
   // Retry failed video
   const handleRetryVideo = useCallback(async (taskId) => {
     const task = videoTasks.find(t => t.id === taskId)
@@ -559,36 +600,44 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     // Handle images
     if (imageFiles.length > 0) {
-      setIsUploading(true)
-      setImageUploadProgress({ current: 0, total: imageFiles.length })
+      // Create tasks for each image
+      const newTasks = imageFiles.map((file, index) => {
+        const taskId = `img-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`
+        const previewUrl = URL.createObjectURL(file)
+        return {
+          id: taskId,
+          filename: file.name,
+          status: 'uploading',
+          progress: 0,
+          previewUrl,
+          file
+        }
+      })
+
+      setImageTasks(prev => [...prev, ...newTasks])
+
       const uploadedUrls = []
-      for (let i = 0; i < imageFiles.length; i++) {
-        setImageUploadProgress({ current: i + 1, total: imageFiles.length })
-        const url = await uploadImage(imageFiles[i])
+
+      for (let i = 0; i < newTasks.length; i++) {
+        const task = newTasks[i]
+        const url = await uploadImage(task.file, task.id)
         if (url) {
           uploadedUrls.push(url)
+          // Insert image immediately as it completes
+          editor.chain().focus().insertContent(`<img src="${url}"><p></p>`).run()
         }
+        // Revoke object URL to free memory
+        URL.revokeObjectURL(task.previewUrl)
       }
 
-      // Build HTML content with all images and spacing
       if (uploadedUrls.length > 0) {
-        let html = ''
-        for (let i = 0; i < uploadedUrls.length; i++) {
-          html += `<img src="${uploadedUrls[i]}">`
-          // Add spacing between images (not after the last one)
-          if (i < uploadedUrls.length - 1) {
-            html += '<p><br /></p>'
-          }
-        }
-
-        // Insert all content at once with trailing paragraph for cursor position
-        editor.chain().focus().insertContent(html + '<p></p>').run()
-
         showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully`, 'success')
       }
 
-      setIsUploading(false)
-      setImageUploadProgress({ current: 0, total: 0 })
+      // Clean up completed/failed tasks after a delay
+      setTimeout(() => {
+        setImageTasks(prev => prev.filter(t => t.status === 'uploading'))
+      }, 3000)
     }
 
     // Handle videos
@@ -711,10 +760,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
   return (
     <div className={styles.container}>
-      {/* Progress ribbon for video upload/compression */}
+      {/* Progress ribbon for image and video upload */}
       <ProgressRibbon
         videoTasks={videoTasks}
+        imageTasks={imageTasks}
         onCancel={handleCancelVideo}
+        onCancelImage={handleCancelImage}
       />
 
       <div className={styles.menuBar}>
@@ -813,24 +864,18 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
           <button
             type="button"
             onClick={addImage}
-            disabled={isUploading}
             title="Add Image (or drag & drop)"
             className={styles.imageButton}
           >
-            {isUploading
-              ? imageUploadProgress.total > 1
-                ? `${imageUploadProgress.current}/${imageUploadProgress.total}...`
-                : 'Uploading...'
-              : '📷 Image'}
+            📷 Image
           </button>
           <button
             type="button"
             onClick={addVideo}
-            disabled={isUploading}
             title="Add Video"
             className={styles.videoButton}
           >
-            {isUploading ? 'Uploading...' : '📹 Video'}
+            📹 Video
           </button>
           <button
             type="button"
