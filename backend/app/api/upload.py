@@ -8,6 +8,13 @@ from PIL import Image, ImageOps
 from PIL.ExifTags import TAGS, GPSTAGS
 import io
 from datetime import datetime
+
+# Register HEIC/HEIF support for Pillow (iPhone photos)
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass  # pillow-heif not installed, HEIC files won't be supported
 from ..core.config import settings
 from ..core.database import get_db
 from ..core.deps import get_current_user
@@ -45,7 +52,7 @@ def get_supabase_client() -> Client:
             detail=f"Failed to initialize Supabase client: {str(e)}"
         )
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 # Image sizes
@@ -186,17 +193,18 @@ async def upload_file(file: UploadFile = File(...)):
     if file_ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
-            detail=f"File type {file_ext} not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+            detail=f"'{file_ext}' is not a supported image format. Allowed formats: JPG, PNG, GIF, WebP, HEIC"
         )
 
     # Read file content
     contents = await file.read()
 
     # Validate file size
+    file_size_mb = len(contents) / (1024 * 1024)
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024*1024)}MB"
+            detail=f"Image is too large ({file_size_mb:.1f}MB). Maximum size is 10MB."
         )
 
     # Generate unique filename (use .jpg for all outputs)
@@ -514,17 +522,18 @@ async def upload_video(file: UploadFile = File(...)):
     if file_ext not in settings.ALLOWED_VIDEO_FORMATS:
         raise HTTPException(
             status_code=400,
-            detail=f"File type {file_ext} not allowed. Allowed types: {', '.join(settings.ALLOWED_VIDEO_FORMATS)}"
+            detail=f"'{file_ext}' is not a supported video format. Allowed formats: MP4, MOV, AVI, WebM"
         )
 
     # Read file content
     contents = await file.read()
 
     # Validate file size
+    file_size_mb = len(contents) / (1024 * 1024)
     if len(contents) > settings.MAX_VIDEO_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File too large. Maximum size is {settings.MAX_VIDEO_SIZE / (1024*1024)}MB"
+            detail=f"Video is too large ({file_size_mb:.1f}MB). Maximum size is {settings.MAX_VIDEO_SIZE // (1024*1024)}MB."
         )
 
     # Generate unique filename (preserve extension)

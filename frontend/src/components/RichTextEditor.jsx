@@ -151,8 +151,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   }, [editor])
 
   const uploadImage = useCallback(async (file) => {
-    if (!file.type.startsWith('image/')) {
-      showToast('Please select an image file', 'error')
+    // Check if file is an image (including HEIC from iPhones)
+    const isImage = file.type.startsWith('image/') ||
+                    file.name.toLowerCase().endsWith('.heic') ||
+                    file.name.toLowerCase().endsWith('.heif')
+    if (!isImage) {
+      showToast('Please select an image file (JPG, PNG, GIF, WebP, or HEIC)', 'error')
       return null
     }
 
@@ -202,7 +206,9 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       }
     } catch (error) {
       console.error('Error uploading image:', error)
-      showToast('Failed to upload image. Please try again.', 'error')
+      // Show backend error message if available, otherwise generic message
+      const errorMessage = error.response?.data?.detail || error.message || 'Failed to upload image. Please try again.'
+      showToast(errorMessage, 'error')
       return null
     }
   }, [showToast, gpsExtractionEnabled, onGPSExtracted, eventId])
@@ -219,7 +225,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
 
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = 'image/*'
+    input.accept = 'image/*,.heic,.heif'  // Include HEIC for iPhone photos
     input.multiple = true  // Allow multi-select
 
     input.onchange = async (e) => {
@@ -524,7 +530,12 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     setIsDragging(false)
 
     const files = Array.from(e.dataTransfer.files)
-    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    // Include HEIC files (iPhone photos) which may not have image/* MIME type
+    const imageFiles = files.filter(file =>
+      file.type.startsWith('image/') ||
+      file.name.toLowerCase().endsWith('.heic') ||
+      file.name.toLowerCase().endsWith('.heif')
+    )
     const videoFiles = files.filter(file => file.type.startsWith('video/'))
 
     if (imageFiles.length === 0 && videoFiles.length === 0) {
