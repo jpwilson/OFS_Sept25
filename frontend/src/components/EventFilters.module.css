@@ -1,17 +1,16 @@
 .filtersContainer {
   background: #1a1a1a;
-  padding: 16px 24px;
+  padding: 12px 24px;
   border-bottom: 1px solid #333;
 }
 
 .filtersHeader {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 8px;
 }
 
 .filterToggle {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #2a2a2a;
   border: 1px solid #444;
   color: #ccc;
@@ -20,6 +19,7 @@
   font-size: 13px;
   transition: all 0.2s ease;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .filterToggle:hover {
@@ -35,7 +35,9 @@
 }
 
 .filters {
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* User Search Section */
@@ -44,16 +46,7 @@
   padding: 16px;
   background: #2a2a2a;
   border-radius: 8px;
-  margin-bottom: 16px;
   position: relative;
-}
-
-.userSearchSection label {
-  display: block;
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 8px;
-  font-weight: 500;
 }
 
 .userSearchHeading {
@@ -204,98 +197,116 @@
   cursor: default;
 }
 
-/* Filter Row */
+/* Filter Row - Single line on desktop */
 .filterRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.dateSelector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #2a2a2a;
-  border-radius: 8px;
-}
-
-.dateSelector span {
-  font-size: 13px;
-  color: #999;
-}
-
-.dateSelector input {
-  padding: 6px 10px;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 13px;
-}
-
-.dateSelector input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.categorySelector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #2a2a2a;
-  border-radius: 8px;
-}
-
-.categorySelector label {
-  font-size: 13px;
-  color: #999;
-}
-
-.categoryDropdownWrapper {
+/* Shared dropdown wrapper styles */
+.dateDropdownWrapper,
+.categoryDropdownWrapper,
+.userDropdownWrapper {
   position: relative;
 }
 
-.categoryDropdownButton {
-  padding: 6px 12px;
+/* Shared dropdown button */
+.dropdownButton {
+  padding: 8px 10px;
   border: 1px solid #444;
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
+  background: #2a2a2a;
+  color: #ccc;
   font-size: 13px;
   cursor: pointer;
-  min-width: 150px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.categoryDropdownButton:hover {
+.dropdownButton:hover {
   border-color: #667eea;
+  background: #333;
+}
+
+.dropdownButton.hasSelection {
+  border-color: #667eea;
+  color: #fff;
 }
 
 .dropdownArrow {
-  font-size: 10px;
-  color: #999;
+  font-size: 9px;
+  color: #888;
 }
 
-.categoryDropdownMenu {
+/* Date dropdown menu */
+.dateDropdownMenu {
   position: absolute;
   top: 100%;
   left: 0;
   margin-top: 4px;
   background: #1a1a1a;
   border: 1px solid #444;
-  border-radius: 6px;
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+}
+
+.dateInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dateInputRow:last-of-type {
+  margin-bottom: 0;
+}
+
+.dateInputRow label {
+  font-size: 12px;
+  color: #999;
+  width: 40px;
+}
+
+.dateInputRow input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 13px;
+}
+
+.dateInputRow input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Shared dropdown menu for category/user */
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
   min-width: 180px;
   z-index: 100;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.categoryOption {
+.dropdownOption {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -306,18 +317,18 @@
   transition: background 0.2s ease;
 }
 
-.categoryOption:hover {
+.dropdownOption:hover {
   background: #2a2a2a;
 }
 
-.categoryOption input[type="checkbox"] {
+.dropdownOption input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #667eea;
   cursor: pointer;
 }
 
-.clearCategoriesBtn {
+.clearBtn {
   width: 100%;
   padding: 10px 14px;
   background: transparent;
@@ -330,26 +341,9 @@
   text-align: center;
 }
 
-.clearCategoriesBtn:hover {
+.clearBtn:hover {
   background: #2a2a2a;
   color: #ff4757;
-}
-
-.personFilterRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  gap: 16px;
-}
-
-.personFilter {
-  display: flex;
-  gap: 8px;
-}
-
-.userDropdownWrapper {
-  position: relative;
 }
 
 .noUsersMessage {
@@ -360,16 +354,23 @@
   font-style: italic;
 }
 
+/* Person filter buttons */
+.personFilter {
+  display: flex;
+  gap: 4px;
+}
+
 .filterButton {
-  padding: 10px 20px;
+  padding: 8px 12px;
   border: 1px solid #444;
   background: #2a2a2a;
   color: #ccc;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .filterButton:hover {
@@ -384,28 +385,43 @@
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+  .filterRow {
+    gap: 6px;
+  }
+
+  .filterButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .dropdownButton {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .filtersContainer {
     padding: 12px 16px;
   }
 
   .filterRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .dateSelector {
-    flex-wrap: wrap;
     justify-content: center;
   }
+}
 
+@media (max-width: 480px) {
   .personFilter {
-    flex-wrap: wrap;
+    width: 100%;
     justify-content: center;
   }
 
-  .personFilterRow {
-    flex-direction: column;
-    gap: 12px;
+  .filterToggle {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }

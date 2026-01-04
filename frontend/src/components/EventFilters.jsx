@@ -33,6 +33,7 @@ export default function EventFilters({
   const [filtersExpanded, setFiltersExpanded] = useState(() => {
     return window.innerWidth > 768
   })
+  const [dateDropdownOpen, setDateDropdownOpen] = useState(false)
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [userSearchQuery, setUserSearchQuery] = useState('')
@@ -74,6 +75,9 @@ export default function EventFilters({
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (dateDropdownOpen && !e.target.closest(`.${styles.dateDropdownWrapper}`)) {
+        setDateDropdownOpen(false)
+      }
       if (categoryDropdownOpen && !e.target.closest(`.${styles.categoryDropdownWrapper}`)) {
         setCategoryDropdownOpen(false)
       }
@@ -83,7 +87,25 @@ export default function EventFilters({
     }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
-  }, [categoryDropdownOpen, userDropdownOpen])
+  }, [dateDropdownOpen, categoryDropdownOpen, userDropdownOpen])
+
+  // Helper to format date range for display
+  const getDateLabel = () => {
+    if (!selectedDateRange.start && !selectedDateRange.end) {
+      return 'Date'
+    }
+    if (selectedDateRange.start && selectedDateRange.end) {
+      const start = new Date(selectedDateRange.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      const end = new Date(selectedDateRange.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return `${start} - ${end}`
+    }
+    if (selectedDateRange.start) {
+      const start = new Date(selectedDateRange.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return `From ${start}`
+    }
+    const end = new Date(selectedDateRange.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return `Until ${end}`
+  }
 
   return (
     <div className={styles.filtersContainer}>
@@ -154,148 +176,161 @@ export default function EventFilters({
           </div>
 
           <div className={styles.filterRow}>
-            {/* Date Range */}
-            <div className={styles.dateSelector}>
-              <span>From:</span>
-              <input
-                type="date"
-                value={selectedDateRange.start}
-                onChange={(e) => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
-              />
-              <span>To:</span>
-              <input
-                type="date"
-                value={selectedDateRange.end}
-                onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
-              />
-            </div>
-
-            {/* Category Multi-Select */}
-            <div className={styles.categorySelector}>
-              <label>Category:</label>
-              <div className={styles.categoryDropdownWrapper}>
-                <button
-                  className={styles.categoryDropdownButton}
-                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                >
-                  {selectedCategories.length === 0
-                    ? 'All Categories'
-                    : `${selectedCategories.length} selected`}
-                  <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
-                </button>
-                {categoryDropdownOpen && (
-                  <div className={styles.categoryDropdownMenu}>
-                    {CATEGORIES.map(cat => (
-                      <label key={cat} className={styles.categoryOption}>
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(cat)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCategories(prev => [...prev, cat])
-                            } else {
-                              setSelectedCategories(prev => prev.filter(c => c !== cat))
-                            }
-                          }}
-                        />
-                        <span>{cat}</span>
-                      </label>
-                    ))}
-                    {selectedCategories.length > 0 && (
-                      <button
-                        className={styles.clearCategoriesBtn}
-                        onClick={() => setSelectedCategories([])}
-                      >
-                        Clear All
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* User Multi-Select */}
-            <div className={styles.categorySelector}>
-              <label>User:</label>
-              <div className={styles.userDropdownWrapper}>
-                <button
-                  className={styles.categoryDropdownButton}
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                >
-                  {!selectedUsers || selectedUsers.length === 0
-                    ? 'All Users'
-                    : `${selectedUsers.length} selected`}
-                  <span className={styles.dropdownArrow}>{userDropdownOpen ? '▲' : '▼'}</span>
-                </button>
-                {userDropdownOpen && (
-                  <div className={styles.categoryDropdownMenu}>
-                    {followingUsers && followingUsers.length > 0 ? (
-                      <>
-                        {followingUsers.map(user => (
-                          <label key={user.username} className={styles.categoryOption}>
-                            <input
-                              type="checkbox"
-                              checked={selectedUsers?.includes(user.username) || false}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedUsers(prev => [...(prev || []), user.username])
-                                } else {
-                                  setSelectedUsers(prev => (prev || []).filter(u => u !== user.username))
-                                }
-                              }}
-                            />
-                            <span>{user.full_name || user.username}</span>
-                          </label>
-                        ))}
-                        {selectedUsers && selectedUsers.length > 0 && (
-                          <button
-                            className={styles.clearCategoriesBtn}
-                            onClick={() => setSelectedUsers([])}
-                          >
-                            Clear All
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <div className={styles.noUsersMessage}>
-                        Follow users to filter by them
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Person Filter Buttons + Hide Filters */}
-            <div className={styles.personFilterRow}>
-              <div className={styles.personFilter}>
-                <button
-                  className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-                  onClick={() => setFilter('all')}
-                >
-                  All Events
-                </button>
-                <button
-                  className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
-                  onClick={() => setFilter('following')}
-                >
-                  Following
-                </button>
-                <button
-                  className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
-                  onClick={() => setFilter('self')}
-                >
-                  My Events
-                </button>
-              </div>
+            {/* Date Dropdown */}
+            <div className={styles.dateDropdownWrapper}>
               <button
-                className={styles.filterToggle}
-                onClick={() => setFiltersExpanded(false)}
+                className={`${styles.dropdownButton} ${(selectedDateRange.start || selectedDateRange.end) ? styles.hasSelection : ''}`}
+                onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
               >
-                <span className={styles.arrowRed}>▲</span>
-                {' Hide Filters'}
+                {getDateLabel()}
+                <span className={styles.dropdownArrow}>{dateDropdownOpen ? '▲' : '▼'}</span>
+              </button>
+              {dateDropdownOpen && (
+                <div className={styles.dateDropdownMenu}>
+                  <div className={styles.dateInputRow}>
+                    <label>From:</label>
+                    <input
+                      type="date"
+                      value={selectedDateRange.start}
+                      onChange={(e) => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    />
+                  </div>
+                  <div className={styles.dateInputRow}>
+                    <label>To:</label>
+                    <input
+                      type="date"
+                      value={selectedDateRange.end}
+                      onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    />
+                  </div>
+                  {(selectedDateRange.start || selectedDateRange.end) && (
+                    <button
+                      className={styles.clearBtn}
+                      onClick={() => setSelectedDateRange({ start: '', end: '' })}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Category Dropdown */}
+            <div className={styles.categoryDropdownWrapper}>
+              <button
+                className={`${styles.dropdownButton} ${selectedCategories.length > 0 ? styles.hasSelection : ''}`}
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+              >
+                {selectedCategories.length === 0 ? 'Category' : `${selectedCategories.length} cat.`}
+                <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
+              </button>
+              {categoryDropdownOpen && (
+                <div className={styles.dropdownMenu}>
+                  {CATEGORIES.map(cat => (
+                    <label key={cat} className={styles.dropdownOption}>
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCategories(prev => [...prev, cat])
+                          } else {
+                            setSelectedCategories(prev => prev.filter(c => c !== cat))
+                          }
+                        }}
+                      />
+                      <span>{cat}</span>
+                    </label>
+                  ))}
+                  {selectedCategories.length > 0 && (
+                    <button
+                      className={styles.clearBtn}
+                      onClick={() => setSelectedCategories([])}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* User Dropdown */}
+            <div className={styles.userDropdownWrapper}>
+              <button
+                className={`${styles.dropdownButton} ${selectedUsers?.length > 0 ? styles.hasSelection : ''}`}
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              >
+                {!selectedUsers || selectedUsers.length === 0 ? 'User' : `${selectedUsers.length} user`}
+                <span className={styles.dropdownArrow}>{userDropdownOpen ? '▲' : '▼'}</span>
+              </button>
+              {userDropdownOpen && (
+                <div className={styles.dropdownMenu}>
+                  {followingUsers && followingUsers.length > 0 ? (
+                    <>
+                      {followingUsers.map(user => (
+                        <label key={user.username} className={styles.dropdownOption}>
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers?.includes(user.username) || false}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedUsers(prev => [...(prev || []), user.username])
+                              } else {
+                                setSelectedUsers(prev => (prev || []).filter(u => u !== user.username))
+                              }
+                            }}
+                          />
+                          <span>{user.full_name || user.username}</span>
+                        </label>
+                      ))}
+                      {selectedUsers && selectedUsers.length > 0 && (
+                        <button
+                          className={styles.clearBtn}
+                          onClick={() => setSelectedUsers([])}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div className={styles.noUsersMessage}>
+                      Follow users to filter
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Person Filter Buttons */}
+            <div className={styles.personFilter}>
+              <button
+                className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                onClick={() => setFilter('all')}
+              >
+                All
+              </button>
+              <button
+                className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
+                onClick={() => setFilter('following')}
+              >
+                Following
+              </button>
+              <button
+                className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
+                onClick={() => setFilter('self')}
+              >
+                Mine
               </button>
             </div>
+
+            {/* Hide Filters */}
+            <button
+              className={styles.filterToggle}
+              onClick={() => setFiltersExpanded(false)}
+            >
+              <span className={styles.arrowRed}>▲</span>
+              {' Hide'}
+            </button>
           </div>
         </div>
       )}
