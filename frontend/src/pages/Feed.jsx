@@ -35,7 +35,9 @@ function Feed() {
     end: ''
   })
   const [following, setFollowing] = useState([])
+  const [followingUsers, setFollowingUsers] = useState([]) // Full user objects
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [selectedUsers, setSelectedUsers] = useState([]) // Multi-select user filter
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
 
   // Require login to view Feed
@@ -55,13 +57,14 @@ function Feed() {
   const loadFollowing = async () => {
     if (user) {
       const followingList = await apiService.getFollowing()
+      setFollowingUsers(followingList) // Store full user objects
       setFollowing(followingList.map(u => u.username))
     }
   }
 
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedCategories, selectedDateRange, events, following])
+  }, [filter, selectedCategories, selectedUsers, selectedDateRange, events, following])
 
   async function loadEvents() {
     const data = await apiService.getEvents()
@@ -83,6 +86,11 @@ function Feed() {
     // Apply category filter (multi-select)
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(event => selectedCategories.includes(event.category))
+    }
+
+    // Apply user filter (multi-select)
+    if (selectedUsers.length > 0) {
+      filtered = filtered.filter(event => selectedUsers.includes(event.author_username))
     }
 
     // Apply date filter
@@ -180,6 +188,9 @@ function Feed() {
         selectedDateRange={selectedDateRange}
         setSelectedDateRange={setSelectedDateRange}
         following={following}
+        followingUsers={followingUsers}
+        selectedUsers={selectedUsers}
+        setSelectedUsers={setSelectedUsers}
         onFollowingUpdate={loadFollowing}
       />
 

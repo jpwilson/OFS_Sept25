@@ -335,9 +335,29 @@
   color: #ff4757;
 }
 
+.personFilterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
 .personFilter {
   display: flex;
   gap: 8px;
+}
+
+.userDropdownWrapper {
+  position: relative;
+}
+
+.noUsersMessage {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  font-style: italic;
 }
 
 .filterButton {
@@ -382,5 +402,10 @@
   .personFilter {
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .personFilterRow {
+    flex-direction: column;
+    gap: 12px;
   }
 }

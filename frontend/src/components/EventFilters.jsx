@@ -24,6 +24,9 @@ export default function EventFilters({
   selectedDateRange,
   setSelectedDateRange,
   following,
+  followingUsers,  // Full user objects for the dropdown
+  selectedUsers,
+  setSelectedUsers,
   onFollowingUpdate
 }) {
   const { showToast } = useToast()
@@ -31,6 +34,7 @@ export default function EventFilters({
     return window.innerWidth > 768
   })
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
@@ -67,30 +71,34 @@ export default function EventFilters({
     }
   }
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (categoryDropdownOpen && !e.target.closest(`.${styles.categoryDropdownWrapper}`)) {
         setCategoryDropdownOpen(false)
       }
+      if (userDropdownOpen && !e.target.closest(`.${styles.userDropdownWrapper}`)) {
+        setUserDropdownOpen(false)
+      }
     }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
-  }, [categoryDropdownOpen])
+  }, [categoryDropdownOpen, userDropdownOpen])
 
   return (
     <div className={styles.filtersContainer}>
-      <div className={styles.filtersHeader}>
-        <button
-          className={styles.filterToggle}
-          onClick={() => setFiltersExpanded(!filtersExpanded)}
-        >
-          <span className={filtersExpanded ? styles.arrowRed : styles.arrowGreen}>
-            {filtersExpanded ? '▲' : '▼'}
-          </span>
-          {filtersExpanded ? ' Hide Filters' : ' Show Filters'}
-        </button>
-      </div>
+      {/* Show toggle in header only when collapsed */}
+      {!filtersExpanded && (
+        <div className={styles.filtersHeader}>
+          <button
+            className={styles.filterToggle}
+            onClick={() => setFiltersExpanded(true)}
+          >
+            <span className={styles.arrowGreen}>▼</span>
+            {' Show Filters'}
+          </button>
+        </div>
+      )}
 
       {filtersExpanded && (
         <div className={styles.filters}>
@@ -206,25 +214,86 @@ export default function EventFilters({
               </div>
             </div>
 
-            {/* Person Filter */}
-            <div className={styles.personFilter}>
+            {/* User Multi-Select */}
+            <div className={styles.categorySelector}>
+              <label>User:</label>
+              <div className={styles.userDropdownWrapper}>
+                <button
+                  className={styles.categoryDropdownButton}
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                >
+                  {!selectedUsers || selectedUsers.length === 0
+                    ? 'All Users'
+                    : `${selectedUsers.length} selected`}
+                  <span className={styles.dropdownArrow}>{userDropdownOpen ? '▲' : '▼'}</span>
+                </button>
+                {userDropdownOpen && (
+                  <div className={styles.categoryDropdownMenu}>
+                    {followingUsers && followingUsers.length > 0 ? (
+                      <>
+                        {followingUsers.map(user => (
+                          <label key={user.username} className={styles.categoryOption}>
+                            <input
+                              type="checkbox"
+                              checked={selectedUsers?.includes(user.username) || false}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedUsers(prev => [...(prev || []), user.username])
+                                } else {
+                                  setSelectedUsers(prev => (prev || []).filter(u => u !== user.username))
+                                }
+                              }}
+                            />
+                            <span>{user.full_name || user.username}</span>
+                          </label>
+                        ))}
+                        {selectedUsers && selectedUsers.length > 0 && (
+                          <button
+                            className={styles.clearCategoriesBtn}
+                            onClick={() => setSelectedUsers([])}
+                          >
+                            Clear All
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <div className={styles.noUsersMessage}>
+                        Follow users to filter by them
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Person Filter Buttons + Hide Filters */}
+            <div className={styles.personFilterRow}>
+              <div className={styles.personFilter}>
+                <button
+                  className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  All Events
+                </button>
+                <button
+                  className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
+                  onClick={() => setFilter('following')}
+                >
+                  Following
+                </button>
+                <button
+                  className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
+                  onClick={() => setFilter('self')}
+                >
+                  My Events
+                </button>
+              </div>
               <button
-                className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-                onClick={() => setFilter('all')}
+                className={styles.filterToggle}
+                onClick={() => setFiltersExpanded(false)}
               >
-                All Events
-              </button>
-              <button
-                className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
-                onClick={() => setFilter('following')}
-              >
-                Following
-              </button>
-              <button
-                className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
-                onClick={() => setFilter('self')}
-              >
-                My Events
+                <span className={styles.arrowRed}>▲</span>
+                {' Hide Filters'}
               </button>
             </div>
           </div>
