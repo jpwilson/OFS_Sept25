@@ -505,6 +505,17 @@ def get_event(
     # Check privacy permissions
     if not can_view_event(event, current_user, db):
         privacy_info = get_event_privacy_display(event, db)
+
+        # Check if current user has a pending follow request to the author
+        follow_request_pending = False
+        if current_user:
+            pending_request = db.query(Follow).filter(
+                Follow.follower_id == current_user.id,
+                Follow.following_id == event.author_id,
+                Follow.status == "pending"
+            ).first()
+            follow_request_pending = pending_request is not None
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -515,7 +526,8 @@ def get_event(
                 "author_username": event.author.username,
                 "author_full_name": event.author.full_name,
                 "requires_auth": not current_user,
-                "requires_follow": privacy_info["level"] in ["followers", "close_family", "custom_group"]
+                "requires_follow": privacy_info["level"] in ["followers", "close_family", "custom_group"],
+                "follow_request_pending": follow_request_pending
             }
         )
 

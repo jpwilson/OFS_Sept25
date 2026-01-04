@@ -144,37 +144,53 @@ export default function EventFilters({
               )}
               {userSearchResults.length > 0 && (
                 <div className={styles.userSearchResults}>
-                  {userSearchResults.map(result => (
-                    <div key={result.id} className={styles.userSearchResult}>
-                      <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
-                        <div className={styles.userSearchAvatar}>
-                          {result.full_name?.charAt(0) || result.username.charAt(0)}
-                        </div>
-                        <div className={styles.userSearchDetails}>
-                          <div className={styles.userSearchName}>
-                            {result.full_name || result.username}
+                  {userSearchResults.map(result => {
+                    const isFollowing = following.includes(result.username)
+                    const isPending = result.followRequested
+                    const canClickProfile = isFollowing || (!isPending && !isFollowing)
+
+                    return (
+                      <div key={result.id} className={styles.userSearchResult}>
+                        {canClickProfile ? (
+                          <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
+                            <div className={styles.userSearchAvatar}>
+                              {result.full_name?.charAt(0) || result.username.charAt(0)}
+                            </div>
+                            <div className={styles.userSearchDetails}>
+                              <div className={styles.userSearchName}>
+                                {result.full_name || result.username}
+                              </div>
+                              <div className={styles.userSearchUsername}>@{result.username}</div>
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className={styles.userSearchInfoDisabled}>
+                            <div className={styles.userSearchAvatar}>
+                              {result.full_name?.charAt(0) || result.username.charAt(0)}
+                            </div>
+                            <div className={styles.userSearchDetails}>
+                              <div className={styles.userSearchName}>
+                                {result.full_name || result.username}
+                              </div>
+                              <div className={styles.userSearchUsername}>@{result.username}</div>
+                            </div>
                           </div>
-                          <div className={styles.userSearchUsername}>@{result.username}</div>
-                        </div>
-                      </Link>
-                      {result.followRequested ? (
-                        <button className={styles.followRequestedButton} disabled>
-                          Request Sent
-                        </button>
-                      ) : following.includes(result.username) ? (
-                        <button className={styles.followingButton} disabled>
-                          Following
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.followButton}
-                          onClick={() => handleFollowUser(result.username)}
-                        >
-                          Follow
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                        {isPending ? (
+                          <span className={styles.requestSentText}>Request Sent</span>
+                        ) : isFollowing ? (
+                          <span className={styles.followingText}>Following</span>
+                        ) : (
+                          <button
+                            className={styles.followButton}
+                            onClick={() => handleFollowUser(result.username)}
+                          >
+                            Request to Follow
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

@@ -797,11 +797,21 @@ function EventDetail() {
               <p className={styles.privacyExplainer}>
                 This event is only visible to followers of{' '}
                 <strong>{privacyError.author_full_name || privacyError.author_username}</strong>.
-                Visit their profile to request to follow them, and they can grant you access to view their events.
+                {privacyError.follow_request_pending ? (
+                  <> Your request to follow them is pending their approval.</>
+                ) : (
+                  <> Visit their profile to request to follow them, and they can grant you access to view their events.</>
+                )}
               </p>
-              <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
-                Request to Follow @{privacyError.author_username}
-              </Link>
+              {privacyError.follow_request_pending ? (
+                <div className={styles.requestPendingMessage}>
+                  Your request to follow @{privacyError.author_username} has been sent
+                </div>
+              ) : (
+                <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
+                  Request to Follow @{privacyError.author_username}
+                </Link>
+              )}
               <Link to="/feed" className={styles.secondaryButton}>
                 Back to Feed
               </Link>
