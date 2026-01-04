@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styles from './EventFilters.module.css'
 import apiService from '../services/api'
 import { useToast } from './Toast'
+import { useAuth } from '../context/AuthContext'
 
 // Predefined categories
 const CATEGORIES = [
@@ -30,6 +31,7 @@ export default function EventFilters({
   onFollowingUpdate
 }) {
   const { showToast } = useToast()
+  const { user } = useAuth()
   const [filtersExpanded, setFiltersExpanded] = useState(() => {
     return window.innerWidth > 768
   })
@@ -46,7 +48,9 @@ export default function EventFilters({
       if (userSearchQuery.trim().length >= 2) {
         setSearchingUsers(true)
         const results = await apiService.searchUsers(userSearchQuery)
-        setUserSearchResults(results)
+        // Filter out the current user from search results
+        const filteredResults = results.filter(r => r.username !== user?.username)
+        setUserSearchResults(filteredResults)
         setSearchingUsers(false)
       } else {
         setUserSearchResults([])
@@ -54,7 +58,7 @@ export default function EventFilters({
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [userSearchQuery])
+  }, [userSearchQuery, user])
 
   const handleFollowUser = async (username) => {
     try {
