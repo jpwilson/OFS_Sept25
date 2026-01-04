@@ -1,4 +1,5 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
+from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 import os
@@ -31,6 +32,17 @@ except ImportError:
     Client = Any  # Type hint placeholder
 
 router = APIRouter(tags=["upload"])
+
+
+# Schema for Cloudinary image record creation
+class EventImageRecordCreate(BaseModel):
+    event_id: int
+    image_url: str
+    caption: Optional[str] = None
+    order_index: int = 0
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    timestamp: Optional[str] = None
 
 def get_supabase_client() -> Client:
     """Get or create Supabase client (lazy initialization)"""
@@ -338,6 +350,71 @@ async def upload_event_image(
         width=dimensions.get("width"),
         height=dimensions.get("height"),
         file_size=file_size
+    )
+
+    db.add(event_image)
+    db.commit()
+    db.refresh(event_image)
+
+    return event_image
+
+
+@router.post("/upload/event-image-record", response_model=EventImageResponse)
+async def create_event_image_record(
+    data: EventImageRecordCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Save a Cloudinary image URL + GPS data to the database.
+    This endpoint is for images already uploaded to Cloudinary from the frontend.
+    No file processing - just database record creation.
+    """
+    # Verify event exists and user has permission
+    event = db.query(Event).filter(Event.id == data.event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    if event.author_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to add images to this event"
+        )
+
+    # Check image limit based on subscription tier
+    existing_images_count = db.query(EventImage).filter(
+        EventImage.event_id == data.event_id
+    ).count()
+
+    max_images = 300 if current_user.subscription_tier in ['premium', 'family'] else 50
+    if existing_images_count >= max_images:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Image limit reached. {current_user.subscription_tier.title()} users can upload up to {max_images} images per event."
+        )
+
+    # Parse timestamp if provided
+    parsed_timestamp = None
+    if data.timestamp:
+        try:
+            # Try EXIF format: "2025:10:19 10:49:07"
+            parsed_timestamp = datetime.strptime(data.timestamp, "%Y:%m:%d %H:%M:%S")
+        except (ValueError, AttributeError):
+            try:
+                # Try ISO format: "2025-10-19T10:49:07"
+                parsed_timestamp = datetime.fromisoformat(data.timestamp)
+            except (ValueError, AttributeError):
+                pass  # If parsing fails, leave as None
+
+    # Create event_image record
+    event_image = EventImage(
+        event_id=data.event_id,
+        image_url=data.image_url,
+        caption=data.caption,
+        order_index=data.order_index,
+        latitude=data.latitude,
+        longitude=data.longitude,
+        timestamp=parsed_timestamp
     )
 
     db.add(event_image)

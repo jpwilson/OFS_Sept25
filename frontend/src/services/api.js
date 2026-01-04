@@ -466,39 +466,64 @@ class ApiService {
     }
   }
 
+  // Upload image to Cloudinary (used for all image types)
+  async uploadImageToCloudinary(file) {
+    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', CLOUDINARY_CONFIG.imageUploadPreset)
+    formData.append('folder', 'ofs/images')
+
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
+    const response = await fetch(uploadUrl, { method: 'POST', body: formData })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Cloudinary upload error:', error)
+      throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
+    }
+
+    const result = await response.json()
+    // Apply transformations via URL (max 2000px, auto quality, auto format)
+    return result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_auto/')
+  }
+
   // Event Image methods (for caption system)
+  // All images now go to Cloudinary for faster global uploads (fixes UK timeout issues)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
     try {
-      // HEIC files need special handling - upload directly to Supabase, process on backend
-      if (this.isHeicFile(file)) {
-        const result = await this.uploadHeicFile(file, eventId)
-        return result
-      }
+      // Extract GPS data client-side BEFORE uploading
+      const { extractGPSFromImage } = await import('../utils/exifExtractor.js')
+      const gpsData = await extractGPSFromImage(file)
 
-      // Compress image for faster uploads and to fix EXIF orientation
-      // Canvas API automatically applies EXIF orientation when drawing
-      const processedFile = await this.compressImage(file)
+      // Upload ALL images to Cloudinary (global CDN - fast for UK and worldwide)
+      const imageUrl = await this.uploadImageToCloudinary(file)
 
-      const formData = new FormData()
-      formData.append('file', processedFile)
-      formData.append('event_id', eventId.toString())
-      if (caption) formData.append('caption', caption)
-      formData.append('order_index', orderIndex.toString())
-
+      // Save record to database via backend (includes GPS data)
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || localStorage.getItem('token')
 
-      const response = await fetch(`${API_BASE}/upload/event-image`, {
+      const response = await fetch(`${API_BASE}/upload/event-image-record`, {
         method: 'POST',
         headers: {
-          ...(token && { 'Authorization': `Bearer ${token}` })
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify({
+          event_id: eventId,
+          image_url: imageUrl,
+          caption,
+          order_index: orderIndex,
+          latitude: gpsData?.latitude || null,
+          longitude: gpsData?.longitude || null,
+          timestamp: gpsData?.timestamp || null
+        })
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to upload event image')
+        throw new Error(error.detail || 'Failed to save image record')
       }
 
       return await response.json()
