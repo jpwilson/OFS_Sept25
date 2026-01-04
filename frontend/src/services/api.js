@@ -258,13 +258,11 @@ class ApiService {
     // Import Cloudinary config
     const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
 
-    // Upload directly to Cloudinary as an image with eager transformation
+    // Upload directly to Cloudinary as an image
     const formData = new FormData()
     formData.append('file', file)
     formData.append('upload_preset', CLOUDINARY_CONFIG.imageUploadPreset)
     formData.append('folder', 'ofs/images')
-    // Apply compression on upload: max 2000px, auto quality, convert to JPEG
-    formData.append('eager', 'c_limit,w_2000,h_2000,q_auto,f_jpg')
 
     const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
 
@@ -282,14 +280,9 @@ class ApiService {
     const result = await response.json()
     console.log('HEIC uploaded to Cloudinary:', result.secure_url)
 
-    // Use the eager transformation URL if available, otherwise add transformations
-    let imageUrl
-    if (result.eager && result.eager[0] && result.eager[0].secure_url) {
-      imageUrl = result.eager[0].secure_url
-    } else {
-      // Fallback: apply transformations via URL (max 2000px, auto quality, JPEG)
-      imageUrl = result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_jpg/')
-    }
+    // Apply transformations via URL (max 2000px, auto quality, JPEG format)
+    // Cloudinary auto-converts HEIC to displayable format
+    const imageUrl = result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_jpg/')
 
     console.log('Optimized image URL:', imageUrl)
 
