@@ -124,65 +124,69 @@ export default function EventFilters({
 
       {filtersExpanded && (
         <div className={styles.filters}>
-          {/* User Search */}
-          <div className={styles.userSearchSection}>
-            <h3 className={styles.userSearchHeading}>Find Your Family and Friends</h3>
-            <input
-              type="text"
-              id="user-search"
-              placeholder="Search for users by name or username"
-              value={userSearchQuery}
-              onChange={(e) => setUserSearchQuery(e.target.value)}
-              className={styles.userSearchInput}
-            />
-            {searchingUsers && (
-              <div className={styles.searchLoading}>Searching...</div>
-            )}
-            {userSearchResults.length > 0 && (
-              <div className={styles.userSearchResults}>
-                {userSearchResults.map(result => (
-                  <div key={result.id} className={styles.userSearchResult}>
-                    <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
-                      <div className={styles.userSearchAvatar}>
-                        {result.full_name?.charAt(0) || result.username.charAt(0)}
-                      </div>
-                      <div className={styles.userSearchDetails}>
-                        <div className={styles.userSearchName}>
-                          {result.full_name || result.username}
-                        </div>
-                        <div className={styles.userSearchUsername}>@{result.username}</div>
-                      </div>
-                    </Link>
-                    {result.followRequested ? (
-                      <button className={styles.followRequestedButton} disabled>
-                        Request Sent
-                      </button>
-                    ) : following.includes(result.username) ? (
-                      <button className={styles.followingButton} disabled>
-                        Following
-                      </button>
-                    ) : (
-                      <button
-                        className={styles.followButton}
-                        onClick={() => handleFollowUser(result.username)}
-                      >
-                        Follow
-                      </button>
-                    )}
-                  </div>
-                ))}
+          {/* Main filter row - search + filters inline on large screens */}
+          <div className={styles.mainFilterRow}>
+            {/* User Search */}
+            <div className={styles.userSearchSection}>
+              <div className={styles.searchInputWrapper}>
+                <span className={styles.searchIcon}>🔍</span>
+                <input
+                  type="text"
+                  id="user-search"
+                  placeholder="Find family & friends"
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  className={styles.userSearchInput}
+                />
               </div>
-            )}
-          </div>
+              {searchingUsers && (
+                <div className={styles.searchLoading}>Searching...</div>
+              )}
+              {userSearchResults.length > 0 && (
+                <div className={styles.userSearchResults}>
+                  {userSearchResults.map(result => (
+                    <div key={result.id} className={styles.userSearchResult}>
+                      <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
+                        <div className={styles.userSearchAvatar}>
+                          {result.full_name?.charAt(0) || result.username.charAt(0)}
+                        </div>
+                        <div className={styles.userSearchDetails}>
+                          <div className={styles.userSearchName}>
+                            {result.full_name || result.username}
+                          </div>
+                          <div className={styles.userSearchUsername}>@{result.username}</div>
+                        </div>
+                      </Link>
+                      {result.followRequested ? (
+                        <button className={styles.followRequestedButton} disabled>
+                          Request Sent
+                        </button>
+                      ) : following.includes(result.username) ? (
+                        <button className={styles.followingButton} disabled>
+                          Following
+                        </button>
+                      ) : (
+                        <button
+                          className={styles.followButton}
+                          onClick={() => handleFollowUser(result.username)}
+                        >
+                          Follow
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          <div className={styles.filterRow}>
+            <div className={styles.filterRow}>
             {/* Date Dropdown */}
             <div className={styles.dateDropdownWrapper}>
               <button
                 className={`${styles.dropdownButton} ${(selectedDateRange.start || selectedDateRange.end) ? styles.hasSelection : ''}`}
                 onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
               >
-                {getDateLabel()}
+                {(selectedDateRange.start || selectedDateRange.end) ? getDateLabel() : 'Date Range'}
                 <span className={styles.dropdownArrow}>{dateDropdownOpen ? '▲' : '▼'}</span>
               </button>
               {dateDropdownOpen && (
@@ -221,7 +225,7 @@ export default function EventFilters({
                 className={`${styles.dropdownButton} ${selectedCategories.length > 0 ? styles.hasSelection : ''}`}
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
               >
-                {selectedCategories.length === 0 ? 'Category' : `${selectedCategories.length} cat.`}
+                {selectedCategories.length === 0 ? 'Categories' : `${selectedCategories.length} selected`}
                 <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
               </button>
               {categoryDropdownOpen && (
@@ -260,7 +264,7 @@ export default function EventFilters({
                 className={`${styles.dropdownButton} ${selectedUsers?.length > 0 ? styles.hasSelection : ''}`}
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
               >
-                {!selectedUsers || selectedUsers.length === 0 ? 'User' : `${selectedUsers.length} user`}
+                {!selectedUsers || selectedUsers.length === 0 ? 'Users' : `${selectedUsers.length} selected`}
                 <span className={styles.dropdownArrow}>{userDropdownOpen ? '▲' : '▼'}</span>
               </button>
               {userDropdownOpen && (
@@ -319,18 +323,21 @@ export default function EventFilters({
                 className={`${styles.filterButton} ${filter === 'self' ? styles.active : ''}`}
                 onClick={() => setFilter('self')}
               >
-                Mine
+                My Events
               </button>
             </div>
 
-            {/* Hide Filters */}
-            <button
-              className={styles.filterToggle}
-              onClick={() => setFiltersExpanded(false)}
-            >
-              <span className={styles.arrowRed}>▲</span>
-              {' Hide'}
-            </button>
+            {/* Hide Filters - right aligned */}
+            <div className={styles.hideFilterWrapper}>
+              <button
+                className={styles.filterToggle}
+                onClick={() => setFiltersExpanded(false)}
+              >
+                <span className={styles.arrowRed}>▲</span>
+                {' Hide Filters'}
+              </button>
+            </div>
+            </div>
           </div>
         </div>
       )}
