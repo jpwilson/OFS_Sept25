@@ -5,6 +5,7 @@ import 'family-chart/styles/family-chart.css'
 import styles from './FamilyTreeGraph.module.css'
 
 export default function FamilyTreeGraph({ data, currentUserId, relationships }) {
+  const wrapperRef = useRef(null)
   const containerRef = useRef(null)
   const chartRef = useRef(null)
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
     if (id.startsWith('user-')) {
       const userId = id.replace('user-', '')
       if (userId === String(currentUserId)) {
-        return // Don't navigate if clicking own card
+        return
       }
       const rel = relationships?.find(r => String(r.other_user_id) === userId)
       if (rel) {
@@ -28,47 +29,53 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
     }
   }, [relationships, currentUserId, navigate])
 
-  // Get container dimensions
+  // Get wrapper dimensions
   useEffect(() => {
-    if (!containerRef.current) return
+    if (!wrapperRef.current) return
 
     const updateDimensions = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect()
-        setDimensions({ width: rect.width, height: rect.height })
+      if (wrapperRef.current) {
+        const rect = wrapperRef.current.getBoundingClientRect()
+        console.log('Container dimensions:', rect.width, rect.height)
+        if (rect.width > 0 && rect.height > 0) {
+          setDimensions({ width: Math.floor(rect.width), height: Math.floor(rect.height) })
+        }
       }
     }
 
-    // Initial dimensions
-    updateDimensions()
+    // Small delay to ensure layout is complete
+    const timer = setTimeout(updateDimensions, 100)
 
-    // Watch for resize
-    const resizeObserver = new ResizeObserver(updateDimensions)
-    resizeObserver.observe(containerRef.current)
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions()
+    })
+    resizeObserver.observe(wrapperRef.current)
 
-    return () => resizeObserver.disconnect()
+    return () => {
+      clearTimeout(timer)
+      resizeObserver.disconnect()
+    }
   }, [])
 
   // Create chart when dimensions are available
   useEffect(() => {
     if (!containerRef.current || !data || data.length === 0) return
-    if (dimensions.width === 0 || dimensions.height === 0) return
+    if (dimensions.width < 100 || dimensions.height < 100) return
+
+    console.log('Creating chart with dimensions:', dimensions.width, dimensions.height)
 
     // Clear any existing chart
     containerRef.current.innerHTML = ''
 
     try {
-      // Create the chart with proper data
       const chart = createChart(containerRef.current, data)
 
-      // Configure the chart
       chart
         .setOrientationVertical()
         .setCardYSpacing(100)
         .setCardXSpacing(30)
         .setTransitionTime(300)
 
-      // Set up SVG card
       const cardSvg = chart.setCardSvg()
       cardSvg
         .setCardDim({
@@ -86,13 +93,11 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
         ])
         .setOnCardClick(handleCardClick)
 
-      // Set main person
       const mainPersonId = `user-${currentUserId}`
       if (data.find(d => d.id === mainPersonId)) {
         chart.updateMainId(mainPersonId)
       }
 
-      // Update tree and fit to container
       chart.updateTree({ tree_position: 'fit' })
 
       chartRef.current = chart
@@ -124,8 +129,16 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
   }
 
   return (
-    <div className={styles.graphContainer}>
-      <div ref={containerRef} className={styles.chart} />
+    <div className={styles.graphContainer} ref={wrapperRef}>
+      {/* Container with explicit pixel dimensions */}
+      <div
+        ref={containerRef}
+        className={styles.chart}
+        style={{
+          width: dimensions.width > 0 ? `${dimensions.width}px` : '100%',
+          height: dimensions.height > 0 ? `${dimensions.height}px` : '100%'
+        }}
+      />
       <div className={styles.controls}>
         <button onClick={handleReset} className={styles.controlButton} title="Reset view">
           Reset
