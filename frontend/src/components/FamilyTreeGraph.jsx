@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createChart } from 'family-chart'
 import 'family-chart/styles/family-chart.css'
@@ -8,16 +8,15 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
   const containerRef = useRef(null)
   const chartRef = useRef(null)
   const navigate = useNavigate()
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
   // Handle card click - navigate to profile
   const handleCardClick = useCallback((e, d) => {
     const id = d.id
     if (id.startsWith('user-')) {
       const userId = id.replace('user-', '')
-      // Find the username from relationships or check if it's current user
       if (userId === String(currentUserId)) {
-        // Don't navigate if clicking own card - it's the center
-        return
+        return // Don't navigate if clicking own card
       }
       const rel = relationships?.find(r => String(r.other_user_id) === userId)
       if (rel) {
@@ -29,34 +28,57 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
     }
   }, [relationships, currentUserId, navigate])
 
+  // Get container dimensions
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setDimensions({ width: rect.width, height: rect.height })
+      }
+    }
+
+    // Initial dimensions
+    updateDimensions()
+
+    // Watch for resize
+    const resizeObserver = new ResizeObserver(updateDimensions)
+    resizeObserver.observe(containerRef.current)
+
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  // Create chart when dimensions are available
   useEffect(() => {
     if (!containerRef.current || !data || data.length === 0) return
+    if (dimensions.width === 0 || dimensions.height === 0) return
 
     // Clear any existing chart
     containerRef.current.innerHTML = ''
 
     try {
-      // Create the chart
+      // Create the chart with proper data
       const chart = createChart(containerRef.current, data)
 
       // Configure the chart
       chart
-        .setOrientationVertical()  // Vertical layout (top to bottom)
-        .setCardYSpacing(100)      // Level separation
-        .setCardXSpacing(20)       // Node separation
-        .setTransitionTime(300)    // Smooth transitions
+        .setOrientationVertical()
+        .setCardYSpacing(100)
+        .setCardXSpacing(30)
+        .setTransitionTime(300)
 
-      // Set up SVG card with custom dimensions and styling
+      // Set up SVG card
       const cardSvg = chart.setCardSvg()
       cardSvg
         .setCardDim({
-          w: 180,
-          h: 80,
+          w: 200,
+          h: 70,
           img_dim: 50,
-          text_x: 65,
-          text_y: 20,
-          img_x: 5,
-          img_y: 15
+          img_x: 10,
+          img_y: 10,
+          text_x: 70,
+          text_y: 15
         })
         .setCardDisplay([
           d => d.data['first name'] || 'Unknown',
@@ -64,15 +86,14 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
         ])
         .setOnCardClick(handleCardClick)
 
-      // Find and set the main person (current user)
+      // Set main person
       const mainPersonId = `user-${currentUserId}`
-      const mainPerson = data.find(d => d.id === mainPersonId)
-      if (mainPerson) {
+      if (data.find(d => d.id === mainPersonId)) {
         chart.updateMainId(mainPersonId)
       }
 
-      // Update the tree with fit to container
-      chart.updateTree({ tree_position: 'main_to_middle' })
+      // Update tree and fit to container
+      chart.updateTree({ tree_position: 'fit' })
 
       chartRef.current = chart
     } catch (error) {
@@ -80,32 +101,12 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
     }
 
     return () => {
-      // Cleanup
       if (containerRef.current) {
         containerRef.current.innerHTML = ''
       }
       chartRef.current = null
     }
-  }, [data, currentUserId, handleCardClick])
-
-  // Zoom controls
-  const handleZoomIn = () => {
-    if (chartRef.current?.svg) {
-      // family-chart uses d3 zoom internally
-      const svg = chartRef.current.svg
-      const currentTransform = svg.querySelector('.view')?.getAttribute('transform')
-      if (currentTransform) {
-        // Parse and scale up
-        console.log('Zoom in clicked')
-      }
-    }
-  }
-
-  const handleZoomOut = () => {
-    if (chartRef.current?.svg) {
-      console.log('Zoom out clicked')
-    }
-  }
+  }, [data, currentUserId, handleCardClick, dimensions])
 
   const handleReset = () => {
     if (chartRef.current) {

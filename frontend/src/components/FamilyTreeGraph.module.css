@@ -1,9 +1,9 @@
 .graphContainer {
   position: relative;
   width: 100%;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 280px);
   min-height: 500px;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-color);
@@ -14,59 +14,15 @@
   height: 100%;
 }
 
-/* Override family-chart default styles for dark theme */
+/* Minimal overrides - let family-chart handle most styling */
 .chart :global(.f3) {
-  background: transparent !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.chart :global(.f3 .card) {
-  cursor: pointer;
-}
-
-.chart :global(.f3 .card rect) {
-  fill: var(--bg-secondary) !important;
-  stroke: var(--border-color) !important;
-  stroke-width: 2px !important;
-  rx: 12px !important;
-  ry: 12px !important;
-}
-
-.chart :global(.f3 .card:hover rect) {
-  fill: var(--bg-tertiary) !important;
-  stroke: var(--accent) !important;
-}
-
-.chart :global(.f3 .card.main rect) {
-  fill: var(--accent) !important;
-  stroke: var(--accent) !important;
-}
-
-.chart :global(.f3 .card.main text) {
-  fill: white !important;
-}
-
-.chart :global(.f3 .card text) {
-  fill: var(--text-primary) !important;
-  font-family: inherit !important;
-}
-
-.chart :global(.f3 .card text:last-child) {
-  fill: var(--text-secondary) !important;
-  font-size: 11px !important;
-}
-
-.chart :global(.f3 .card image) {
-  clip-path: circle(25px at 25px 25px);
-}
-
-.chart :global(.f3 .link) {
-  stroke: var(--text-tertiary) !important;
-  stroke-width: 2px !important;
-}
-
-.chart :global(.f3 .link.spouse) {
-  stroke: #f472b6 !important;
-  stroke-dasharray: 4 4;
+.chart :global(.f3 svg) {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Controls */
@@ -83,7 +39,7 @@
   padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
@@ -100,7 +56,7 @@
   position: absolute;
   bottom: 16px;
   left: 16px;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
@@ -142,7 +98,7 @@
 /* Mobile responsive */
 @media (max-width: 768px) {
   .graphContainer {
-    height: calc(100vh - 160px);
+    height: calc(100vh - 220px);
     border-radius: 0;
     margin: 0 -16px;
     border-left: none;
