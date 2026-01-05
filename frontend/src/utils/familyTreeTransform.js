@@ -24,8 +24,11 @@ function inferGender(relationshipType) {
 
 // Link two people based on relationship type
 function linkRelationship(people, userId, otherId, relType) {
+  // Guard against undefined/null values
+  if (!relType) return
+
   const userKey = `user-${userId}`
-  const otherKey = otherId.startsWith('user-') || otherId.startsWith('tag-') ? otherId : `user-${otherId}`
+  const otherKey = otherId?.startsWith?.('user-') || otherId?.startsWith?.('tag-') ? otherId : `user-${otherId}`
 
   const user = people.get(userKey)
   const other = people.get(otherKey)
@@ -142,6 +145,12 @@ function linkRelationship(people, userId, otherId, relType) {
  * @returns {Array} Data in family-chart format
  */
 export function transformToFamilyChart(currentUser, relationships, tagProfiles) {
+  // Guard against missing user
+  if (!currentUser || !currentUser.id) {
+    console.warn('transformToFamilyChart: No current user provided')
+    return []
+  }
+
   const people = new Map()
 
   // 1. Add current user as center/main node
@@ -160,52 +169,60 @@ export function transformToFamilyChart(currentUser, relationships, tagProfiles) 
   // 2. Add verified user relationships
   if (relationships && relationships.length > 0) {
     relationships.forEach(rel => {
+      // Skip if missing required data
+      if (!rel || !rel.other_user_id) return
+
       const personId = `user-${rel.other_user_id}`
+      const relationshipType = rel.relationship_to_you || 'family'
 
       // Only add if not already in map
       if (!people.has(personId)) {
         people.set(personId, {
           id: personId,
           data: {
-            'first name': rel.other_user_display_name || rel.other_user_full_name || rel.other_user_username,
+            'first name': rel.other_user_display_name || rel.other_user_full_name || rel.other_user_username || 'Unknown',
             'last name': '',
-            'gender': inferGender(rel.relationship_to_you),
+            'gender': inferGender(relationshipType),
             'avatar': rel.other_user_avatar_url || '',
             'username': rel.other_user_username,
             'verified': true,
-            'relationship': rel.relationship_to_you
+            'relationship': relationshipType
           },
           rels: { spouses: [], children: [], parents: [], siblings: [] }
         })
       }
 
       // Create bidirectional link
-      linkRelationship(people, currentUser.id, personId, rel.relationship_to_you)
+      linkRelationship(people, currentUser.id, personId, relationshipType)
     })
   }
 
   // 3. Add tag profiles (non-users like pets, kids without accounts)
   if (tagProfiles && tagProfiles.length > 0) {
     tagProfiles.forEach(tag => {
+      // Skip if missing required data
+      if (!tag || !tag.id) return
+
       const personId = `tag-${tag.id}`
+      const relationshipType = tag.relationship_to_creator || 'family'
 
       if (!people.has(personId)) {
         people.set(personId, {
           id: personId,
           data: {
-            'first name': tag.name,
+            'first name': tag.name || 'Unknown',
             'last name': '',
-            'gender': inferGender(tag.relationship_to_creator),
+            'gender': inferGender(relationshipType),
             'avatar': tag.photo_url || '',
             'isTag': true,
-            'relationship': tag.relationship_to_creator
+            'relationship': relationshipType
           },
           rels: { spouses: [], children: [], parents: [], siblings: [] }
         })
       }
 
       // Link to creator
-      linkRelationship(people, currentUser.id, personId, tag.relationship_to_creator)
+      linkRelationship(people, currentUser.id, personId, relationshipType)
     })
   }
 
