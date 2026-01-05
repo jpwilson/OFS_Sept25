@@ -248,7 +248,12 @@ export default function Billing() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <h1 className={styles.title}>Subscription</h1>
+        <div className={styles.header}>
+          <button className={styles.backButton} onClick={() => navigate(`/profile/${user?.username}`)}>
+            ← Back to Profile
+          </button>
+          <h1 className={styles.title}>Subscription</h1>
+        </div>
 
         {/* Success Message */}
         {isSuccess && (

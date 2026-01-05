@@ -231,7 +231,7 @@ function Login() {
         </div>
 
         <Link to="/" className={styles.backLink}>
-          ← Back to Home
+          ← What's This About?
         </Link>
       </div>
     </div>

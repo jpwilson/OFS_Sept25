@@ -9,6 +9,24 @@
   margin: 0 auto;
 }
 
+.header {
+  margin-bottom: 24px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: var(--accent, #667eea);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
 .title {
   color: white;
   font-size: 32px;
