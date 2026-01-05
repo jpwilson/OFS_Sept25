@@ -1,0 +1,319 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-bottom: 40px;
+}
+
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.emptyState h2 {
+  font-size: 24px;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.emptyState > p {
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.emptyActions {
+  margin-bottom: 32px;
+}
+
+.actionButton {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.actionButton:hover {
+  background: var(--accent-hover);
+}
+
+.tips {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.tips h3 {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.tips li {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.tips li:last-child {
+  margin-bottom: 0;
+}
+
+/* Tree Container */
+.treeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Self Card - The user at the center */
+.selfCard {
+  background: linear-gradient(135deg, var(--accent) 0%, #6b4ce6 100%);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.selfInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: white;
+}
+
+.selfAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.selfAvatarPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.selfDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selfDetails strong {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.selfDetails span {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Group Sections */
+.groupSection {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.groupTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.groupCount {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.connectionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Connection Cards */
+.connectionCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.connectionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.connectionCard.tagProfile {
+  border: 1px dashed var(--border-color);
+}
+
+.connectionAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.connectionAvatarPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.connectionDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.connectionDetails strong {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.relationshipLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.verifiedBadge {
+  background: var(--accent);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.tagBadge {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .content {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .selfAvatar,
+  .selfAvatarPlaceholder {
+    width: 56px;
+    height: 56px;
+  }
+
+  .selfDetails strong {
+    font-size: 18px;
+  }
+
+  .connectionAvatar,
+  .connectionAvatarPlaceholder {
+    width: 44px;
+    height: 44px;
+  }
+}

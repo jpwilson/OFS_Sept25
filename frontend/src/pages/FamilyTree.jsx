@@ -1,0 +1,214 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import apiService from '../services/api'
+import styles from './FamilyTree.module.css'
+
+// Group relationships by type for display
+const RELATIONSHIP_GROUPS = {
+  'Spouse': ['wife', 'husband', 'spouse', 'partner'],
+  'Parents': ['mother', 'father', 'parent', 'stepmother', 'stepfather'],
+  'Children': ['daughter', 'son', 'child', 'stepdaughter', 'stepson'],
+  'Siblings': ['sister', 'brother', 'sibling', 'half-sister', 'half-brother', 'stepsister', 'stepbrother'],
+  'Grandparents': ['grandmother', 'grandfather', 'grandparent'],
+  'Grandchildren': ['granddaughter', 'grandson', 'grandchild'],
+  'Extended Family': ['aunt', 'uncle', 'niece', 'nephew', 'cousin'],
+  'In-Laws': ['mother-in-law', 'father-in-law', 'sister-in-law', 'brother-in-law', 'daughter-in-law', 'son-in-law'],
+  'Friends': ['friend', 'best friend', 'close friend']
+}
+
+function getGroupForRelationship(relationship) {
+  const lowerRel = relationship?.toLowerCase() || ''
+  for (const [group, types] of Object.entries(RELATIONSHIP_GROUPS)) {
+    if (types.some(t => lowerRel.includes(t))) {
+      return group
+    }
+  }
+  return 'Other'
+}
+
+export default function FamilyTree() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+  const [relationships, setRelationships] = useState([])
+  const [tagProfiles, setTagProfiles] = useState([])
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    loadData()
+  }, [user])
+
+  async function loadData() {
+    setLoading(true)
+    try {
+      const [relData, tagData] = await Promise.all([
+        apiService.getRelationships(),
+        apiService.getMyTagProfiles()
+      ])
+      setRelationships(relData || [])
+      setTagProfiles(tagData || [])
+    } catch (error) {
+      console.error('Failed to load family tree data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Group relationships by category
+  const groupedRelationships = relationships.reduce((acc, rel) => {
+    const group = getGroupForRelationship(rel.relationship_to_you)
+    if (!acc[group]) acc[group] = []
+    acc[group].push(rel)
+    return acc
+  }, {})
+
+  // Group tag profiles by relationship
+  const groupedTagProfiles = tagProfiles.reduce((acc, profile) => {
+    const group = getGroupForRelationship(profile.relationship_to_creator)
+    if (!acc[group]) acc[group] = []
+    acc[group].push(profile)
+    return acc
+  }, {})
+
+  // Merge the groups
+  const allGroups = new Set([...Object.keys(groupedRelationships), ...Object.keys(groupedTagProfiles)])
+
+  // Sort groups in a logical order
+  const groupOrder = ['Spouse', 'Children', 'Parents', 'Siblings', 'Grandchildren', 'Grandparents', 'Extended Family', 'In-Laws', 'Friends', 'Other']
+  const sortedGroups = [...allGroups].sort((a, b) => {
+    const aIndex = groupOrder.indexOf(a)
+    const bIndex = groupOrder.indexOf(b)
+    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b)
+    if (aIndex === -1) return 1
+    if (bIndex === -1) return -1
+    return aIndex - bIndex
+  })
+
+  const totalConnections = relationships.length + tagProfiles.length
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Loading your family tree...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <button className={styles.backButton} onClick={() => navigate(-1)}>
+            ← Back
+          </button>
+          <h1 className={styles.title}>Family Tree</h1>
+          <p className={styles.subtitle}>{totalConnections} connection{totalConnections !== 1 ? 's' : ''}</p>
+        </div>
+
+        {totalConnections === 0 ? (
+          <div className={styles.emptyState}>
+            <span className={styles.emptyIcon}>🌳</span>
+            <h2>Grow Your Family Tree</h2>
+            <p>Connect with family and friends to build your tree.</p>
+            <div className={styles.emptyActions}>
+              <Link to={`/profile/${user?.username}`} className={styles.actionButton}>
+                View Your Profile
+              </Link>
+            </div>
+            <div className={styles.tips}>
+              <h3>How to add connections:</h3>
+              <ul>
+                <li><strong>Verified relationships:</strong> Follow someone, have them follow you back, then propose a relationship from their profile.</li>
+                <li><strong>Tag profiles:</strong> Create profiles for family members who don't have accounts (like kids or pets) in Notifications → Tags.</li>
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.treeContainer}>
+            {/* User at center */}
+            <div className={styles.selfCard}>
+              <Link to={`/profile/${user?.username}`} className={styles.selfInfo}>
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="" className={styles.selfAvatar} />
+                ) : (
+                  <div className={styles.selfAvatarPlaceholder}>
+                    {user?.username?.[0]?.toUpperCase() || '?'}
+                  </div>
+                )}
+                <div className={styles.selfDetails}>
+                  <strong>{user?.full_name || user?.username}</strong>
+                  <span>You</span>
+                </div>
+              </Link>
+            </div>
+
+            {/* Grouped connections */}
+            {sortedGroups.map(group => {
+              const userRelationships = groupedRelationships[group] || []
+              const tagProfilesInGroup = groupedTagProfiles[group] || []
+              const groupTotal = userRelationships.length + tagProfilesInGroup.length
+
+              return (
+                <div key={group} className={styles.groupSection}>
+                  <h2 className={styles.groupTitle}>
+                    {group}
+                    <span className={styles.groupCount}>{groupTotal}</span>
+                  </h2>
+                  <div className={styles.connectionsList}>
+                    {/* Verified user relationships */}
+                    {userRelationships.map(rel => (
+                      <Link
+                        key={`rel-${rel.id}`}
+                        to={`/profile/${rel.other_user_username}`}
+                        className={styles.connectionCard}
+                      >
+                        {rel.other_user_avatar_url ? (
+                          <img src={rel.other_user_avatar_url} alt="" className={styles.connectionAvatar} />
+                        ) : (
+                          <div className={styles.connectionAvatarPlaceholder}>
+                            {rel.other_user_username?.[0]?.toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <div className={styles.connectionDetails}>
+                          <strong>{rel.other_user_display_name || rel.other_user_username}</strong>
+                          <span className={styles.relationshipLabel}>{rel.relationship_to_you}</span>
+                        </div>
+                        <span className={styles.verifiedBadge} title="Verified relationship">✓</span>
+                      </Link>
+                    ))}
+
+                    {/* Tag profiles (non-users) */}
+                    {tagProfilesInGroup.map(profile => (
+                      <Link
+                        key={`tag-${profile.id}`}
+                        to={`/tag-profile/${profile.id}`}
+                        className={`${styles.connectionCard} ${styles.tagProfile}`}
+                      >
+                        {profile.photo_url ? (
+                          <img src={profile.photo_url} alt="" className={styles.connectionAvatar} />
+                        ) : (
+                          <div className={styles.connectionAvatarPlaceholder}>
+                            {profile.name?.[0]?.toUpperCase() || '#'}
+                          </div>
+                        )}
+                        <div className={styles.connectionDetails}>
+                          <strong>{profile.name}</strong>
+                          <span className={styles.relationshipLabel}>{profile.relationship_to_creator}</span>
+                        </div>
+                        <span className={styles.tagBadge} title="Tag profile (no account)">Tag</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

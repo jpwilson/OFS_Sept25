@@ -23,6 +23,7 @@ import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
+import FamilyTree from './pages/FamilyTree'
 import Layout from './components/Layout'
 
 // Redirect from old /signup?invite=TOKEN format to new /join/TOKEN format
@@ -70,6 +71,7 @@ function App() {
               <Route path="/profile/:username/edit" element={<EditProfile />} />
               <Route path="/settings/notifications" element={<NotificationSettings />} />
               <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
+              <Route path="/family-tree" element={<FamilyTree />} />
               <Route path="/create" element={<CreateEvent />} />
               {/* Legacy routes - redirect to unified explorer with view param */}
               <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
