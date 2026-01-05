@@ -10,6 +10,17 @@
   padding: 20px;
 }
 
+/* Expand content when viewing tree */
+.content:has(.graphContainer) {
+  max-width: 100%;
+  padding: 20px;
+}
+
+/* Fallback for browsers without :has() */
+.contentWide {
+  max-width: 100%;
+}
+
 .header {
   margin-bottom: 24px;
 }
@@ -39,6 +50,38 @@
   color: var(--text-secondary);
   font-size: 14px;
   margin-top: 4px;
+}
+
+/* View Toggle */
+.viewToggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 10px;
+  margin-top: 16px;
+  width: fit-content;
+}
+
+.viewButton {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewButton:hover {
+  color: var(--text-primary);
+}
+
+.viewButton.active {
+  background: var(--accent);
+  color: white;
 }
 
 .loading {

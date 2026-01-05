@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import apiService from '../services/api'
+import { transformToFamilyChart } from '../utils/familyTreeTransform'
 import styles from './FamilyTree.module.css'
+
+// Lazy load the graph component to reduce initial bundle size
+const FamilyTreeGraph = lazy(() => import('../components/FamilyTreeGraph'))
 
 // Group relationships by type for display
 const RELATIONSHIP_GROUPS = {
@@ -34,6 +38,15 @@ export default function FamilyTree() {
   const [loading, setLoading] = useState(true)
   const [relationships, setRelationships] = useState([])
   const [tagProfiles, setTagProfiles] = useState([])
+  const [view, setView] = useState('list') // 'list' or 'tree'
+
+  // Transform data for the tree graph view
+  const graphData = useMemo(() => {
+    if (!user || (relationships.length === 0 && tagProfiles.length === 0)) {
+      return []
+    }
+    return transformToFamilyChart(user, relationships, tagProfiles)
+  }, [user, relationships, tagProfiles])
 
   useEffect(() => {
     if (!user) {
@@ -101,13 +114,31 @@ export default function FamilyTree() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
+      <div className={`${styles.content} ${view === 'tree' ? styles.contentWide : ''}`}>
         <div className={styles.header}>
           <button className={styles.backButton} onClick={() => navigate(-1)}>
             ← Back
           </button>
           <h1 className={styles.title}>Family Tree</h1>
           <p className={styles.subtitle}>{totalConnections} connection{totalConnections !== 1 ? 's' : ''}</p>
+
+          {/* View Toggle */}
+          {totalConnections > 0 && (
+            <div className={styles.viewToggle}>
+              <button
+                className={`${styles.viewButton} ${view === 'list' ? styles.active : ''}`}
+                onClick={() => setView('list')}
+              >
+                List
+              </button>
+              <button
+                className={`${styles.viewButton} ${view === 'tree' ? styles.active : ''}`}
+                onClick={() => setView('tree')}
+              >
+                Tree
+              </button>
+            </div>
+          )}
         </div>
 
         {totalConnections === 0 ? (
@@ -128,7 +159,17 @@ export default function FamilyTree() {
               </ul>
             </div>
           </div>
+        ) : view === 'tree' ? (
+          /* Tree/Graph View */
+          <Suspense fallback={<div className={styles.loading}>Loading tree visualization...</div>}>
+            <FamilyTreeGraph
+              data={graphData}
+              currentUserId={user?.id}
+              relationships={relationships}
+            />
+          </Suspense>
         ) : (
+          /* List View */
           <div className={styles.treeContainer}>
             {/* User at center */}
             <div className={styles.selfCard}>
