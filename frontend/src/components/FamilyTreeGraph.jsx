@@ -103,15 +103,38 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
 
       chartRef.current = chart
 
-      // Manually center the content using D3 after a delay
+      // Force SVG to fill container and center content
       setTimeout(() => {
         try {
+          // Find the f3 wrapper and SVG
+          const f3Wrapper = containerRef.current?.querySelector('.f3')
           const svg = containerRef.current?.querySelector('svg')
-          if (!svg) return
+
+          console.log('f3Wrapper:', f3Wrapper, 'svg:', svg)
+          console.log('Container dimensions:', dimensions.width, dimensions.height)
+
+          if (!svg) {
+            console.error('No SVG found')
+            return
+          }
+
+          // Force SVG to fill container with inline styles (override library)
+          if (f3Wrapper) {
+            f3Wrapper.style.cssText = `width: ${dimensions.width}px !important; height: ${dimensions.height}px !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important;`
+          }
+
+          svg.style.cssText = `width: ${dimensions.width}px !important; height: ${dimensions.height}px !important; display: block !important;`
+          svg.setAttribute('width', dimensions.width)
+          svg.setAttribute('height', dimensions.height)
 
           // Get the view group that contains the tree
           const viewGroup = svg.querySelector('.view')
-          if (!viewGroup) return
+          console.log('viewGroup:', viewGroup)
+
+          if (!viewGroup) {
+            console.error('No .view group found')
+            return
+          }
 
           // Get the bounds of the tree content
           const bbox = viewGroup.getBBox()
@@ -131,7 +154,7 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
           const translateX = (containerWidth / 2) - (bbox.x + bbox.width / 2) * scale
           const translateY = (containerHeight / 2) - (bbox.y + bbox.height / 2) * scale
 
-          console.log('Transform:', { scale, translateX, translateY })
+          console.log('Transform:', { scale, translateX, translateY, containerWidth, containerHeight })
 
           // Apply the transform using D3 zoom
           const svgSelection = d3.select(svg)
@@ -141,10 +164,12 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
 
           svgSelection.call(zoom)
           svgSelection.call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale))
+
+          console.log('Transform applied successfully')
         } catch (err) {
           console.error('Error centering chart:', err)
         }
-      }, 300)
+      }, 500)
     } catch (error) {
       console.error('Error creating family chart:', error)
     }
