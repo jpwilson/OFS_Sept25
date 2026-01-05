@@ -17,6 +17,40 @@
   bottom: 0;
 }
 
+/* Force family-chart SVG to fill container */
+.chart :global(.f3) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+.chart :global(.f3 > svg) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+/* Style the cards for dark theme */
+.chart :global(.f3 .card rect) {
+  fill: #1a1a2e !important;
+  stroke: #3a3a5a !important;
+  rx: 8 !important;
+  ry: 8 !important;
+}
+
+.chart :global(.f3 .card text) {
+  fill: #ffffff !important;
+}
+
+.chart :global(.f3 .card.main rect) {
+  fill: #2d5a27 !important;
+  stroke: #4a7c44 !important;
+}
+
+.chart :global(.f3 .link) {
+  stroke: #666 !important;
+}
+
 /* Controls */
 .controls {
   position: absolute;

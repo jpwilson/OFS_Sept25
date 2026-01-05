@@ -101,6 +101,13 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
       chart.updateTree({ tree_position: 'fit' })
 
       chartRef.current = chart
+
+      // Refit after a short delay to ensure SVG is properly sized
+      setTimeout(() => {
+        if (chartRef.current) {
+          chartRef.current.updateTree({ tree_position: 'fit' })
+        }
+      }, 200)
     } catch (error) {
       console.error('Error creating family chart:', error)
     }
