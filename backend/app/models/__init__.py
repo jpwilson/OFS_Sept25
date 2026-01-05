@@ -14,3 +14,4 @@ from .media_comment import MediaComment
 from .tag_profile import TagProfile
 from .event_tag import EventTag
 from .tag_profile_claim import TagProfileClaim
+from .user_relationship import UserRelationship

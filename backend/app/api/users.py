@@ -359,6 +359,31 @@ def check_if_following(
         "status": follow.status  # 'pending', 'accepted', or 'rejected'
     }
 
+@router.get("/{username}/is-following-me")
+def check_if_following_me(
+    username: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Check if a specific user is following the current user"""
+    user = db.query(User).filter(User.username == username).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    follow = db.query(Follow).filter(
+        Follow.follower_id == user.id,
+        Follow.following_id == current_user.id
+    ).first()
+
+    if not follow:
+        return {"is_following": False, "status": None}
+
+    return {
+        "is_following": follow.status == "accepted",
+        "status": follow.status
+    }
+
 @router.get("/{username}/followers")
 def get_user_followers(
     username: str,

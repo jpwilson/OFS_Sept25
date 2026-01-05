@@ -8,6 +8,7 @@ import FollowListModal from '../components/FollowListModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
 import NotificationDot from '../components/NotificationDot'
+import RelationshipProposalModal from '../components/RelationshipProposalModal'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
 
@@ -35,6 +36,9 @@ function Profile() {
     tag_requests: 0,
     profile_claims: 0
   })
+  const [isMutualFollow, setIsMutualFollow] = useState(false)
+  const [existingRelationship, setExistingRelationship] = useState(null)
+  const [showRelationshipModal, setShowRelationshipModal] = useState(false)
 
   const isOwnProfile = currentUser && currentUser.username === username
 
@@ -58,6 +62,24 @@ function Profile() {
     }
   }, [username, currentUser])
 
+  async function checkMutualFollowAndRelationship(profileId) {
+    try {
+      // Check if this is a mutual follow
+      const followCheck = await apiService.checkIfFollowing(username)
+      const theyFollowMe = await apiService.checkIfFollowingMe(username)
+      const mutual = followCheck.is_following && theyFollowMe.is_following
+      setIsMutualFollow(mutual)
+
+      // Check for existing relationship (only if mutual follow)
+      if (mutual && profileId) {
+        const relationship = await apiService.getRelationshipWith(profileId)
+        setExistingRelationship(relationship)
+      }
+    } catch (error) {
+      console.error('Error checking relationship status:', error)
+    }
+  }
+
   async function loadNotificationCounts() {
     try {
       const counts = await apiService.getNotificationCounts()
@@ -71,6 +93,11 @@ function Profile() {
     const profileData = await apiService.getUserProfile(username)
     setProfile(profileData)
     setLoading(false)  // Set loading false only after profile loads
+
+    // Check relationship status after profile loads (needs profile.id)
+    if (currentUser && currentUser.username !== username && profileData?.id) {
+      checkMutualFollowAndRelationship(profileData.id)
+    }
   }
 
   async function loadUserEvents() {
@@ -315,18 +342,39 @@ function Profile() {
               </Link>
             </>
           ) : currentUser ? (
-            <button
-              className={`${styles.followButton} ${
-                isFollowing ? styles.following :
-                followStatus === 'pending' ? styles.requested : ''
-              }`}
-              onClick={handleFollowToggle}
-              disabled={followLoading}
-            >
-              {followLoading ? '...' :
-               isFollowing ? 'Following' :
-               followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
-            </button>
+            <>
+              <button
+                className={`${styles.followButton} ${
+                  isFollowing ? styles.following :
+                  followStatus === 'pending' ? styles.requested : ''
+                }`}
+                onClick={handleFollowToggle}
+                disabled={followLoading}
+              >
+                {followLoading ? '...' :
+                 isFollowing ? 'Following' :
+                 followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
+              </button>
+              {/* Show Add Relationship button for mutual followers */}
+              {isMutualFollow && !existingRelationship && (
+                <button
+                  className={styles.relationshipButton}
+                  onClick={() => setShowRelationshipModal(true)}
+                >
+                  Add Relationship
+                </button>
+              )}
+              {existingRelationship && existingRelationship.status === 'accepted' && (
+                <span className={styles.relationshipLabel}>
+                  {existingRelationship.my_relationship_to_them}
+                </span>
+              )}
+              {existingRelationship && existingRelationship.status === 'pending' && (
+                <span className={styles.relationshipPending}>
+                  Relationship pending
+                </span>
+              )}
+            </>
           ) : null}
         </div>
       </div>
@@ -517,6 +565,19 @@ function Profile() {
         onClose={() => setShowFollowModal(false)}
         username={username}
         type={followModalType}
+      />
+
+      <RelationshipProposalModal
+        isOpen={showRelationshipModal}
+        onClose={() => setShowRelationshipModal(false)}
+        otherUser={profile}
+        onSuccess={() => {
+          setShowRelationshipModal(false)
+          // Refresh relationship status
+          if (profile?.id) {
+            checkMutualFollowAndRelationship(profile.id)
+          }
+        }}
       />
 
       {/* Logout at bottom - only for own profile */}

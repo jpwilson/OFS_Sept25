@@ -687,6 +687,20 @@ class ApiService {
     }
   }
 
+  async checkIfFollowingMe(username) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${username}/is-following-me`, {
+        headers: await this.getAuthHeaders()
+      })
+
+      if (!response.ok) return { is_following: false }
+      return await response.json()
+    } catch (error) {
+      console.error('Error checking if user follows me:', error)
+      return { is_following: false }
+    }
+  }
+
   async getUserFollowers(username) {
     try {
       const response = await fetch(`${API_BASE}/users/${username}/followers`, {
@@ -1982,6 +1996,159 @@ class ApiService {
     } catch (error) {
       console.error('Error updating receipt preference:', error)
       throw error
+    }
+  }
+
+  // ========================================
+  // USER RELATIONSHIPS
+  // ========================================
+
+  async proposeRelationship(otherUserId, myRelationshipToThem, theirRelationshipToMe) {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/propose`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({
+          other_user_id: otherUserId,
+          my_relationship_to_them: myRelationshipToThem,
+          their_relationship_to_me: theirRelationshipToMe
+        })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to propose relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error proposing relationship:', error)
+      throw error
+    }
+  }
+
+  async getRelationships() {
+    try {
+      const response = await fetch(`${API_BASE}/relationships`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch relationships')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching relationships:', error)
+      return []
+    }
+  }
+
+  async getRelationshipWith(userId) {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/with/${userId}`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        if (response.status === 404) return null
+        throw new Error('Failed to fetch relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching relationship:', error)
+      return null
+    }
+  }
+
+  async getPendingRelationshipRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/pending`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch pending requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching pending relationship requests:', error)
+      return []
+    }
+  }
+
+  async getPendingRelationshipCount() {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/pending/count`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { count: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching pending relationship count:', error)
+      return { count: 0 }
+    }
+  }
+
+  async getSentRelationshipRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/sent`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch sent requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching sent relationship requests:', error)
+      return []
+    }
+  }
+
+  async acceptRelationship(relationshipId) {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/${relationshipId}/accept`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to accept relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error accepting relationship:', error)
+      throw error
+    }
+  }
+
+  async rejectRelationship(relationshipId) {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/${relationshipId}/reject`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to reject relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error rejecting relationship:', error)
+      throw error
+    }
+  }
+
+  async deleteRelationship(relationshipId) {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/${relationshipId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to delete relationship')
+      return await response.json()
+    } catch (error) {
+      console.error('Error deleting relationship:', error)
+      throw error
+    }
+  }
+
+  async getRelationshipTypes() {
+    try {
+      const response = await fetch(`${API_BASE}/relationships/types`)
+      if (!response.ok) throw new Error('Failed to fetch relationship types')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching relationship types:', error)
+      return { types: [] }
     }
   }
 }
