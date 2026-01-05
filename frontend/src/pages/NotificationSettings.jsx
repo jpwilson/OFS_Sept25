@@ -12,7 +12,7 @@ export default function NotificationSettings() {
   const location = useLocation()
   const { showToast } = useToast()
 
-  const [activeTab, setActiveTab] = useState('settings') // 'settings', 'follows', 'tags'
+  const [activeTab, setActiveTab] = useState('settings') // 'settings', 'follows', 'tags', 'relationships'
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [preferences, setPreferences] = useState({
@@ -47,6 +47,13 @@ export default function NotificationSettings() {
   const [profileClaimsByYou, setProfileClaimsByYou] = useState([])
   const [processingClaim, setProcessingClaim] = useState(null)
 
+  // Relationship state
+  const [relationshipRequestsToYou, setRelationshipRequestsToYou] = useState([])
+  const [relationshipRequestsByYou, setRelationshipRequestsByYou] = useState([])
+  const [acceptedRelationships, setAcceptedRelationships] = useState([])
+  const [relationshipsLoading, setRelationshipsLoading] = useState(false)
+  const [processingRelationship, setProcessingRelationship] = useState(null)
+
   // Per-user event notification state
   const [followingList, setFollowingList] = useState([])
   const [followingExpanded, setFollowingExpanded] = useState(false)
@@ -66,6 +73,7 @@ export default function NotificationSettings() {
     loadFollowData()
     loadTagData()
     loadFollowingList()
+    loadRelationshipData()
   }, [user])
 
   // --- Data Loading ---
@@ -126,6 +134,24 @@ export default function NotificationSettings() {
       setFollowingList(data || [])
     } catch (error) {
       console.error('Failed to load following list:', error)
+    }
+  }
+
+  async function loadRelationshipData() {
+    setRelationshipsLoading(true)
+    try {
+      const [toYou, byYou, accepted] = await Promise.all([
+        apiService.getPendingRelationshipRequests(),
+        apiService.getSentRelationshipRequests(),
+        apiService.getRelationships()
+      ])
+      setRelationshipRequestsToYou(toYou || [])
+      setRelationshipRequestsByYou(byYou || [])
+      setAcceptedRelationships(accepted || [])
+    } catch (error) {
+      console.error('Failed to load relationship data:', error)
+    } finally {
+      setRelationshipsLoading(false)
     }
   }
 
@@ -254,6 +280,49 @@ export default function NotificationSettings() {
     }
   }
 
+  // --- Relationship Handlers ---
+
+  async function handleAcceptRelationship(relationshipId) {
+    setProcessingRelationship(relationshipId)
+    try {
+      const result = await apiService.acceptRelationship(relationshipId)
+      setRelationshipRequestsToYou(prev => prev.filter(r => r.id !== relationshipId))
+      setAcceptedRelationships(prev => [result, ...prev])
+      showToast('Relationship accepted!', 'success')
+    } catch (error) {
+      showToast(error.message || 'Failed to accept relationship', 'error')
+    } finally {
+      setProcessingRelationship(null)
+    }
+  }
+
+  async function handleRejectRelationship(relationshipId) {
+    setProcessingRelationship(relationshipId)
+    try {
+      await apiService.rejectRelationship(relationshipId)
+      setRelationshipRequestsToYou(prev => prev.filter(r => r.id !== relationshipId))
+      showToast('Relationship request declined', 'success')
+    } catch (error) {
+      showToast('Failed to decline relationship', 'error')
+    } finally {
+      setProcessingRelationship(null)
+    }
+  }
+
+  async function handleDeleteRelationship(relationshipId) {
+    setProcessingRelationship(relationshipId)
+    try {
+      await apiService.deleteRelationship(relationshipId)
+      setAcceptedRelationships(prev => prev.filter(r => r.id !== relationshipId))
+      setRelationshipRequestsByYou(prev => prev.filter(r => r.id !== relationshipId))
+      showToast('Relationship removed', 'success')
+    } catch (error) {
+      showToast('Failed to remove relationship', 'error')
+    } finally {
+      setProcessingRelationship(null)
+    }
+  }
+
   // --- Preferences Handlers ---
 
   async function handleToggle(key) {
@@ -314,6 +383,7 @@ export default function NotificationSettings() {
   const pendingTagsToYou = tagRequestsToYou.length
   const pendingClaimsToYou = profileClaimsToYou.filter(c => c.status === 'pending').length
   const totalPendingTags = pendingTagsToYou + pendingClaimsToYou
+  const pendingRelationshipsToYou = relationshipRequestsToYou.length
 
   if (loading) {
     return (
@@ -357,6 +427,15 @@ export default function NotificationSettings() {
             Tags
             {totalPendingTags > 0 && (
               <span className={styles.badge}>{totalPendingTags}</span>
+            )}
+          </button>
+          <button
+            className={`${styles.mainTab} ${activeTab === 'relationships' ? styles.activeMainTab : ''}`}
+            onClick={() => setActiveTab('relationships')}
+          >
+            Relationships
+            {pendingRelationshipsToYou > 0 && (
+              <span className={styles.badge}>{pendingRelationshipsToYou}</span>
             )}
           </button>
         </div>
@@ -728,6 +807,168 @@ export default function NotificationSettings() {
                   onClose={() => setShowCreateTagModal(false)}
                   onCreated={handleTagProfileCreated}
                 />
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ============ RELATIONSHIPS TAB ============ */}
+        {activeTab === 'relationships' && (
+          <div className={styles.requestsSection}>
+            {relationshipsLoading ? (
+              <div className={styles.loading}>Loading...</div>
+            ) : (
+              <>
+                {/* Relationship Requests TO You */}
+                <div className={styles.subsection}>
+                  <h2 className={styles.subsectionTitle}>Requests to You</h2>
+                  <p className={styles.sectionDescription}>
+                    People who want to establish a verified relationship with you
+                  </p>
+
+                  {relationshipRequestsToYou.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <span className={styles.emptyIcon}>👨‍👩‍👧‍👦</span>
+                      <p>No pending relationship requests</p>
+                    </div>
+                  ) : (
+                    <div className={styles.requestsList}>
+                      {relationshipRequestsToYou.map(request => (
+                        <div key={request.id} className={styles.requestItem}>
+                          <Link to={`/profile/${request.other_user_username}`} className={styles.requestInfo}>
+                            {request.other_user_avatar_url ? (
+                              <img src={request.other_user_avatar_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {request.other_user_username?.[0]?.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>{request.other_user_display_name || request.other_user_username}</strong>
+                              <p>
+                                Wants to be your <strong>{request.relationship_to_you}</strong>
+                                {' '}(and you their {request.relationship_to_them})
+                              </p>
+                            </div>
+                          </Link>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.acceptButton}
+                              onClick={() => handleAcceptRelationship(request.id)}
+                              disabled={processingRelationship === request.id}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => handleRejectRelationship(request.id)}
+                              disabled={processingRelationship === request.id}
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Relationship Requests BY You */}
+                <div className={styles.subsection}>
+                  <h2 className={styles.subsectionTitle}>Requests by You</h2>
+                  <p className={styles.sectionDescription}>
+                    Relationship requests you've sent that are awaiting approval
+                  </p>
+
+                  {relationshipRequestsByYou.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <span className={styles.emptyIcon}>📤</span>
+                      <p>No pending requests sent</p>
+                    </div>
+                  ) : (
+                    <div className={styles.requestsList}>
+                      {relationshipRequestsByYou.map(request => (
+                        <div key={request.id} className={styles.requestItem}>
+                          <Link to={`/profile/${request.other_user_username}`} className={styles.requestInfo}>
+                            {request.other_user_avatar_url ? (
+                              <img src={request.other_user_avatar_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {request.other_user_username?.[0]?.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>{request.other_user_display_name || request.other_user_username}</strong>
+                              <p>
+                                Proposed: They are your <strong>{request.relationship_to_you}</strong>
+                              </p>
+                            </div>
+                          </Link>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => handleDeleteRelationship(request.id)}
+                              disabled={processingRelationship === request.id}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Verified Relationships */}
+                <div className={styles.subsection}>
+                  <h2 className={styles.subsectionTitle}>Verified Relationships</h2>
+                  <p className={styles.sectionDescription}>
+                    Your verified family and friend connections
+                  </p>
+
+                  {acceptedRelationships.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <span className={styles.emptyIcon}>🌳</span>
+                      <p>No verified relationships yet</p>
+                      <p className={styles.emptySubtext}>
+                        Follow someone and have them follow you back to propose a relationship
+                      </p>
+                    </div>
+                  ) : (
+                    <div className={styles.requestsList}>
+                      {acceptedRelationships.map(relationship => (
+                        <div key={relationship.id} className={styles.requestItem}>
+                          <Link to={`/profile/${relationship.other_user_username}`} className={styles.requestInfo}>
+                            {relationship.other_user_avatar_url ? (
+                              <img src={relationship.other_user_avatar_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {relationship.other_user_username?.[0]?.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>{relationship.other_user_display_name || relationship.other_user_username}</strong>
+                              <p>Your <strong>{relationship.relationship_to_you}</strong></p>
+                            </div>
+                          </Link>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => {
+                                if (window.confirm(`Remove ${relationship.other_user_display_name || relationship.other_user_username} as your ${relationship.relationship_to_you}?`)) {
+                                  handleDeleteRelationship(relationship.id)
+                                }
+                              }}
+                              disabled={processingRelationship === relationship.id}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>

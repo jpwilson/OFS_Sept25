@@ -506,6 +506,12 @@ input:disabled + .slider {
   margin-bottom: 12px;
 }
 
+.emptySubtext {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
 .requestsList {
   display: flex;
   flex-direction: column;
