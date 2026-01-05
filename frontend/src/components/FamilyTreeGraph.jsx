@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createChart } from 'family-chart'
+import * as d3 from 'd3'
 import 'family-chart/styles/family-chart.css'
 import styles from './FamilyTreeGraph.module.css'
 
@@ -102,12 +103,48 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
 
       chartRef.current = chart
 
-      // Refit after a short delay to ensure SVG is properly sized
+      // Manually center the content using D3 after a delay
       setTimeout(() => {
-        if (chartRef.current) {
-          chartRef.current.updateTree({ tree_position: 'fit' })
+        try {
+          const svg = containerRef.current?.querySelector('svg')
+          if (!svg) return
+
+          // Get the view group that contains the tree
+          const viewGroup = svg.querySelector('.view')
+          if (!viewGroup) return
+
+          // Get the bounds of the tree content
+          const bbox = viewGroup.getBBox()
+          console.log('Tree bbox:', bbox)
+
+          // Calculate the center transform
+          const containerWidth = dimensions.width
+          const containerHeight = dimensions.height
+
+          // Calculate scale to fit with some padding
+          const padding = 50
+          const scaleX = (containerWidth - padding * 2) / bbox.width
+          const scaleY = (containerHeight - padding * 2) / bbox.height
+          const scale = Math.min(scaleX, scaleY, 1.5) // Cap at 1.5x zoom
+
+          // Calculate translation to center
+          const translateX = (containerWidth / 2) - (bbox.x + bbox.width / 2) * scale
+          const translateY = (containerHeight / 2) - (bbox.y + bbox.height / 2) * scale
+
+          console.log('Transform:', { scale, translateX, translateY })
+
+          // Apply the transform using D3 zoom
+          const svgSelection = d3.select(svg)
+          const zoom = d3.zoom().on('zoom', (event) => {
+            d3.select(viewGroup).attr('transform', event.transform)
+          })
+
+          svgSelection.call(zoom)
+          svgSelection.call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale))
+        } catch (err) {
+          console.error('Error centering chart:', err)
         }
-      }, 200)
+      }, 300)
     } catch (error) {
       console.error('Error creating family chart:', error)
     }
