@@ -3,8 +3,9 @@
  */
 
 // Infer gender from relationship type
+// Gender is required by family-chart - defaults to 'M' if can't determine
 function inferGender(relationshipType) {
-  if (!relationshipType) return ''
+  if (!relationshipType) return 'M'
   const rel = relationshipType.toLowerCase()
 
   // Female indicators
@@ -19,7 +20,8 @@ function inferGender(relationshipType) {
     return 'M'
   }
 
-  return ''
+  // Default to M if can't determine
+  return 'M'
 }
 
 // Link two people based on relationship type
@@ -83,18 +85,16 @@ function linkRelationship(people, userId, otherId, relType) {
       other.rels.parents.push(user.id)
     }
   }
-  // Siblings - need special handling (share parents)
+  // Siblings - in family-chart, siblings share parents
+  // Without shared parent data, we'll show them as children of the user for visibility
   else if (['sister', 'brother', 'sibling', 'half-sister', 'half-brother',
             'stepsister', 'stepbrother'].some(t => rel.includes(t))) {
-    // For siblings, we can't directly link in family-chart without shared parents
-    // Store as metadata for now - we'll handle display separately
-    if (!user.rels.siblings) user.rels.siblings = []
-    if (!other.rels.siblings) other.rels.siblings = []
-    if (!user.rels.siblings.includes(other.id)) {
-      user.rels.siblings.push(other.id)
+    // Show siblings at same level by treating them as children (workaround)
+    if (!user.rels.children.includes(other.id)) {
+      user.rels.children.push(other.id)
     }
-    if (!other.rels.siblings.includes(user.id)) {
-      other.rels.siblings.push(user.id)
+    if (!other.rels.parents.includes(user.id)) {
+      other.rels.parents.push(user.id)
     }
   }
   // In-laws - approximate as extended family
@@ -105,10 +105,12 @@ function linkRelationship(people, userId, otherId, relType) {
     }
   }
   else if (['sister-in-law', 'brother-in-law'].some(t => rel.includes(t))) {
-    // Siblings of spouse - store as siblings
-    if (!user.rels.siblings) user.rels.siblings = []
-    if (!user.rels.siblings.includes(other.id)) {
-      user.rels.siblings.push(other.id)
+    // Siblings of spouse - show as children for visibility
+    if (!user.rels.children.includes(other.id)) {
+      user.rels.children.push(other.id)
+    }
+    if (!other.rels.parents.includes(user.id)) {
+      other.rels.parents.push(user.id)
     }
   }
   else if (['daughter-in-law', 'son-in-law'].some(t => rel.includes(t))) {
@@ -154,16 +156,19 @@ export function transformToFamilyChart(currentUser, relationships, tagProfiles) 
   const people = new Map()
 
   // 1. Add current user as center/main node
+  // Gender is required by family-chart - default to 'M' if not specified
+  const userGender = currentUser.gender === 'F' || currentUser.gender === 'female' ? 'F' : 'M'
+
   people.set(`user-${currentUser.id}`, {
     id: `user-${currentUser.id}`,
     data: {
       'first name': currentUser.full_name || currentUser.display_name || currentUser.username,
       'last name': '',
-      'gender': currentUser.gender || '',
+      'gender': userGender,
       'avatar': currentUser.avatar_url || '',
       'isCurrentUser': true
     },
-    rels: { spouses: [], children: [], parents: [], siblings: [] }
+    rels: { spouses: [], children: [], parents: [] }
   })
 
   // 2. Add verified user relationships
@@ -188,7 +193,7 @@ export function transformToFamilyChart(currentUser, relationships, tagProfiles) 
             'verified': true,
             'relationship': relationshipType
           },
-          rels: { spouses: [], children: [], parents: [], siblings: [] }
+          rels: { spouses: [], children: [], parents: [] }
         })
       }
 
@@ -217,7 +222,7 @@ export function transformToFamilyChart(currentUser, relationships, tagProfiles) 
             'isTag': true,
             'relationship': relationshipType
           },
-          rels: { spouses: [], children: [], parents: [], siblings: [] }
+          rels: { spouses: [], children: [], parents: [] }
         })
       }
 

@@ -18,36 +18,46 @@
 }
 
 /* Force family-chart SVG to fill container */
-.chart :global(.f3) {
+.chart :global(#f3Canvas) {
   width: 100% !important;
   height: 100% !important;
   display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 
-.chart :global(.f3 > svg) {
+.chart :global(#f3Canvas > svg),
+.chart :global(svg.main_svg) {
   width: 100% !important;
   height: 100% !important;
   display: block !important;
 }
 
 /* Style the cards for dark theme */
-.chart :global(.f3 .card rect) {
+.chart :global(.card .card-body-rect) {
   fill: #1a1a2e !important;
   stroke: #3a3a5a !important;
   rx: 8 !important;
   ry: 8 !important;
 }
 
-.chart :global(.f3 .card text) {
+.chart :global(.card .card-outline) {
+  fill: transparent !important;
+  stroke: #3a3a5a !important;
+}
+
+.chart :global(.card text) {
   fill: #ffffff !important;
 }
 
-.chart :global(.f3 .card.main rect) {
+.chart :global(.card.main .card-body-rect),
+.chart :global(.card .card-main-outline) {
   fill: #2d5a27 !important;
   stroke: #4a7c44 !important;
 }
 
-.chart :global(.f3 .link) {
+.chart :global(.link) {
   stroke: #666 !important;
 }
 
