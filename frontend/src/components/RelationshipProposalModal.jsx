@@ -32,6 +32,8 @@ const RELATIONSHIP_TYPES = [
   { value: 'stepdaughter', label: 'Stepdaughter' },
   { value: 'stepson', label: 'Stepson' },
   { value: 'friend', label: 'Friend' },
+  { value: 'pet', label: 'Pet' },
+  { value: 'pet owner', label: 'Pet Owner' },
 ]
 
 export default function RelationshipProposalModal({

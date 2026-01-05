@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import api from '../services/api'
 import FeedView from '../components/FeedView'
 import styles from './TagProfilePage.module.css'
+
+const RELATIONSHIP_OPTIONS = [
+  'wife', 'husband', 'daughter', 'son', 'mother', 'father',
+  'sister', 'brother', 'grandmother', 'grandfather',
+  'granddaughter', 'grandson', 'aunt', 'uncle', 'niece', 'nephew',
+  'cousin', 'mother-in-law', 'father-in-law', 'daughter-in-law',
+  'son-in-law', 'sister-in-law', 'brother-in-law',
+  'stepmother', 'stepfather', 'stepdaughter', 'stepson',
+  'friend', 'pet', 'other'
+]
 
 function TagProfilePage() {
   const { profileId } = useParams()
@@ -18,6 +28,15 @@ function TagProfilePage() {
   const [claimMessage, setClaimMessage] = useState('')
   const [claimSubmitting, setClaimSubmitting] = useState(false)
   const [existingClaim, setExistingClaim] = useState(null)
+
+  // Edit state
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [editRelationship, setEditRelationship] = useState('')
+  const [editPhotoUrl, setEditPhotoUrl] = useState('')
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     loadProfile()
@@ -74,6 +93,48 @@ function TagProfilePage() {
       showToast(err.message || 'Failed to submit claim', 'error')
     } finally {
       setClaimSubmitting(false)
+    }
+  }
+
+  function openEditModal() {
+    setEditName(profile.name || '')
+    setEditRelationship(profile.relationship_to_creator || '')
+    setEditPhotoUrl(profile.photo_url || '')
+    setShowEditModal(true)
+  }
+
+  async function handlePhotoUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingPhoto(true)
+    try {
+      const url = await api.uploadImage(file)
+      setEditPhotoUrl(url)
+      showToast('Photo uploaded', 'success')
+    } catch (err) {
+      showToast('Failed to upload photo', 'error')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  async function handleSaveEdit() {
+    if (editSubmitting) return
+    setEditSubmitting(true)
+    try {
+      const updated = await api.updateTagProfile(profileId, {
+        name: editName,
+        relationship_to_creator: editRelationship || null,
+        photo_url: editPhotoUrl || null
+      })
+      setProfile(updated)
+      setShowEditModal(false)
+      showToast('Profile updated', 'success')
+    } catch (err) {
+      showToast(err.message || 'Failed to update profile', 'error')
+    } finally {
+      setEditSubmitting(false)
     }
   }
 
@@ -165,9 +226,14 @@ function TagProfilePage() {
           </p>
 
           {isOwner && (
-            <p className={styles.ownerNote}>
-              You created this tag profile
-            </p>
+            <div className={styles.ownerSection}>
+              <p className={styles.ownerNote}>
+                You created this tag profile
+              </p>
+              <button className={styles.editButton} onClick={openEditModal}>
+                Edit Profile
+              </button>
+            </div>
           )}
 
           {/* Claim button for logged-in users who aren't the owner */}
@@ -239,6 +305,83 @@ function TagProfilePage() {
                 disabled={claimSubmitting}
               >
                 {claimSubmitting ? 'Sending...' : 'Send Claim Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Edit Tag Profile</h2>
+
+            <div className={styles.editPhotoSection}>
+              <div className={styles.editPhotoPreview}>
+                {editPhotoUrl ? (
+                  <img src={editPhotoUrl} alt="Preview" className={styles.editPhoto} />
+                ) : (
+                  <div className={styles.editPhotoPlaceholder}>#</div>
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handlePhotoUpload}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+              <button
+                type="button"
+                className={styles.uploadButton}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingPhoto}
+              >
+                {uploadingPhoto ? 'Uploading...' : 'Change Photo'}
+              </button>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Name</label>
+              <input
+                type="text"
+                className={styles.input}
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                placeholder="Enter name"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Relationship to you</label>
+              <select
+                className={styles.select}
+                value={editRelationship}
+                onChange={e => setEditRelationship(e.target.value)}
+              >
+                <option value="">Select relationship</option>
+                {RELATIONSHIP_OPTIONS.map(rel => (
+                  <option key={rel} value={rel}>
+                    {rel.charAt(0).toUpperCase() + rel.slice(1).replace(/-/g, ' ')}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleSaveEdit}
+                disabled={editSubmitting || !editName.trim()}
+              >
+                {editSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

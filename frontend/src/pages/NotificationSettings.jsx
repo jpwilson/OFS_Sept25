@@ -835,19 +835,19 @@ export default function NotificationSettings() {
                     <div className={styles.requestsList}>
                       {relationshipRequestsToYou.map(request => (
                         <div key={request.id} className={styles.requestItem}>
-                          <Link to={`/profile/${request.other_user_username}`} className={styles.requestInfo}>
-                            {request.other_user_avatar_url ? (
-                              <img src={request.other_user_avatar_url} alt="" className={styles.requestAvatar} />
+                          <Link to={`/profile/${request.proposer_username}`} className={styles.requestInfo}>
+                            {request.proposer_avatar_url ? (
+                              <img src={request.proposer_avatar_url} alt="" className={styles.requestAvatar} />
                             ) : (
                               <div className={styles.requestAvatarPlaceholder}>
-                                {request.other_user_username?.[0]?.toUpperCase() || '?'}
+                                {request.proposer_username?.[0]?.toUpperCase() || '?'}
                               </div>
                             )}
                             <div className={styles.requestDetails}>
-                              <strong>{request.other_user_display_name || request.other_user_username}</strong>
+                              <strong>{request.proposer_display_name || request.proposer_username}</strong>
                               <p>
-                                Wants to be your <strong>{request.relationship_to_you}</strong>
-                                {' '}(and you their {request.relationship_to_them})
+                                Wants to be your <strong>{request.they_call_me}</strong>
+                                {' '}(and you their {request.i_would_call_them})
                               </p>
                             </div>
                           </Link>
@@ -889,18 +889,18 @@ export default function NotificationSettings() {
                     <div className={styles.requestsList}>
                       {relationshipRequestsByYou.map(request => (
                         <div key={request.id} className={styles.requestItem}>
-                          <Link to={`/profile/${request.other_user_username}`} className={styles.requestInfo}>
-                            {request.other_user_avatar_url ? (
-                              <img src={request.other_user_avatar_url} alt="" className={styles.requestAvatar} />
+                          <Link to={`/profile/${request.recipient_username}`} className={styles.requestInfo}>
+                            {request.recipient_avatar_url ? (
+                              <img src={request.recipient_avatar_url} alt="" className={styles.requestAvatar} />
                             ) : (
                               <div className={styles.requestAvatarPlaceholder}>
-                                {request.other_user_username?.[0]?.toUpperCase() || '?'}
+                                {request.recipient_username?.[0]?.toUpperCase() || '?'}
                               </div>
                             )}
                             <div className={styles.requestDetails}>
-                              <strong>{request.other_user_display_name || request.other_user_username}</strong>
+                              <strong>{request.recipient_display_name || request.recipient_username}</strong>
                               <p>
-                                Proposed: They are your <strong>{request.relationship_to_you}</strong>
+                                Proposed: They are your <strong>{request.i_call_them}</strong>
                               </p>
                             </div>
                           </Link>

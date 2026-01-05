@@ -20,6 +20,7 @@ RELATIONSHIP_TYPES = [
     "stepmother", "stepfather",
     "stepdaughter", "stepson",
     "friend",
+    "pet", "pet owner",
 ]
 
 

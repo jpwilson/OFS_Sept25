@@ -14,7 +14,8 @@ const RELATIONSHIP_GROUPS = {
   'Grandchildren': ['granddaughter', 'grandson', 'grandchild'],
   'Extended Family': ['aunt', 'uncle', 'niece', 'nephew', 'cousin'],
   'In-Laws': ['mother-in-law', 'father-in-law', 'sister-in-law', 'brother-in-law', 'daughter-in-law', 'son-in-law'],
-  'Friends': ['friend', 'best friend', 'close friend']
+  'Friends': ['friend', 'best friend', 'close friend'],
+  'Pets': ['pet', 'pet owner', 'dog', 'cat']
 }
 
 function getGroupForRelationship(relationship) {
