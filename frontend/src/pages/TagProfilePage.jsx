@@ -13,7 +13,7 @@ const RELATIONSHIP_OPTIONS = [
   'cousin', 'mother-in-law', 'father-in-law', 'daughter-in-law',
   'son-in-law', 'sister-in-law', 'brother-in-law',
   'stepmother', 'stepfather', 'stepdaughter', 'stepson',
-  'friend', 'pet', 'other'
+  'friend', 'pet', 'pet owner', 'other'
 ]
 
 function TagProfilePage() {
@@ -38,11 +38,26 @@ function TagProfilePage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const fileInputRef = useRef(null)
 
+  // Add relationship state (for owner)
+  const [showAddRelModal, setShowAddRelModal] = useState(false)
+  const [addRelUserId, setAddRelUserId] = useState('')
+  const [addRelType, setAddRelType] = useState('')
+  const [addRelSubmitting, setAddRelSubmitting] = useState(false)
+  const [followingUsers, setFollowingUsers] = useState([])
+
+  // Request relationship state (for non-owners)
+  const [showRequestRelModal, setShowRequestRelModal] = useState(false)
+  const [requestRelType, setRequestRelType] = useState('')
+  const [requestRelMessage, setRequestRelMessage] = useState('')
+  const [requestRelSubmitting, setRequestRelSubmitting] = useState(false)
+  const [existingRelRequest, setExistingRelRequest] = useState(null)
+
   useEffect(() => {
     loadProfile()
     loadEvents()
     if (user) {
       checkExistingClaim()
+      checkExistingRelRequest()
     }
   }, [profileId, user])
 
@@ -78,6 +93,80 @@ function TagProfilePage() {
     } catch (err) {
       console.error('Failed to check existing claims:', err)
     }
+  }
+
+  async function checkExistingRelRequest() {
+    try {
+      const requests = await api.getSentTagProfileRelationshipRequests()
+      const myRequest = requests.find(r => r.tag_profile_id === parseInt(profileId) && r.status === 'pending')
+      setExistingRelRequest(myRequest || null)
+    } catch (err) {
+      console.error('Failed to check existing relationship requests:', err)
+    }
+  }
+
+  async function loadFollowingUsers() {
+    try {
+      const following = await api.getFollowing(user.id)
+      setFollowingUsers(following)
+    } catch (err) {
+      console.error('Failed to load following users:', err)
+    }
+  }
+
+  async function handleAddRelationship() {
+    if (addRelSubmitting || !addRelUserId || !addRelType) return
+    setAddRelSubmitting(true)
+    try {
+      const result = await api.addTagProfileRelationship(profileId, parseInt(addRelUserId), addRelType)
+      await loadProfile()
+      setShowAddRelModal(false)
+      setAddRelUserId('')
+      setAddRelType('')
+      // Check if it was a direct add (id > 0) or a request (id = 0, pending approval)
+      if (result.id === 0 || result.relationship_type?.includes('pending')) {
+        showToast('Relationship request sent for approval!', 'success')
+      } else {
+        showToast('Relationship added!', 'success')
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to add relationship', 'error')
+    } finally {
+      setAddRelSubmitting(false)
+    }
+  }
+
+  async function handleRemoveRelationship(relationshipId) {
+    if (!window.confirm('Remove this relationship?')) return
+    try {
+      await api.removeTagProfileRelationship(profileId, relationshipId)
+      await loadProfile()
+      showToast('Relationship removed', 'success')
+    } catch (err) {
+      showToast(err.message || 'Failed to remove relationship', 'error')
+    }
+  }
+
+  async function handleRequestRelationship() {
+    if (requestRelSubmitting || !requestRelType) return
+    setRequestRelSubmitting(true)
+    try {
+      const request = await api.requestTagProfileRelationship(profileId, requestRelType, requestRelMessage || null)
+      setExistingRelRequest(request)
+      setShowRequestRelModal(false)
+      setRequestRelType('')
+      setRequestRelMessage('')
+      showToast('Relationship request sent!', 'success')
+    } catch (err) {
+      showToast(err.message || 'Failed to send request', 'error')
+    } finally {
+      setRequestRelSubmitting(false)
+    }
+  }
+
+  function openAddRelModal() {
+    loadFollowingUsers()
+    setShowAddRelModal(true)
   }
 
   async function handleSubmitClaim() {
@@ -160,6 +249,11 @@ function TagProfilePage() {
 
   const isOwner = user && user.id === profile.created_by_id
 
+  // Can this user request to add a relationship to this tag profile?
+  // They can if: logged in, not the owner, profile not merged, and don't already have a relationship
+  const hasExistingRelationship = profile.relationships?.some(r => r.user_id === user?.id) || false
+  const canRequestRelationship = user && !isOwner && !profile.is_merged && !hasExistingRelationship
+
   // Check if user's name matches the tag profile name (first and last name)
   // This determines if they should see the "This is me" button
   const checkNameMatch = () => {
@@ -212,7 +306,32 @@ function TagProfilePage() {
         <div className={styles.info}>
           <h1 className={styles.name}>{profile.name}</h1>
 
-          {profile.relationship_to_creator && profile.created_by_username && (
+          {/* Display all relationships */}
+          {profile.relationships && profile.relationships.length > 0 && (
+            <div className={styles.relationshipsSection}>
+              {profile.relationships.map(rel => (
+                <div key={rel.id} className={styles.relationshipItem}>
+                  <Link to={`/profile/${rel.username}`}>
+                    {rel.display_name || rel.username}
+                  </Link>
+                  's {rel.relationship_type}
+                  {isOwner && (
+                    <button
+                      className={styles.removeRelButton}
+                      onClick={() => handleRemoveRelationship(rel.id)}
+                      title="Remove relationship"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Legacy fallback for relationship_to_creator if no relationships array */}
+          {(!profile.relationships || profile.relationships.length === 0) &&
+           profile.relationship_to_creator && profile.created_by_username && (
             <p className={styles.relationship}>
               <Link to={`/profile/${profile.created_by_username}`}>
                 {profile.created_by_display_name || profile.created_by_username}
@@ -230,9 +349,43 @@ function TagProfilePage() {
               <p className={styles.ownerNote}>
                 You created this tag profile
               </p>
-              <button className={styles.editButton} onClick={openEditModal}>
-                Edit Profile
-              </button>
+              <div className={styles.ownerActions}>
+                <button className={styles.editButton} onClick={openEditModal}>
+                  Edit Profile
+                </button>
+                <button className={styles.addRelButton} onClick={openAddRelModal}>
+                  Add Relationship
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Request relationship button for non-owners who don't already have a relationship */}
+          {canRequestRelationship && (
+            <div className={styles.requestRelSection}>
+              {existingRelRequest ? (
+                <div className={styles.requestStatus}>
+                  <span className={`${styles.requestBadge} ${styles.pending}`}>
+                    Relationship request pending
+                  </span>
+                </div>
+              ) : (
+                <button
+                  className={styles.requestRelButton}
+                  onClick={() => setShowRequestRelModal(true)}
+                >
+                  Add My Relationship
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Show current user's relationship if they have one */}
+          {hasExistingRelationship && !isOwner && (
+            <div className={styles.myRelSection}>
+              <span className={styles.myRelBadge}>
+                Your {profile.relationships?.find(r => r.user_id === user?.id)?.relationship_type}
+              </span>
             </div>
           )}
 
@@ -382,6 +535,130 @@ function TagProfilePage() {
                 disabled={editSubmitting || !editName.trim()}
               >
                 {editSubmitting ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Relationship Modal (for owner) */}
+      {showAddRelModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowAddRelModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Add Relationship</h2>
+            <p className={styles.modalDescription}>
+              Add a relationship between {profile.name} and another person.
+            </p>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Person</label>
+              <select
+                className={styles.select}
+                value={addRelUserId}
+                onChange={e => setAddRelUserId(e.target.value)}
+              >
+                <option value="">Select a person</option>
+                {followingUsers
+                  .filter(u => !profile.relationships?.some(r => r.user_id === u.id))
+                  .map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.display_name || u.full_name || u.username}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Relationship</label>
+              <select
+                className={styles.select}
+                value={addRelType}
+                onChange={e => setAddRelType(e.target.value)}
+              >
+                <option value="">Select relationship</option>
+                {RELATIONSHIP_OPTIONS.map(rel => (
+                  <option key={rel} value={rel}>
+                    {rel.charAt(0).toUpperCase() + rel.slice(1).replace(/-/g, ' ')}
+                  </option>
+                ))}
+              </select>
+              <p className={styles.fieldHint}>
+                "{profile.name} is [person]'s {addRelType || '...'}"
+              </p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowAddRelModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleAddRelationship}
+                disabled={addRelSubmitting || !addRelUserId || !addRelType}
+              >
+                {addRelSubmitting ? 'Adding...' : 'Add Relationship'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Request Relationship Modal (for non-owners) */}
+      {showRequestRelModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowRequestRelModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Request Relationship</h2>
+            <p className={styles.modalDescription}>
+              Request to add your relationship to {profile.name}.
+              The profile creator will need to approve this.
+            </p>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Your relationship to {profile.name}</label>
+              <select
+                className={styles.select}
+                value={requestRelType}
+                onChange={e => setRequestRelType(e.target.value)}
+              >
+                <option value="">Select relationship</option>
+                {RELATIONSHIP_OPTIONS.map(rel => (
+                  <option key={rel} value={rel}>
+                    {rel.charAt(0).toUpperCase() + rel.slice(1).replace(/-/g, ' ')}
+                  </option>
+                ))}
+              </select>
+              <p className={styles.fieldHint}>
+                "{profile.name} is my {requestRelType || '...'}"
+              </p>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Message (optional)</label>
+              <textarea
+                className={styles.textarea}
+                placeholder="Add a note to the profile creator..."
+                value={requestRelMessage}
+                onChange={e => setRequestRelMessage(e.target.value)}
+                rows={2}
+              />
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowRequestRelModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleRequestRelationship}
+                disabled={requestRelSubmitting || !requestRelType}
+              >
+                {requestRelSubmitting ? 'Sending...' : 'Send Request'}
               </button>
             </div>
           </div>

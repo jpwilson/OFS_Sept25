@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, List
 
 
 class TagProfileBase(BaseModel):
@@ -21,6 +21,27 @@ class TagProfileUpdate(BaseModel):
     birth_date: Optional[date] = None
 
 
+# Tag Profile Relationship schemas
+class TagProfileRelationshipCreate(BaseModel):
+    """Request to add a relationship to a tag profile."""
+    user_id: int
+    relationship_type: str
+
+
+class TagProfileRelationshipResponse(BaseModel):
+    """A single relationship for a tag profile."""
+    id: int
+    user_id: int
+    username: str
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    relationship_type: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class TagProfileResponse(TagProfileBase):
     id: int
     created_by_id: int
@@ -29,6 +50,7 @@ class TagProfileResponse(TagProfileBase):
     is_merged: bool = False
     merged_user_id: Optional[int] = None
     created_at: datetime
+    relationships: List[TagProfileRelationshipResponse] = []
 
     class Config:
         from_attributes = True
@@ -85,6 +107,50 @@ class TagProfileClaimSentResponse(BaseModel):
     profile_creator_id: int
     profile_creator_username: str
     profile_creator_display_name: Optional[str] = None
+    message: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Tag Profile Relationship Request schemas (for non-creators proposing relationships)
+class TagProfileRelationshipRequestCreate(BaseModel):
+    """Request to add a relationship between a tag profile and the proposer."""
+    relationship_type: str
+    message: Optional[str] = None
+
+
+class TagProfileRelationshipRequestResponse(BaseModel):
+    """Relationship request from the creator's perspective (received requests)."""
+    id: int
+    tag_profile_id: int
+    tag_profile_name: str
+    tag_profile_photo_url: Optional[str] = None
+    proposer_id: int
+    proposer_username: str
+    proposer_display_name: Optional[str] = None
+    proposer_avatar_url: Optional[str] = None
+    relationship_type: str
+    message: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TagProfileRelationshipRequestSentResponse(BaseModel):
+    """Relationship request from the proposer's perspective (sent requests)."""
+    id: int
+    tag_profile_id: int
+    tag_profile_name: str
+    tag_profile_photo_url: Optional[str] = None
+    profile_creator_id: int
+    profile_creator_username: str
+    profile_creator_display_name: Optional[str] = None
+    relationship_type: str
     message: Optional[str] = None
     status: str
     created_at: datetime

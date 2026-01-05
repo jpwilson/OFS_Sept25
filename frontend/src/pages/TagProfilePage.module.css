@@ -399,6 +399,129 @@
   border-color: var(--accent, #2d5a27);
 }
 
+/* Multiple Relationships Section */
+.relationshipsSection {
+  margin: 8px 0;
+}
+
+.relationshipItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 8px 6px 0;
+  padding: 4px 10px;
+  background: var(--bg-secondary, #f5f5f5);
+  border-radius: 16px;
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+}
+
+.relationshipItem a {
+  color: var(--accent, #2d5a27);
+  text-decoration: none;
+}
+
+.relationshipItem a:hover {
+  text-decoration: underline;
+}
+
+.removeRelButton {
+  background: none;
+  border: none;
+  color: var(--text-tertiary, #999);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+.removeRelButton:hover {
+  color: #c62828;
+}
+
+/* Owner Actions */
+.ownerActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.addRelButton {
+  padding: 8px 16px;
+  background: var(--bg-secondary, #f0f0f0);
+  color: var(--text-primary, #333);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.addRelButton:hover {
+  background: var(--bg-tertiary, #e0e0e0);
+}
+
+/* Request Relationship Section */
+.requestRelSection {
+  margin-top: 12px;
+}
+
+.requestRelButton {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.requestRelButton:hover {
+  opacity: 0.9;
+}
+
+.requestStatus {
+  display: inline-block;
+}
+
+.requestBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.requestBadge.pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* My Relationship Section */
+.myRelSection {
+  margin-top: 8px;
+}
+
+.myRelBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Field Hint */
+.fieldHint {
+  margin: 6px 0 0 0;
+  font-size: 12px;
+  color: var(--text-tertiary, #999);
+  font-style: italic;
+}
+
 @media (max-width: 600px) {
   .header {
     flex-direction: column;
@@ -424,5 +547,9 @@
   .cancelButton,
   .submitButton {
     width: 100%;
+  }
+
+  .ownerActions {
+    justify-content: center;
   }
 }

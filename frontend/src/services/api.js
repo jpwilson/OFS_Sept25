@@ -1938,6 +1938,144 @@ class ApiService {
   }
 
   // ========================================
+  // TAG PROFILE RELATIONSHIPS (multiple relationships per tag profile)
+  // ========================================
+
+  async getTagProfileRelationships(profileId) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/relationships`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch tag profile relationships')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile relationships:', error)
+      return []
+    }
+  }
+
+  async addTagProfileRelationship(profileId, userId, relationshipType) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/relationships`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ user_id: userId, relationship_type: relationshipType })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to add relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error adding tag profile relationship:', error)
+      throw error
+    }
+  }
+
+  async removeTagProfileRelationship(profileId, relationshipId) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/relationships/${relationshipId}`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to remove relationship')
+      return await response.json()
+    } catch (error) {
+      console.error('Error removing tag profile relationship:', error)
+      throw error
+    }
+  }
+
+  // ========================================
+  // TAG PROFILE RELATIONSHIP REQUESTS (non-creators proposing relationships)
+  // ========================================
+
+  async requestTagProfileRelationship(profileId, relationshipType, message = null) {
+    try {
+      const response = await fetch(`${API_BASE}/tag-profiles/${profileId}/relationship-requests`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ relationship_type: relationshipType, message })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to request relationship')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error requesting tag profile relationship:', error)
+      throw error
+    }
+  }
+
+  async getTagProfileRelationshipRequestsToMe() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-relationship-requests`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch relationship requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching tag profile relationship requests:', error)
+      return []
+    }
+  }
+
+  async getTagProfileRelationshipRequestCount() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-relationship-requests/count`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) return { count: 0 }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching relationship request count:', error)
+      return { count: 0 }
+    }
+  }
+
+  async getSentTagProfileRelationshipRequests() {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-relationship-requests/sent`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch sent relationship requests')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching sent relationship requests:', error)
+      return []
+    }
+  }
+
+  async approveTagProfileRelationshipRequest(requestId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-relationship-requests/${requestId}/approve`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to approve relationship request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error approving relationship request:', error)
+      throw error
+    }
+  }
+
+  async rejectTagProfileRelationshipRequest(requestId) {
+    try {
+      const response = await fetch(`${API_BASE}/me/tag-profile-relationship-requests/${requestId}/reject`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to reject relationship request')
+      return await response.json()
+    } catch (error) {
+      console.error('Error rejecting relationship request:', error)
+      throw error
+    }
+  }
+
+  // ========================================
   // BILLING & PAYMENT HISTORY
   // ========================================
 

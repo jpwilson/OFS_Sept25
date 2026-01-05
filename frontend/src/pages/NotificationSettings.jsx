@@ -47,6 +47,11 @@ export default function NotificationSettings() {
   const [profileClaimsByYou, setProfileClaimsByYou] = useState([])
   const [processingClaim, setProcessingClaim] = useState(null)
 
+  // Tag profile relationship request state
+  const [tagProfileRelReqsToYou, setTagProfileRelReqsToYou] = useState([])
+  const [tagProfileRelReqsByYou, setTagProfileRelReqsByYou] = useState([])
+  const [processingTagProfileRelReq, setProcessingTagProfileRelReq] = useState(null)
+
   // Relationship state
   const [relationshipRequestsToYou, setRelationshipRequestsToYou] = useState([])
   const [relationshipRequestsByYou, setRelationshipRequestsByYou] = useState([])
@@ -109,18 +114,22 @@ export default function NotificationSettings() {
   async function loadTagData() {
     setTagsLoading(true)
     try {
-      const [toYou, byYou, profiles, claimsToYou, claimsByYou] = await Promise.all([
+      const [toYou, byYou, profiles, claimsToYou, claimsByYou, tagRelReqsToYou, tagRelReqsByYou] = await Promise.all([
         apiService.getTagRequests(),
         apiService.getSentTagRequests(),
         apiService.getMyTagProfiles(),
         apiService.getTagProfileClaimsToMe(),
-        apiService.getSentTagProfileClaims()
+        apiService.getSentTagProfileClaims(),
+        apiService.getTagProfileRelationshipRequestsToMe(),
+        apiService.getSentTagProfileRelationshipRequests()
       ])
       setTagRequestsToYou(toYou || [])
       setTagRequestsByYou(byYou || [])
       setMyTagProfiles(profiles || [])
       setProfileClaimsToYou(claimsToYou || [])
       setProfileClaimsByYou(claimsByYou || [])
+      setTagProfileRelReqsToYou(tagRelReqsToYou || [])
+      setTagProfileRelReqsByYou(tagRelReqsByYou || [])
     } catch (error) {
       console.error('Failed to load tag data:', error)
     } finally {
@@ -277,6 +286,34 @@ export default function NotificationSettings() {
       showToast('Failed to reject claim', 'error')
     } finally {
       setProcessingClaim(null)
+    }
+  }
+
+  // --- Tag Profile Relationship Request Handlers ---
+
+  async function handleApproveTagProfileRelReq(requestId) {
+    setProcessingTagProfileRelReq(requestId)
+    try {
+      await apiService.approveTagProfileRelationshipRequest(requestId)
+      setTagProfileRelReqsToYou(prev => prev.filter(r => r.id !== requestId))
+      showToast('Relationship request approved!', 'success')
+    } catch (error) {
+      showToast('Failed to approve request', 'error')
+    } finally {
+      setProcessingTagProfileRelReq(null)
+    }
+  }
+
+  async function handleRejectTagProfileRelReq(requestId) {
+    setProcessingTagProfileRelReq(requestId)
+    try {
+      await apiService.rejectTagProfileRelationshipRequest(requestId)
+      setTagProfileRelReqsToYou(prev => prev.filter(r => r.id !== requestId))
+      showToast('Relationship request declined', 'success')
+    } catch (error) {
+      showToast('Failed to decline request', 'error')
+    } finally {
+      setProcessingTagProfileRelReq(null)
     }
   }
 
@@ -793,6 +830,105 @@ export default function NotificationSettings() {
                           <div className={styles.statusBadge}>
                             <span className={`${styles.status} ${styles[claim.status]}`}>
                               {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tag Profile Relationship Requests TO You */}
+                {tagProfileRelReqsToYou.length > 0 && (
+                  <div className={styles.subsection}>
+                    <h2 className={styles.subsectionTitle}>Tag Profile Relationship Requests</h2>
+                    <p className={styles.sectionDescription}>
+                      People requesting to add their relationship to tag profiles you created
+                    </p>
+
+                    <div className={styles.requestsList}>
+                      {tagProfileRelReqsToYou.map(req => (
+                        <div key={req.id} className={styles.requestItem}>
+                          <div className={styles.requestInfo}>
+                            {req.tag_profile_photo_url ? (
+                              <img src={req.tag_profile_photo_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {req.tag_profile_name?.[0]?.toUpperCase() || '#'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>
+                                <Link to={`/profile/${req.proposer_username}`}>
+                                  {req.proposer_display_name || req.proposer_username}
+                                </Link>
+                              </strong>
+                              <p>
+                                wants to add "{req.tag_profile_name}" as their <strong>{req.relationship_type}</strong>
+                              </p>
+                              {req.message && (
+                                <p className={styles.claimMessage}>"{req.message}"</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.requestActions}>
+                            <button
+                              className={styles.acceptButton}
+                              onClick={() => handleApproveTagProfileRelReq(req.id)}
+                              disabled={processingTagProfileRelReq === req.id}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className={styles.rejectButton}
+                              onClick={() => handleRejectTagProfileRelReq(req.id)}
+                              disabled={processingTagProfileRelReq === req.id}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tag Profile Relationship Requests BY You */}
+                {tagProfileRelReqsByYou.length > 0 && (
+                  <div className={styles.subsection}>
+                    <h2 className={styles.subsectionTitle}>Your Tag Profile Relationship Requests</h2>
+                    <p className={styles.sectionDescription}>
+                      Your requests to add relationships to tag profiles
+                    </p>
+
+                    <div className={styles.requestsList}>
+                      {tagProfileRelReqsByYou.map(req => (
+                        <div key={req.id} className={styles.requestItem}>
+                          <div className={styles.requestInfo}>
+                            {req.tag_profile_photo_url ? (
+                              <img src={req.tag_profile_photo_url} alt="" className={styles.requestAvatar} />
+                            ) : (
+                              <div className={styles.requestAvatarPlaceholder}>
+                                {req.tag_profile_name?.[0]?.toUpperCase() || '#'}
+                              </div>
+                            )}
+                            <div className={styles.requestDetails}>
+                              <strong>
+                                <Link to={`/tag-profile/${req.tag_profile_id}`}>
+                                  {req.tag_profile_name}
+                                </Link>
+                              </strong>
+                              <p>
+                                Your {req.relationship_type} · Created by{' '}
+                                <Link to={`/profile/${req.profile_creator_username}`}>
+                                  {req.profile_creator_display_name || req.profile_creator_username}
+                                </Link>
+                              </p>
+                            </div>
+                          </div>
+                          <div className={styles.statusBadge}>
+                            <span className={`${styles.status} ${styles[req.status]}`}>
+                              {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                             </span>
                           </div>
                         </div>

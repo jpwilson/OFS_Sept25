@@ -8,6 +8,8 @@ from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.tag_profile import TagProfile
 from ..models.tag_profile_claim import TagProfileClaim
+from ..models.tag_profile_relationship import TagProfileRelationship
+from ..models.tag_profile_relationship_request import TagProfileRelationshipRequest
 from ..models.follow import Follow
 from ..models.event_tag import EventTag
 from ..schemas.tag_profile import (
@@ -17,10 +19,37 @@ from ..schemas.tag_profile import (
     TagProfileSearchResult,
     TagProfileClaimCreate,
     TagProfileClaimResponse,
-    TagProfileClaimSentResponse
+    TagProfileClaimSentResponse,
+    TagProfileRelationshipCreate,
+    TagProfileRelationshipResponse,
+    TagProfileRelationshipRequestCreate,
+    TagProfileRelationshipRequestResponse,
+    TagProfileRelationshipRequestSentResponse
 )
 
 router = APIRouter(prefix="/tag-profiles", tags=["tag-profiles"])
+
+
+def get_tag_profile_relationships(db: Session, tag_profile_id: int) -> List[TagProfileRelationshipResponse]:
+    """Helper to get all relationships for a tag profile."""
+    relationships = db.query(TagProfileRelationship).filter(
+        TagProfileRelationship.tag_profile_id == tag_profile_id
+    ).all()
+
+    result = []
+    for rel in relationships:
+        user = db.query(User).filter(User.id == rel.user_id).first()
+        if user:
+            result.append(TagProfileRelationshipResponse(
+                id=rel.id,
+                user_id=rel.user_id,
+                username=user.username,
+                display_name=user.display_name or user.full_name,
+                avatar_url=user.avatar_url,
+                relationship_type=rel.relationship_type,
+                created_at=rel.created_at
+            ))
+    return result
 
 
 @router.post("", response_model=TagProfileResponse)
@@ -41,6 +70,16 @@ def create_tag_profile(
     db.commit()
     db.refresh(db_profile)
 
+    # If relationship_to_creator was provided, create a relationship record for it
+    if db_profile.relationship_to_creator:
+        initial_rel = TagProfileRelationship(
+            tag_profile_id=db_profile.id,
+            user_id=current_user.id,
+            relationship_type=db_profile.relationship_to_creator
+        )
+        db.add(initial_rel)
+        db.commit()
+
     return TagProfileResponse(
         id=db_profile.id,
         name=db_profile.name,
@@ -52,7 +91,8 @@ def create_tag_profile(
         created_by_display_name=current_user.display_name or current_user.full_name,
         is_merged=db_profile.is_merged,
         merged_user_id=db_profile.merged_user_id,
-        created_at=db_profile.created_at
+        created_at=db_profile.created_at,
+        relationships=get_tag_profile_relationships(db, db_profile.id)
     )
 
 
@@ -143,7 +183,8 @@ def get_my_tag_profiles(
             created_by_display_name=current_user.display_name or current_user.full_name,
             is_merged=p.is_merged,
             merged_user_id=p.merged_user_id,
-            created_at=p.created_at
+            created_at=p.created_at,
+            relationships=get_tag_profile_relationships(db, p.id)
         )
         for p in profiles
     ]
@@ -176,7 +217,8 @@ def get_tag_profile(
         created_by_display_name=creator.display_name or creator.full_name if creator else None,
         is_merged=profile.is_merged,
         merged_user_id=profile.merged_user_id,
-        created_at=profile.created_at
+        created_at=profile.created_at,
+        relationships=get_tag_profile_relationships(db, profile.id)
     )
 
 
@@ -280,7 +322,8 @@ def update_tag_profile(
         created_by_display_name=current_user.display_name or current_user.full_name,
         is_merged=profile.is_merged,
         merged_user_id=profile.merged_user_id,
-        created_at=profile.created_at
+        created_at=profile.created_at,
+        relationships=get_tag_profile_relationships(db, profile.id)
     )
 
 
@@ -308,6 +351,165 @@ def delete_tag_profile(
     db.commit()
 
     return {"message": "Tag profile deleted"}
+
+
+# ============================================================================
+# Tag Profile Relationship Endpoints
+# ============================================================================
+
+@router.get("/{profile_id}/relationships", response_model=List[TagProfileRelationshipResponse])
+def get_relationships(
+    profile_id: int,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    """Get all relationships for a tag profile."""
+    profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tag profile not found"
+        )
+
+    return get_tag_profile_relationships(db, profile_id)
+
+
+@router.post("/{profile_id}/relationships", response_model=TagProfileRelationshipResponse)
+def add_relationship(
+    profile_id: int,
+    relationship: TagProfileRelationshipCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Add a relationship between a tag profile and a user. Only the creator can do this."""
+    profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tag profile not found"
+        )
+
+    if profile.created_by_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the creator can add relationships to this tag profile"
+        )
+
+    # Check if user exists
+    target_user = db.query(User).filter(User.id == relationship.user_id).first()
+    if not target_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    # Check for existing relationship between this profile and user
+    existing = db.query(TagProfileRelationship).filter(
+        TagProfileRelationship.tag_profile_id == profile_id,
+        TagProfileRelationship.user_id == relationship.user_id
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A relationship already exists between this tag profile and user"
+        )
+
+    # If creator is adding relationship to THEMSELVES, add directly
+    if relationship.user_id == current_user.id:
+        new_rel = TagProfileRelationship(
+            tag_profile_id=profile_id,
+            user_id=relationship.user_id,
+            relationship_type=relationship.relationship_type
+        )
+        db.add(new_rel)
+        db.commit()
+        db.refresh(new_rel)
+
+        return TagProfileRelationshipResponse(
+            id=new_rel.id,
+            user_id=new_rel.user_id,
+            username=target_user.username,
+            display_name=target_user.display_name or target_user.full_name,
+            avatar_url=target_user.avatar_url,
+            relationship_type=new_rel.relationship_type,
+            created_at=new_rel.created_at
+        )
+
+    # If creator is adding relationship to ANOTHER USER, create a request for that user to approve
+    # Check for existing pending request
+    existing_request = db.query(TagProfileRelationshipRequest).filter(
+        TagProfileRelationshipRequest.tag_profile_id == profile_id,
+        TagProfileRelationshipRequest.proposer_id == relationship.user_id,
+        TagProfileRelationshipRequest.status == "pending"
+    ).first()
+
+    if existing_request:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A pending relationship request already exists for this user"
+        )
+
+    # Create a request - store target user as proposer_id (they will approve)
+    # The creator initiated this, but approval goes to target user
+    new_request = TagProfileRelationshipRequest(
+        tag_profile_id=profile_id,
+        proposer_id=relationship.user_id,  # The target user (who will approve)
+        relationship_type=relationship.relationship_type,
+        message=f"Proposed by {current_user.display_name or current_user.username}"
+    )
+    db.add(new_request)
+    db.commit()
+    db.refresh(new_request)
+
+    # Return a response indicating a request was sent (not direct add)
+    return TagProfileRelationshipResponse(
+        id=0,  # Placeholder - no relationship created yet
+        user_id=relationship.user_id,
+        username=target_user.username,
+        display_name=target_user.display_name or target_user.full_name,
+        avatar_url=target_user.avatar_url,
+        relationship_type=f"{relationship.relationship_type} (pending approval)",
+        created_at=new_request.created_at
+    )
+
+
+@router.delete("/{profile_id}/relationships/{relationship_id}")
+def remove_relationship(
+    profile_id: int,
+    relationship_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Remove a relationship from a tag profile. Only the creator can do this."""
+    profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tag profile not found"
+        )
+
+    if profile.created_by_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the creator can remove relationships from this tag profile"
+        )
+
+    relationship = db.query(TagProfileRelationship).filter(
+        TagProfileRelationship.id == relationship_id,
+        TagProfileRelationship.tag_profile_id == profile_id
+    ).first()
+
+    if not relationship:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Relationship not found"
+        )
+
+    db.delete(relationship)
+    db.commit()
+
+    return {"message": "Relationship removed"}
 
 
 # ============================================================================
@@ -580,3 +782,303 @@ def reject_claim(
     db.commit()
 
     return {"message": "Claim rejected"}
+
+
+# ============================================================================
+# Tag Profile Relationship Request Endpoints (non-creators proposing relationships)
+# ============================================================================
+
+@router.post("/{profile_id}/relationship-requests", response_model=TagProfileRelationshipRequestSentResponse)
+def request_relationship(
+    profile_id: int,
+    request_data: TagProfileRelationshipRequestCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Request to add a relationship between a tag profile and yourself.
+    The tag profile creator will need to approve this request.
+    """
+    profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tag profile not found"
+        )
+
+    if profile.is_merged:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This tag profile has been merged with a user account"
+        )
+
+    if profile.created_by_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You created this profile - use the direct relationship endpoint instead"
+        )
+
+    # Check if relationship already exists
+    existing_rel = db.query(TagProfileRelationship).filter(
+        TagProfileRelationship.tag_profile_id == profile_id,
+        TagProfileRelationship.user_id == current_user.id
+    ).first()
+
+    if existing_rel:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You already have a relationship with this tag profile"
+        )
+
+    # Check for existing pending request
+    existing_request = db.query(TagProfileRelationshipRequest).filter(
+        TagProfileRelationshipRequest.tag_profile_id == profile_id,
+        TagProfileRelationshipRequest.proposer_id == current_user.id,
+        TagProfileRelationshipRequest.status == "pending"
+    ).first()
+
+    if existing_request:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You already have a pending relationship request for this profile"
+        )
+
+    # Create the request
+    new_request = TagProfileRelationshipRequest(
+        tag_profile_id=profile_id,
+        proposer_id=current_user.id,
+        relationship_type=request_data.relationship_type,
+        message=request_data.message
+    )
+    db.add(new_request)
+    db.commit()
+    db.refresh(new_request)
+
+    creator = db.query(User).filter(User.id == profile.created_by_id).first()
+
+    return TagProfileRelationshipRequestSentResponse(
+        id=new_request.id,
+        tag_profile_id=profile.id,
+        tag_profile_name=profile.name,
+        tag_profile_photo_url=profile.photo_url,
+        profile_creator_id=profile.created_by_id,
+        profile_creator_username=creator.username if creator else None,
+        profile_creator_display_name=creator.display_name or creator.full_name if creator else None,
+        relationship_type=new_request.relationship_type,
+        message=new_request.message,
+        status=new_request.status,
+        created_at=new_request.created_at
+    )
+
+
+@claims_router.get("/tag-profile-relationship-requests", response_model=List[TagProfileRelationshipRequestResponse])
+def get_relationship_requests_to_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all pending relationship requests that need my approval:
+    1. Requests on tag profiles I created (non-creator initiated)
+    2. Requests where I am the target user (creator initiated proposals for me)
+    """
+    # Case 1: I created the tag profile and someone wants to add themselves
+    requests_on_my_profiles = db.query(TagProfileRelationshipRequest).join(
+        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfile.created_by_id == current_user.id,
+        TagProfileRelationshipRequest.proposer_id != current_user.id,  # Someone else proposed
+        TagProfileRelationshipRequest.status == "pending"
+    ).all()
+
+    # Case 2: Creator proposed a relationship for ME (I am the proposer_id/target)
+    requests_for_me = db.query(TagProfileRelationshipRequest).join(
+        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfileRelationshipRequest.proposer_id == current_user.id,
+        TagProfile.created_by_id != current_user.id,  # I didn't create the tag
+        TagProfileRelationshipRequest.status == "pending"
+    ).all()
+
+    all_requests = requests_on_my_profiles + requests_for_me
+    all_requests.sort(key=lambda r: r.created_at, reverse=True)
+
+    results = []
+    for req in all_requests:
+        profile = req.tag_profile
+        proposer = req.proposer
+
+        results.append(TagProfileRelationshipRequestResponse(
+            id=req.id,
+            tag_profile_id=profile.id,
+            tag_profile_name=profile.name,
+            tag_profile_photo_url=profile.photo_url,
+            proposer_id=proposer.id,
+            proposer_username=proposer.username,
+            proposer_display_name=proposer.display_name or proposer.full_name,
+            proposer_avatar_url=proposer.avatar_url,
+            relationship_type=req.relationship_type,
+            message=req.message,
+            status=req.status,
+            created_at=req.created_at
+        ))
+
+    return results
+
+
+@claims_router.get("/tag-profile-relationship-requests/count")
+def get_relationship_requests_count(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get count of pending relationship requests that need my approval."""
+    # Case 1: Requests on tag profiles I created
+    count1 = db.query(TagProfileRelationshipRequest).join(
+        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfile.created_by_id == current_user.id,
+        TagProfileRelationshipRequest.proposer_id != current_user.id,
+        TagProfileRelationshipRequest.status == "pending"
+    ).count()
+
+    # Case 2: Creator proposed a relationship for me
+    count2 = db.query(TagProfileRelationshipRequest).join(
+        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
+    ).filter(
+        TagProfileRelationshipRequest.proposer_id == current_user.id,
+        TagProfile.created_by_id != current_user.id,
+        TagProfileRelationshipRequest.status == "pending"
+    ).count()
+
+    return {"count": count1 + count2}
+
+
+@claims_router.get("/tag-profile-relationship-requests/sent", response_model=List[TagProfileRelationshipRequestSentResponse])
+def get_relationship_requests_by_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all relationship requests I have sent."""
+    requests = db.query(TagProfileRelationshipRequest).filter(
+        TagProfileRelationshipRequest.proposer_id == current_user.id
+    ).order_by(TagProfileRelationshipRequest.created_at.desc()).all()
+
+    results = []
+    for req in requests:
+        profile = req.tag_profile
+        creator = db.query(User).filter(User.id == profile.created_by_id).first()
+
+        results.append(TagProfileRelationshipRequestSentResponse(
+            id=req.id,
+            tag_profile_id=profile.id,
+            tag_profile_name=profile.name,
+            tag_profile_photo_url=profile.photo_url,
+            profile_creator_id=profile.created_by_id,
+            profile_creator_username=creator.username if creator else None,
+            profile_creator_display_name=creator.display_name or creator.full_name if creator else None,
+            relationship_type=req.relationship_type,
+            message=req.message,
+            status=req.status,
+            created_at=req.created_at
+        ))
+
+    return results
+
+
+@claims_router.post("/tag-profile-relationship-requests/{request_id}/approve")
+def approve_relationship_request(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Approve a relationship request. Creates the relationship.
+    Can be approved by:
+    1. The tag profile creator (for non-creator initiated requests)
+    2. The target user (for creator-initiated requests where they are proposer_id)
+    """
+    req = db.query(TagProfileRelationshipRequest).filter(
+        TagProfileRelationshipRequest.id == request_id
+    ).first()
+
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Request not found"
+        )
+
+    profile = req.tag_profile
+
+    # Check if user can approve this request
+    # Case 1: I created the tag profile and someone else wants to add themselves
+    is_creator_approving = (profile.created_by_id == current_user.id and req.proposer_id != current_user.id)
+    # Case 2: I am the target of a creator-initiated proposal
+    is_target_approving = (req.proposer_id == current_user.id and profile.created_by_id != current_user.id)
+
+    if not is_creator_approving and not is_target_approving:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to approve this request"
+        )
+
+    if req.status != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This request has already been processed"
+        )
+
+    # Update the request
+    req.status = "approved"
+    req.resolved_at = datetime.utcnow()
+
+    # Create the relationship
+    new_rel = TagProfileRelationship(
+        tag_profile_id=profile.id,
+        user_id=req.proposer_id,
+        relationship_type=req.relationship_type
+    )
+    db.add(new_rel)
+    db.commit()
+
+    return {"message": "Relationship request approved"}
+
+
+@claims_router.post("/tag-profile-relationship-requests/{request_id}/reject")
+def reject_relationship_request(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Reject a relationship request."""
+    req = db.query(TagProfileRelationshipRequest).filter(
+        TagProfileRelationshipRequest.id == request_id
+    ).first()
+
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Request not found"
+        )
+
+    profile = req.tag_profile
+
+    # Check if user can reject this request (same logic as approve)
+    is_creator_rejecting = (profile.created_by_id == current_user.id and req.proposer_id != current_user.id)
+    is_target_rejecting = (req.proposer_id == current_user.id and profile.created_by_id != current_user.id)
+
+    if not is_creator_rejecting and not is_target_rejecting:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to reject this request"
+        )
+
+    if req.status != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This request has already been processed"
+        )
+
+    req.status = "rejected"
+    req.resolved_at = datetime.utcnow()
+    db.commit()
+
+    return {"message": "Relationship request rejected"}
