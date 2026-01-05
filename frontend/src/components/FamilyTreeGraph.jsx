@@ -68,8 +68,24 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
     // Clear any existing chart
     containerRef.current.innerHTML = ''
 
-    try {
-      const chart = createChart(containerRef.current, data)
+    // Use requestAnimationFrame to ensure DOM has the dimensions applied
+    // before family-chart calls getBoundingClientRect()
+    const rafId = requestAnimationFrame(() => {
+      // Double-check container has dimensions
+      const rect = containerRef.current?.getBoundingClientRect()
+      console.log('Container rect before chart creation:', rect)
+
+      if (!rect || rect.width < 100 || rect.height < 100) {
+        console.error('Container still has no dimensions')
+        return
+      }
+
+      createChartInstance()
+    })
+
+    function createChartInstance() {
+      try {
+        const chart = createChart(containerRef.current, data)
 
       chart
         .setOrientationVertical()
@@ -170,11 +186,13 @@ export default function FamilyTreeGraph({ data, currentUserId, relationships }) 
           console.error('Error centering chart:', err)
         }
       }, 500)
-    } catch (error) {
-      console.error('Error creating family chart:', error)
+      } catch (error) {
+        console.error('Error creating family chart:', error)
+      }
     }
 
     return () => {
+      cancelAnimationFrame(rafId)
       if (containerRef.current) {
         containerRef.current.innerHTML = ''
       }
