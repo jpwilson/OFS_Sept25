@@ -67,20 +67,36 @@ function Profile() {
     setRelationshipLoading(true)
     try {
       // Check if this is a mutual follow
+      // Note: Backend returns is_following=true only when status='accepted'
       const followCheck = await apiService.checkIfFollowing(username)
       const theyFollowMe = await apiService.checkIfFollowingMe(username)
-      const mutual = followCheck.is_following && theyFollowMe.is_following
+
+      // Both must be true for mutual follow
+      const iFollow = followCheck.is_following
+      const theyFollow = theyFollowMe.is_following
+      const mutual = iFollow && theyFollow
+
+      console.log('Mutual follow check for', username, ':', {
+        iFollow, theyFollow, mutual,
+        followCheckResponse: followCheck,
+        theyFollowMeResponse: theyFollowMe,
+        profileId
+      })
+
       setIsMutualFollow(mutual)
 
       // Check for existing relationship (only if mutual follow)
       if (mutual && profileId) {
         const relationship = await apiService.getRelationshipWith(profileId)
+        console.log('Existing relationship with', username, ':', relationship)
         setExistingRelationship(relationship)
       } else {
         setExistingRelationship(null)
       }
     } catch (error) {
       console.error('Error checking relationship status:', error)
+      setIsMutualFollow(false)
+      setExistingRelationship(null)
     } finally {
       setRelationshipLoading(false)
     }
@@ -349,18 +365,25 @@ function Profile() {
             </>
           ) : currentUser ? (
             <>
-              <button
-                className={`${styles.followButton} ${
-                  isFollowing ? styles.following :
-                  followStatus === 'pending' ? styles.requested : ''
-                }`}
-                onClick={handleFollowToggle}
-                disabled={followLoading}
-              >
-                {followLoading ? '...' :
-                 isFollowing ? 'Following' :
-                 followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
-              </button>
+              {/* Debug log for relationship button visibility */}
+              {console.log('Render check:', { relationshipLoading, isMutualFollow, existingRelationship, isFollowing, followStatus })}
+              {/* Show different UI based on follow status */}
+              {isFollowing ? (
+                // Just a label when already following (unfollow moved to bottom)
+                <span className={styles.followingLabel}>Following</span>
+              ) : (
+                // Interactive button for follow/request
+                <button
+                  className={`${styles.followButton} ${
+                    followStatus === 'pending' ? styles.requested : ''
+                  }`}
+                  onClick={handleFollowToggle}
+                  disabled={followLoading}
+                >
+                  {followLoading ? '...' :
+                   followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
+                </button>
+              )}
               {/* Show Add Relationship button for mutual followers (only after loading complete) */}
               {!relationshipLoading && isMutualFollow && !existingRelationship && (
                 <button
@@ -586,11 +609,21 @@ function Profile() {
         }}
       />
 
-      {/* Logout at bottom - only for own profile */}
-      {isOwnProfile && (
+      {/* Footer actions */}
+      {isOwnProfile ? (
         <div className={styles.footer}>
           <button onClick={handleLogout} className={styles.footerLogoutButton}>
             Logout
+          </button>
+        </div>
+      ) : isFollowing && (
+        <div className={styles.footer}>
+          <button
+            onClick={handleFollowToggle}
+            className={styles.footerUnfollowButton}
+            disabled={followLoading}
+          >
+            {followLoading ? 'Unfollowing...' : 'Unfollow'}
           </button>
         </div>
       )}
