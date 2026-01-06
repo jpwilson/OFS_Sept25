@@ -982,8 +982,8 @@ export default function NotificationSettings() {
                             <div className={styles.requestDetails}>
                               <strong>{request.proposer_display_name || request.proposer_username}</strong>
                               <p>
-                                Wants to be your <strong>{request.they_call_me}</strong>
-                                {' '}(and you their {request.i_would_call_them})
+                                Wants to be your <strong>{request.i_would_call_them}</strong>
+                                {' '}(and you their {request.they_call_me})
                               </p>
                             </div>
                           </Link>
