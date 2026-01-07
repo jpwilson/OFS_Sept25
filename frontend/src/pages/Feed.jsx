@@ -39,6 +39,7 @@ function Feed() {
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([]) // Multi-select user filter
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
+  const [orderBy, setOrderBy] = useState('event_date') // 'event_date' or 'upload_date'
 
   // Require login to view Feed
   useEffect(() => {
@@ -52,7 +53,7 @@ function Feed() {
       loadEvents()
       loadFollowing()
     }
-  }, [user])
+  }, [user, orderBy])  // Reload when orderBy changes
 
   const loadFollowing = async () => {
     if (user) {
@@ -64,10 +65,10 @@ function Feed() {
 
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedCategories, selectedUsers, selectedDateRange, events, following])
+  }, [filter, selectedCategories, selectedUsers, selectedDateRange, events, following, orderBy])
 
   async function loadEvents() {
-    const data = await apiService.getEvents()
+    const data = await apiService.getEvents(orderBy)
     setEvents(data)
     setFilteredEvents(data)
     setLoading(false)
@@ -105,8 +106,12 @@ function Feed() {
       )
     }
 
-    // Sort by event start_date (most recent first)
-    filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+    // Sort based on orderBy preference
+    if (orderBy === 'upload_date') {
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    } else {
+      filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+    }
 
     setFilteredEvents(filtered)
   }
@@ -192,6 +197,8 @@ function Feed() {
         selectedUsers={selectedUsers}
         setSelectedUsers={setSelectedUsers}
         onFollowingUpdate={loadFollowing}
+        orderBy={orderBy}
+        setOrderBy={setOrderBy}
       />
 
       <div className={styles.viewContent}>

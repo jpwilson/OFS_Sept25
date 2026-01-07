@@ -152,14 +152,15 @@ def get_events(
     skip: int = 0,
     limit: int = 100,
     category: str = None,
+    order_by: str = "event_date",  # "event_date" (start_date) or "upload_date" (created_at)
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_optional)
 ):
     try:
         from sqlalchemy.orm import selectinload
-        from ..utils.privacy import filter_events_by_privacy
+        from ..utils.privacy import filter_events_for_feed
 
-        print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}, category={category}, user={current_user.username if current_user else 'anonymous'}")
+        print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}, category={category}, order_by={order_by}, user={current_user.username if current_user else 'anonymous'}")
 
         # Start with base query
         query = db.query(Event).options(
@@ -176,15 +177,21 @@ def get_events(
         query = query.filter(~Event.author_id.in_(DEMO_USER_IDS))
         # END TEMPORARY
 
-        # Apply privacy filtering
-        query = filter_events_by_privacy(query, current_user, db)
+        # Apply feed-level privacy filtering (shows all except private for logged-in users)
+        # Detail-level privacy is handled by can_view_event() in get_event endpoint
+        query = filter_events_for_feed(query, current_user, db)
 
         # Apply category filter if provided
         if category:
             query = query.filter(Event.category == category)
 
-        # Apply pagination and ordering - order by start_date (most recent first)
-        events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
+        # Apply pagination and ordering based on order_by parameter
+        if order_by == "upload_date":
+            # Order by when event was uploaded/created on the platform
+            events = query.order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
+        else:
+            # Default: order by event date (start_date - when event occurred)
+            events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 
         print(f"[EVENTS] Found {len(events)} events")
 

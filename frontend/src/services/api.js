@@ -47,10 +47,13 @@ class ApiService {
     }
   }
 
-  async getEvents() {
+  async getEvents(orderBy = 'event_date') {
     try {
       const headers = await this.getAuthHeaders()
-      const response = await fetch(`${API_BASE}/events`, { headers })
+      const params = new URLSearchParams()
+      if (orderBy) params.append('order_by', orderBy)
+      const url = `${API_BASE}/events${params.toString() ? '?' + params.toString() : ''}`
+      const response = await fetch(url, { headers })
       if (!response.ok) {
         console.error('getEvents failed:', response.status, response.statusText)
         throw new Error('Failed to fetch events')

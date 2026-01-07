@@ -28,7 +28,9 @@ export default function EventFilters({
   followingUsers,  // Full user objects for the dropdown
   selectedUsers,
   setSelectedUsers,
-  onFollowingUpdate
+  onFollowingUpdate,
+  orderBy,
+  setOrderBy
 }) {
   const { showToast } = useToast()
   const { user } = useAuth()
@@ -323,6 +325,24 @@ export default function EventFilters({
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Order By Toggle */}
+            <div className={styles.orderByToggle}>
+              <button
+                className={`${styles.orderByButton} ${orderBy === 'event_date' ? styles.active : ''}`}
+                onClick={() => setOrderBy('event_date')}
+                title="Sort by when the event occurred"
+              >
+                Event Date
+              </button>
+              <button
+                className={`${styles.orderByButton} ${orderBy === 'upload_date' ? styles.active : ''}`}
+                onClick={() => setOrderBy('upload_date')}
+                title="Sort by when the event was uploaded"
+              >
+                Upload Date
+              </button>
             </div>
 
             {/* Person Filter Buttons */}

@@ -122,6 +122,50 @@ def is_user_subscription_active(user: User) -> bool:
     return False
 
 
+def filter_events_for_feed(
+    query,
+    viewer: Optional[User],
+    db: Session
+):
+    """
+    Filter events for feed/explore display.
+    Shows ALL events except PRIVATE to logged-in users.
+    Privacy gates are applied when viewing event detail via can_view_event().
+
+    - Anonymous users: only PUBLIC events (prevents enumeration)
+    - Logged-in users: ALL events except PRIVATE
+    - Subscription filtering: still enforced (expired author events hidden)
+    """
+    from datetime import datetime
+
+    # Filter out events from expired users (subscription check)
+    query = query.join(Event.author).filter(
+        or_(
+            # Always show viewer's own events
+            Event.author_id == viewer.id if viewer else False,
+            # Author has premium/family tier with active or canceled status
+            (User.subscription_tier.in_(['premium', 'family'])) &
+            (User.subscription_status.in_(['active', 'canceled'])),
+            # Author is on trial and trial hasn't expired
+            (User.subscription_status == 'trial') &
+            (
+                (User.trial_end_date == None) |  # Legacy users
+                (User.trial_end_date > datetime.utcnow())  # Active trial
+            )
+        )
+    )
+
+    # Anonymous users: only public events (security - prevents enumeration)
+    if not viewer:
+        return query.filter(Event.privacy_level == "public")
+
+    # Logged-in users: all events except private
+    # Privacy gates for followers/close_family/custom_group applied at detail view
+    query = query.filter(Event.privacy_level != "private")
+
+    return query
+
+
 def filter_events_by_privacy(
     query,
     viewer: Optional[User],

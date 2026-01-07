@@ -414,6 +414,36 @@
   font-style: italic;
 }
 
+/* Order By toggle */
+.orderByToggle {
+  display: flex;
+  gap: 4px;
+}
+
+.orderByButton {
+  padding: 8px 12px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.orderByButton:hover {
+  background: #333;
+  border-color: #667eea;
+}
+
+.orderByButton.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
 /* Person filter buttons */
 .personFilter {
   display: flex;
@@ -490,6 +520,16 @@
   .filterButton {
     padding: 6px 10px;
     font-size: 12px;
+  }
+
+  .orderByButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .orderByToggle {
+    width: 100%;
+    justify-content: center;
   }
 
   .personFilter {
