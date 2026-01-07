@@ -39,7 +39,7 @@ function Feed() {
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([]) // Multi-select user filter
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
-  const [orderBy, setOrderBy] = useState('event_date') // 'event_date' or 'upload_date'
+  const [orderBy, setOrderBy] = useState('upload_date') // 'event_date' or 'upload_date'
 
   // Require login to view Feed
   useEffect(() => {
