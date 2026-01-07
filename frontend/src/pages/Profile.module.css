@@ -319,6 +319,15 @@
   font-weight: 500;
 }
 
+.followsYouBadge {
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .requestsButton {
   padding: 10px 24px;
   background: var(--bg-primary);

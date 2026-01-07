@@ -37,6 +37,7 @@ function Profile() {
     profile_claims: 0
   })
   const [isMutualFollow, setIsMutualFollow] = useState(false)
+  const [theyFollowMe, setTheyFollowMe] = useState(false) // Whether they follow the current user
   const [existingRelationship, setExistingRelationship] = useState(null)
   const [relationshipLoading, setRelationshipLoading] = useState(true) // Start as loading
   const [showRelationshipModal, setShowRelationshipModal] = useState(false)
@@ -69,26 +70,19 @@ function Profile() {
       // Check if this is a mutual follow
       // Note: Backend returns is_following=true only when status='accepted'
       const followCheck = await apiService.checkIfFollowing(username)
-      const theyFollowMe = await apiService.checkIfFollowingMe(username)
+      const theyFollowMeCheck = await apiService.checkIfFollowingMe(username)
 
       // Both must be true for mutual follow
       const iFollow = followCheck.is_following
-      const theyFollow = theyFollowMe.is_following
+      const theyFollow = theyFollowMeCheck.is_following
       const mutual = iFollow && theyFollow
 
-      console.log('Mutual follow check for', username, ':', {
-        iFollow, theyFollow, mutual,
-        followCheckResponse: followCheck,
-        theyFollowMeResponse: theyFollowMe,
-        profileId
-      })
-
       setIsMutualFollow(mutual)
+      setTheyFollowMe(theyFollow) // Track if they follow me (independent of mutual)
 
       // Check for existing relationship (only if mutual follow)
       if (mutual && profileId) {
         const relationship = await apiService.getRelationshipWith(profileId)
-        console.log('Existing relationship with', username, ':', relationship)
         setExistingRelationship(relationship)
       } else {
         setExistingRelationship(null)
@@ -96,6 +90,7 @@ function Profile() {
     } catch (error) {
       console.error('Error checking relationship status:', error)
       setIsMutualFollow(false)
+      setTheyFollowMe(false)
       setExistingRelationship(null)
     } finally {
       setRelationshipLoading(false)
@@ -365,8 +360,10 @@ function Profile() {
             </>
           ) : currentUser ? (
             <>
-              {/* Debug log for relationship button visibility */}
-              {console.log('Render check:', { relationshipLoading, isMutualFollow, existingRelationship, isFollowing, followStatus })}
+              {/* "Follows you" badge - shows when they follow you, independent of your follow status */}
+              {!relationshipLoading && theyFollowMe && (
+                <span className={styles.followsYouBadge}>Follows you</span>
+              )}
               {/* Show different UI based on follow status */}
               {isFollowing ? (
                 // Just a label when already following (unfollow moved to bottom)
@@ -384,8 +381,9 @@ function Profile() {
                    followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
                 </button>
               )}
-              {/* Show Add Relationship button for mutual followers (only after loading complete) */}
-              {!relationshipLoading && isMutualFollow && !existingRelationship && (
+              {/* Show Add Relationship button for mutual followers when no accepted/pending relationship exists */}
+              {!relationshipLoading && isMutualFollow &&
+               (!existingRelationship || existingRelationship.status === 'rejected') && (
                 <button
                   className={styles.relationshipButton}
                   onClick={() => setShowRelationshipModal(true)}
@@ -393,12 +391,13 @@ function Profile() {
                   Add Relationship
                 </button>
               )}
-              {!relationshipLoading && existingRelationship && existingRelationship.status === 'accepted' && (
+              {/* Show relationship type label if exists and has a value */}
+              {!relationshipLoading && existingRelationship?.status === 'accepted' && existingRelationship.my_relationship_to_them && (
                 <span className={styles.relationshipLabel}>
                   {existingRelationship.my_relationship_to_them}
                 </span>
               )}
-              {!relationshipLoading && existingRelationship && existingRelationship.status === 'pending' && (
+              {!relationshipLoading && existingRelationship?.status === 'pending' && (
                 <span className={styles.relationshipPending}>
                   Relationship pending
                 </span>
