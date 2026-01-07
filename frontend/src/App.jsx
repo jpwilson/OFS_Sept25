@@ -17,7 +17,7 @@ import Terms from './pages/Terms'
 import Contact from './pages/Contact'
 import AuthCallback from './pages/AuthCallback'
 import Groups from './pages/Groups'
-import SharedEvent from './pages/SharedEvent'
+// SharedEvent removed - now using EventDetail with isShareMode
 import InviteLanding from './pages/InviteLanding'
 import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
@@ -59,7 +59,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/share/:token" element={<SharedEvent />} />
+            <Route path="/share/:token" element={<EventDetail isShareMode={true} />} />
             <Route path="/join/:token" element={<InviteLanding />} />
             <Route element={<Layout />}>
               <Route path="/pricing" element={<PricingPage />} />

@@ -1,0 +1,128 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f472b6 100%);
+  padding: 16px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bannerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.bannerText {
+  flex: 1;
+  min-width: 200px;
+}
+
+.bannerTitle {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.bannerDescription {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.bannerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.signUpButton {
+  display: inline-block;
+  padding: 10px 24px;
+  background: white;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.signUpButton:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+}
+
+.loginLink {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.loginLink:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: white;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .banner {
+    padding: 14px 16px;
+  }
+
+  .bannerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .bannerTitle {
+    font-size: 16px;
+  }
+
+  .bannerDescription {
+    font-size: 13px;
+  }
+
+  .bannerActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .signUpButton {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+  }
+}

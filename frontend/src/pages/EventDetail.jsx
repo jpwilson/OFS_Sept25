@@ -11,12 +11,13 @@ import EventNavigation from '../components/EventNavigation'
 import EventMap from '../components/EventMap'
 import ShortLocation from '../components/ShortLocation'
 import TagBadge from '../components/TagBadge'
+import ShareSignUpBanner from '../components/ShareSignUpBanner'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
 
-function EventDetail() {
-  const { id } = useParams()
+function EventDetail({ isShareMode = false }) {
+  const { id, token } = useParams()
   const navigate = useNavigate()
   const { user, isTrialExpired, canAccessContent } = useAuth()
   const { showToast } = useToast()
@@ -44,6 +45,8 @@ function EventDetail() {
   const [hideInlineImages, setHideInlineImages] = useState(false)
   const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const [eventTags, setEventTags] = useState([])
+  const [shareContext, setShareContext] = useState(null)
+  const [showSignUpBanner, setShowSignUpBanner] = useState(isShareMode)
   const contentRef = useRef(null)
   const mapRef = useRef(null)
   const likesSectionRef = useRef(null)
@@ -81,7 +84,8 @@ function EventDetail() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const isAuthor = user && event && user.username === event.author_username
+  // In share mode, author features are disabled
+  const isAuthor = !isShareMode && user && event && user.username === event.author_username
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
@@ -181,18 +185,44 @@ function EventDetail() {
   }, [])
 
   useEffect(() => {
-    loadEvent()
-    loadComments()
-    loadLocations()
-    loadTags()
-    if (user) {
-      loadLikes()
+    if (isShareMode && token) {
+      loadSharedEvent()
+    } else if (id) {
+      loadEvent()
+      loadComments()
+      loadTags()
+      if (user) {
+        loadLikes()
+      }
     }
-  }, [id, user])
+  }, [id, token, user, isShareMode])
 
-  async function loadTags() {
+  // Load locations separately after event is loaded (needs event coordinates)
+  useEffect(() => {
+    if (event && !isShareMode) {
+      loadLocations()
+    } else if (event && isShareMode) {
+      // In share mode, build locations from event data directly
+      if (event.latitude && event.longitude) {
+        setLocations([{
+          id: 'primary',
+          event_id: event.id,
+          location_name: event.location_name || 'Event Location',
+          latitude: event.latitude,
+          longitude: event.longitude,
+          location_type: 'primary',
+          order_index: -1,
+          timestamp: event.start_date,
+          section_id: null,
+          section_title: 'Event Start'
+        }])
+      }
+    }
+  }, [event, isShareMode])
+
+  async function loadTags(eventId) {
     try {
-      const tags = await apiService.getEventTags(id)
+      const tags = await apiService.getEventTags(eventId || id)
       setEventTags(tags || [])
     } catch (error) {
       console.error('Error loading event tags:', error)
@@ -282,6 +312,52 @@ function EventDetail() {
       // Check if it's a privacy/permission error (403)
       if (error.response?.status === 403 && error.response?.data?.detail) {
         setPrivacyError(error.response.data.detail)
+      }
+      setLoading(false)
+    }
+  }
+
+  async function loadSharedEvent() {
+    try {
+      const data = await apiService.viewSharedEvent(token)
+      if (!data || !data.event) {
+        setLoading(false)
+        return
+      }
+      setEvent(data.event)
+      setEventImages(data.event.event_images || [])
+      setShareContext(data.share_context)
+      setPrivacyError(null)
+      setLoading(false)
+
+      // Load comments and tags for shared event
+      try {
+        const commentsData = await apiService.getComments(data.event.id)
+        setComments(commentsData || [])
+      } catch (e) {
+        console.log('Could not load comments for shared event')
+        setComments([])
+      }
+
+      // Load tags
+      try {
+        loadTags(data.event.id)
+      } catch (e) {
+        console.log('Could not load tags for shared event')
+      }
+    } catch (error) {
+      console.error('Error loading shared event:', error)
+      // Handle specific share link errors
+      if (error.message === 'expired' || error.message === 'not_found') {
+        setPrivacyError({
+          message: 'This share link is no longer valid or has expired',
+          share_expired: true
+        })
+      } else {
+        setPrivacyError({
+          message: 'Unable to load shared event. Please try again.',
+          share_expired: true
+        })
       }
       setLoading(false)
     }
@@ -739,6 +815,30 @@ function EventDetail() {
   // Expired trial users can still view events from people they follow
 
   if (privacyError) {
+    // Check if this is a share link expired error
+    if (privacyError.share_expired) {
+      return (
+        <div className={styles.privacyBlock}>
+          <div className={styles.privacyIcon}>⏰</div>
+          <h2>Share Link Expired</h2>
+          <p className={styles.privacyDescription}>
+            {privacyError.message || 'This share link is no longer valid.'}
+          </p>
+          <div className={styles.privacyActions}>
+            <p className={styles.privacyExplainer}>
+              Share links expire for privacy. Sign up or log in to request access from the event author.
+            </p>
+            <Link to="/login?signup=true" className={styles.primaryButton}>
+              Sign Up Free
+            </Link>
+            <Link to="/login" className={styles.secondaryButton}>
+              Already have an account? Sign In
+            </Link>
+          </div>
+        </div>
+      )
+    }
+
     // Check if this is a subscription access error
     if (privacyError.subscription_required) {
       return (
@@ -837,8 +937,16 @@ function EventDetail() {
 
   return (
     <div className={styles.container}>
+      {/* Share mode banner for non-logged-in users */}
+      {isShareMode && !user && showSignUpBanner && (
+        <ShareSignUpBanner
+          shareContext={shareContext}
+          onClose={() => setShowSignUpBanner(false)}
+        />
+      )}
+
       <div
-        className={styles.heroImage}
+        className={`${styles.heroImage} ${isShareMode && !user && showSignUpBanner ? styles.withBanner : ''}`}
         style={{ backgroundImage: `url(${event.cover_image_url})` }}
       >
         <div className={styles.heroOverlay}>
@@ -1072,9 +1180,10 @@ function EventDetail() {
       <div className={styles.interactions} ref={likesSectionRef}>
         <div className={styles.likeSection}>
           <button
-            className={`${styles.likeButton} ${likeStats.is_liked ? styles.liked : ''}`}
-            onClick={handleLikeToggle}
-            disabled={!user}
+            className={`${styles.likeButton} ${likeStats.is_liked ? styles.liked : ''} ${isShareMode ? styles.disabled : ''}`}
+            onClick={isShareMode ? undefined : handleLikeToggle}
+            disabled={!user || isShareMode}
+            title={isShareMode ? 'Sign up to like events' : ''}
           >
             <span className={styles.heartIcon}>{likeStats.is_liked ? '♥' : '♡'}</span>
             <span>{likeStats.like_count} {likeStats.like_count === 1 ? 'like' : 'likes'}</span>
@@ -1138,7 +1247,14 @@ function EventDetail() {
       <div className={styles.commentsSection} ref={commentsSectionRef}>
         <h3 className={styles.commentsTitle}>Comments ({comments.length})</h3>
 
-        {user ? (
+        {isShareMode ? (
+          <div className={styles.sharePrompt}>
+            <p>Sign up to leave comments and reactions</p>
+            <Link to="/login?signup=true" className={styles.sharePromptButton}>
+              Create Free Account
+            </Link>
+          </div>
+        ) : user ? (
           <form className={styles.commentForm} onSubmit={handleCommentSubmit}>
             <textarea
               className={styles.commentInput}

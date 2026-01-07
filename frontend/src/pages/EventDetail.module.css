@@ -1285,3 +1285,50 @@
     display: none;
   }
 }
+
+/* Share mode styles */
+.withBanner {
+  margin-top: 80px;
+}
+
+@media (max-width: 640px) {
+  .withBanner {
+    margin-top: 120px;
+  }
+}
+
+.likeButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sharePrompt {
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.sharePrompt p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.sharePromptButton {
+  display: inline-block;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.sharePromptButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
