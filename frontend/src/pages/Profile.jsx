@@ -359,50 +359,65 @@ function Profile() {
               </Link>
             </>
           ) : currentUser ? (
-            <>
-              {/* "Follows you" badge - shows when they follow you, independent of your follow status */}
+            <div className={styles.statusRow}>
+              {/* "Follows you" indicator */}
               {!relationshipLoading && theyFollowMe && (
-                <span className={styles.followsYouBadge}>Follows you</span>
+                <>
+                  <span className={styles.statusText}>Follows you</span>
+                  <span className={styles.separator}>|</span>
+                </>
               )}
-              {/* Show different UI based on follow status */}
+
+              {/* Your follow status */}
               {isFollowing ? (
-                // Just a label when already following (unfollow moved to bottom)
-                <span className={styles.followingLabel}>Following</span>
-              ) : (
-                // Interactive button for follow/request
+                <span className={styles.statusText}>Following</span>
+              ) : followStatus === 'pending' ? (
                 <button
-                  className={`${styles.followButton} ${
-                    followStatus === 'pending' ? styles.requested : ''
-                  }`}
+                  className={`${styles.actionButton} ${styles.pending}`}
                   onClick={handleFollowToggle}
                   disabled={followLoading}
                 >
-                  {followLoading ? '...' :
-                   followStatus === 'pending' ? 'Requested' : 'Request to Follow'}
+                  {followLoading ? '...' : 'Requested'}
                 </button>
-              )}
-              {/* Show Add Relationship button for mutual followers when no accepted/pending relationship exists */}
-              {!relationshipLoading && isMutualFollow &&
-               (!existingRelationship || existingRelationship.status === 'rejected') && (
+              ) : (
                 <button
-                  className={styles.relationshipButton}
-                  onClick={() => setShowRelationshipModal(true)}
+                  className={styles.actionButton}
+                  onClick={handleFollowToggle}
+                  disabled={followLoading}
                 >
-                  Add Relationship
+                  {followLoading ? '...' : 'Request to Follow'}
                 </button>
               )}
-              {/* Show relationship type label if exists and has a value */}
-              {!relationshipLoading && existingRelationship?.status === 'accepted' && existingRelationship.my_relationship_to_them && (
-                <span className={styles.relationshipLabel}>
-                  {existingRelationship.my_relationship_to_them}
-                </span>
+
+              {/* Relationship status */}
+              {!relationshipLoading && (
+                existingRelationship?.status === 'accepted' && existingRelationship.my_relationship_to_them ? (
+                  <>
+                    <span className={styles.separator}>|</span>
+                    <span className={styles.statusText}>
+                      Relationship: {existingRelationship.my_relationship_to_them}
+                    </span>
+                  </>
+                ) : existingRelationship?.status === 'pending' ? (
+                  <>
+                    <span className={styles.separator}>|</span>
+                    <button className={`${styles.actionButton} ${styles.pending}`}>
+                      Relationship pending
+                    </button>
+                  </>
+                ) : isMutualFollow && (!existingRelationship || existingRelationship.status === 'rejected') ? (
+                  <>
+                    <span className={styles.separator}>|</span>
+                    <button
+                      className={styles.actionButton}
+                      onClick={() => setShowRelationshipModal(true)}
+                    >
+                      Add Relationship
+                    </button>
+                  </>
+                ) : null
               )}
-              {!relationshipLoading && existingRelationship?.status === 'pending' && (
-                <span className={styles.relationshipPending}>
-                  Relationship pending
-                </span>
-              )}
-            </>
+            </div>
           ) : null}
         </div>
       </div>
