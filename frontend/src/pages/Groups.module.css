@@ -472,6 +472,90 @@
   color: var(--text-primary);
 }
 
+.modalBody {
+  padding: 24px;
+}
+
+.extendDescription {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.daysSelector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.dayButton {
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dayButton:hover {
+  border-color: #667eea;
+  color: var(--text-primary);
+}
+
+.dayButton.selected {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.confirmButton {
+  padding: 10px 20px;
+  background: #667eea;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirmButton:hover {
+  background: #5a6fd6;
+}
+
 .modalForm {
   padding: 24px;
 }

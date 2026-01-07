@@ -29,6 +29,8 @@ function Groups() {
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
+  const [extendingLink, setExtendingLink] = useState(null) // Link being extended
+  const [extendDays, setExtendDays] = useState(3) // Default 3 days
 
   useEffect(() => {
     loadAllData()
@@ -354,11 +356,18 @@ Looking forward to sharing our memories together!
     copyToClipboard(url, 'Event link copied!')
   }
 
-  async function handleExtendShareLink(link) {
+  function handleExtendShareLink(link) {
+    setExtendingLink(link)
+    setExtendDays(3) // Reset to default
+  }
+
+  async function confirmExtendShareLink() {
+    if (!extendingLink) return
     try {
-      await apiService.updateShareLink(link.event_id, 7)
-      showToast('Link extended by 7 days', 'success')
+      await apiService.updateShareLink(extendingLink.event_id, extendDays)
+      showToast(`Link extended by ${extendDays} day${extendDays > 1 ? 's' : ''}`, 'success')
       loadShareLinks()
+      setExtendingLink(null)
     } catch (error) {
       console.error('Error extending link:', error)
       showToast('Failed to extend link', 'error')
@@ -818,6 +827,55 @@ Looking forward to sharing our memories together!
           loadInvitations()
         }}
       />
+
+      {/* Extend Share Link Modal */}
+      {extendingLink && (
+        <div className={styles.modalOverlay} onClick={() => setExtendingLink(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Extend Share Link</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => setExtendingLink(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p className={styles.extendDescription}>
+                Extend the share link for "<strong>{extendingLink.event_title}</strong>"
+              </p>
+              <label className={styles.label}>Extend by:</label>
+              <div className={styles.daysSelector}>
+                {[1, 2, 3, 4, 5].map(days => (
+                  <button
+                    key={days}
+                    type="button"
+                    className={`${styles.dayButton} ${extendDays === days ? styles.selected : ''}`}
+                    onClick={() => setExtendDays(days)}
+                  >
+                    {days} {days === 1 ? 'day' : 'days'}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.modalActions}>
+                <button
+                  className={styles.cancelButton}
+                  onClick={() => setExtendingLink(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={styles.confirmButton}
+                  onClick={confirmExtendShareLink}
+                >
+                  Extend Link
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Group Modal */}
       {showCreateModal && (
