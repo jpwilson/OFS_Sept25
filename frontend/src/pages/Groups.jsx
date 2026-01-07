@@ -350,13 +350,13 @@ Looking forward to sharing our memories together!
   }
 
   async function handleCopyShareLink(link) {
-    const url = `https://www.ourfamilysocials.com/shared/${link.token}`
+    const url = `https://www.ourfamilysocials.com/share/${link.share_token}`
     copyToClipboard(url, 'Event link copied!')
   }
 
   async function handleExtendShareLink(link) {
     try {
-      await apiService.extendShareLink(link.id)
+      await apiService.updateShareLink(link.event_id, 7)
       showToast('Link extended by 7 days', 'success')
       loadShareLinks()
     } catch (error) {
@@ -375,7 +375,7 @@ Looking forward to sharing our memories together!
 
     if (confirmed) {
       try {
-        await apiService.deleteShareLink(link.id)
+        await apiService.deleteShareLink(link.event_id)
         showToast('Link disabled', 'success')
         loadShareLinks()
       } catch (error) {
