@@ -132,24 +132,6 @@ export default function EventFilters({
         <div className={styles.filters}>
           {/* Main filter row - search + filters inline on large screens */}
           <div className={styles.mainFilterRow}>
-            {/* Order By Toggle - slider style */}
-            <div className={styles.orderByToggle}>
-              <button
-                className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
-                onClick={() => setOrderBy('upload_date')}
-                title="Sort by when the event was uploaded"
-              >
-                Upload Date
-              </button>
-              <button
-                className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
-                onClick={() => setOrderBy('event_date')}
-                title="Sort by when the event occurred"
-              >
-                Event Date
-              </button>
-            </div>
-
             {/* User Search */}
             <div className={styles.userSearchSection}>
               <div className={styles.searchInputWrapper}>
@@ -220,6 +202,24 @@ export default function EventFilters({
             </div>
 
             <div className={styles.filterRow}>
+            {/* Order By Toggle - slider style */}
+            <div className={styles.orderByToggle}>
+              <button
+                className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
+                onClick={() => setOrderBy('upload_date')}
+                title="Sort by when the event was uploaded"
+              >
+                Upload Date
+              </button>
+              <button
+                className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
+                onClick={() => setOrderBy('event_date')}
+                title="Sort by when the event occurred"
+              >
+                Event Date
+              </button>
+            </div>
+
             {/* Date Dropdown */}
             <div className={styles.dateDropdownWrapper}>
               <button
