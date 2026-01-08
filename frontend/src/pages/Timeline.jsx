@@ -400,7 +400,7 @@ function Timeline() {
                   {selectedDay.events.map(event => (
                     <Link
                       key={event.id}
-                      to={`/event/${event.id}`}
+                      to={`/event/${event.slug || event.id}`}
                       className={styles.dayPopupEvent}
                     >
                       <span className={styles.popupEventIcon}>{getCategoryIcon(event.category)}</span>
@@ -444,7 +444,7 @@ function Timeline() {
                   className={`${styles.timelineItem} ${index % 2 === 0 ? styles.left : styles.right}`}
                 >
                   <div className={styles.timelineContent}>
-                    <Link to={`/event/${event.id}`} className={styles.eventCard}>
+                    <Link to={`/event/${event.slug || event.id}`} className={styles.eventCard}>
                       <div
                         className={styles.eventImage}
                         style={{ backgroundImage: `url(${event.cover_image_url})` }}

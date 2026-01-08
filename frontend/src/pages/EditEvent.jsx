@@ -431,7 +431,7 @@ function EditEvent() {
         : 'updated'
 
       showToast(`Event ${action} successfully!`, 'success')
-      navigate(`/event/${event.id}`)
+      navigate(`/event/${event.slug || event.id}`)
     } catch (error) {
       console.error('Error updating event:', error)
       showToast(error.message || 'Failed to update event. Please try again.', 'error')

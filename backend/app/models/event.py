@@ -8,6 +8,7 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    slug = Column(String, unique=True, nullable=True, index=True)  # URL-friendly identifier
     short_title = Column(String, nullable=True)  # Optional shortened title for mobile display
     summary = Column(String, nullable=True)  # Short description for cards
     description = Column(String, nullable=True)

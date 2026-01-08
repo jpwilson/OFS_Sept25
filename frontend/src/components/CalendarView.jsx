@@ -183,7 +183,7 @@ export default function CalendarView({ events = [] }) {
               {selectedDay.events.map(event => (
                 <Link
                   key={event.id}
-                  to={`/event/${event.id}`}
+                  to={`/event/${event.slug || event.id}`}
                   className={styles.dayPopupEvent}
                 >
                   <span className={styles.popupEventIcon}>{getCategoryIcon(event.category)}</span>

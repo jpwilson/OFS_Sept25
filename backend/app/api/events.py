@@ -13,6 +13,7 @@ from ..models.event_image import EventImage
 from ..models.follow import Follow
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
 from ..utils.location_validator import validate_location_count, extract_location_markers
+from ..utils.slug import generate_unique_slug
 from ..services.email_service import send_new_event_notification_email
 
 
@@ -152,6 +153,7 @@ def build_event_dict(event):
 
     return {
         "id": event.id,
+        "slug": event.slug,
         "title": event.title,
         "short_title": event.short_title,
         "summary": event.summary,
@@ -328,10 +330,15 @@ def create_event(
     # Use authenticated user as the event author
     # Exclude gps_locations from event creation as it's handled separately
     event_dict = event_data.model_dump(exclude={'gps_locations'})
+
+    # Generate URL-friendly slug from title
+    slug = generate_unique_slug(event_data.title, db)
+
     event = Event(
         **event_dict,
         author_id=current_user.id,
-        is_published=is_published
+        is_published=is_published,
+        slug=slug
     )
 
     db.add(event)
@@ -527,19 +534,26 @@ def get_user_trash(
 
     return response
 
-@router.get("/{event_id}", response_model=EventResponse)
+@router.get("/{event_identifier}", response_model=EventResponse)
 def get_event(
-    event_id: int,
+    event_identifier: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_optional)
 ):
     from sqlalchemy.orm import joinedload
     from ..utils.privacy import can_view_event, get_event_privacy_display
 
-    event = db.query(Event).options(
-        joinedload(Event.locations),
-        joinedload(Event.images)  # Load event_images relationship
-    ).filter(Event.id == event_id).first()
+    # Determine if identifier is an ID (all digits) or a slug
+    if event_identifier.isdigit():
+        event = db.query(Event).options(
+            joinedload(Event.locations),
+            joinedload(Event.images)
+        ).filter(Event.id == int(event_identifier)).first()
+    else:
+        event = db.query(Event).options(
+            joinedload(Event.locations),
+            joinedload(Event.images)
+        ).filter(Event.slug == event_identifier).first()
 
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -593,19 +607,23 @@ def get_event(
     event = db.query(Event).options(
         joinedload(Event.locations),
         joinedload(Event.images)
-    ).filter(Event.id == event_id).first()
+    ).filter(Event.id == event.id).first()
 
     event_dict = build_event_dict(event)
     return EventResponse.model_validate(event_dict)
 
-@router.put("/{event_id}", response_model=EventResponse)
+@router.put("/{event_identifier}", response_model=EventResponse)
 def update_event(
-    event_id: int,
+    event_identifier: str,
     event_data: EventUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    event = db.query(Event).filter(Event.id == event_id).first()
+    # Determine if identifier is an ID (all digits) or a slug
+    if event_identifier.isdigit():
+        event = db.query(Event).filter(Event.id == int(event_identifier)).first()
+    else:
+        event = db.query(Event).filter(Event.slug == event_identifier).first()
 
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -643,6 +661,11 @@ def update_event(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Too many location markers. Found {location_count}, maximum allowed is 20. Please reduce the number of location markers in your content."
             )
+
+    # Generate slug if event doesn't have one yet (for existing events)
+    if not event.slug:
+        title = update_dict.get('title', event.title)
+        event.slug = generate_unique_slug(title, db, event.id)
 
     for key, value in update_dict.items():
         setattr(event, key, value)

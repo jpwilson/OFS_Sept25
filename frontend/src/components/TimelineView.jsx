@@ -72,7 +72,7 @@ export default function TimelineView({ events = [] }) {
               className={`${styles.timelineItem} ${index % 2 === 0 ? styles.left : styles.right}`}
             >
               <div className={styles.timelineContent}>
-                <Link to={`/event/${event.id}`} className={styles.eventCard}>
+                <Link to={`/event/${event.slug || event.id}`} className={styles.eventCard}>
                   <div
                     className={styles.eventImage}
                     style={{ backgroundImage: `url(${event.cover_image_url})` }}

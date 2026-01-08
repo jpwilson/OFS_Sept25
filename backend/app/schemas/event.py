@@ -65,6 +65,7 @@ class EventUpdate(BaseModel):
 
 class EventResponse(EventBase):
     id: int
+    slug: Optional[str] = None
     author_id: int
     author_username: str
     author_full_name: Optional[str]

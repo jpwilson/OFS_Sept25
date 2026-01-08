@@ -492,7 +492,7 @@ function Profile() {
               {events.map(event => (
                 <Link
                   key={event.id}
-                  to={`/event/${event.id}`}
+                  to={`/event/${event.slug || event.id}`}
                   className={styles.eventCard}
                 >
                   <div
@@ -523,7 +523,7 @@ function Profile() {
               {drafts.map(event => (
                 <div key={event.id} className={`${styles.eventCard} ${styles.draftCard}`}>
                   <Link
-                    to={`/event/${event.id}`}
+                    to={`/event/${event.slug || event.id}`}
                     className={styles.eventCardLink}
                   >
                     <div
@@ -547,7 +547,7 @@ function Profile() {
                       ✓ Publish
                     </button>
                     <Link
-                      to={`/event/${event.id}/edit`}
+                      to={`/event/${event.slug || event.id}/edit`}
                       className={styles.editLinkButton}
                     >
                       ✎ Edit

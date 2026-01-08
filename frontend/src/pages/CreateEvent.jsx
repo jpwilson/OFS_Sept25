@@ -212,7 +212,7 @@ function CreateEvent() {
 
       // Navigate appropriately
       if (isPublished) {
-        navigate(`/event/${event.id}`)
+        navigate(`/event/${event.slug || event.id}`)
       } else {
         // Navigate to profile with drafts tab active
         navigate(`/profile/${user?.username}`, { state: { activeTab: 'drafts' } })

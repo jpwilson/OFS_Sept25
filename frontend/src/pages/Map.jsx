@@ -271,7 +271,7 @@ function Map() {
                   <div className={styles.popupMeta}>
                     {event.author_full_name} • {event.location_name}
                   </div>
-                  <Link to={`/event/${event.id}`} className={styles.viewButton}>
+                  <Link to={`/event/${event.slug || event.id}`} className={styles.viewButton}>
                     View Event
                   </Link>
                 </Popup>
@@ -304,7 +304,7 @@ function Map() {
                   title={event.title}
                 >
                   <Link
-                    to={`/event/${event.id}`}
+                    to={`/event/${event.slug || event.id}`}
                     className={styles.eventThumbLink}
                   >
                     <div className={styles.eventThumbOverlay}>

@@ -48,8 +48,9 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
 
   // Handle card click - check subscription access for expired users
   const handleEventClick = (event) => {
+    const eventPath = event.slug || event.id
     if (!user || canAccessContent) {
-      navigate(`/event/${event.id}`)
+      navigate(`/event/${eventPath}`)
       return
     }
 
@@ -57,7 +58,7 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
     const isPublicEvent = event.privacy_level === 'public'
 
     if (isFollowingAuthor || isPublicEvent) {
-      navigate(`/event/${event.id}`)
+      navigate(`/event/${eventPath}`)
     } else if (onUpgradePrompt) {
       onUpgradePrompt()
     }
