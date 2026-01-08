@@ -418,18 +418,30 @@ def cleanup_event_images(event) -> dict:
             'details': [...]
         }
     """
-    # Get image filenames (from Supabase)
-    image_filenames = get_all_event_image_filenames(event)
+    print(f"Starting cleanup for event {event.id}")
+
+    # Get image filenames (from Supabase) - wrapped in try/except
+    try:
+        image_filenames = get_all_event_image_filenames(event)
+    except Exception as e:
+        print(f"Error getting image filenames: {e}")
+        image_filenames = set()
 
     # Get Supabase video filenames from HTML (legacy videos)
     supabase_video_filenames = set()
-    if event.description:
-        supabase_video_filenames = extract_video_filenames_from_html(event.description)
+    try:
+        if event.description:
+            supabase_video_filenames = extract_video_filenames_from_html(event.description)
+    except Exception as e:
+        print(f"Error extracting Supabase video filenames: {e}")
 
     # Get Cloudinary public IDs from HTML (new Cloudinary videos)
     cloudinary_public_ids = set()
-    if event.description:
-        cloudinary_public_ids = extract_cloudinary_public_ids_from_html(event.description)
+    try:
+        if event.description:
+            cloudinary_public_ids = extract_cloudinary_public_ids_from_html(event.description)
+    except Exception as e:
+        print(f"Error extracting Cloudinary public IDs: {e}")
 
     # Also get videos from images table (if available)
     try:
@@ -460,39 +472,52 @@ def cleanup_event_images(event) -> dict:
 
     # Delete images from Supabase
     for filename in image_filenames:
-        result = delete_image_files(filename)
-        summary['files_deleted'] += len(result['deleted'])
-        summary['files_not_found'] += len(result['not_found'])
-        summary['errors'].extend(result['errors'])
-        summary['details'].append({
-            'type': 'image',
-            'filename': filename,
-            'result': result
-        })
+        try:
+            result = delete_image_files(filename)
+            summary['files_deleted'] += len(result['deleted'])
+            summary['files_not_found'] += len(result['not_found'])
+            summary['errors'].extend(result['errors'])
+            summary['details'].append({
+                'type': 'image',
+                'filename': filename,
+                'result': result
+            })
+        except Exception as e:
+            print(f"Error deleting image {filename}: {e}")
+            summary['errors'].append(f"Failed to delete image {filename}: {e}")
 
     # Delete Supabase videos (legacy)
     for filename in supabase_video_filenames:
-        result = delete_video_files(filename)
-        summary['files_deleted'] += len(result['deleted'])
-        summary['files_not_found'] += len(result['not_found'])
-        summary['errors'].extend(result['errors'])
-        summary['details'].append({
-            'type': 'supabase_video',
-            'filename': filename,
-            'result': result
-        })
+        try:
+            result = delete_video_files(filename)
+            summary['files_deleted'] += len(result['deleted'])
+            summary['files_not_found'] += len(result['not_found'])
+            summary['errors'].extend(result['errors'])
+            summary['details'].append({
+                'type': 'supabase_video',
+                'filename': filename,
+                'result': result
+            })
+        except Exception as e:
+            print(f"Error deleting Supabase video {filename}: {e}")
+            summary['errors'].append(f"Failed to delete Supabase video {filename}: {e}")
 
     # Delete Cloudinary videos (new)
     for public_id in cloudinary_public_ids:
-        result = delete_cloudinary_video(public_id)
-        if result['deleted']:
-            summary['files_deleted'] += 1
-        elif result['error']:
-            summary['errors'].append(result['error'])
-        summary['details'].append({
-            'type': 'cloudinary_video',
-            'public_id': public_id,
-            'result': result
-        })
+        try:
+            result = delete_cloudinary_video(public_id)
+            if result['deleted']:
+                summary['files_deleted'] += 1
+            elif result['error']:
+                summary['errors'].append(result['error'])
+            summary['details'].append({
+                'type': 'cloudinary_video',
+                'public_id': public_id,
+                'result': result
+            })
+        except Exception as e:
+            print(f"Error deleting Cloudinary video {public_id}: {e}")
+            summary['errors'].append(f"Failed to delete Cloudinary video {public_id}: {e}")
 
+    print(f"Cleanup complete for event {event.id}: {summary['files_deleted']} deleted, {len(summary['errors'])} errors")
     return summary
