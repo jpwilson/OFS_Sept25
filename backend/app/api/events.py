@@ -838,6 +838,8 @@ def permanently_delete_event(
     """Permanently delete event from trash and cleanup associated images"""
     from ..utils.image_cleanup import cleanup_event_images
 
+    print(f"Starting permanent delete for event {event_id}")
+
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if not event:
@@ -849,6 +851,8 @@ def permanently_delete_event(
     if not event.is_deleted:
         raise HTTPException(status_code=400, detail="Event must be in trash before permanent deletion")
 
+    print(f"Event {event_id} passed validation checks, starting cleanup...")
+
     # Try to clean up image/video files, but don't let cleanup failures block deletion
     cleanup_result = {'files_deleted': 0, 'files_not_found': 0, 'errors': []}
     try:
@@ -857,12 +861,23 @@ def permanently_delete_event(
     except Exception as e:
         error_msg = f"Warning: Cleanup failed for event {event_id}: {str(e)}"
         print(error_msg)
+        import traceback
+        traceback.print_exc()
         cleanup_result['errors'].append(error_msg)
         # Continue with deletion even if cleanup failed
 
     # Delete database record (SQLAlchemy will cascade delete related records)
-    db.delete(event)
-    db.commit()
+    try:
+        print(f"Deleting event {event_id} from database...")
+        db.delete(event)
+        db.commit()
+        print(f"✓ Event {event_id} permanently deleted from database")
+    except Exception as e:
+        print(f"✗ Database delete failed for event {event_id}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete event: {str(e)}")
 
     return {
         "message": "Event permanently deleted",
