@@ -95,3 +95,4 @@ class ShareLinkResponse(BaseModel):
     share_url: str
     expires_at: datetime
     view_count: int
+    shared_on: Optional[datetime] = None

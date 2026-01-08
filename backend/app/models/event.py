@@ -33,6 +33,7 @@ class Event(Base):
     share_enabled = Column(Boolean, default=False)
     share_expires_at = Column(DateTime, nullable=True)
     share_view_count = Column(Integer, default=0)
+    share_created_at = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

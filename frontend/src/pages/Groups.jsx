@@ -5,6 +5,7 @@ import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmModal'
 import apiService from '../services/api'
 import InviteFamilyModal from '../components/InviteFamilyModal'
+import ShareEventModal from '../components/ShareEventModal'
 import styles from './Groups.module.css'
 
 function Groups() {
@@ -29,8 +30,7 @@ function Groups() {
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
-  const [extendingLink, setExtendingLink] = useState(null) // Link being extended
-  const [extendDays, setExtendDays] = useState(3) // Default 3 days
+  const [managingLink, setManagingLink] = useState(null) // Link being managed via ShareEventModal
 
   useEffect(() => {
     loadAllData()
@@ -356,22 +356,12 @@ Looking forward to sharing our memories together!
     copyToClipboard(url, 'Event link copied!')
   }
 
-  function handleExtendShareLink(link) {
-    setExtendingLink(link)
-    setExtendDays(3) // Reset to default
-  }
-
-  async function confirmExtendShareLink() {
-    if (!extendingLink) return
-    try {
-      await apiService.updateShareLink(extendingLink.event_id, extendDays)
-      showToast(`Link extended by ${extendDays} day${extendDays > 1 ? 's' : ''}`, 'success')
-      loadShareLinks()
-      setExtendingLink(null)
-    } catch (error) {
-      console.error('Error extending link:', error)
-      showToast('Failed to extend link', 'error')
-    }
+  function handleManageShareLink(link) {
+    // Open ShareEventModal with an event-like object
+    setManagingLink({
+      id: link.event_id,
+      title: link.event_title
+    })
   }
 
   async function handleDisableShareLink(link) {
@@ -404,6 +394,16 @@ Looking forward to sharing our memories together!
     if (diffDays === 0) return 'Expires today'
     if (diffDays === 1) return 'Expires tomorrow'
     return `Expires in ${diffDays} days`
+  }
+
+  function formatSharedDate(sharedOn) {
+    if (!sharedOn) return null
+    const date = new Date(sharedOn)
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
   }
 
   if (loading) {
@@ -700,12 +700,18 @@ Looking forward to sharing our memories together!
                 return shareLinkFilter === 'active' ? !isExpired : isExpired
               })
               .map(link => (
-                <div key={link.id} className={styles.shareLinkCard}>
+                <div key={link.event_id} className={styles.shareLinkCard}>
                   <div className={styles.shareLinkInfo}>
                     <Link to={`/events/${link.event_id}`} className={styles.shareLinkTitle}>
                       {link.event_title}
                     </Link>
                     <div className={styles.shareLinkMeta}>
+                      {formatSharedDate(link.shared_on) && (
+                        <>
+                          <span>Shared {formatSharedDate(link.shared_on)}</span>
+                          <span className={styles.separator}>•</span>
+                        </>
+                      )}
                       <span className={link.expires_at && new Date(link.expires_at) <= new Date() ? styles.expired : ''}>
                         {formatExpiryDate(link.expires_at)}
                       </span>
@@ -722,10 +728,10 @@ Looking forward to sharing our memories together!
                     </button>
                     {(!link.expires_at || new Date(link.expires_at) > new Date()) && (
                       <button
-                        className={styles.extendBtn}
-                        onClick={() => handleExtendShareLink(link)}
+                        className={styles.manageBtn}
+                        onClick={() => handleManageShareLink(link)}
                       >
-                        Extend
+                        Manage
                       </button>
                     )}
                     <button
@@ -828,54 +834,16 @@ Looking forward to sharing our memories together!
         }}
       />
 
-      {/* Extend Share Link Modal */}
-      {extendingLink && (
-        <div className={styles.modalOverlay} onClick={() => setExtendingLink(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Extend Share Link</h2>
-              <button
-                className={styles.closeButton}
-                onClick={() => setExtendingLink(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <p className={styles.extendDescription}>
-                Extend the share link for "<strong>{extendingLink.event_title}</strong>"
-              </p>
-              <label className={styles.label}>Extend by:</label>
-              <div className={styles.daysSelector}>
-                {[1, 2, 3, 4, 5].map(days => (
-                  <button
-                    key={days}
-                    type="button"
-                    className={`${styles.dayButton} ${extendDays === days ? styles.selected : ''}`}
-                    onClick={() => setExtendDays(days)}
-                  >
-                    {days} {days === 1 ? 'day' : 'days'}
-                  </button>
-                ))}
-              </div>
-              <div className={styles.modalActions}>
-                <button
-                  className={styles.cancelButton}
-                  onClick={() => setExtendingLink(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className={styles.confirmButton}
-                  onClick={confirmExtendShareLink}
-                >
-                  Extend Link
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Share Event Modal - for managing existing share links */}
+      <ShareEventModal
+        isOpen={!!managingLink}
+        onClose={() => {
+          setManagingLink(null)
+          loadShareLinks()
+        }}
+        event={managingLink}
+        isManageMode={true}
+      />
 
       {/* Create/Edit Group Modal */}
       {showCreateModal && (

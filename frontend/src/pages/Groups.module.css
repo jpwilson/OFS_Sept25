@@ -1201,6 +1201,7 @@
 
 .copyBtn,
 .extendBtn,
+.manageBtn,
 .disableBtn {
   padding: 6px 14px;
   font-size: 13px;
@@ -1221,12 +1222,14 @@
   color: white;
 }
 
-.extendBtn {
+.extendBtn,
+.manageBtn {
   background: rgba(46, 204, 113, 0.1);
   color: #27ae60;
 }
 
-.extendBtn:hover {
+.extendBtn:hover,
+.manageBtn:hover {
   background: #27ae60;
   color: white;
 }

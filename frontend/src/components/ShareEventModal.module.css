@@ -227,6 +227,51 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+/* Extend Section */
+.extendSection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.extendRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.extendRow .daysSelector {
+  flex: 1;
+}
+
+.extendRow .dayButton {
+  min-width: 40px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.extendButton {
+  padding: 8px 16px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.extendButton:hover:not(:disabled) {
+  background: #219a52;
+}
+
+.extendButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .createButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;

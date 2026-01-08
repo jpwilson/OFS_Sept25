@@ -10,14 +10,17 @@ import styles from './ShareEventModal.module.css'
  * Allows users to:
  * 1. Create temporary shareable links for their events
  * 2. Send events directly via email with personal message
+ * 3. Manage existing share links (when isManageMode=true)
  */
-function ShareEventModal({ isOpen, onClose, event }) {
+function ShareEventModal({ isOpen, onClose, event, isManageMode = false }) {
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState('link') // 'link' or 'email'
   const [shareLink, setShareLink] = useState(null)
   const [expiresInDays, setExpiresInDays] = useState(3)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [extendDays, setExtendDays] = useState(3)
+  const [extending, setExtending] = useState(false)
 
   // Email form state
   const [recipientEmail, setRecipientEmail] = useState('')
@@ -70,6 +73,20 @@ function ShareEventModal({ isOpen, onClose, event }) {
       showToast('Failed to disable share link', 'error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleExtendLink() {
+    setExtending(true)
+    try {
+      const link = await apiService.updateShareLink(event.id, extendDays)
+      setShareLink(link)
+      showToast(`Link extended by ${extendDays} day${extendDays > 1 ? 's' : ''}`, 'success')
+    } catch (error) {
+      console.error('Failed to extend share link:', error)
+      showToast('Failed to extend share link', 'error')
+    } finally {
+      setExtending(false)
     }
   }
 
@@ -147,7 +164,7 @@ function ShareEventModal({ isOpen, onClose, event }) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Share Event</h3>
+          <h3 className={styles.title}>{isManageMode ? 'Shared Event' : 'Share Event'}</h3>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
@@ -180,7 +197,10 @@ function ShareEventModal({ isOpen, onClose, event }) {
             // Link Tab Content
             <>
               <p className={styles.description}>
-                Create a temporary public link to share this event. Anyone with the link can view it, even if they're not signed in.
+                {isManageMode
+                  ? 'Manage the temporary public link for this event. Anyone with the link can view it, even if they\'re not signed in.'
+                  : 'Create a temporary public link to share this event. Anyone with the link can view it, even if they\'re not signed in.'
+                }
               </p>
 
               {shareLink && !isExpired(shareLink.expires_at) ? (
@@ -202,6 +222,18 @@ function ShareEventModal({ isOpen, onClose, event }) {
                   </div>
 
                   <div className={styles.linkInfo}>
+                    {shareLink.shared_on && (
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Shared:</span>
+                        <span className={styles.infoValue}>
+                          {new Date(shareLink.shared_on).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    )}
                     <div className={styles.infoRow}>
                       <span className={styles.infoLabel}>Expires:</span>
                       <span className={styles.infoValue}>
@@ -211,6 +243,32 @@ function ShareEventModal({ isOpen, onClose, event }) {
                     <div className={styles.infoRow}>
                       <span className={styles.infoLabel}>Views:</span>
                       <span className={styles.infoValue}>{shareLink.view_count}</span>
+                    </div>
+                  </div>
+
+                  {/* Extend Section */}
+                  <div className={styles.extendSection}>
+                    <label className={styles.label}>Extend by:</label>
+                    <div className={styles.extendRow}>
+                      <div className={styles.daysSelector}>
+                        {[1, 2, 3, 4, 5].map(days => (
+                          <button
+                            key={days}
+                            type="button"
+                            className={`${styles.dayButton} ${extendDays === days ? styles.selected : ''}`}
+                            onClick={() => setExtendDays(days)}
+                          >
+                            {days}d
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        className={styles.extendButton}
+                        onClick={handleExtendLink}
+                        disabled={extending}
+                      >
+                        {extending ? 'Extending...' : 'Extend'}
+                      </button>
                     </div>
                   </div>
 

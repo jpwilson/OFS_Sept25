@@ -55,6 +55,7 @@ def create_share_link(
     event.share_enabled = True
     event.share_expires_at = expires_at
     event.share_view_count = 0
+    event.share_created_at = datetime.utcnow()
 
     db.commit()
     db.refresh(event)
@@ -66,7 +67,8 @@ def create_share_link(
         "share_token": share_token,
         "share_url": share_url,
         "expires_at": expires_at,
-        "view_count": 0
+        "view_count": 0,
+        "shared_on": event.share_created_at
     }
 
 @router.patch("/events/{event_id}/share", response_model=ShareLinkResponse)
@@ -192,7 +194,8 @@ def get_all_share_links(
             "share_url": f"/share/{event.share_token}",
             "expires_at": event.share_expires_at.isoformat() if event.share_expires_at else None,
             "view_count": event.share_view_count or 0,
-            "is_expired": is_expired
+            "is_expired": is_expired,
+            "shared_on": event.share_created_at.isoformat() if event.share_created_at else None
         })
 
     return {"share_links": share_links}
