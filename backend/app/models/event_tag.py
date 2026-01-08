@@ -33,7 +33,8 @@ class EventTag(Base):
     )
 
     # Relationships
-    event = relationship("Event", backref="event_tags")
+    # passive_deletes=True tells SQLAlchemy to let the DB handle CASCADE deletes
+    event = relationship("Event", backref="event_tags", passive_deletes=True)
     tagged_user = relationship("User", foreign_keys=[tagged_user_id], backref="tagged_in")
     tag_profile = relationship("TagProfile", back_populates="event_tags")
     tagged_by = relationship("User", foreign_keys=[tagged_by_id])
