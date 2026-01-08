@@ -40,26 +40,61 @@ def extract_media_urls(html_content: str) -> List[dict]:
 
 
 def sync_event_images(event_id: int, html_content: str, db: Session):
-    """Sync event_images table with media URLs in HTML content"""
+    """Sync event_images table with media URLs in HTML content.
+
+    Adds new images and removes orphaned ones (including from cloud storage).
+    """
+    from ..utils.image_cleanup import (
+        extract_filename_from_url,
+        extract_cloudinary_public_id,
+        delete_image_files,
+        delete_cloudinary_video
+    )
+
     media_urls = extract_media_urls(html_content)
+
+    # Normalize URL for comparison
+    def normalize_url(url):
+        return url.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
+
+    # Build set of normalized URLs currently in HTML
+    html_urls_normalized = {normalize_url(m['url']) for m in media_urls}
 
     # Get existing event_images for this event
     existing_images = db.query(EventImage).filter(EventImage.event_id == event_id).all()
-    existing_urls = {img.image_url for img in existing_images}
 
-    # Add new images that don't exist yet
+    # DELETE orphaned images (no longer in HTML)
+    for existing in existing_images:
+        normalized_existing = normalize_url(existing.image_url)
+        if normalized_existing not in html_urls_normalized:
+            # Delete from cloud storage first
+            try:
+                if existing.media_type == 'video':
+                    # Check if Cloudinary video
+                    public_id = extract_cloudinary_public_id(existing.image_url)
+                    if public_id:
+                        result = delete_cloudinary_video(public_id)
+                        print(f"Deleted Cloudinary video {public_id}: {result}")
+                else:
+                    # Image - delete from Supabase
+                    filename = extract_filename_from_url(existing.image_url)
+                    if filename:
+                        result = delete_image_files(filename)
+                        print(f"Deleted Supabase image {filename}: {result}")
+            except Exception as e:
+                # Log but don't block database cleanup
+                print(f"Warning: Failed to delete cloud file for {existing.image_url}: {e}")
+
+            # Delete database record
+            db.delete(existing)
+
+    # ADD new images that don't exist yet
+    existing_urls = {normalize_url(img.image_url) for img in existing_images}
     for idx, media in enumerate(media_urls):
         url = media['url']
-        # Normalize URL - check against full/medium/thumbnail variants
-        normalized = url.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
+        normalized = normalize_url(url)
 
-        # Check if any variant exists
-        url_exists = any(
-            normalized == existing.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
-            for existing in existing_urls
-        )
-
-        if not url_exists:
+        if normalized not in existing_urls:
             event_image = EventImage(
                 event_id=event_id,
                 image_url=normalized,

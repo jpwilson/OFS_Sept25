@@ -431,10 +431,10 @@ def cleanup_event_images(event) -> dict:
     if event.description:
         cloudinary_public_ids = extract_cloudinary_public_ids_from_html(event.description)
 
-    # Also get videos from event_images table (if available)
+    # Also get videos from images table (if available)
     try:
-        if hasattr(event, 'event_images'):
-            for event_image in event.event_images:
+        if hasattr(event, 'images'):
+            for event_image in event.images:
                 if hasattr(event_image, 'media_type') and event_image.media_type == 'video':
                     if event_image.image_url:  # Videos stored in image_url field
                         # Check if it's a Supabase or Cloudinary URL
