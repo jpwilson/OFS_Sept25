@@ -5,11 +5,9 @@ from .event_location import EventLocation
 from .event_image import EventImageResponse
 
 class ContentBlockBase(BaseModel):
-    type: str
-    content: Optional[str] = None
-    media_url: Optional[str] = None
-    caption: Optional[str] = None
-    order: int
+    content_type: str  # 'text', 'image', 'video'
+    content: str
+    order_index: int = 0
 
 class ContentBlockCreate(ContentBlockBase):
     pass
@@ -17,6 +15,7 @@ class ContentBlockCreate(ContentBlockBase):
 class ContentBlockResponse(ContentBlockBase):
     id: int
     event_id: int
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
