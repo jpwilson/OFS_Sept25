@@ -189,18 +189,20 @@ function EventDetail({ isShareMode = false }) {
       loadSharedEvent()
     } else if (id) {
       loadEvent()
-      loadComments()
-      loadTags()
-      if (user) {
-        loadLikes()
-      }
     }
-  }, [id, token, user, isShareMode])
+  }, [id, token, isShareMode])
 
-  // Load locations separately after event is loaded (needs event coordinates)
+  // Load comments, likes, tags, and locations AFTER event is loaded
+  // These endpoints require numeric event ID, not the slug
   useEffect(() => {
     if (event && !isShareMode) {
-      loadLocations()
+      const eventId = event.id  // Use numeric ID from loaded event
+      loadComments(eventId)
+      loadTags(eventId)
+      loadLocations(eventId)
+      if (user) {
+        loadLikes(eventId)
+      }
     } else if (event && isShareMode) {
       // In share mode, build locations from event data directly
       if (event.latitude && event.longitude) {
@@ -222,7 +224,7 @@ function EventDetail({ isShareMode = false }) {
 
   async function loadTags(eventId) {
     try {
-      const tags = await apiService.getEventTags(eventId || id)
+      const tags = await apiService.getEventTags(eventId)
       setEventTags(tags || [])
     } catch (error) {
       console.error('Error loading event tags:', error)
@@ -241,7 +243,7 @@ function EventDetail({ isShareMode = false }) {
     if (!confirmed) return
 
     try {
-      await apiService.deleteEvent(id)
+      await apiService.deleteEvent(event.id)
       showToast('Event moved to trash', 'success')
       navigate('/profile/' + user.username, { state: { activeTab: 'trash' } })
     } catch (error) {
@@ -262,7 +264,7 @@ function EventDetail({ isShareMode = false }) {
     if (!confirmed) return
 
     try {
-      await apiService.publishEvent(id)
+      await apiService.publishEvent(event.id)
       showToast('Event published successfully', 'success')
       // Reload event to update status
       await loadEvent()
@@ -284,7 +286,7 @@ function EventDetail({ isShareMode = false }) {
     if (!confirmed) return
 
     try {
-      await apiService.unpublishEvent(id)
+      await apiService.unpublishEvent(event.id)
       showToast('Event moved to drafts', 'success')
       // Reload event to update status
       await loadEvent()
@@ -363,9 +365,9 @@ function EventDetail({ isShareMode = false }) {
     }
   }
 
-  async function loadLocations() {
+  async function loadLocations(eventId) {
     try {
-      const data = await apiService.getEventLocations(id)
+      const data = await apiService.getEventLocations(eventId)
       const eventLocations = data || []
 
       // Add primary event location as the first location (if coordinates exist)
@@ -426,13 +428,13 @@ function EventDetail({ isShareMode = false }) {
     return `${startMonth} - ${endDate.toLocaleDateString('en-US', options)}`
   }
 
-  async function loadComments() {
-    const data = await apiService.getComments(id)
+  async function loadComments(eventId) {
+    const data = await apiService.getComments(eventId)
     setComments(data)
   }
 
-  async function loadLikes() {
-    const data = await apiService.getLikes(id)
+  async function loadLikes(eventId) {
+    const data = await apiService.getLikes(eventId)
     setLikeStats(data)
   }
 
@@ -445,13 +447,13 @@ function EventDetail({ isShareMode = false }) {
 
     try {
       if (likeStats.is_liked) {
-        await apiService.unlikeEvent(id)
+        await apiService.unlikeEvent(event.id)
         showToast('Unliked event', 'success')
       } else {
-        await apiService.likeEvent(id)
+        await apiService.likeEvent(event.id)
         showToast('Liked event', 'success')
       }
-      loadLikes()
+      loadLikes(event.id)
     } catch (error) {
       console.error('Error toggling like:', error)
       showToast('Failed to update like', 'error')
@@ -469,9 +471,9 @@ function EventDetail({ isShareMode = false }) {
 
     setCommentLoading(true)
     try {
-      await apiService.createComment(id, newComment.trim())
+      await apiService.createComment(event.id, newComment.trim())
       setNewComment('')
-      loadComments()
+      loadComments(event.id)
       showToast('Comment posted', 'success')
     } catch (error) {
       console.error('Error creating comment:', error)
@@ -492,8 +494,8 @@ function EventDetail({ isShareMode = false }) {
     if (!confirmed) return
 
     try {
-      await apiService.deleteComment(id, commentId)
-      loadComments()
+      await apiService.deleteComment(event.id, commentId)
+      loadComments(event.id)
       showToast('Comment deleted', 'success')
     } catch (error) {
       console.error('Error deleting comment:', error)
@@ -503,7 +505,7 @@ function EventDetail({ isShareMode = false }) {
 
   async function handleShowAllLikes() {
     if (!showAllLikes) {
-      const data = await apiService.getAllLikes(id)
+      const data = await apiService.getAllLikes(event.id)
       setAllLikes(data)
     }
     setShowAllLikes(!showAllLikes)
@@ -908,7 +910,7 @@ function EventDetail({ isShareMode = false }) {
                   Your request to follow @{privacyError.author_username} has been sent
                 </div>
               ) : (
-                <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
+                <Link to={`/profile/${privacyError.author_username}`} className={styles.requestFollowButton}>
                   Request to Follow @{privacyError.author_username}
                 </Link>
               )}
