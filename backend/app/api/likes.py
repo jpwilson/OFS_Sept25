@@ -16,8 +16,8 @@ class LikeResponse(BaseModel):
     event_id: int
     user_id: int
     username: str
-    full_name: str
-    avatar_url: Optional[str]
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
     created_at: datetime
 
     class Config:

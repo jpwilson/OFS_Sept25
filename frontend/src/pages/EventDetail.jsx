@@ -310,10 +310,12 @@ function EventDetail({ isShareMode = false }) {
       setPrivacyError(null)
       setLoading(false)
     } catch (error) {
-      console.error('Error loading event:', error)
-      // Check if it's a privacy/permission error (403)
+      // Check if it's a privacy/permission error (403) - this is expected behavior
       if (error.response?.status === 403 && error.response?.data?.detail) {
         setPrivacyError(error.response.data.detail)
+      } else {
+        // Only log unexpected errors
+        console.error('Error loading event:', error)
       }
       setLoading(false)
     }
