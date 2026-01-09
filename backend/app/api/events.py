@@ -151,6 +151,9 @@ def build_event_dict(event):
                 "updated_at": img.updated_at.isoformat() if img.updated_at else None
             })
 
+    # Debug: log slug value
+    print(f"DEBUG build_event_dict: event.id={event.id}, event.slug={event.slug}")
+
     return {
         "id": event.id,
         "slug": event.slug,
