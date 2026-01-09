@@ -151,9 +151,6 @@ def build_event_dict(event):
                 "updated_at": img.updated_at.isoformat() if img.updated_at else None
             })
 
-    # Debug: log slug value
-    print(f"DEBUG build_event_dict: event.id={event.id}, event.slug={event.slug}")
-
     return {
         "id": event.id,
         "slug": event.slug,
@@ -244,6 +241,7 @@ def get_events(
                 # Description is only loaded in detail view to keep payload small
                 event_dict = {
                     "id": event.id,
+                    "slug": event.slug,
                     "title": event.title,
                     "summary": event.summary,
                     "description": "",  # Empty in list view - loaded in detail view only
