@@ -123,7 +123,8 @@ function Feed() {
     }
 
     // Sort based on orderBy preference and direction
-    const sortMultiplier = sortDirection === 'asc' ? 1 : -1
+    // desc = most recent first (default), asc = oldest first
+    const sortMultiplier = sortDirection === 'desc' ? 1 : -1
     if (orderBy === 'upload_date') {
       filtered.sort((a, b) => sortMultiplier * (new Date(b.created_at) - new Date(a.created_at)))
     } else {

@@ -281,7 +281,7 @@ export default function EventFilters({
               <button
                 className={styles.sortDirectionButton}
                 onClick={() => setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')}
-                title={sortDirection === 'desc' ? 'Showing newest first - click for oldest first' : 'Showing oldest first - click for newest first'}
+                title={sortDirection === 'desc' ? 'Currently: Most recent first' : 'Currently: Oldest first'}
               >
                 {sortDirection === 'desc' ? '↓' : '↑'}
               </button>
