@@ -2292,6 +2292,51 @@ class ApiService {
       return { types: [] }
     }
   }
+
+  // ========================================
+  // MUTED USERS
+  // ========================================
+
+  async getMutedUsers() {
+    try {
+      const response = await fetch(`${API_BASE}/users/me/muted`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch muted users')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching muted users:', error)
+      return []
+    }
+  }
+
+  async muteUser(userId) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${userId}/mute`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to mute user')
+      return await response.json()
+    } catch (error) {
+      console.error('Error muting user:', error)
+      throw error
+    }
+  }
+
+  async unmuteUser(userId) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${userId}/mute`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to unmute user')
+      return await response.json()
+    } catch (error) {
+      console.error('Error unmuting user:', error)
+      throw error
+    }
+  }
 }
 
 export default new ApiService()

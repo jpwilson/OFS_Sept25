@@ -40,6 +40,8 @@ function Feed() {
   const [selectedUsers, setSelectedUsers] = useState([]) // Multi-select user filter
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
   const [orderBy, setOrderBy] = useState('upload_date') // 'event_date' or 'upload_date'
+  const [sortDirection, setSortDirection] = useState('desc') // 'asc' or 'desc'
+  const [mutedUsers, setMutedUsers] = useState([])
 
   // Require login to view Feed
   useEffect(() => {
@@ -52,6 +54,7 @@ function Feed() {
     if (user) {
       loadEvents()
       loadFollowing()
+      loadMutedUsers()
     }
   }, [user, orderBy])  // Reload when orderBy changes
 
@@ -63,9 +66,22 @@ function Feed() {
     }
   }
 
+  const loadMutedUsers = async () => {
+    if (user) {
+      const muted = await apiService.getMutedUsers()
+      setMutedUsers(muted)
+    }
+  }
+
+  const handleMutedUsersChange = () => {
+    // Reload muted users and events when mute state changes
+    loadMutedUsers()
+    loadEvents()
+  }
+
   useEffect(() => {
     applyFilters()
-  }, [filter, selectedCategories, selectedUsers, selectedDateRange, events, following, orderBy])
+  }, [filter, selectedCategories, selectedUsers, selectedDateRange, events, following, orderBy, sortDirection])
 
   async function loadEvents() {
     const data = await apiService.getEvents(orderBy)
@@ -106,11 +122,12 @@ function Feed() {
       )
     }
 
-    // Sort based on orderBy preference
+    // Sort based on orderBy preference and direction
+    const sortMultiplier = sortDirection === 'asc' ? 1 : -1
     if (orderBy === 'upload_date') {
-      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      filtered.sort((a, b) => sortMultiplier * (new Date(b.created_at) - new Date(a.created_at)))
     } else {
-      filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+      filtered.sort((a, b) => sortMultiplier * (new Date(b.start_date) - new Date(a.start_date)))
     }
 
     setFilteredEvents(filtered)
@@ -199,6 +216,10 @@ function Feed() {
         onFollowingUpdate={loadFollowing}
         orderBy={orderBy}
         setOrderBy={setOrderBy}
+        sortDirection={sortDirection}
+        setSortDirection={setSortDirection}
+        mutedUsers={mutedUsers}
+        onMutedUsersChange={handleMutedUsersChange}
       />
 
       <div className={styles.viewContent}>

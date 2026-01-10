@@ -30,7 +30,11 @@ export default function EventFilters({
   setSelectedUsers,
   onFollowingUpdate,
   orderBy,
-  setOrderBy
+  setOrderBy,
+  sortDirection,
+  setSortDirection,
+  mutedUsers,
+  onMutedUsersChange
 }) {
   const { showToast } = useToast()
   const { user } = useAuth()
@@ -43,6 +47,10 @@ export default function EventFilters({
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [userSearchResults, setUserSearchResults] = useState([])
   const [searchingUsers, setSearchingUsers] = useState(false)
+  const [muteDropdownOpen, setMuteDropdownOpen] = useState(false)
+  const [muteSearchQuery, setMuteSearchQuery] = useState('')
+  const [muteSearchResults, setMuteSearchResults] = useState([])
+  const [searchingMuteUsers, setSearchingMuteUsers] = useState(false)
 
   // User search with debouncing
   useEffect(() => {
@@ -78,6 +86,55 @@ export default function EventFilters({
     }
   }
 
+  // Mute user search with debouncing
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (muteSearchQuery.trim().length >= 2) {
+        setSearchingMuteUsers(true)
+        const results = await apiService.searchUsers(muteSearchQuery)
+        // Filter out current user and already muted users
+        const mutedIds = mutedUsers?.map(m => m.id) || []
+        const filteredResults = results.filter(r =>
+          r.username !== user?.username && !mutedIds.includes(r.id)
+        )
+        setMuteSearchResults(filteredResults)
+        setSearchingMuteUsers(false)
+      } else {
+        setMuteSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [muteSearchQuery, user, mutedUsers])
+
+  const handleMuteUser = async (userId, username) => {
+    try {
+      await apiService.muteUser(userId)
+      showToast(`Muted @${username}`, 'success')
+      setMuteSearchQuery('')
+      setMuteSearchResults([])
+      if (onMutedUsersChange) {
+        onMutedUsersChange()
+      }
+    } catch (error) {
+      console.error('Error muting user:', error)
+      showToast('Failed to mute user', 'error')
+    }
+  }
+
+  const handleUnmuteUser = async (userId, username) => {
+    try {
+      await apiService.unmuteUser(userId)
+      showToast(`Unmuted @${username}`, 'success')
+      if (onMutedUsersChange) {
+        onMutedUsersChange()
+      }
+    } catch (error) {
+      console.error('Error unmuting user:', error)
+      showToast('Failed to unmute user', 'error')
+    }
+  }
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -90,10 +147,13 @@ export default function EventFilters({
       if (userDropdownOpen && !e.target.closest(`.${styles.userDropdownWrapper}`)) {
         setUserDropdownOpen(false)
       }
+      if (muteDropdownOpen && !e.target.closest(`.${styles.muteDropdownWrapper}`)) {
+        setMuteDropdownOpen(false)
+      }
     }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
-  }, [dateDropdownOpen, categoryDropdownOpen, userDropdownOpen])
+  }, [dateDropdownOpen, categoryDropdownOpen, userDropdownOpen, muteDropdownOpen])
 
   // Helper to format date range for display
   const getDateLabel = () => {
@@ -217,6 +277,13 @@ export default function EventFilters({
                 title="Sort by when the event occurred"
               >
                 Event Date
+              </button>
+              <button
+                className={styles.sortDirectionButton}
+                onClick={() => setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')}
+                title={sortDirection === 'desc' ? 'Showing newest first - click for oldest first' : 'Showing oldest first - click for newest first'}
+              >
+                {sortDirection === 'desc' ? '↓' : '↑'}
               </button>
             </div>
 
@@ -365,6 +432,84 @@ export default function EventFilters({
               >
                 My Events
               </button>
+            </div>
+
+            {/* Mute Dropdown */}
+            <div className={styles.muteDropdownWrapper}>
+              <button
+                className={`${styles.dropdownButton} ${mutedUsers?.length > 0 ? styles.hasSelection : ''}`}
+                onClick={() => setMuteDropdownOpen(!muteDropdownOpen)}
+              >
+                Mute {mutedUsers?.length > 0 && `(${mutedUsers.length})`}
+                <span className={styles.dropdownArrow}>{muteDropdownOpen ? '▲' : '▼'}</span>
+              </button>
+              {muteDropdownOpen && (
+                <div className={styles.muteDropdownMenu}>
+                  {/* Search section */}
+                  <div className={styles.muteSearchSection}>
+                    <input
+                      type="text"
+                      placeholder="Search users to mute..."
+                      value={muteSearchQuery}
+                      onChange={(e) => setMuteSearchQuery(e.target.value)}
+                      className={styles.muteSearchInput}
+                    />
+                    {searchingMuteUsers && (
+                      <div className={styles.muteSearchLoading}>Searching...</div>
+                    )}
+                    {muteSearchResults.length > 0 && (
+                      <div className={styles.muteSearchResults}>
+                        {muteSearchResults.map(result => (
+                          <div key={result.id} className={styles.muteSearchResult}>
+                            <div className={styles.muteUserInfo}>
+                              <span className={styles.muteUserName}>
+                                {result.full_name || result.username}
+                              </span>
+                              <span className={styles.muteUserUsername}>@{result.username}</span>
+                            </div>
+                            <button
+                              className={styles.muteButton}
+                              onClick={() => handleMuteUser(result.id, result.username)}
+                            >
+                              Mute
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Muted users list */}
+                  {mutedUsers && mutedUsers.length > 0 && (
+                    <>
+                      <div className={styles.muteDivider}></div>
+                      <div className={styles.mutedUsersList}>
+                        <div className={styles.mutedUsersHeader}>Muted Users:</div>
+                        {mutedUsers.map(mutedUser => (
+                          <label key={mutedUser.id} className={styles.mutedUserItem}>
+                            <input
+                              type="checkbox"
+                              checked={true}
+                              onChange={() => handleUnmuteUser(mutedUser.id, mutedUser.username)}
+                            />
+                            <span className={styles.mutedUserName}>
+                              {mutedUser.full_name || mutedUser.username}
+                            </span>
+                            <span className={styles.mutedUserUsername}>@{mutedUser.username}</span>
+                          </label>
+                        ))}
+                        <div className={styles.mutedUsersHint}>Uncheck to unmute</div>
+                      </div>
+                    </>
+                  )}
+
+                  {(!mutedUsers || mutedUsers.length === 0) && muteSearchResults.length === 0 && !muteSearchQuery && (
+                    <div className={styles.noMutedUsers}>
+                      Search for users to mute
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Hide Filters - right aligned */}

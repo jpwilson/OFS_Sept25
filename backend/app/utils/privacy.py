@@ -163,6 +163,13 @@ def filter_events_for_feed(
     # Privacy gates for followers/close_family/custom_group applied at detail view
     query = query.filter(Event.privacy_level != "private")
 
+    # Filter out events from muted users
+    from ..models.user_mute import UserMute
+    muted_user_ids = db.query(UserMute.muted_user_id).filter(
+        UserMute.muter_id == viewer.id
+    ).subquery()
+    query = query.filter(~Event.author_id.in_(muted_user_ids))
+
     return query
 
 

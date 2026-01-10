@@ -6,6 +6,7 @@ from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models.user import User
 from ..models.follow import Follow
+from ..models.user_mute import UserMute
 from ..services.email_service import send_follow_request_email, send_new_follower_email
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -863,3 +864,87 @@ def get_user_events(
         response.append(EventResponse.model_validate(event_dict))
 
     return response
+
+
+# ============== MUTE ENDPOINTS ==============
+
+@router.get("/me/muted")
+def get_muted_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get list of users the current user has muted"""
+    mutes = db.query(UserMute).filter(
+        UserMute.muter_id == current_user.id
+    ).all()
+
+    muted_list = []
+    for mute in mutes:
+        user = mute.muted_user
+        muted_list.append({
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "avatar_url": user.avatar_url,
+            "muted_at": mute.created_at
+        })
+
+    return muted_list
+
+
+@router.post("/{user_id}/mute")
+def mute_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Mute a user - their events won't appear in your feed"""
+    # Check if user exists
+    user_to_mute = db.query(User).filter(User.id == user_id).first()
+    if not user_to_mute:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Can't mute yourself
+    if user_to_mute.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot mute yourself")
+
+    # Check if already muted
+    existing_mute = db.query(UserMute).filter(
+        UserMute.muter_id == current_user.id,
+        UserMute.muted_user_id == user_to_mute.id
+    ).first()
+
+    if existing_mute:
+        return {"message": "User already muted", "muted": True}
+
+    # Create mute
+    mute = UserMute(
+        muter_id=current_user.id,
+        muted_user_id=user_to_mute.id
+    )
+
+    db.add(mute)
+    db.commit()
+
+    return {"message": f"Muted {user_to_mute.username}", "muted": True}
+
+
+@router.delete("/{user_id}/mute")
+def unmute_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Unmute a user - their events will appear in your feed again"""
+    mute = db.query(UserMute).filter(
+        UserMute.muter_id == current_user.id,
+        UserMute.muted_user_id == user_id
+    ).first()
+
+    if not mute:
+        return {"message": "User not muted", "muted": False}
+
+    db.delete(mute)
+    db.commit()
+
+    return {"message": "User unmuted", "muted": False}

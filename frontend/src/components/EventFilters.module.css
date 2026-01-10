@@ -549,3 +549,170 @@
     justify-content: center;
   }
 }
+
+/* Sort direction button */
+.sortDirectionButton {
+  padding: 8px 12px;
+  border: none;
+  background: #2a2a2a;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 1px solid #444;
+}
+
+.sortDirectionButton:hover {
+  background: #333;
+  color: #667eea;
+}
+
+/* Mute dropdown */
+.muteDropdownWrapper {
+  position: relative;
+}
+
+.muteDropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 280px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.muteSearchSection {
+  margin-bottom: 8px;
+}
+
+.muteSearchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+}
+
+.muteSearchInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.muteSearchLoading {
+  padding: 8px;
+  color: #888;
+  font-size: 13px;
+}
+
+.muteSearchResults {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.muteSearchResult {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.muteSearchResult:hover {
+  background: #333;
+}
+
+.muteUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.muteUserName {
+  color: #fff;
+  font-size: 14px;
+}
+
+.muteUserUsername {
+  color: #888;
+  font-size: 12px;
+}
+
+.muteButton {
+  padding: 4px 12px;
+  border: 1px solid #f87171;
+  background: transparent;
+  color: #f87171;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.muteButton:hover {
+  background: #f87171;
+  color: #fff;
+}
+
+.muteDivider {
+  height: 1px;
+  background: #444;
+  margin: 12px 0;
+}
+
+.mutedUsersList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mutedUsersHeader {
+  color: #888;
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mutedUserItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.mutedUserItem input[type="checkbox"] {
+  accent-color: #667eea;
+}
+
+.mutedUserItem .mutedUserName {
+  font-size: 13px;
+}
+
+.mutedUserItem .mutedUserUsername {
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.mutedUsersHint {
+  color: #666;
+  font-size: 11px;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.noMutedUsers {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 12px;
+}
