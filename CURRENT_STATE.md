@@ -1,6 +1,6 @@
 # Our Family Socials - Current State Summary
 
-**Last Updated:** November 12, 2025
+**Last Updated:** January 11, 2026
 **Status:** Production - Live at ourfamilysocials.com
 **Purpose:** Private social network for families to share life events, photos, and memories
 
@@ -112,7 +112,54 @@ OFS_claude/
 
 ---
 
-## 🎯 Recent Major Work (November 2025)
+## 🎯 Recent Major Work (November 2025 - January 2026)
+
+### Quick Add Feature (January 2026)
+**Purpose:** Rapid event creation from the feed
+- Floating "+" button in header that expands on hover
+- Shows "Quick Add" tooltip
+- Direct link to CreateEvent page
+- **Key Files:** `frontend/src/components/Header.jsx`
+
+### Feed Sort & Mute Users (January 2026)
+**Features:**
+- Sort direction toggle (most recent first / oldest first)
+- User muting to hide content from specific users
+- **Key Files:** `frontend/src/pages/Feed.jsx`, `backend/app/models/user_mute.py`
+
+### URL-Friendly Slugs (December 2025 - January 2026)
+**Purpose:** SEO-friendly event URLs
+- Events now have slugs like `/events/my-vacation-2025` instead of just `/events/123`
+- Auto-generated from event title
+- **Key Files:** `backend/app/utils/slug.py`, `backend/app/models/event.py`
+
+### Share Link Management (December 2025)
+**Features:**
+- Copy share link to clipboard
+- Extend expiration (add days)
+- Disable/enable share links
+- Show share date and expiration
+- **Key Files:** `frontend/src/pages/Profile.jsx`, `backend/app/api/share_links.py`
+
+### Family Tree Visualization (November-December 2025)
+**Features:**
+- Interactive family tree graph using family-chart library
+- Based on tag profile relationships
+- D3 zoom/pan support
+- **Key Files:** `frontend/src/pages/FamilyTree.jsx`, `frontend/src/utils/familyTreeTransform.js`
+
+### Relationships System (November-December 2025)
+**Features:**
+- Tag profiles (group profiles for non-users like "Grandma", "Uncle Bob")
+- Multiple relationships per tag profile with approval workflow
+- Relationship types configurable
+- **Key Files:** `backend/app/api/tag_profiles.py`, `backend/app/api/relationships.py`
+
+### Order By Toggle (November-December 2025)
+**Features:**
+- Toggle between "Event Date" and "Upload Date" sorting
+- Slider-style UI in filter row
+- **Key Files:** `frontend/src/components/EventFilters.jsx`
 
 ### Image Caption System (Nov 8-12, 2025)
 **Problem:** Users couldn't add captions to images or click images to view full-screen
@@ -131,8 +178,6 @@ OFS_claude/
 - `backend/app/api/events.py` - Event API with event_images included
 - `frontend/src/pages/EventDetail.jsx` - Caption display and image click handling
 - `frontend/src/components/ImageGallery.jsx` - Lightbox with Captions plugin
-
-**Commits:** df531b0, 4ae3bb8, 3044d3c
 
 **See:** DEVELOPMENT_LOG.md for detailed implementation notes
 
@@ -335,18 +380,28 @@ git push origin main
 
 ## 🎯 Current Priorities
 
-### Completed (November 2025)
-✅ Image caption system
+### Completed (November 2025 - January 2026)
+✅ Image caption system with lightbox
 ✅ Clickable images with lightbox
 ✅ Caption toggle (single control for all captions)
 ✅ Connection pool optimization
+✅ URL-friendly slugs for events
+✅ Share link management (copy, extend, disable)
+✅ Family tree visualization
+✅ Tag profiles and relationships system
+✅ Feed sort direction toggle
+✅ User muting
+✅ Quick Add button for rapid event creation
+✅ Order By toggle (event date vs upload date)
+✅ Follow status UI improvements
+✅ Stripe subscription integration (trial, monthly, annual)
+✅ Email notifications system
 
-### Next Steps (When User Requests)
-See POST_LAUNCH_TODO.md for full list:
-- Stripe integration for premium subscriptions
-- Profile enhancements
-- Admin panel
+### Potential Next Steps
+- Admin panel for content moderation
+- Mobile app (React Native)
 - Performance optimizations
+- Additional social features based on user feedback
 
 ---
 

@@ -1,129 +1,78 @@
 # Our Family Socials (OFS) - Project Context
 
-**Last Updated**: December 2024
+**Production:** ourfamilysocials.com
+**Status:** Live with real users
+**Last Updated:** January 2026
 
 ---
 
-## Vision & Core Concept
+## What Is This?
 
-A curated social network for trusted friends and family to share rich, detailed life experiences - from vacations and weddings to DIY projects - in a magazine-style format with proper context, timeline, and geographic information.
+A private social network for families to share rich, magazine-style life experiences. Think Instagram meets a travel blog, with proper storytelling, timeline, and geographic context.
 
-### The Problem
-Current social platforms lack:
-- Proper contextualization of photos with narrative
-- Timeline and geographic mapping
-- Magazine/blog-style layout where images are inline with relevant text
-- Ability to create detailed, multi-day event stories
-
-### The Solution
-A platform for detailed, structured event stories with rich content, timeline, locations, and curated sharing to trusted circles.
+**Target Users:** Families and close friends who want to document life events (vacations, weddings, milestones) in more depth than typical social media.
 
 ---
 
-## Current Tech Stack
+## Business Model
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React + Vite |
-| Backend | FastAPI (Python) |
-| Database | PostgreSQL on Supabase |
-| Auth | Supabase Auth |
-| Hosting | Vercel (frontend + backend serverless) |
-| Payments | Stripe |
-| Email | Resend API |
-| Images | Cloudinary |
+| Tier | Price | Limits |
+|------|-------|--------|
+| Free | $0 | 5 published events |
+| Premium (Annual) | $9/mo | Unlimited |
+| Premium (Monthly) | $12/mo | Unlimited |
+| Trial | 30 days free | Full access |
 
 ---
 
-## Features Implemented
+## Tech Stack (TL;DR)
 
-### Authentication & Users
-- Supabase Auth (email/password)
-- User profiles (username, display name, avatar, banner)
-- Follow/follower system with approval
-- Close Family designation
-- Email verification
-
-### Subscription System
-- 30-day free trial
-- Stripe payments ($9/mo annual, $12/mo monthly)
-- Free: 5 events max | Premium: Unlimited
-- Subscription management UI
-
-### Events
-- Rich text editor (Tiptap) with inline images
-- Cover images, captions
-- Multi-location support with maps
-- Categories: Birthday, Anniversary, Vacation, etc.
-- Privacy: Public, Followers, Close Family, Custom Group, Private
-- Draft/publish workflow, soft delete with restore
-- Temporary share links
-
-### Feed & Discovery
-- Filtering (All/Following/My Events, Category, Date)
-- User search with follow
-- 1/2/3 column layouts
-- Sorted by event date (most recent first)
-
-### Social Features
-- Comments, likes, view counts
-- Follow requests (approve/reject)
-
-### Sharing
-- **Sharing page**: Manage followers, requests, invitations
-- Invite non-users via email
-- Temporary share links with expiration
-- Custom groups
-
-### Notifications (Email)
-- New follower, comment, shared event, new event from followed user
-- User preference controls
-- Rate limiting
-
-### Profile
-- Published/Drafts/Shared Links/Trash tabs
-- Edit settings
-
-### Maps
-- Event locations on map
-- Location autocomplete
-- GPS extraction from photos
+- **Frontend:** React + Vite on Vercel
+- **Backend:** FastAPI (Python) on Vercel Serverless
+- **Database:** PostgreSQL on Supabase
+- **Auth:** Supabase Auth
+- **Media:** Cloudinary
+- **Payments:** Stripe
+- **Email:** Resend
 
 ---
 
-## Key Database Tables
+## Key Features
 
-`users`, `events`, `content_blocks`, `event_images`, `event_locations`, `follows`, `comments`, `likes`, `custom_groups`, `share_tokens`, `invited_viewers`
+**Content:** Rich text events with inline images, captions, cover images, multi-location support, categories, GPS extraction from photos
 
-**Cascade deletes**: User deletion cascades to all related data.
+**Social:** Follow system with approval, comments, likes, user profiles, muting
 
----
+**Privacy:** Public/Followers/Close Family/Custom Group/Private levels, temporary share links
 
-## Recent Changes (Dec 2024)
-
-- **Sharing simplification**: Removed "Invited Viewer" concept - just "Followers" now
-- **New Sharing page**: Table with followers, pending requests, invitations
-- **Feed defaults**: 3 columns, sorted by event date, clickable search results
-- **Event defaults**: Privacy = Followers, Category = Daily Life
-- **Cascade deletes**: Easy user deletion via SQL
+**Discovery:** Feed with layouts and filters, map view, timeline view, search
 
 ---
 
-## File Structure
+## Documentation Structure
 
-```
-/backend/app/api/      # Routes (events, users, auth, etc.)
-/backend/app/models/   # SQLAlchemy models
-/frontend/src/pages/   # React pages
-/frontend/src/components/
-```
+| File | Purpose |
+|------|---------|
+| **README.md** | Quick start, tech stack, architecture diagram |
+| **CURRENT_STATE.md** | Developer onboarding, patterns, recent work |
+| **ARCHITECTURE.md** | Detailed system design, data flow, schemas |
+| **CHANGELOG.md** | Project history, decisions, lessons learned |
+| **DATABASE_NOTES.md** | Connection pooling, schema change process |
 
 ---
 
 ## For AI Assistants
 
-1. Read this file first
-2. Check recent commits: `git log --oneline -20`
-3. React frontend + FastAPI backend
-4. Database: PostgreSQL on Supabase
-5. See `REQUIREMENTS.md` for original requirements, `DESIGN_DECISION.md` for design choices
+1. Read **CURRENT_STATE.md** first - critical patterns
+2. Check commits: `git log --oneline -20`
+3. **Always run `npm run build`** before pushing
+4. No local database - test in production
+5. Revert fast if broken: `git revert HEAD --no-edit && git push`
+
+---
+
+## Original Vision
+
+> "A curated social network for trusted friends and family to share rich, detailed life experiences - from vacations and weddings to DIY projects - in a magazine-style format with proper context, timeline, and geographic information."
+
+This vision is now realized in production.
