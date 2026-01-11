@@ -95,18 +95,19 @@ function Header() {
         {user && user.subscription_tier === 'free' && (
           <Link to="/billing" className={styles.premiumLink}>Go Premium</Link>
         )}
-        <Link to="/feed">Explore</Link>
-        <Link to="/groups">Sharing</Link>
-        {user && <Link to="/family-tree">Family</Link>}
         {user && (
           <button
             className={styles.quickAddButton}
             onClick={() => setShowQuickAdd(true)}
-            aria-label="Quick Add"
+            title="Quick Add"
           >
-            +
+            <span className={styles.quickAddIcon}>+</span>
+            <span className={styles.quickAddText}>Quick Add</span>
           </button>
         )}
+        <Link to="/feed">Explore</Link>
+        <Link to="/groups">Sharing</Link>
+        {user && <Link to="/family-tree">Family</Link>}
         <Link to="/create">Create</Link>
         {user ? (
           <span className={styles.profileLink}>
@@ -129,12 +130,6 @@ function Header() {
       {mobileMenuOpen && (
         <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu}>
           <nav className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
-            {user && user.subscription_tier === 'free' && (
-              <Link to="/billing" className={styles.premiumLink} onClick={closeMobileMenu}>Go Premium</Link>
-            )}
-            <Link to="/feed" onClick={closeMobileMenu}>Explore</Link>
-            <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
-            {user && <Link to="/family-tree" onClick={closeMobileMenu}>Family</Link>}
             {user && (
               <button
                 className={styles.quickAddButtonMobile}
@@ -143,6 +138,12 @@ function Header() {
                 + Quick Add
               </button>
             )}
+            {user && user.subscription_tier === 'free' && (
+              <Link to="/billing" className={styles.premiumLink} onClick={closeMobileMenu}>Go Premium</Link>
+            )}
+            <Link to="/feed" onClick={closeMobileMenu}>Explore</Link>
+            <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
+            {user && <Link to="/family-tree" onClick={closeMobileMenu}>Family</Link>}
             <Link to="/create" onClick={closeMobileMenu}>Create</Link>
             {user ? (
               <span className={styles.profileLink}>
