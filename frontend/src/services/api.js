@@ -86,6 +86,17 @@ class ApiService {
     return await response.json()
   }
 
+  async getLastEventLocation() {
+    const headers = await this.getAuthHeaders()
+    const response = await fetch(`${API_BASE}/events/me/last-location`, { headers })
+
+    if (!response.ok) {
+      return null
+    }
+
+    return await response.json()
+  }
+
   async createEvent(eventData, isPublished = true) {
     try {
       const url = `${API_BASE}/events?is_published=${isPublished}`

@@ -535,6 +535,26 @@ def get_user_trash(
 
     return response
 
+@router.get("/me/last-location")
+def get_last_event_location(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get location from user's most recent event that has a location set"""
+    last_event = db.query(Event).filter(
+        Event.author_id == current_user.id,
+        Event.location_name.isnot(None),
+        Event.is_deleted == False
+    ).order_by(Event.created_at.desc()).first()
+
+    if last_event:
+        return {
+            "location_name": last_event.location_name,
+            "latitude": last_event.latitude,
+            "longitude": last_event.longitude
+        }
+    return None
+
 @router.get("/{event_identifier}", response_model=EventResponse)
 def get_event(
     event_identifier: str,

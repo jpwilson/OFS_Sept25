@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import apiService from '../services/api'
 import NotificationDot from './NotificationDot'
+import QuickAddModal from './QuickAddModal'
 import styles from './Header.module.css'
 
 function Header() {
@@ -16,6 +17,7 @@ function Header() {
   })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
 
   // Apply saved theme on mount
   useEffect(() => {
@@ -96,6 +98,15 @@ function Header() {
         <Link to="/feed">Explore</Link>
         <Link to="/groups">Sharing</Link>
         {user && <Link to="/family-tree">Family</Link>}
+        {user && (
+          <button
+            className={styles.quickAddButton}
+            onClick={() => setShowQuickAdd(true)}
+            aria-label="Quick Add"
+          >
+            +
+          </button>
+        )}
         <Link to="/create">Create</Link>
         {user ? (
           <span className={styles.profileLink}>
@@ -124,6 +135,14 @@ function Header() {
             <Link to="/feed" onClick={closeMobileMenu}>Explore</Link>
             <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
             {user && <Link to="/family-tree" onClick={closeMobileMenu}>Family</Link>}
+            {user && (
+              <button
+                className={styles.quickAddButtonMobile}
+                onClick={() => { setShowQuickAdd(true); closeMobileMenu() }}
+              >
+                + Quick Add
+              </button>
+            )}
             <Link to="/create" onClick={closeMobileMenu}>Create</Link>
             {user ? (
               <span className={styles.profileLink}>
@@ -146,6 +165,10 @@ function Header() {
         </div>
       )}
 
+      <QuickAddModal
+        isOpen={showQuickAdd}
+        onClose={() => setShowQuickAdd(false)}
+      />
     </header>
   )
 }
