@@ -373,28 +373,28 @@ function Landing() {
                 <h3>Free</h3>
                 <div className={styles.price}>
                   <span className={styles.priceAmount}>$0</span>
-                  <span className={styles.pricePeriod}>/month</span>
+                  <span className={styles.pricePeriod}>/forever</span>
                 </div>
-                <p className={styles.pricingDesc}>Perfect for getting started</p>
+                <p className={styles.pricingDesc}>Perfect for family members</p>
               </div>
               <ul className={styles.pricingFeatures}>
-                <li>5 events</li>
-                <li>Unlimited photos per event</li>
+                <li>Follow family members</li>
+                <li>View all shared events</li>
+                <li>Like and comment</li>
                 <li>Interactive maps</li>
                 <li>Timeline view</li>
-                <li>Comments & likes</li>
-                <li>Follow family members</li>
+                <li>30-day Pro trial included</li>
               </ul>
               <Link to="/login" className={styles.pricingButton}>
                 Get started free
               </Link>
             </div>
 
-            {/* Premium Tier */}
+            {/* Pro Tier */}
             <div className={`${styles.pricingCard} ${styles.featured}`}>
               <div className={styles.popularBadge}>Most Popular</div>
               <div className={styles.pricingHeader}>
-                <h3>Premium</h3>
+                <h3>Pro</h3>
                 <div className={styles.price}>
                   <span className={styles.priceAmount}>{billingPeriod === 'annual' ? '$9' : '$12'}</span>
                   <span className={styles.pricePeriod}>/month</span>
@@ -404,40 +404,38 @@ function Landing() {
                 </p>
               </div>
               <ul className={styles.pricingFeatures}>
-                <li><strong>Unlimited events</strong></li>
-                <li>Everything in Free</li>
-                <li>Photo books (coming soon)</li>
-                <li>Custom event themes</li>
-                <li>Priority support</li>
-                <li>Export your data</li>
+                <li><strong>Create unlimited events</strong></li>
+                <li>Photo and video uploads</li>
+                <li>Journey mapping</li>
+                <li>GPS extraction from photos</li>
+                <li>Privacy controls</li>
+                <li>Rich text editor</li>
               </ul>
-              <Link to="/checkout?plan=premium" className={styles.pricingButtonPrimary}>
-                Upgrade to Premium
+              <Link to="/login?signup=true" className={styles.pricingButtonPrimary}>
+                Start Free Trial
               </Link>
             </div>
 
-            {/* Family Tier */}
+            {/* Lifetime Tier */}
             <div className={styles.pricingCard}>
               <div className={styles.pricingHeader}>
-                <h3>Family</h3>
+                <h3>Lifetime</h3>
                 <div className={styles.price}>
-                  <span className={styles.priceAmount}>{billingPeriod === 'annual' ? '$19' : '$24'}</span>
-                  <span className={styles.pricePeriod}>/month</span>
+                  <span className={styles.priceAmount}>$294</span>
+                  <span className={styles.pricePeriod}>once</span>
                 </div>
-                <p className={styles.pricingDesc}>
-                  {billingPeriod === 'annual' ? 'Billed annually at $228/year' : 'Billed monthly'}
-                </p>
+                <p className={styles.pricingDesc}>Pay once, use forever</p>
               </div>
               <ul className={styles.pricingFeatures}>
-                <li><strong>Everything in Premium</strong></li>
-                <li>Up to 10 family accounts</li>
-                <li>Shared family calendar</li>
-                <li>Private family groups</li>
-                <li>Admin controls</li>
-                <li>Dedicated support</li>
+                <li><strong>Everything in Pro</strong></li>
+                <li>No recurring fees</li>
+                <li>All future updates</li>
+                <li>Priority support</li>
+                <li>Early access to features</li>
+                <li>Best long-term value</li>
               </ul>
-              <Link to="/checkout?plan=family" className={styles.pricingButton}>
-                Choose Family
+              <Link to="/login?signup=true" className={styles.pricingButton}>
+                Get Lifetime Access
               </Link>
             </div>
           </div>
@@ -445,10 +443,10 @@ function Landing() {
           {/* Link to detailed pricing */}
           <div className={styles.pricingFooter}>
             <p className={styles.pricingNote}>
-              <strong>Need more details?</strong> Drafts and deleted events don't count towards your limit.
+              <strong>30-day free trial on all accounts.</strong> Subscribe within 5 days for an extra month free!
             </p>
             <Link to="/pricing" className={styles.viewComparisonLink}>
-              See detailed feature comparison →
+              Learn more about pricing →
             </Link>
           </div>
         </div>

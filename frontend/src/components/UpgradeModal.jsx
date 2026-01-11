@@ -55,14 +55,14 @@ export default function UpgradeModal({ isOpen, onClose, onSaveAsDraft, trialDays
 
         <div className={styles.pricing}>
           <div className={styles.priceOption}>
-            <span className={styles.price}>$9</span>
+            <span className={styles.price}>$12</span>
             <span className={styles.period}>/month</span>
           </div>
           <span className={styles.or}>or</span>
           <div className={styles.priceOption}>
-            <span className={styles.price}>$90</span>
+            <span className={styles.price}>$108</span>
             <span className={styles.period}>/year</span>
-            <span className={styles.savings}>Save $18</span>
+            <span className={styles.savings}>Save $36</span>
           </div>
         </div>
 

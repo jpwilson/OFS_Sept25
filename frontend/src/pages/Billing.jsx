@@ -538,7 +538,7 @@ export default function Billing() {
               </div>
               <div className={styles.priceAmount}>
                 <span className={styles.currency}>$</span>
-                <span className={styles.price}>250</span>
+                <span className={styles.price}>294</span>
                 <span className={styles.period}>one-time</span>
               </div>
               <p className={styles.lifetimeDescription}>

@@ -59,7 +59,7 @@ function PricingPage() {
           className={`${styles.toggleButton} ${billingPeriod === 'annual' ? styles.active : ''}`}
           onClick={() => setBillingPeriod('annual')}
         >
-          Annual <span className={styles.saveBadge}>Save $18</span>
+          Annual <span className={styles.saveBadge}>Save $36</span>
         </button>
       </div>
 
@@ -70,11 +70,11 @@ function PricingPage() {
             <h2 className={styles.planName}>Our Family Socials</h2>
             <div className={styles.price}>
               <span className={styles.currency}>$</span>
-              <span className={styles.priceAmount}>{billingPeriod === 'annual' ? '90' : '9'}</span>
+              <span className={styles.priceAmount}>{billingPeriod === 'annual' ? '108' : '12'}</span>
               <span className={styles.pricePeriod}>/{billingPeriod === 'annual' ? 'year' : 'month'}</span>
             </div>
             {billingPeriod === 'annual' && (
-              <p className={styles.monthlyBreakdown}>That's only $7.50/month</p>
+              <p className={styles.monthlyBreakdown}>That's only $9/month</p>
             )}
           </div>
 
@@ -94,6 +94,25 @@ function PricingPage() {
           <p className={styles.guarantee}>
             30-day money-back guarantee. Cancel anytime.
           </p>
+        </div>
+
+        {/* Lifetime Option */}
+        <div className={styles.lifetimeCard}>
+          <div className={styles.lifetimeHeader}>
+            <h2 className={styles.planName}>Lifetime Access</h2>
+            <span className={styles.lifetimeBadge}>Best Value</span>
+          </div>
+          <div className={styles.price}>
+            <span className={styles.currency}>$</span>
+            <span className={styles.priceAmount}>294</span>
+            <span className={styles.pricePeriod}>one-time</span>
+          </div>
+          <p className={styles.lifetimeDescription}>
+            Pay once, use forever. No recurring fees, no renewals. All future updates included.
+          </p>
+          <button className={styles.lifetimeButton} onClick={handleGetStarted}>
+            {user ? 'Get Lifetime Access' : 'Start Free Trial'}
+          </button>
         </div>
       </div>
 

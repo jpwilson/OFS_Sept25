@@ -122,29 +122,46 @@ def create_checkout_session(
         # One-time payment for lifetime
         checkout_params['mode'] = 'payment'
     else:
-        # Subscription with 30-day trial
+        # Subscription - charge immediately, free days extend next billing
         checkout_params['mode'] = 'subscription'
+
+        # Calculate free days to pass to webhook via metadata
+        remaining_trial_days = current_user.get_trial_days_remaining()
+        early_bird_bonus = 30 if current_user.is_within_first_5_days() else 0
+        total_free_days = remaining_trial_days + early_bird_bonus
+
         checkout_params['subscription_data'] = {
-            'trial_period_days': 30,
             'metadata': {
                 'user_id': str(current_user.id),
-                'price_type': request.price_id
+                'price_type': request.price_id,
+                'free_days': str(total_free_days),
+                'early_bird': str(current_user.is_within_first_5_days())
             }
         }
-
-        # Check for early bird bonus (within first 5 days of trial)
-        if current_user.is_within_first_5_days():
-            # Give extra 30 days (60 total) for early subscribers
-            checkout_params['subscription_data']['trial_period_days'] = 60
+        # No trial_period_days - charge happens immediately
+        # The webhook will extend the billing cycle by free_days
 
     # Allow promotion codes to be entered on Stripe's checkout page
     # This lets users enter promo codes like "SECRETFIRSTUSERS90OFF" directly on Stripe
     checkout_params['allow_promotion_codes'] = True
 
+    # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
+    print(f"[DEBUG] Creating checkout session for user {current_user.id} ({current_user.email})")
+    print(f"[DEBUG] Price type: {request.price_id}, Price ID: {price_id}")
+    print(f"[DEBUG] Customer ID: {customer_id}")
+    print(f"[DEBUG] Checkout params: {checkout_params}")
+
     try:
         checkout_session = stripe.checkout.Session.create(**checkout_params)
+        print(f"[DEBUG] Checkout session created: {checkout_session.id}")
         return CheckoutResponse(checkout_url=checkout_session.url)
     except stripe.error.StripeError as e:
+        # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
+        print(f"[DEBUG ERROR] Stripe error for user {current_user.id}: {type(e).__name__}: {str(e)}")
+        if hasattr(e, 'user_message'):
+            print(f"[DEBUG ERROR] User message: {e.user_message}")
+        if hasattr(e, 'code'):
+            print(f"[DEBUG ERROR] Error code: {e.code}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
@@ -237,6 +254,16 @@ async def handle_checkout_completed(session, db: Session):
     price_type = metadata.get('price_type')
     mode = session.get('mode')
 
+    # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
+    print(f"[DEBUG] Checkout completed - Session ID: {session.get('id')}")
+    print(f"[DEBUG] Customer: {customer_id}, User ID: {user_id}, Mode: {mode}")
+    total_details = session.get('total_details', {})
+    amount_discount = total_details.get('amount_discount', 0)
+    if amount_discount > 0:
+        print(f"[DEBUG] Discount applied: ${amount_discount / 100:.2f}")
+    if session.get('discount'):
+        print(f"[DEBUG] Discount info: {session.get('discount')}")
+
     if not user_id:
         # Try to find user by customer ID
         user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
@@ -285,6 +312,7 @@ async def handle_subscription_created(subscription, db: Session):
     customer_id = subscription.get('customer')
     subscription_id = subscription.get('id')
     status = subscription.get('status')
+    metadata = subscription.get('metadata', {})
 
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
@@ -300,7 +328,7 @@ async def handle_subscription_created(subscription, db: Session):
         user.subscription_started_at = datetime.utcnow()
 
         # Check early bird bonus
-        if user.is_within_first_5_days():
+        if metadata.get('early_bird') == 'True' or user.is_within_first_5_days():
             user.subscribed_within_5_days = True
 
     # Set subscription end date from Stripe
@@ -308,8 +336,28 @@ async def handle_subscription_created(subscription, db: Session):
     if current_period_end:
         user.subscription_ends_at = datetime.fromtimestamp(current_period_end)
 
+    # Extend billing cycle by free days (remaining trial + early bird bonus)
+    free_days = int(metadata.get('free_days', 0))
+    if free_days > 0 and current_period_end:
+        try:
+            # Calculate new trial_end to extend the billing cycle
+            new_trial_end = current_period_end + (free_days * 86400)  # 86400 seconds per day
+
+            # Modify the subscription to add the free period
+            stripe.Subscription.modify(
+                subscription_id,
+                trial_end=new_trial_end,
+                proration_behavior='none'
+            )
+            print(f"Extended subscription {subscription_id} by {free_days} days (trial_end set to {datetime.fromtimestamp(new_trial_end)})")
+
+            # Update our end date to reflect the extension
+            user.subscription_ends_at = datetime.fromtimestamp(new_trial_end)
+        except stripe.error.StripeError as e:
+            print(f"Failed to extend subscription billing cycle: {e}")
+
     db.commit()
-    print(f"Subscription created for user {user.id}: status={status}")
+    print(f"Subscription created for user {user.id}: status={status}, free_days={free_days}")
 
 
 async def handle_subscription_updated(subscription, db: Session):
@@ -319,6 +367,7 @@ async def handle_subscription_updated(subscription, db: Session):
     subscription_id = subscription.get('id')
     status = subscription.get('status')
     cancel_at_period_end = subscription.get('cancel_at_period_end', False)
+    trial_end = subscription.get('trial_end')
 
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
@@ -340,10 +389,13 @@ async def handle_subscription_updated(subscription, db: Session):
     elif status in ['canceled', 'unpaid']:
         user.subscription_status = 'canceled'
 
-    # Update subscription end date
-    current_period_end = subscription.get('current_period_end')
-    if current_period_end:
-        user.subscription_ends_at = datetime.fromtimestamp(current_period_end)
+    # Update subscription end date - prefer trial_end if set (our free days extension)
+    if trial_end:
+        user.subscription_ends_at = datetime.fromtimestamp(trial_end)
+    else:
+        current_period_end = subscription.get('current_period_end')
+        if current_period_end:
+            user.subscription_ends_at = datetime.fromtimestamp(current_period_end)
 
     db.commit()
     print(f"Subscription updated for user {user.id}: status={status}, cancel_at_period_end={cancel_at_period_end}")

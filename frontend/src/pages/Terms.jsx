@@ -48,9 +48,9 @@ function Terms() {
 
         <section>
           <h2>5. Subscription Plans</h2>
-          <p><strong>Free Plan:</strong> Limited to 5 events with basic features.</p>
-          <p><strong>Premium Plan ($9/month or $108/year):</strong> Unlimited events and additional features.</p>
-          <p><strong>Family Plan ($19/month or $228/year):</strong> Multiple accounts and advanced features.</p>
+          <p><strong>Free Plan:</strong> Follow family members and view shared events. Cannot create new events after the 30-day trial.</p>
+          <p><strong>Pro Plan ($12/month or $108/year):</strong> Unlimited events, photo/video uploads, and all features.</p>
+          <p><strong>Lifetime Plan ($294 one-time):</strong> All Pro features, no recurring fees.</p>
           <p>Subscription fees are non-refundable except as required by law. You may cancel your subscription at any time.</p>
         </section>
 
