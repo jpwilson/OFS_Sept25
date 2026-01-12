@@ -599,6 +599,9 @@ class ApiService {
 
   async createEventImage(imageData) {
     try {
+      // Debug logging - TEMPORARY
+      console.log('[DEBUG] createEventImage called with:', imageData)
+
       const response = await fetch(`${API_BASE}/upload/event-image-metadata`, {
         method: 'POST',
         headers: await this.getAuthHeaders(),
@@ -607,7 +610,15 @@ class ApiService {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to create event image metadata')
+        // Pydantic validation errors return an array in 'detail'
+        let errorMessage = 'Failed to create event image metadata'
+        if (Array.isArray(error.detail)) {
+          errorMessage = error.detail.map(e => `${e.loc?.join('.')}: ${e.msg}`).join(', ')
+        } else if (typeof error.detail === 'string') {
+          errorMessage = error.detail
+        }
+        console.error('[DEBUG] createEventImage error response:', error)
+        throw new Error(errorMessage)
       }
 
       return await response.json()

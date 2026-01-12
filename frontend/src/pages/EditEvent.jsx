@@ -377,13 +377,19 @@ function EditEvent() {
             }
           } else {
             // Create new event image record (only if truly no existing record)
+            // Validate required fields before API call
+            if (!media.url || !media.url.startsWith('http')) {
+              console.warn('[DEBUG] Skipping invalid media URL:', media.url)
+              return Promise.resolve()
+            }
+            console.log('[DEBUG] Creating event image:', { event_id: id, image_url: media.url, media_type: media.type })
             return apiService.createEventImage({
               event_id: parseInt(id),
               image_url: media.url,
               caption: caption.trim(),
               order_index: index,
               alt_text: media.alt || null,
-              media_type: media.type
+              media_type: media.type || 'image'
             })
           }
         } else if (existingImage && existingImage.caption) {
