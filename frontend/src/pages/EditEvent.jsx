@@ -55,6 +55,7 @@ function EditEvent() {
   const [showTagProfileModal, setShowTagProfileModal] = useState(false)
   const [newTagProfileName, setNewTagProfileName] = useState('')
   const [isDraggingCover, setIsDraggingCover] = useState(false)
+  const [eventNumericId, setEventNumericId] = useState(null) // Store actual numeric ID from loaded event
 
   useEffect(() => {
     loadEvent()
@@ -68,6 +69,9 @@ function EditEvent() {
         navigate('/')
         return
       }
+
+      // Store the actual numeric event ID (URL param might be a slug)
+      setEventNumericId(event.id)
 
       setFormData({
         title: event.title || '',
@@ -382,9 +386,13 @@ function EditEvent() {
               console.warn('[DEBUG] Skipping invalid media URL:', media.url)
               return Promise.resolve()
             }
-            console.log('[DEBUG] Creating event image:', { event_id: id, image_url: media.url, media_type: media.type })
+            if (!eventNumericId) {
+              console.error('[DEBUG] No numeric event ID available')
+              return Promise.resolve()
+            }
+            console.log('[DEBUG] Creating event image:', { event_id: eventNumericId, image_url: media.url, media_type: media.type })
             return apiService.createEventImage({
-              event_id: parseInt(id),
+              event_id: eventNumericId,
               image_url: media.url,
               caption: caption.trim(),
               order_index: index,
@@ -562,7 +570,7 @@ function EditEvent() {
               placeholder="Share your experience... Add text, images, and tell your story in a beautiful magazine-style layout."
               eventStartDate={formData.start_date}
               eventEndDate={formData.end_date}
-              eventId={parseInt(id)}
+              eventId={eventNumericId}
             />
             <span className={styles.hint}>
               Use the toolbar to format text, add headings, and insert images. Your content will be displayed like a blog post.
