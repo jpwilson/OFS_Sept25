@@ -99,9 +99,9 @@ function EditEvent() {
       setIsPublished(event.is_published)
       setPreviewUrl(event.cover_image_url || '')
 
-      // Load existing event images with captions
+      // Load existing event images with captions (use numeric ID, not slug)
       try {
-        const eventImages = await apiService.getEventImages(id)
+        const eventImages = await apiService.getEventImages(event.id)
         setExistingEventImages(eventImages || [])
 
         // Pre-populate imageCaptions state with existing captions
@@ -148,9 +148,9 @@ function EditEvent() {
         // Non-critical, continue loading
       }
 
-      // Load existing tags
+      // Load existing tags (use numeric ID, not slug)
       try {
-        const tags = await apiService.getEventTags(id)
+        const tags = await apiService.getEventTags(event.id)
         setExistingTags(tags || [])
         // Convert to TagPicker format
         const tagPickerFormat = (tags || []).map(tag => {
@@ -383,14 +383,12 @@ function EditEvent() {
             // Create new event image record (only if truly no existing record)
             // Validate required fields before API call
             if (!media.url || !media.url.startsWith('http')) {
-              console.warn('[DEBUG] Skipping invalid media URL:', media.url)
               return Promise.resolve()
             }
             if (!eventNumericId) {
-              console.error('[DEBUG] No numeric event ID available')
+              console.error('No numeric event ID available for creating event image')
               return Promise.resolve()
             }
-            console.log('[DEBUG] Creating event image:', { event_id: eventNumericId, image_url: media.url, media_type: media.type })
             return apiService.createEventImage({
               event_id: eventNumericId,
               image_url: media.url,

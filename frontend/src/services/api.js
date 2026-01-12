@@ -599,9 +599,6 @@ class ApiService {
 
   async createEventImage(imageData) {
     try {
-      // Debug logging - TEMPORARY
-      console.log('[DEBUG] createEventImage called with:', imageData)
-
       const response = await fetch(`${API_BASE}/upload/event-image-metadata`, {
         method: 'POST',
         headers: await this.getAuthHeaders(),
@@ -617,7 +614,6 @@ class ApiService {
         } else if (typeof error.detail === 'string') {
           errorMessage = error.detail
         }
-        console.error('[DEBUG] createEventImage error response:', error)
         throw new Error(errorMessage)
       }
 
