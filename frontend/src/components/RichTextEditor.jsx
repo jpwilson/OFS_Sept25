@@ -129,16 +129,6 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     editorProps: {
       attributes: {
         class: styles.editor
-      },
-      // Prevent link clicks from navigating - allow text editing instead
-      handleClick: (view, pos, event) => {
-        const target = event.target
-        if (target.tagName === 'A' || target.closest('a')) {
-          event.preventDefault()
-          event.stopPropagation()
-          return true // Handled - don't propagate
-        }
-        return false // Let TipTap handle other clicks
       }
     }
   })
