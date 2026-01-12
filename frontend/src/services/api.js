@@ -482,7 +482,15 @@ class ApiService {
 
   // Upload image to Cloudinary (used for all image types)
   async uploadImageToCloudinary(file) {
+    console.log('[UPLOAD DEBUG] Starting Cloudinary upload:', {
+      fileName: file.name,
+      fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      fileType: file.type,
+      timestamp: new Date().toISOString()
+    })
+
     const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
+    console.log('[UPLOAD DEBUG] Cloudinary config loaded')
 
     const formData = new FormData()
     formData.append('file', file)
@@ -490,15 +498,20 @@ class ApiService {
     formData.append('folder', 'ofs/images')
 
     const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
+    console.log('[UPLOAD DEBUG] Sending to Cloudinary...', uploadUrl)
+
+    const startTime = Date.now()
     const response = await fetch(uploadUrl, { method: 'POST', body: formData })
+    console.log('[UPLOAD DEBUG] Cloudinary responded in', Date.now() - startTime, 'ms, status:', response.status)
 
     if (!response.ok) {
       const error = await response.json()
-      console.error('Cloudinary upload error:', error)
+      console.error('[UPLOAD DEBUG] Cloudinary error:', error)
       throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
     }
 
     const result = await response.json()
+    console.log('[UPLOAD DEBUG] Upload successful, URL:', result.secure_url?.substring(0, 50) + '...')
     // Apply transformations via URL (max 2000px, auto quality, auto format)
     return result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_auto/')
   }
@@ -507,12 +520,18 @@ class ApiService {
   // All images now go to Cloudinary for faster global uploads (fixes UK timeout issues)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
     try {
+      console.log('[UPLOAD DEBUG] uploadEventImage started:', { eventId, fileName: file.name })
+
       // Extract GPS data client-side BEFORE uploading
+      console.log('[UPLOAD DEBUG] Extracting GPS data...')
       const { extractGPSFromImage } = await import('../utils/exifExtractor.js')
       const gpsData = await extractGPSFromImage(file)
+      console.log('[UPLOAD DEBUG] GPS extraction complete:', gpsData ? 'found' : 'none')
 
       // Upload ALL images to Cloudinary (global CDN - fast for UK and worldwide)
+      console.log('[UPLOAD DEBUG] Starting Cloudinary upload...')
       const imageUrl = await this.uploadImageToCloudinary(file)
+      console.log('[UPLOAD DEBUG] Cloudinary upload complete')
 
       // Save record to database via backend (includes GPS data)
       const { data: { session } } = await supabase.auth.getSession()

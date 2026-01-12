@@ -31,8 +31,8 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
   const [linkText, setLinkText] = useState('')
   const { showToast } = useToast()
 
-  // Upload timeout (30 seconds)
-  const UPLOAD_TIMEOUT_MS = 30000
+  // Upload timeout (60 seconds - increased for large images)
+  const UPLOAD_TIMEOUT_MS = 60000
 
   // Notify parent component about video task changes
   useEffect(() => {
