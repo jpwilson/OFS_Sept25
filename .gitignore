@@ -29,3 +29,5 @@ dist/
 
 # Uploads
 uploads/
+# Python venv
+.venv/
