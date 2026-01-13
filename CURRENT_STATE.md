@@ -1,6 +1,6 @@
 # Our Family Socials - Current State Summary
 
-**Last Updated:** January 11, 2026
+**Last Updated:** January 13, 2026
 **Status:** Production - Live at ourfamilysocials.com
 **Purpose:** Private social network for families to share life events, photos, and memories
 
@@ -66,15 +66,41 @@ This document provides everything you need to know to continue development witho
 
 - **Production Database:** PostgreSQL on Supabase - THIS IS THE REAL DATABASE
 - **Local SQLite:** Not used at all (may exist as legacy artifact)
-- **Migration Files:** Legacy artifacts - DO NOT USE - they don't reflect actual database state
-- **Schema Changes:** User runs SQL directly in Supabase dashboard when needed
-- **How to add tables/columns:** Provide SQL commands for user to run in Supabase SQL editor
+- **Migrations:** Use **Alembic** in `backend/alembic/` - properly configured as of Jan 2026
+- **Schema Changes:** Use Alembic migrations (see below)
 
-**Example:** If you need to add a column:
-```sql
--- Provide this SQL to user, they run it in Supabase
-ALTER TABLE events ADD COLUMN new_field TEXT;
+### How to Make Database Changes (Alembic)
+
+```bash
+cd backend
+
+# 1. First, update the SQLAlchemy model (e.g., app/models/user.py)
+#    Add the new column/table to the model class
+
+# 2. Generate migration from model changes
+.venv/bin/alembic revision --autogenerate -m "description_of_change"
+
+# 3. Review the generated file in alembic/versions/
+#    - Remove cosmetic changes (TEXT vs String type differences, index naming)
+#    - Keep only your actual schema changes
+
+# 4. Apply migration to production database
+.venv/bin/alembic upgrade head
+
+# 5. Commit both the model changes AND the migration file
 ```
+
+**Example:** Adding a column to users table:
+```python
+# 1. In app/models/user.py, add:
+theme_preference = Column(String(10), default='dark')
+
+# 2. Then run: alembic revision --autogenerate -m "add_theme_preference"
+# 3. Review and clean up the generated migration
+# 4. Run: alembic upgrade head
+```
+
+**IMPORTANT:** Always update BOTH the SQLAlchemy model AND create an Alembic migration. They must stay in sync.
 
 ### Connection Pool Details
 - Using **Session mode** pooler (port 5432)
@@ -113,6 +139,21 @@ OFS_claude/
 ---
 
 ## 🎯 Recent Major Work (November 2025 - January 2026)
+
+### Alembic Migrations Setup (January 2026)
+**Purpose:** Proper database migration management
+- Alembic initialized in `backend/alembic/`
+- All 22 SQLAlchemy models imported and tracked
+- Baseline migration stamped
+- Models synced with production database
+- **Key Files:** `backend/alembic/env.py`, `backend/alembic/versions/`
+
+### Light Mode Improvements (January 2026)
+**Purpose:** Fix light mode theme issues
+- Added purple-tinted light mode palette (not plain white/grey)
+- Fixed ViewToggle, CalendarView, FamilyTreeGraph components
+- Replaced hardcoded dark colors with CSS variables
+- **Key Files:** `frontend/src/styles/index.css`, various `.module.css` files
 
 ### Quick Add Feature (January 2026)
 **Purpose:** Rapid event creation from the feed
@@ -266,8 +307,15 @@ const actualOpen = lightboxOpen !== undefined ? lightboxOpen : open
 
 ## 🚫 Common Pitfalls (DON'T DO THESE)
 
-### 1. Don't Trust Migration Files
-Migration files in `/backend/migrations/` are legacy artifacts. The ONLY source of truth is what's actually in the Supabase database right now. If you need to change the schema, provide SQL for the user to run in Supabase.
+### 1. Use Alembic for Database Changes
+**Use the Alembic migrations in `/backend/alembic/`** for all database changes. The legacy `/backend/migrations/` folder contains old SQL files that are no longer used.
+
+When making database changes:
+1. Update the SQLAlchemy model first
+2. Generate migration: `alembic revision --autogenerate -m "description"`
+3. Review and clean up the generated migration file
+4. Apply: `alembic upgrade head`
+5. Commit both model and migration file
 
 ### 2. Don't Use Multiple API Calls Per Page
 This exhausts the connection pool (max 3-5 connections). Consolidate related data.

@@ -31,10 +31,10 @@
 - Consolidate API calls (Supabase has 5 connection limit)
 
 ### Never Do:
-- Trust migration files (they're outdated - database truth is in Supabase)
 - Use Transaction pooler mode (crashes backend - use Session mode only)
 - Push without testing the frontend build first
 - Create complex useCallback dependency chains (causes circular deps)
+- Make database changes without updating both the SQLAlchemy model AND creating an Alembic migration
 
 ---
 
@@ -61,12 +61,26 @@
 6. Test at ourfamilysocials.com
 7. If broken: `git revert HEAD --no-edit && git push`
 
-### Database Changes
-- Don't modify migration files
-- Provide SQL for user to run in Supabase dashboard:
-  ```sql
-  ALTER TABLE events ADD COLUMN new_field TEXT;
-  ```
+### Database Changes (Use Alembic Migrations)
+Database schema changes should use Alembic migrations:
+
+```bash
+cd backend
+
+# 1. Update the SQLAlchemy model first (e.g., app/models/user.py)
+
+# 2. Generate migration from model changes
+.venv/bin/alembic revision --autogenerate -m "add_new_column"
+
+# 3. Review the generated file in alembic/versions/
+#    Remove cosmetic changes (TEXT vs String, index naming differences)
+#    Keep only your actual schema changes
+
+# 4. Apply migration to production
+.venv/bin/alembic upgrade head
+```
+
+**Important:** Always update the SQLAlchemy model AND create a migration. The model and database must stay in sync.
 
 ### Debugging Black Screen / Build Errors
 - Usually circular dependencies in React
