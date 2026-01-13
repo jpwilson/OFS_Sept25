@@ -3,9 +3,9 @@
 }
 
 .header {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   padding: 24px 32px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-light);
   position: sticky;
   top: 60px;
   z-index: 9;
@@ -41,16 +41,16 @@
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 6px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
 }
 
 .sizeButton {
   padding: 6px 12px;
   background: transparent;
   border: none;
-  color: #ccc;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 16px;
   border-radius: 4px;
@@ -58,8 +58,8 @@
 }
 
 .sizeButton:hover {
-  background: #333;
-  color: #fff;
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .sizeButton.active {
@@ -69,9 +69,9 @@
 
 .filterToggle {
   padding: 8px 16px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  color: #ccc;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -80,7 +80,7 @@
 }
 
 .filterToggle:hover {
-  background: #333;
+  background: var(--hover-bg);
 }
 
 /* Colored arrows only */
@@ -105,22 +105,22 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 8px;
   margin-right: 12px;
 }
 
 .dateSelector span {
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .dateSelector input {
   padding: 6px 10px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 13px;
 }
 
@@ -129,13 +129,13 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 8px;
 }
 
 .categorySelector label {
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .categoryDropdownWrapper {
@@ -144,10 +144,10 @@
 
 .categoryDropdownButton {
   padding: 6px 12px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 13px;
   cursor: pointer;
   min-width: 150px;
@@ -163,7 +163,7 @@
 
 .dropdownArrow {
   font-size: 10px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .categoryDropdownMenu {
@@ -171,12 +171,12 @@
   top: 100%;
   left: 0;
   margin-top: 4px;
-  background: #1a1a1a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
   min-width: 180px;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .categoryOption {
@@ -186,12 +186,12 @@
   padding: 10px 14px;
   cursor: pointer;
   font-size: 13px;
-  color: #ccc;
+  color: var(--text-secondary);
   transition: background 0.2s ease;
 }
 
 .categoryOption:hover {
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
 }
 
 .categoryOption input[type="checkbox"] {
@@ -206,8 +206,8 @@
   padding: 10px 14px;
   background: transparent;
   border: none;
-  border-top: 1px solid #333;
-  color: #999;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-tertiary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -215,15 +215,15 @@
 }
 
 .clearCategoriesBtn:hover {
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   color: #ff4757;
 }
 
 .filterButton {
   padding: 10px 20px;
-  border: 1px solid #444;
-  background: #2a2a2a;
-  color: #ccc;
+  border: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -232,7 +232,7 @@
 }
 
 .filterButton:hover {
-  background: #333;
+  background: var(--hover-bg);
   border-color: #667eea;
 }
 
@@ -247,7 +247,7 @@
 .userSearchSection {
   width: 100%;
   padding: 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 8px;
   margin-bottom: 12px;
   position: relative;
@@ -256,7 +256,7 @@
 .userSearchSection label {
   display: block;
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
   margin-bottom: 8px;
   font-weight: 500;
 }
@@ -264,10 +264,10 @@
 .userSearchInput {
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 14px;
   transition: border-color 0.2s ease;
 }
@@ -281,7 +281,7 @@
   padding: 12px;
   text-align: center;
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -299,14 +299,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   transition: all 0.2s ease;
 }
 
 .userSearchResult:hover {
-  background: #222;
+  background: var(--bg-tertiary);
   border-color: #667eea;
 }
 
@@ -351,13 +351,13 @@
 .userSearchName {
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .userSearchUsername {
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .followButton,
@@ -394,15 +394,15 @@
 
 .followRequestedButton {
   background: rgba(150, 150, 150, 0.1);
-  color: #999;
-  border: 1px solid #555;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-light);
   cursor: default;
 }
 
 .filterInfo {
   margin-top: 12px;
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .viewContent {
@@ -525,7 +525,7 @@
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.7);
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -637,8 +637,8 @@
 }
 
 .upgradeModalContent {
-  background: #1a1a2e;
-  border: 1px solid #333;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 20px;
   padding: 40px;
   max-width: 420px;
@@ -653,14 +653,14 @@
   right: 16px;
   background: none;
   border: none;
-  color: #666;
+  color: var(--text-tertiary);
   font-size: 28px;
   cursor: pointer;
   line-height: 1;
 }
 
 .upgradeModalClose:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .upgradeModalIcon {
@@ -669,13 +669,13 @@
 }
 
 .upgradeModalContent h3 {
-  color: white;
+  color: var(--text-primary);
   font-size: 24px;
   margin: 0 0 12px 0;
 }
 
 .upgradeModalContent p {
-  color: #999;
+  color: var(--text-secondary);
   font-size: 15px;
   line-height: 1.6;
   margin: 0 0 24px 0;
@@ -706,8 +706,8 @@
 .upgradeModalSecondary {
   padding: 12px 24px;
   background: transparent;
-  border: 1px solid #444;
-  color: #888;
+  border: 1px solid var(--border-light);
+  color: var(--text-tertiary);
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
@@ -715,8 +715,8 @@
 }
 
 .upgradeModalSecondary:hover {
-  border-color: #666;
-  color: #ccc;
+  border-color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 /* Responsive breakpoints */

@@ -1,7 +1,7 @@
 .filtersContainer {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   padding: 12px 24px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .filtersHeader {
@@ -11,9 +11,9 @@
 
 .filterToggle {
   padding: 6px 12px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  color: #ccc;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -23,7 +23,7 @@
 }
 
 .filterToggle:hover {
-  background: #333;
+  background: var(--hover-bg);
 }
 
 .arrowGreen {
@@ -78,8 +78,8 @@
 .searchInputWrapper {
   display: flex;
   align-items: center;
-  background: #2a2a2a;
-  border: 1px solid #444;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 0 12px;
   transition: border-color 0.2s ease;
@@ -100,13 +100,13 @@
   padding: 10px 0;
   border: none;
   background: transparent;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
 }
 
 .userSearchInput::placeholder {
-  color: #888;
+  color: var(--text-tertiary);
 }
 
 .searchLoading {
@@ -115,13 +115,13 @@
   left: 0;
   right: 0;
   padding: 12px;
-  background: #1a1a1a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   margin-top: 4px;
   text-align: center;
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
   font-style: italic;
   z-index: 101;
 }
@@ -132,8 +132,8 @@
   left: 0;
   right: 0;
   margin-top: 4px;
-  background: #1a1a1a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   max-height: 300px;
   overflow-y: auto;
@@ -142,7 +142,7 @@
   gap: 4px;
   padding: 8px;
   z-index: 101;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .userSearchResult {
@@ -150,13 +150,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
 
 .userSearchResult:hover {
-  background: #333;
+  background: var(--hover-bg);
 }
 
 .userSearchInfo {
@@ -202,12 +202,12 @@
 .userSearchName {
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .userSearchUsername {
   font-size: 12px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .followButton,
@@ -242,14 +242,14 @@
 
 .followRequestedButton {
   background: rgba(150, 150, 150, 0.1);
-  color: #999;
-  border: 1px solid #555;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-light);
   cursor: default;
 }
 
 .requestSentText {
   font-size: 12px;
-  color: #888;
+  color: var(--text-tertiary);
   font-style: italic;
   white-space: nowrap;
 }
@@ -279,10 +279,10 @@
 /* Shared dropdown button */
 .dropdownButton {
   padding: 8px 12px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #2a2a2a;
-  color: #ccc;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
   display: flex;
@@ -294,17 +294,17 @@
 
 .dropdownButton:hover {
   border-color: #667eea;
-  background: #333;
+  background: var(--hover-bg);
 }
 
 .dropdownButton.hasSelection {
   border-color: #667eea;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .dropdownArrow {
   font-size: 9px;
-  color: #888;
+  color: var(--text-tertiary);
 }
 
 /* Date dropdown menu */
@@ -313,12 +313,12 @@
   top: 100%;
   left: 0;
   margin-top: 4px;
-  background: #1a1a1a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 12px;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 220px;
 }
 
@@ -335,17 +335,17 @@
 
 .dateInputRow label {
   font-size: 12px;
-  color: #999;
+  color: var(--text-tertiary);
   width: 40px;
 }
 
 .dateInputRow input {
   flex: 1;
   padding: 6px 8px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
-  background: #2a2a2a;
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 13px;
 }
 
@@ -360,12 +360,12 @@
   top: 100%;
   left: 0;
   margin-top: 4px;
-  background: #1a1a1a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   min-width: 180px;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   max-height: 300px;
   overflow-y: auto;
 }
@@ -377,12 +377,12 @@
   padding: 10px 14px;
   cursor: pointer;
   font-size: 13px;
-  color: #ccc;
+  color: var(--text-secondary);
   transition: background 0.2s ease;
 }
 
 .dropdownOption:hover {
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
 }
 
 .dropdownOption input[type="checkbox"] {
@@ -397,8 +397,8 @@
   padding: 10px 14px;
   background: transparent;
   border: none;
-  border-top: 1px solid #333;
-  color: #999;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-tertiary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -406,14 +406,14 @@
 }
 
 .clearBtn:hover {
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   color: #ff4757;
 }
 
 .noUsersMessage {
   padding: 12px 14px;
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
   text-align: center;
   font-style: italic;
 }
@@ -430,8 +430,8 @@
 .orderByButton {
   padding: 8px 14px;
   border: none;
-  background: #2a2a2a;
-  color: #aaa;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 13px;
@@ -440,8 +440,8 @@
 }
 
 .orderByButton:hover:not(.active) {
-  background: #333;
-  color: #ccc;
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .orderByButton.active {
@@ -450,7 +450,7 @@
 }
 
 .orderByLeft {
-  border-right: 1px solid #444;
+  border-right: 1px solid var(--border-light);
 }
 
 .orderByRight {
@@ -465,9 +465,9 @@
 
 .filterButton {
   padding: 8px 12px;
-  border: 1px solid #444;
-  background: #2a2a2a;
-  color: #ccc;
+  border: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -477,7 +477,7 @@
 }
 
 .filterButton:hover {
-  background: #333;
+  background: var(--hover-bg);
   border-color: #667eea;
 }
 
@@ -554,17 +554,17 @@
 .sortDirectionButton {
   padding: 8px 12px;
   border: none;
-  background: #2a2a2a;
-  color: #ccc;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 16px;
   font-weight: bold;
-  border-left: 1px solid #444;
+  border-left: 1px solid var(--border-light);
 }
 
 .sortDirectionButton:hover {
-  background: #333;
+  background: var(--hover-bg);
   color: #667eea;
 }
 
@@ -578,13 +578,13 @@
   top: 100%;
   right: 0;
   margin-top: 4px;
-  background: #2a2a2a;
-  border: 1px solid #444;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 12px;
   min-width: 280px;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .muteSearchSection {
@@ -594,10 +594,10 @@
 .muteSearchInput {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 14px;
 }
 
@@ -608,7 +608,7 @@
 
 .muteSearchLoading {
   padding: 8px;
-  color: #888;
+  color: var(--text-tertiary);
   font-size: 13px;
 }
 
@@ -628,7 +628,7 @@
 }
 
 .muteSearchResult:hover {
-  background: #333;
+  background: var(--bg-tertiary);
 }
 
 .muteUserInfo {
@@ -638,12 +638,12 @@
 }
 
 .muteUserName {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
 .muteUserUsername {
-  color: #888;
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 
@@ -665,7 +665,7 @@
 
 .muteDivider {
   height: 1px;
-  background: #444;
+  background: var(--border-light);
   margin: 12px 0;
 }
 
@@ -675,7 +675,7 @@
 }
 
 .mutedUsersHeader {
-  color: #888;
+  color: var(--text-tertiary);
   font-size: 12px;
   margin-bottom: 8px;
   text-transform: uppercase;
@@ -704,14 +704,14 @@
 }
 
 .mutedUsersHint {
-  color: #666;
+  color: var(--text-tertiary);
   font-size: 11px;
   margin-top: 8px;
   font-style: italic;
 }
 
 .noMutedUsers {
-  color: #888;
+  color: var(--text-tertiary);
   font-size: 13px;
   text-align: center;
   padding: 12px;
