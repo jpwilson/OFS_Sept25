@@ -14,9 +14,9 @@
 .monthNavButton {
   width: 40px;
   height: 40px;
-  border: 1px solid #444;
-  background: #2a2a2a;
-  color: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   border-radius: 50%;
   cursor: pointer;
   font-size: 24px;
@@ -29,12 +29,13 @@
 .monthNavButton:hover {
   background: #a855f7;
   border-color: #a855f7;
+  color: #fff;
 }
 
 .monthTitle {
   font-size: 24px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
   min-width: 200px;
 }
@@ -61,15 +62,15 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
-  background: #333;
-  border: 1px solid #333;
+  background: var(--border-light);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   overflow: hidden;
 }
 
 .dayHeader {
-  background: #2a2a2a;
-  color: #999;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
   padding: 12px;
   text-align: center;
   font-size: 13px;
@@ -79,7 +80,7 @@
 }
 
 .calendarDay {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   min-height: 100px;
   padding: 8px;
   position: relative;
@@ -87,7 +88,7 @@
 }
 
 .calendarDay.emptyDay {
-  background: #151515;
+  background: var(--bg-primary);
 }
 
 .calendarDay.hasEvents {
@@ -117,7 +118,7 @@
 .dayNumber {
   font-size: 14px;
   font-weight: 500;
-  color: #999;
+  color: var(--text-tertiary);
   margin-bottom: 6px;
   display: inline-block;
 }
@@ -158,13 +159,13 @@
 }
 
 .dayPopup {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   border-radius: 16px;
   max-width: 500px;
   width: 100%;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .dayPopupHeader {
@@ -172,21 +173,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .dayPopupHeader h3 {
   margin: 0;
   font-size: 18px;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .closePopup {
   width: 32px;
   height: 32px;
   border: none;
-  background: #333;
-  color: #fff;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   border-radius: 50%;
   cursor: pointer;
   font-size: 20px;
@@ -198,6 +199,7 @@
 
 .closePopup:hover {
   background: #a855f7;
+  color: #fff;
 }
 
 .dayPopupContent {
@@ -211,7 +213,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 10px;
   margin-bottom: 10px;
   text-decoration: none;
@@ -219,7 +221,7 @@
 }
 
 .dayPopupEvent:hover {
-  background: #333;
+  background: var(--hover-bg);
   transform: translateX(4px);
 }
 
@@ -236,7 +238,7 @@
 .popupEventTitle {
   font-size: 15px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -244,7 +246,7 @@
 
 .popupEventMeta {
   font-size: 13px;
-  color: #999;
+  color: var(--text-tertiary);
   margin-top: 2px;
 }
 

@@ -34,7 +34,7 @@
   display: block !important;
 }
 
-/* Style the cards for dark theme */
+/* Style the cards for dark theme (default) */
 .chart :global(.card .card-body-rect) {
   fill: #1a1a2e !important;
   stroke: #3a3a5a !important;
@@ -59,6 +59,34 @@
 
 .chart :global(.link) {
   stroke: #666 !important;
+}
+
+/* Light theme overrides for family tree */
+:global([data-theme="light"]) .chart :global(.card .card-body-rect) {
+  fill: #f3f1f8 !important;
+  stroke: #ccc6d8 !important;
+}
+
+:global([data-theme="light"]) .chart :global(.card .card-outline) {
+  stroke: #ccc6d8 !important;
+}
+
+:global([data-theme="light"]) .chart :global(.card text) {
+  fill: #1a1a2e !important;
+}
+
+:global([data-theme="light"]) .chart :global(.card.main .card-body-rect),
+:global([data-theme="light"]) .chart :global(.card .card-main-outline) {
+  fill: #4a7c44 !important;
+  stroke: #2d5a27 !important;
+}
+
+:global([data-theme="light"]) .chart :global(.card.main text) {
+  fill: #ffffff !important;
+}
+
+:global([data-theme="light"]) .chart :global(.link) {
+  stroke: #9990a8 !important;
 }
 
 /* Controls */
