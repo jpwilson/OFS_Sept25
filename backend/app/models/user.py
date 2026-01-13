@@ -32,6 +32,9 @@ class User(Base):
     stripe_subscription_id = Column(String, unique=True, nullable=True)
     subscription_status = Column(String, default='trial')  # 'trial', 'active', 'canceled', 'expired'
 
+    # User preferences
+    theme_preference = Column(String(10), default='dark')  # 'dark' or 'light'
+
     # Email notification preferences (all enabled by default)
     email_notifications_enabled = Column(Boolean, default=True)  # Master toggle
     notify_new_follower = Column(Boolean, default=True)

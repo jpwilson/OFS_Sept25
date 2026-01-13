@@ -21,6 +21,8 @@ import Groups from './pages/Groups'
 import InviteLanding from './pages/InviteLanding'
 import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
+import Notifications from './pages/Notifications'
+import Preferences from './pages/Preferences'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -69,7 +71,11 @@ function App() {
               <Route path="/event/:id/edit" element={<EditEvent />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/edit" element={<EditProfile />} />
-              <Route path="/settings/notifications" element={<NotificationSettings />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/settings" element={<Preferences />} />
+              {/* Backwards compatibility redirects */}
+              <Route path="/settings/notifications" element={<Navigate to="/notifications" replace />} />
+              <Route path="/preferences" element={<Navigate to="/settings" replace />} />
               <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
               <Route path="/family-tree" element={<FamilyTree />} />
               <Route path="/create" element={<CreateEvent />} />

@@ -16,6 +16,7 @@ class ProfileUpdate(BaseModel):
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
     banner_url: Optional[str] = None
+    theme_preference: Optional[str] = None  # 'dark' or 'light'
 
 
 class NotificationPreferencesUpdate(BaseModel):
@@ -61,6 +62,7 @@ def get_current_user_profile(
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
         "banner_url": current_user.banner_url,
+        "theme_preference": current_user.theme_preference or "dark",
         "subscription_tier": current_user.subscription_tier,
         "subscription_status": current_user.subscription_status,
         "subscription_started_at": current_user.subscription_started_at.isoformat() if current_user.subscription_started_at else None,
@@ -687,6 +689,9 @@ def update_profile(
     if profile_data.banner_url is not None:
         current_user.banner_url = profile_data.banner_url
         print(f"🔵 Updated banner_url to: {profile_data.banner_url}")
+    if profile_data.theme_preference is not None:
+        current_user.theme_preference = profile_data.theme_preference
+        print(f"🔵 Updated theme_preference to: {profile_data.theme_preference}")
 
     db.commit()
     print(f"🟢 Committed to database")
@@ -702,6 +707,7 @@ def update_profile(
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
         "banner_url": current_user.banner_url,
+        "theme_preference": current_user.theme_preference,
         "created_at": current_user.created_at
     }
 

@@ -70,6 +70,10 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         const profileData = await response.json()
         setUser(profileData)
+        // Apply theme from user profile (fallback to localStorage, then dark)
+        const theme = profileData.theme_preference || localStorage.getItem('theme') || 'dark'
+        document.documentElement.setAttribute('data-theme', theme)
+        localStorage.setItem('theme', theme)
       } else {
         // Profile doesn't exist yet - create it automatically
         // This happens when email confirmation is enabled and user just confirmed their email
@@ -110,6 +114,10 @@ export function AuthProvider({ children }) {
           if (createResponse.ok) {
             const profile = await createResponse.json()
             setUser(profile)
+            // Apply default theme for new users
+            const theme = profile.theme_preference || localStorage.getItem('theme') || 'dark'
+            document.documentElement.setAttribute('data-theme', theme)
+            localStorage.setItem('theme', theme)
             console.log('Profile created successfully!')
           } else {
             const errorData = await createResponse.json()

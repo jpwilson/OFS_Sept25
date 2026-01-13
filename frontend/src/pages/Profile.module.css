@@ -463,6 +463,34 @@
   transform: none;
 }
 
+/* Create Event CTA - centered below divider */
+.createEventCta {
+  max-width: 900px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.createEventButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.createEventButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
 .eventsSection {
   max-width: 900px;
   margin: 0 auto;

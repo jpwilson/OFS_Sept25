@@ -7,7 +7,7 @@ import apiService from '../services/api'
 import FollowListModal from '../components/FollowListModal'
 import UpgradeRibbon from '../components/UpgradeRibbon'
 import PremiumBadge from '../components/PremiumBadge'
-import NotificationDot from '../components/NotificationDot'
+import ProfileMenu from '../components/ProfileMenu'
 import RelationshipProposalModal from '../components/RelationshipProposalModal'
 import styles from './Profile.module.css'
 import { ProfileSkeleton } from '../components/Skeleton'
@@ -337,27 +337,10 @@ function Profile() {
         </div>
         <div className={styles.actions}>
           {isOwnProfile ? (
-            <>
-              <Link to={`/profile/${username}/edit`} className={styles.editButton}>
-                Edit Profile
-              </Link>
-              <Link to="/billing" className={styles.membershipButton}>
-                Membership
-              </Link>
-              <Link to="/settings/notifications" className={styles.notificationsButton}>
-                Notifications
-                {notificationCounts.total > 0 && (
-                  <NotificationDot
-                    count={notificationCounts.total}
-                    dismissable={false}
-                    size="small"
-                  />
-                )}
-              </Link>
-              <Link to="/create" className={styles.createButton}>
-                Create Event
-              </Link>
-            </>
+            <ProfileMenu
+              notificationCounts={notificationCounts}
+              username={username}
+            />
           ) : currentUser ? (
             <div className={styles.statusRow}>
               {/* "Follows you" indicator */}
@@ -425,6 +408,15 @@ function Profile() {
       {/* Show upgrade ribbon if user is at limit (5/5 events) */}
       {isOwnProfile && currentUser?.subscription_tier === 'free' && events.length >= 5 && (
         <UpgradeRibbon eventCount={events.length} limit={5} />
+      )}
+
+      {/* Create Event CTA - centered below divider */}
+      {isOwnProfile && (
+        <div className={styles.createEventCta}>
+          <Link to="/create" className={styles.createEventButton}>
+            + Create Event
+          </Link>
+        </div>
       )}
 
       <div className={styles.eventsSection}>

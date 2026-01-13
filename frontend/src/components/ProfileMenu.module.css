@@ -1,0 +1,161 @@
+.menuContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.menuButton:hover {
+  background: var(--bg-secondary);
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.gearIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.menuLabel {
+  font-family: inherit;
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+  margin-left: 2px;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  z-index: 100;
+  animation: dropdownFade 0.15s ease-out;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.menuItem:hover {
+  background: var(--bg-primary);
+  color: #667eea;
+}
+
+.menuIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.badge {
+  margin-left: auto;
+  background: linear-gradient(135deg, #e63946 0%, #f72d40 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 8px 0;
+}
+
+.logoutItem {
+  color: var(--text-tertiary);
+}
+
+.logoutItem:hover {
+  color: #e63946;
+  background: rgba(230, 57, 70, 0.1);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .dropdown {
+    min-width: 180px;
+    right: 0;
+    left: auto;
+    transform: none;
+  }
+
+  @keyframes dropdownFade {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .menuButton {
+    padding: 10px 16px;
+  }
+
+  .menuLabel {
+    display: none;
+  }
+
+  .chevronIcon {
+    display: none;
+  }
+}
