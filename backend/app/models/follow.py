@@ -13,6 +13,7 @@ class Follow(Base):
     is_close_family = Column(Boolean, default=False, nullable=False)  # Mark as close family member
     notify_new_events = Column(Boolean, default=True)  # Per-user event notification preference
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Invited viewer fields
     invited_viewer_follow = Column(Boolean, default=False)  # True if auto-created from invitation

@@ -11,6 +11,7 @@ class Comment(Base):
     author_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     content = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     event = relationship("Event", back_populates="comments")
     author = relationship("User", back_populates="comments")

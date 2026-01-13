@@ -41,6 +41,7 @@ class User(Base):
     notify_new_event_from_followed = Column(Boolean, default=True)  # When someone you follow posts an event
     notify_invitee_new_event = Column(Boolean, default=True)  # Receive notifications from people who invited you
     notify_tag_request = Column(Boolean, default=True)  # Receive notifications when tagged in events
+    notify_relationship_request = Column(Boolean, default=True)  # Receive notifications for family relationship requests
     notify_payment_receipts = Column(Boolean, default=False)  # Email receipts for subscription payments (opt-in)
     last_billing_email_sent_at = Column(DateTime, nullable=True)  # Rate limit billing history emails
 
