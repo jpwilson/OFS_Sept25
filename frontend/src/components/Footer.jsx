@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import styles from './Footer.module.css'
 
 function Footer() {
   const currentYear = new Date().getFullYear()
+  const { user } = useAuth()
 
   return (
     <footer className={styles.footer}>
       <div className={styles.content}>
         <div className={styles.section}>
-          <h3>Our Family</h3>
+          <h3>Our Family Socials</h3>
           <p>Share your stories, preserve memories, and stay connected with the people who matter most.</p>
           <p>Built for families who value their shared experiences.</p>
         </div>
@@ -16,9 +18,19 @@ function Footer() {
         <div className={styles.section}>
           <h3>Explore</h3>
           <ul className={styles.links}>
-            <li><Link to="/feed">Feed</Link></li>
-            <li><Link to="/create">Create Event</Link></li>
-            <li><Link to="/profile/me">Your Profile</Link></li>
+            {user ? (
+              <>
+                <li><Link to="/feed">Feed</Link></li>
+                <li><Link to="/create">Create Event</Link></li>
+                <li><Link to={`/profile/${user.username}`}>Your Profile</Link></li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/login">Feed</Link></li>
+                <li><a href="/#create-event">Create Event</a></li>
+                <li><a href="/#your-profile">Your Profile</a></li>
+              </>
+            )}
             <li><Link to="/pricing">Pricing</Link></li>
           </ul>
         </div>
@@ -26,7 +38,7 @@ function Footer() {
         <div className={styles.section}>
           <h3>Support</h3>
           <ul className={styles.links}>
-            <li><a href="#help">Help Center</a></li>
+            <li><Link to="/faq">Help Center</Link></li>
             <li><Link to="/privacy">Privacy Policy</Link></li>
             <li><Link to="/terms">Terms of Service</Link></li>
             <li><Link to="/contact">Contact Us</Link></li>
