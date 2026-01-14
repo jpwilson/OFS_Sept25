@@ -481,19 +481,19 @@ function Landing() {
             {/* Free Tier */}
             <div className={styles.pricingCard}>
               <div className={styles.pricingHeader}>
-                <h3>Free</h3>
+                <h3>Free to View</h3>
                 <div className={styles.price}>
                   <span className={styles.priceAmount}>$0</span>
                   <span className={styles.pricePeriod}>/forever</span>
                 </div>
-                <p className={styles.pricingDesc}>Perfect for family members</p>
+                <p className={styles.pricingDesc}>Perfect for family viewers</p>
               </div>
               <ul className={styles.pricingFeatures}>
-                <li>Follow family members</li>
+                <li><strong>View-only</strong> — cannot create events</li>
                 <li>View all shared events</li>
                 <li>Like and comment</li>
-                <li>Interactive maps</li>
-                <li>Timeline view</li>
+                <li>Follow family members</li>
+                <li>Interactive maps & timeline</li>
                 <li>30-day Pro trial included</li>
               </ul>
               <Link to="/login" className={styles.pricingButton}>
