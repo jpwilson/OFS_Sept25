@@ -337,8 +337,8 @@ function Profile() {
         </div>
         <div className={styles.actions}>
           {isOwnProfile ? (
-            <div className={styles.profileActions}>
-              {/* Notifications button - separate from Settings */}
+            <div className={styles.profileActionsWide}>
+              {/* Notifications button - left aligned */}
               <Link to="/notifications" className={styles.notificationsButton}>
                 <svg className={styles.bellIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -349,7 +349,7 @@ function Profile() {
                   <span className={styles.notificationBadge}>{notificationCounts.total}</span>
                 )}
               </Link>
-              {/* Settings dropdown */}
+              {/* Settings dropdown - right aligned */}
               <ProfileMenu username={username} />
             </div>
           ) : currentUser ? (
@@ -421,20 +421,19 @@ function Profile() {
         <UpgradeRibbon eventCount={events.length} limit={5} />
       )}
 
-      {/* Create Event CTA - centered below divider */}
-      {isOwnProfile && (
-        <div className={styles.createEventCta}>
-          <Link to="/create" className={styles.createEventButton}>
-            + Create Event
-          </Link>
-        </div>
-      )}
-
       <div className={styles.eventsSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>
-            {isOwnProfile ? 'Your Events' : 'Events'}
-          </h2>
+          <div className={styles.sectionTitleRow}>
+            <h2 className={styles.sectionTitle}>
+              {isOwnProfile ? 'Your Events' : 'Events'}
+            </h2>
+            {isOwnProfile && (
+              <Link to="/create" className={styles.createEventMini} title="Create Event">
+                <span className={styles.createEventIcon}>+</span>
+                <span className={styles.createEventText}>Create Event</span>
+              </Link>
+            )}
+          </div>
           {isOwnProfile && (
             <div className={styles.tabs}>
               <button

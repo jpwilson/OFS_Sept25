@@ -35,6 +35,9 @@ export default function Notifications() {
   const [tagProfileRelReqsByYou, setTagProfileRelReqsByYou] = useState([])
   const [processingTagProfileRelReq, setProcessingTagProfileRelReq] = useState(null)
 
+  // Collapse state for accepted requests
+  const [showAcceptedTags, setShowAcceptedTags] = useState(false)
+
   // Relationship state
   const [relationshipRequestsToYou, setRelationshipRequestsToYou] = useState([])
   const [relationshipRequestsByYou, setRelationshipRequestsByYou] = useState([])
@@ -527,31 +530,73 @@ export default function Notifications() {
                       <p>No sent tag requests</p>
                     </div>
                   ) : (
-                    <div className={styles.requestsList}>
-                      {tagRequestsByYou.map(request => (
-                        <div key={request.id} className={styles.requestItem}>
-                          <Link to={`/event/${request.event_id}`} className={styles.requestInfo}>
-                            {request.event_cover_image_url && (
-                              <img src={request.event_cover_image_url} alt="" className={styles.requestImage} />
-                            )}
-                            <div className={styles.requestDetails}>
-                              <strong>{request.event_title}</strong>
-                              <p>
-                                Tagged{' '}
-                                <Link to={`/profile/${request.tagged_user_username}`} onClick={e => e.stopPropagation()}>
-                                  {request.tagged_user_display_name || request.tagged_user_username}
-                                </Link>
-                              </p>
+                    <>
+                      {/* Pending requests - always visible */}
+                      {tagRequestsByYou.filter(r => r.status === 'pending').length > 0 && (
+                        <div className={styles.requestsList}>
+                          {tagRequestsByYou.filter(r => r.status === 'pending').map(request => (
+                            <div key={request.id} className={styles.requestItem}>
+                              <Link to={`/event/${request.event_id}`} className={styles.requestInfo}>
+                                {request.event_cover_image_url && (
+                                  <img src={request.event_cover_image_url} alt="" className={styles.requestImage} />
+                                )}
+                                <div className={styles.requestDetails}>
+                                  <strong>{request.event_title}</strong>
+                                  <p>
+                                    Tagged{' '}
+                                    <Link to={`/profile/${request.tagged_user_username}`} onClick={e => e.stopPropagation()}>
+                                      {request.tagged_user_display_name || request.tagged_user_username}
+                                    </Link>
+                                  </p>
+                                </div>
+                              </Link>
+                              <div className={styles.statusBadge}>
+                                <span className={`${styles.status} ${styles.pending}`}>Pending</span>
+                              </div>
                             </div>
-                          </Link>
-                          <div className={styles.statusBadge}>
-                            <span className={`${styles.status} ${styles[request.status]}`}>
-                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                            </span>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      )}
+
+                      {/* Accepted/Rejected requests - collapsible */}
+                      {tagRequestsByYou.filter(r => r.status !== 'pending').length > 0 && (
+                        <>
+                          <button
+                            className={styles.collapseToggle}
+                            onClick={() => setShowAcceptedTags(!showAcceptedTags)}
+                          >
+                            {showAcceptedTags ? '▼' : '▶'} Completed ({tagRequestsByYou.filter(r => r.status !== 'pending').length})
+                          </button>
+                          {showAcceptedTags && (
+                            <div className={styles.requestsList}>
+                              {tagRequestsByYou.filter(r => r.status !== 'pending').map(request => (
+                                <div key={request.id} className={styles.requestItem}>
+                                  <Link to={`/event/${request.event_id}`} className={styles.requestInfo}>
+                                    {request.event_cover_image_url && (
+                                      <img src={request.event_cover_image_url} alt="" className={styles.requestImage} />
+                                    )}
+                                    <div className={styles.requestDetails}>
+                                      <strong>{request.event_title}</strong>
+                                      <p>
+                                        Tagged{' '}
+                                        <Link to={`/profile/${request.tagged_user_username}`} onClick={e => e.stopPropagation()}>
+                                          {request.tagged_user_display_name || request.tagged_user_username}
+                                        </Link>
+                                      </p>
+                                    </div>
+                                  </Link>
+                                  <div className={styles.statusBadge}>
+                                    <span className={`${styles.status} ${styles[request.status]}`}>
+                                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
 

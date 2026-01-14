@@ -178,6 +178,14 @@
   gap: 12px;
 }
 
+.profileActionsWide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 700px;
+}
+
 .bellIcon {
   width: 18px;
   height: 18px;
@@ -540,6 +548,61 @@
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Mini Create Event Button (like Quick Add) */
+.createEventMini {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 8px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.createEventIcon {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  transition: margin 0.3s ease;
+}
+
+.createEventText {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.createEventMini:hover {
+  padding: 0 14px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.createEventMini:hover .createEventIcon {
+  margin-right: 6px;
+}
+
+.createEventMini:hover .createEventText {
+  max-width: 100px;
+  opacity: 1;
 }
 
 .tabs {

@@ -150,8 +150,6 @@ function ProfileMenu({ username }) {
             Membership
           </Link>
 
-          <div className={styles.menuDivider} />
-
           <Link
             to="/relationships"
             className={styles.menuItem}

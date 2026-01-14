@@ -319,6 +319,117 @@ function Landing() {
         </div>
       </section>
 
+      {/* Your Profile Section */}
+      <section id="your-profile" className={styles.feature}>
+        <div className={`${styles.featureContent} ${styles.reverse}`}>
+          <div className={styles.featureVisual}>
+            <div className={styles.profileMockup}>
+              <div className={styles.profileCard}>
+                <div className={styles.profileAvatar}>
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" alt="Emily" />
+                </div>
+                <h3 className={styles.profileName}>Emily Wilson</h3>
+                <p className={styles.profileUsername}>@emilywilson</p>
+                <div className={styles.profileStats}>
+                  <div className={styles.profileStat}>
+                    <span className={styles.statNumber}>47</span>
+                    <span className={styles.statLabel}>Events</span>
+                  </div>
+                  <div className={styles.profileStat}>
+                    <span className={styles.statNumber}>23</span>
+                    <span className={styles.statLabel}>Followers</span>
+                  </div>
+                  <div className={styles.profileStat}>
+                    <span className={styles.statNumber}>18</span>
+                    <span className={styles.statLabel}>Following</span>
+                  </div>
+                </div>
+                <div className={styles.profileBio}>
+                  Adventurer, mom of two, and travel enthusiast. Sharing our family's journey one event at a time.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.featureText}>
+            <span className={styles.badge}>Your Profile</span>
+            <h2 className={styles.featureTitle}>
+              Your story, beautifully<br />organized
+            </h2>
+            <p className={styles.featureDesc}>
+              Your profile is your personal archive of memories. See all your events in one place,
+              organized by date. Show off your adventures to family members who follow you,
+              and keep track of the moments that matter most.
+            </p>
+            <ul className={styles.featureList}>
+              <li>Beautiful profile with your photo and bio</li>
+              <li>All your events organized chronologically</li>
+              <li>Draft and trash management for events</li>
+              <li>See who's following your journey</li>
+              <li>Control who can see your content</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Create Event Section */}
+      <section id="create-event" className={styles.feature}>
+        <div className={styles.featureContent}>
+          <div className={styles.featureText}>
+            <span className={styles.badge}>Create Event</span>
+            <h2 className={styles.featureTitle}>
+              Capture every adventure<br />in stunning detail
+            </h2>
+            <p className={styles.featureDesc}>
+              Our powerful event creator makes it easy to document life's best moments.
+              Upload photos, tell your story, pin locations on the map, and share with
+              your family—all in minutes.
+            </p>
+            <ul className={styles.featureList}>
+              <li><strong>Drag-and-drop photos</strong> - Upload entire galleries at once</li>
+              <li><strong>Rich text editor</strong> - Tell the full story with formatting</li>
+              <li><strong>Interactive maps</strong> - Pin multiple locations for road trips</li>
+              <li><strong>Auto GPS extraction</strong> - We read location data from your photos</li>
+              <li><strong>Video support</strong> - Add video clips to bring events to life</li>
+              <li><strong>Tag family members</strong> - Credit everyone who was there</li>
+              <li><strong>Privacy controls</strong> - Share publicly or keep private</li>
+            </ul>
+          </div>
+          <div className={styles.featureVisual}>
+            <div className={styles.createMockup}>
+              <div className={styles.createHeader}>
+                <span className={styles.createTitle}>Create New Event</span>
+              </div>
+              <div className={styles.createForm}>
+                <div className={styles.formField}>
+                  <label>Event Title</label>
+                  <div className={styles.inputMock}>Summer Road Trip 2024</div>
+                </div>
+                <div className={styles.formField}>
+                  <label>Photos</label>
+                  <div className={styles.photoUploadMock}>
+                    <div className={styles.uploadedPhotos}>
+                      <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80" alt="Road" />
+                      <img src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=200&q=80" alt="Beach" />
+                      <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&q=80" alt="Mountain" />
+                      <div className={styles.morePhotos}>+12</div>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.formField}>
+                  <label>Locations</label>
+                  <div className={styles.locationsMock}>
+                    <span className={styles.locationPill}>📍 San Francisco</span>
+                    <span className={styles.locationPill}>📍 Big Sur</span>
+                    <span className={styles.locationPill}>📍 Los Angeles</span>
+                  </div>
+                </div>
+                <div className={styles.createButton}>Publish Event →</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Photo Books */}
       <section className={styles.photoBooksSection}>
         <div className={styles.photoBookContent}>
@@ -468,7 +579,7 @@ function Landing() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerSection}>
-            <h3>Our Family</h3>
+            <h3>Our Family Socials</h3>
             <p>Share your stories, preserve memories, and stay connected with the people who matter most.</p>
             <p>Built for families who value their shared experiences.</p>
           </div>
@@ -476,17 +587,17 @@ function Landing() {
           <div className={styles.footerSection}>
             <h3>Explore</h3>
             <ul className={styles.footerLinks}>
-              <li><a href="#features">Features</a></li>
-              <li><Link to="/login">Create Event</Link></li>
-              <li><Link to="/login">Your Profile</Link></li>
-              <li><a href="#discover">Discover Stories</a></li>
+              <li><Link to="/feed">Feed</Link></li>
+              <li><a href="#create-event" onClick={(e) => { e.preventDefault(); scrollToSection('create-event'); }}>Create Event</a></li>
+              <li><a href="#your-profile" onClick={(e) => { e.preventDefault(); scrollToSection('your-profile'); }}>Your Profile</a></li>
+              <li><a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a></li>
             </ul>
           </div>
 
           <div className={styles.footerSection}>
             <h3>Support</h3>
             <ul className={styles.footerLinks}>
-              <li><a href="#help">Help Center</a></li>
+              <li><Link to="/faq">Help Center</Link></li>
               <li><Link to="/privacy">Privacy Policy</Link></li>
               <li><Link to="/terms">Terms of Service</Link></li>
               <li><Link to="/contact">Contact Us</Link></li>

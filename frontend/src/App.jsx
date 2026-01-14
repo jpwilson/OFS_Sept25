@@ -25,6 +25,7 @@ import Notifications from './pages/Notifications'
 import Preferences from './pages/Preferences'
 import Relationships from './pages/Relationships'
 import Tags from './pages/Tags'
+import FAQ from './pages/FAQ'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -63,6 +64,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/share/:token" element={<EventDetail isShareMode={true} />} />
             <Route path="/join/:token" element={<InviteLanding />} />
             <Route element={<Layout />}>
