@@ -789,8 +789,7 @@ export default function Notifications() {
                             <div className={styles.requestDetails}>
                               <strong>{request.proposer_display_name || request.proposer_username}</strong>
                               <p>
-                                Wants to be your <strong>{request.i_would_call_them}</strong>
-                                {' '}(and you their {request.they_call_me})
+                                Wants to be your <strong>{request.i_would_call_them ? request.i_would_call_them.charAt(0).toUpperCase() + request.i_would_call_them.slice(1) : ''}</strong>
                               </p>
                             </div>
                           </Link>
@@ -843,7 +842,7 @@ export default function Notifications() {
                             <div className={styles.requestDetails}>
                               <strong>{request.recipient_display_name || request.recipient_username}</strong>
                               <p>
-                                Proposed: They are your <strong>{request.i_call_them}</strong>
+                                Proposed as your <strong>{request.i_call_them ? request.i_call_them.charAt(0).toUpperCase() + request.i_call_them.slice(1) : ''}</strong>
                               </p>
                             </div>
                           </Link>
@@ -862,55 +861,11 @@ export default function Notifications() {
                   )}
                 </div>
 
-                {/* Verified Relationships */}
-                <div className={styles.subsection}>
-                  <h2 className={styles.subsectionTitle}>Verified Relationships</h2>
-                  <p className={styles.sectionDescription}>
-                    Your verified family and friend connections
-                  </p>
-
-                  {acceptedRelationships.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      <span className={styles.emptyIcon}>🌳</span>
-                      <p>No verified relationships yet</p>
-                      <p className={styles.emptySubtext}>
-                        Follow someone and have them follow you back to propose a relationship
-                      </p>
-                    </div>
-                  ) : (
-                    <div className={styles.requestsList}>
-                      {acceptedRelationships.map(relationship => (
-                        <div key={relationship.id} className={styles.requestItem}>
-                          <Link to={`/profile/${relationship.other_user_username}`} className={styles.requestInfo}>
-                            {relationship.other_user_avatar_url ? (
-                              <img src={relationship.other_user_avatar_url} alt="" className={styles.requestAvatar} />
-                            ) : (
-                              <div className={styles.requestAvatarPlaceholder}>
-                                {relationship.other_user_username?.[0]?.toUpperCase() || '?'}
-                              </div>
-                            )}
-                            <div className={styles.requestDetails}>
-                              <strong>{relationship.other_user_display_name || relationship.other_user_username}</strong>
-                              <p>Your <strong>{relationship.relationship_to_you}</strong></p>
-                            </div>
-                          </Link>
-                          <div className={styles.requestActions}>
-                            <button
-                              className={styles.rejectButton}
-                              onClick={() => {
-                                if (window.confirm(`Remove ${relationship.other_user_display_name || relationship.other_user_username} as your ${relationship.relationship_to_you}?`)) {
-                                  handleDeleteRelationship(relationship.id)
-                                }
-                              }}
-                              disabled={processingRelationship === relationship.id}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                {/* Link to full Relationships page */}
+                <div className={styles.viewAllSection}>
+                  <Link to="/relationships" className={styles.viewAllLink}>
+                    View all verified relationships →
+                  </Link>
                 </div>
               </>
             )}

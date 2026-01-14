@@ -312,6 +312,31 @@
   font-size: 12px;
 }
 
+/* View All Link */
+.viewAllSection {
+  padding: 16px 0;
+  text-align: center;
+}
+
+.viewAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  color: #667eea;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.viewAllLink:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 16px;

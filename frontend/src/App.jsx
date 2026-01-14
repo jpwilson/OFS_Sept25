@@ -23,6 +23,8 @@ import Billing from './pages/Billing'
 import NotificationSettings from './pages/NotificationSettings'
 import Notifications from './pages/Notifications'
 import Preferences from './pages/Preferences'
+import Relationships from './pages/Relationships'
+import Tags from './pages/Tags'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -73,6 +75,8 @@ function App() {
               <Route path="/profile/:username/edit" element={<EditProfile />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Preferences />} />
+              <Route path="/relationships" element={<Relationships />} />
+              <Route path="/tags" element={<Tags />} />
               {/* Backwards compatibility redirects */}
               <Route path="/settings/notifications" element={<Navigate to="/notifications" replace />} />
               <Route path="/preferences" element={<Navigate to="/settings" replace />} />

@@ -1,14 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import NotificationDot from './NotificationDot'
+import { Link } from 'react-router-dom'
 import styles from './ProfileMenu.module.css'
 
-function ProfileMenu({ notificationCounts = { total: 0 }, username }) {
+function ProfileMenu({ username }) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef(null)
-  const { logout } = useAuth()
-  const navigate = useNavigate()
+  const closeTimeoutRef = useRef(null)
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -44,18 +41,41 @@ function ProfileMenu({ notificationCounts = { total: 0 }, username }) {
     }
   }, [isOpen])
 
-  function handleLogout() {
-    setIsOpen(false)
-    logout()
-    navigate('/login')
-  }
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
 
   function handleMenuItemClick() {
     setIsOpen(false)
   }
 
+  // Hover handlers for desktop
+  function handleMouseEnter() {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+    }
+    setIsOpen(true)
+  }
+
+  function handleMouseLeave() {
+    // Small delay before closing to allow moving to dropdown
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false)
+    }, 150)
+  }
+
   return (
-    <div className={styles.menuContainer} ref={menuRef}>
+    <div
+      className={styles.menuContainer}
+      ref={menuRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
         className={styles.menuButton}
         onClick={() => setIsOpen(!isOpen)}
@@ -87,30 +107,10 @@ function ProfileMenu({ notificationCounts = { total: 0 }, username }) {
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
-        {notificationCounts.total > 0 && (
-          <NotificationDot
-            count={notificationCounts.total}
-            dismissable={false}
-            size="small"
-          />
-        )}
       </button>
 
       {isOpen && (
         <div className={styles.dropdown} role="menu">
-          <Link
-            to={`/profile/${username}/edit`}
-            className={styles.menuItem}
-            onClick={handleMenuItemClick}
-            role="menuitem"
-          >
-            <svg className={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-            Edit Profile
-          </Link>
-
           <Link
             to="/settings"
             className={styles.menuItem}
@@ -125,19 +125,16 @@ function ProfileMenu({ notificationCounts = { total: 0 }, username }) {
           </Link>
 
           <Link
-            to="/notifications"
+            to={`/profile/${username}/edit`}
             className={styles.menuItem}
             onClick={handleMenuItemClick}
             role="menuitem"
           >
             <svg className={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
-            Notifications
-            {notificationCounts.total > 0 && (
-              <span className={styles.badge}>{notificationCounts.total}</span>
-            )}
+            Edit Profile
           </Link>
 
           <Link
@@ -155,18 +152,33 @@ function ProfileMenu({ notificationCounts = { total: 0 }, username }) {
 
           <div className={styles.menuDivider} />
 
-          <button
-            className={`${styles.menuItem} ${styles.logoutItem}`}
-            onClick={handleLogout}
+          <Link
+            to="/relationships"
+            className={styles.menuItem}
+            onClick={handleMenuItemClick}
             role="menuitem"
           >
             <svg className={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            Logout
-          </button>
+            Relationships
+          </Link>
+
+          <Link
+            to="/tags"
+            className={styles.menuItem}
+            onClick={handleMenuItemClick}
+            role="menuitem"
+          >
+            <svg className={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+              <line x1="7" y1="7" x2="7.01" y2="7" />
+            </svg>
+            Tags
+          </Link>
         </div>
       )}
     </div>

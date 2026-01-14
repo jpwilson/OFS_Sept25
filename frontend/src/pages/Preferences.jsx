@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
-import CreateTagProfileModal from '../components/CreateTagProfileModal'
 import apiService from '../services/api'
 import styles from './Preferences.module.css'
 
@@ -13,7 +12,7 @@ export default function Preferences() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeSection, setActiveSection] = useState('appearance') // 'appearance', 'email', 'push', 'tag-profiles'
+  const [activeSection, setActiveSection] = useState('appearance') // 'appearance', 'email', 'push'
 
   // Theme state
   const [theme, setTheme] = useState('dark')
@@ -29,11 +28,6 @@ export default function Preferences() {
     notify_invitee_new_event: true,
     notify_tag_request: true
   })
-
-  // Tag profiles state
-  const [myTagProfiles, setMyTagProfiles] = useState([])
-  const [tagProfilesLoading, setTagProfilesLoading] = useState(false)
-  const [showCreateTagModal, setShowCreateTagModal] = useState(false)
 
   // Per-user event notification state
   const [followingList, setFollowingList] = useState([])
@@ -61,7 +55,6 @@ export default function Preferences() {
     setLoading(true)
     await Promise.all([
       loadPreferences(),
-      loadTagProfiles(),
       loadFollowingList()
     ])
     setLoading(false)
@@ -74,18 +67,6 @@ export default function Preferences() {
     } catch (error) {
       console.error('Failed to load preferences:', error)
       showToast('Failed to load notification settings', 'error')
-    }
-  }
-
-  async function loadTagProfiles() {
-    setTagProfilesLoading(true)
-    try {
-      const profiles = await apiService.getMyTagProfiles()
-      setMyTagProfiles(profiles || [])
-    } catch (error) {
-      console.error('Failed to load tag profiles:', error)
-    } finally {
-      setTagProfilesLoading(false)
     }
   }
 
@@ -176,11 +157,6 @@ export default function Preferences() {
     }
   }
 
-  function handleTagProfileCreated(profile) {
-    setMyTagProfiles(prev => [profile, ...prev])
-    showToast('Tag profile created', 'success')
-  }
-
   if (loading) {
     return (
       <div className={styles.container}>
@@ -219,12 +195,6 @@ export default function Preferences() {
             onClick={() => setActiveSection('push')}
           >
             Push Notifications
-          </button>
-          <button
-            className={`${styles.navItem} ${activeSection === 'tag-profiles' ? styles.activeNavItem : ''}`}
-            onClick={() => setActiveSection('tag-profiles')}
-          >
-            Tag Profiles
           </button>
         </div>
 
@@ -478,78 +448,6 @@ export default function Preferences() {
             <p>Coming soon! We're working on push notifications to keep you updated in real-time.</p>
           </div>
         )}
-
-        {/* ============ TAG PROFILES SECTION ============ */}
-        {activeSection === 'tag-profiles' && (
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <div>
-                <h2 className={styles.sectionTitle}>Your Tag Profiles</h2>
-                <p className={styles.sectionDescription}>
-                  People without accounts that you've created for tagging (pets, kids, relatives)
-                </p>
-              </div>
-              <button
-                className={styles.createButton}
-                onClick={() => setShowCreateTagModal(true)}
-              >
-                + Create
-              </button>
-            </div>
-
-            {tagProfilesLoading ? (
-              <div className={styles.loading}>Loading...</div>
-            ) : myTagProfiles.length === 0 ? (
-              <div className={styles.emptyState}>
-                <span className={styles.emptyIcon}>👤</span>
-                <p>No tag profiles created yet</p>
-                <p className={styles.emptySubtext}>
-                  Create tag profiles for family members or pets who don't have accounts
-                </p>
-                <button
-                  className={styles.createButtonLarge}
-                  onClick={() => setShowCreateTagModal(true)}
-                >
-                  + Create Tag Profile
-                </button>
-              </div>
-            ) : (
-              <div className={styles.tagProfilesList}>
-                {myTagProfiles.map(profile => (
-                  <Link
-                    key={profile.id}
-                    to={`/tag-profile/${profile.id}`}
-                    className={styles.tagProfileItem}
-                  >
-                    <div className={styles.tagProfileInfo}>
-                      {profile.photo_url ? (
-                        <img src={profile.photo_url} alt="" className={styles.tagProfileAvatar} />
-                      ) : (
-                        <div className={styles.tagProfileAvatarPlaceholder}>
-                          {profile.name?.[0]?.toUpperCase() || '#'}
-                        </div>
-                      )}
-                      <div className={styles.tagProfileDetails}>
-                        <strong>{profile.name}</strong>
-                        {profile.relationship_to_creator && (
-                          <p>Your {profile.relationship_to_creator}</p>
-                        )}
-                      </div>
-                    </div>
-                    <span className={styles.viewArrow}>→</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Create Tag Profile Modal */}
-        <CreateTagProfileModal
-          isOpen={showCreateTagModal}
-          onClose={() => setShowCreateTagModal(false)}
-          onCreated={handleTagProfileCreated}
-        />
       </div>
     </div>
   )
