@@ -47,6 +47,7 @@ function EventDetail({ isShareMode = false }) {
   const [eventTags, setEventTags] = useState([])
   const [shareContext, setShareContext] = useState(null)
   const [showSignUpBanner, setShowSignUpBanner] = useState(isShareMode)
+  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked, user_reaction } }
   const contentRef = useRef(null)
   const mapRef = useRef(null)
   const likesSectionRef = useRef(null)
@@ -129,31 +130,146 @@ function EventDetail({ isShareMode = false }) {
     }
   }
 
-  // Make rich HTML images clickable with event delegation
+  // Make rich HTML images/videos clickable and add engagement overlays
   useEffect(() => {
     if (!contentRef.current) return
 
     const handleClick = (e) => {
-      // Check if click was on an img element
-      if (e.target.tagName === 'IMG') {
+      // Check if click was on an img element or video
+      if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
         e.preventDefault()
         handleImageClick(e.target.src)
       }
+      // Don't intercept clicks on overlay buttons
     }
 
     const content = contentRef.current
     content.addEventListener('click', handleClick)
 
-    // Add cursor pointer style to all images
-    const images = content.querySelectorAll('img')
-    images.forEach(img => {
-      img.style.cursor = 'pointer'
+    // Add cursor pointer style and engagement overlays to all images/videos
+    const mediaElements = content.querySelectorAll('img, video')
+
+    // Helper to normalize URLs for comparison
+    const normalizeUrl = (url) => {
+      if (!url) return ''
+      return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
+    }
+
+    mediaElements.forEach(element => {
+      element.style.cursor = 'pointer'
+
+      // Find matching eventImage to get the media ID
+      const elementSrc = element.src || element.getAttribute('src')
+      const normalizedSrc = normalizeUrl(elementSrc)
+      const matchingMedia = eventImages?.find(ei => normalizeUrl(ei.image_url) === normalizedSrc)
+
+      if (matchingMedia?.id) {
+        const mediaId = matchingMedia.id
+        const stats = mediaStats[mediaId]
+
+        // Wrap in container if not already wrapped
+        if (!element.parentElement?.classList?.contains('media-engagement-wrapper')) {
+          const wrapper = document.createElement('div')
+          wrapper.className = 'media-engagement-wrapper'
+          wrapper.style.cssText = 'position: relative; display: inline-block;'
+          element.parentNode.insertBefore(wrapper, element)
+          wrapper.appendChild(element)
+
+          // Add overlay
+          const overlay = document.createElement('div')
+          overlay.className = 'media-engagement-overlay'
+          overlay.style.cssText = `
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 10px;
+            border-radius: 16px;
+            font-size: 13px;
+            color: white;
+            backdrop-filter: blur(4px);
+            z-index: 2;
+            pointer-events: none;
+          `
+
+          // Reactions count
+          if (stats?.like_count > 0 || stats?.comment_count > 0) {
+            if (stats?.like_count > 0) {
+              const reactionSpan = document.createElement('span')
+              reactionSpan.style.cssText = 'display: flex; align-items: center; gap: 4px;'
+              // Show the most common reaction or default heart
+              let emoji = '❤️'
+              if (stats?.reaction_counts && Object.keys(stats.reaction_counts).length > 0) {
+                const topReaction = Object.entries(stats.reaction_counts).sort((a, b) => b[1] - a[1])[0][0]
+                const emojiMap = { heart: '❤️', laugh: '😂', sad: '😢', wow: '😮', love: '😍', clap: '👏', fire: '🔥', hundred: '💯', hug: '🤗', smile: '😊' }
+                emoji = emojiMap[topReaction] || '❤️'
+              }
+              reactionSpan.innerHTML = `<span style="font-size: 14px;">${emoji}</span><span style="font-weight: 600;">${stats.like_count}</span>`
+              overlay.appendChild(reactionSpan)
+            }
+
+            if (stats?.comment_count > 0) {
+              const commentSpan = document.createElement('span')
+              commentSpan.style.cssText = 'display: flex; align-items: center; gap: 4px;'
+              commentSpan.innerHTML = `<span style="font-size: 14px;">💬</span><span style="font-weight: 600;">${stats.comment_count}</span>`
+              overlay.appendChild(commentSpan)
+            }
+
+            wrapper.appendChild(overlay)
+          }
+        } else {
+          // Update existing overlay
+          const wrapper = element.parentElement
+          let overlay = wrapper.querySelector('.media-engagement-overlay')
+
+          if (stats?.like_count > 0 || stats?.comment_count > 0) {
+            if (!overlay) {
+              overlay = document.createElement('div')
+              overlay.className = 'media-engagement-overlay'
+              overlay.style.cssText = `
+                position: absolute;
+                bottom: 8px;
+                right: 8px;
+                display: flex;
+                gap: 8px;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 6px 10px;
+                border-radius: 16px;
+                font-size: 13px;
+                color: white;
+                backdrop-filter: blur(4px);
+                z-index: 2;
+                pointer-events: none;
+              `
+              wrapper.appendChild(overlay)
+            }
+
+            overlay.innerHTML = ''
+            if (stats?.like_count > 0) {
+              let emoji = '❤️'
+              if (stats?.reaction_counts && Object.keys(stats.reaction_counts).length > 0) {
+                const topReaction = Object.entries(stats.reaction_counts).sort((a, b) => b[1] - a[1])[0][0]
+                const emojiMap = { heart: '❤️', laugh: '😂', sad: '😢', wow: '😮', love: '😍', clap: '👏', fire: '🔥', hundred: '💯', hug: '🤗', smile: '😊' }
+                emoji = emojiMap[topReaction] || '❤️'
+              }
+              overlay.innerHTML += `<span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 14px;">${emoji}</span><span style="font-weight: 600;">${stats.like_count}</span></span>`
+            }
+            if (stats?.comment_count > 0) {
+              overlay.innerHTML += `<span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 14px;">💬</span><span style="font-weight: 600;">${stats.comment_count}</span></span>`
+            }
+          } else if (overlay) {
+            overlay.remove()
+          }
+        }
+      }
     })
 
     return () => {
       content.removeEventListener('click', handleClick)
     }
-  }, [event]) // Re-run when event changes
+  }, [event, eventImages, mediaStats]) // Re-run when event, images, or stats change
 
   // Handle map button click from navigation
   const handleMapClick = useCallback(() => {
@@ -221,6 +337,35 @@ function EventDetail({ isShareMode = false }) {
       }
     }
   }, [event, isShareMode])
+
+  // Load media stats for all eventImages (reactions/comments per media)
+  useEffect(() => {
+    async function loadMediaStats() {
+      if (!eventImages || eventImages.length === 0) return
+
+      const mediaIds = eventImages.filter(img => img.id).map(img => img.id)
+      if (mediaIds.length === 0) return
+
+      try {
+        const stats = await apiService.getBatchMediaStats(mediaIds)
+        const statsMap = {}
+        stats.forEach(stat => {
+          statsMap[stat.media_id] = {
+            like_count: stat.like_count,
+            comment_count: stat.comment_count,
+            is_liked: stat.is_liked,
+            user_reaction: stat.user_reaction,
+            reaction_counts: stat.reaction_counts
+          }
+        })
+        setMediaStats(statsMap)
+      } catch (error) {
+        console.error('Failed to load media stats:', error)
+      }
+    }
+
+    loadMediaStats()
+  }, [eventImages])
 
   async function loadTags(eventId) {
     try {

@@ -41,6 +41,7 @@ function EngagementToolbar({
 }) {
   const { currentIndex } = useLightboxState()
   const [showReactionPicker, setShowReactionPicker] = useState(false)
+  const buttonRef = useRef(null)
   const pickerTimeoutRef = useRef(null)
 
   const currentMedia = images[currentIndex]
@@ -87,6 +88,9 @@ function EngagementToolbar({
 
   if (!currentMediaId) return null
 
+  // Get button position for picker placement
+  const buttonRect = buttonRef.current?.getBoundingClientRect()
+
   return (
     <div className={styles.engagementToolbar}>
       <div
@@ -95,6 +99,7 @@ function EngagementToolbar({
         onMouseLeave={handleMouseLeave}
       >
         <button
+          ref={buttonRef}
           type="button"
           className={`${styles.toolbarLikeBtn} ${stats?.is_liked ? styles.liked : ''}`}
           onClick={handleMainButtonClick}
@@ -105,9 +110,20 @@ function EngagementToolbar({
           {stats?.like_count > 0 && <span className={styles.toolbarCount}>{stats.like_count}</span>}
         </button>
 
-        {/* Reaction Picker */}
-        {showReactionPicker && user && (
-          <div className={styles.reactionPicker}>
+        {/* Reaction Picker - rendered via portal to avoid overflow clipping */}
+        {showReactionPicker && user && buttonRect && createPortal(
+          <div
+            className={styles.reactionPickerPortal}
+            style={{
+              position: 'fixed',
+              top: buttonRect.bottom + 8,
+              left: buttonRect.left + (buttonRect.width / 2),
+              transform: 'translateX(-50%)',
+              zIndex: 10002
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             {Object.entries(REACTIONS).map(([type, { emoji, label }]) => (
               <button
                 key={type}
@@ -119,7 +135,8 @@ function EngagementToolbar({
                 {emoji}
               </button>
             ))}
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
