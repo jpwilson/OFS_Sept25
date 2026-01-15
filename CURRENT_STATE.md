@@ -1,6 +1,6 @@
 # Our Family Socials - Current State Summary
 
-**Last Updated:** January 13, 2026
+**Last Updated:** January 15, 2026
 **Status:** Production - Live at ourfamilysocials.com
 **Purpose:** Private social network for families to share life events, photos, and memories
 
@@ -139,6 +139,22 @@ OFS_claude/
 ---
 
 ## 🎯 Recent Major Work (November 2025 - January 2026)
+
+### Media Reactions System (January 15, 2026)
+**Purpose:** Replace single heart like with 10 reaction options for images
+- 10 reaction types: heart, laugh, sad, wow, love, clap, fire, hundred, hug, smile
+- Hover reaction picker popup in lightbox
+- Users can change reactions without unreacting first
+- Grid thumbnails show most popular reaction
+- **Key Files:** `frontend/src/components/ImageGallery.jsx`, `backend/app/api/media_engagement.py`
+- **Migration:** `6a09c5b9297f_add_reaction_type_to_media_likes.py`
+
+### Image Commenting UI (January 15, 2026)
+**Purpose:** Allow users to comment on individual photos/videos
+- Comments panel in lightbox (backend API existed, frontend was missing)
+- Post, view, delete comments per media item
+- Comment counts shown on grid thumbnails and toolbar
+- **Key Files:** `frontend/src/components/ImageGallery.jsx`, `backend/app/api/media_engagement.py`
 
 ### Alembic Migrations Setup (January 2026)
 **Purpose:** Proper database migration management

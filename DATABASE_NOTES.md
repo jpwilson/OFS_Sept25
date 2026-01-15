@@ -1,33 +1,75 @@
 # Database Setup Notes
 
-## IMPORTANT: Production Database Only
+## Production Database
 
-**DO NOT use local SQLite database for development or assume it's in sync with production.**
+**Production Database**: PostgreSQL on Supabase
+**Connection Mode**: Session mode (NOT Transaction pooler - causes crashes)
 
-- **Production Database**: PostgreSQL on Supabase
-- **Local Database**: SQLite - ONLY used to get the FastAPI server running locally for testing. NOT used for actual data.
-- **Migration Strategy**: NO migration files. All schema changes are provided as raw SQL that the user runs directly in Supabase dashboard.
+## Database Migrations with Alembic
+
+We use Alembic for database migrations. Migrations run against the production Supabase database.
+
+### Running Migrations
+
+From the `backend/` directory:
+
+```bash
+# Check current migration status
+alembic current
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Create a new migration
+alembic revision -m "description_of_change"
+
+# Rollback one migration
+alembic downgrade -1
+```
+
+### Creating a New Migration
+
+1. Update the SQLAlchemy model in `backend/app/models/`
+2. Create migration file:
+   ```bash
+   cd backend
+   alembic revision -m "add_column_name_to_table"
+   ```
+3. Edit the generated file in `backend/alembic/versions/` to add upgrade/downgrade logic
+4. Run the migration: `alembic upgrade head`
+5. Commit both the model changes and migration file
+
+### Migration History
+
+| Revision | Description |
+|----------|-------------|
+| a3ad04689449 | Initial schema |
+| 877cc9ab0a0b | Add theme_preference to users |
+| 6a09c5b9297f | Add reaction_type to media_likes |
+
+### Important Notes
+
+- Migrations run against **production** database via `settings.DATABASE_URL`
+- Always test migrations locally before running in production
+- The `env.py` imports all models to ensure they're registered with Base.metadata
+- Never skip migrations - always use Alembic to track schema changes
 
 ## Current Production Schema
 
-The production database (Supabase) has the following tables:
-- `users` (8 rows)
-- `events` (42 rows)
-- `event_images` (2 rows) - Added for caption system
-- `event_locations` (15 rows)
-- `content_blocks` (0 rows)
-- `comments` (8 rows)
-- `follows` (6 rows)
-- `likes` (16 rows)
+Key tables:
+- `users` - User accounts with auth, profile, preferences
+- `events` - Family events/memories
+- `event_images` - Media attachments for events
+- `event_locations` - GPS coordinates for events
+- `comments` - Comments on events
+- `likes` - Likes on events
+- `follows` - User follow relationships
+- `media_likes` - Reactions on individual images/videos (supports 10 reaction types)
+- `media_comments` - Comments on individual images/videos
+- `tag_profiles` - Family member profiles (taggable in events)
 
-## Making Schema Changes
+## Connection Pooling
 
-1. Write SQL migration script
-2. User runs it manually in Supabase dashboard
-3. DO NOT run migrations automatically or assume local DB structure
+**CRITICAL**: Use Session mode connection string, NOT Transaction pooler.
 
-## Never Assume
-
-- Never assume local DB matches production
-- Never run SQL against production without user approval
-- Always ask about production DB state before making changes
+Transaction pooler mode causes backend crashes. The Session mode connection string is configured in the environment variables.
