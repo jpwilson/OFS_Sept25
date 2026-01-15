@@ -528,6 +528,9 @@ export default function Billing() {
               <p className={styles.guarantee}>
                 30-day money-back guarantee. Cancel anytime.
               </p>
+              <p className={styles.troubleshootNote}>
+                Having trouble with checkout? Try disabling ad blockers or use incognito mode.
+              </p>
             </div>
 
             {/* Lifetime Option */}
@@ -572,6 +575,11 @@ export default function Billing() {
           <div className={styles.faqItem}>
             <h3>What payment methods do you accept?</h3>
             <p>We accept all major credit cards through our secure payment partner, Stripe.</p>
+          </div>
+
+          <div className={styles.faqItem}>
+            <h3>Having trouble with checkout or promo codes?</h3>
+            <p>Ad blockers and browser extensions can sometimes interfere with our payment system. Try disabling them, using incognito/private mode, or switching to a different browser.</p>
           </div>
         </div>
       </div>

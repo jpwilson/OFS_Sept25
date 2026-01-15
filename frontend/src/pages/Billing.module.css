@@ -289,6 +289,13 @@
   margin: 0;
 }
 
+.troubleshootNote {
+  color: #888;
+  font-size: 12px;
+  margin: 12px 0 0 0;
+  font-style: italic;
+}
+
 .primaryButton {
   padding: 14px 32px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

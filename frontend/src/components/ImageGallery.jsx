@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import Lightbox, { useLightboxState } from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
@@ -18,6 +19,8 @@ function EngagementToolbar({
   images,
   mediaStats,
   onLike,
+  onToggleComments,
+  showComments,
   user,
   likingMedia
 }) {
@@ -40,7 +43,107 @@ function EngagementToolbar({
         <span className={styles.toolbarHeart}>{stats?.is_liked ? '♥' : '♡'}</span>
         {stats?.like_count > 0 && <span className={styles.toolbarCount}>{stats.like_count}</span>}
       </button>
+      <button
+        type="button"
+        className={`${styles.toolbarBtn} ${showComments ? styles.active : ''}`}
+        onClick={onToggleComments}
+        title="Comments"
+      >
+        <span>💬</span>
+        {stats?.comment_count > 0 && <span className={styles.toolbarCount}>{stats.comment_count}</span>}
+      </button>
     </div>
+  )
+}
+
+// Comments Panel Component
+function CommentsPanel({
+  comments,
+  loading,
+  user,
+  newComment,
+  setNewComment,
+  onSubmit,
+  onDelete,
+  submitting,
+  onClose
+}) {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diff = now - date
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 1) return 'just now'
+    if (minutes < 60) return `${minutes}m ago`
+    if (hours < 24) return `${hours}h ago`
+    if (days < 7) return `${days}d ago`
+    return date.toLocaleDateString()
+  }
+
+  return createPortal(
+    <div className={styles.commentsOverlay}>
+      <div className={styles.commentsPanel}>
+        <div className={styles.commentsHeader}>
+          <span>Comments</span>
+          <button className={styles.closeComments} onClick={onClose}>✕</button>
+        </div>
+
+        <div className={styles.commentsList}>
+          {loading ? (
+            <div className={styles.loadingComments}>Loading comments...</div>
+          ) : comments.length === 0 ? (
+            <div className={styles.noComments}>No comments yet. Be the first!</div>
+          ) : (
+            comments.map(comment => (
+              <div key={comment.id} className={styles.comment}>
+                <div className={styles.commentHeader}>
+                  <span className={styles.commentAuthor}>{comment.author_display_name || comment.author_username || 'User'}</span>
+                  <span className={styles.commentDate}>{formatDate(comment.created_at)}</span>
+                  {user && comment.author_id === user.id && (
+                    <button
+                      className={styles.deleteComment}
+                      onClick={() => onDelete(comment.id)}
+                      title="Delete comment"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                <div className={styles.commentContent}>{comment.content}</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {user ? (
+          <form className={styles.commentForm} onSubmit={onSubmit}>
+            <input
+              type="text"
+              className={styles.commentInput}
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              disabled={submitting}
+            />
+            <button
+              type="submit"
+              className={styles.submitComment}
+              disabled={!newComment.trim() || submitting}
+            >
+              {submitting ? '...' : 'Post'}
+            </button>
+          </form>
+        ) : (
+          <div className={styles.loginPrompt}>
+            Log in to comment
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
   )
 }
 
@@ -68,9 +171,16 @@ function ImageGallery({
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode
   const setViewMode = onViewModeChange || setInternalViewMode
 
-  // Media engagement state (likes only - comments removed for now)
-  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, is_liked } }
+  // Media engagement state
+  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked } }
   const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
+
+  // Comment state
+  const [showComments, setShowComments] = useState(false)
+  const [comments, setComments] = useState([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [newComment, setNewComment] = useState('')
+  const [submittingComment, setSubmittingComment] = useState(false)
 
   // Get current media info for lightbox (moved up so it can be used in useEffect)
   const currentMedia = images[actualIndex]
@@ -142,6 +252,92 @@ function ImageGallery({
       setLikingMedia(null)
     }
   }
+
+  // Load comments for current media
+  const loadComments = async (mediaId) => {
+    if (!mediaId) return
+    setLoadingComments(true)
+    try {
+      const commentsData = await api.getMediaComments(mediaId)
+      setComments(commentsData || [])
+    } catch (error) {
+      console.error('Failed to load comments:', error)
+      setComments([])
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  // Handle toggling comments panel
+  const handleToggleComments = () => {
+    if (!showComments && currentMediaId) {
+      loadComments(currentMediaId)
+    }
+    setShowComments(!showComments)
+  }
+
+  // Handle submitting a new comment
+  const handleSubmitComment = async (e) => {
+    e.preventDefault()
+    if (!newComment.trim() || !currentMediaId || submittingComment) return
+
+    setSubmittingComment(true)
+    try {
+      const comment = await api.createMediaComment(currentMediaId, newComment.trim())
+      if (comment) {
+        setComments(prev => [...prev, comment])
+        setNewComment('')
+        // Update comment count in stats
+        setMediaStats(prev => ({
+          ...prev,
+          [currentMediaId]: {
+            ...prev[currentMediaId],
+            comment_count: (prev[currentMediaId]?.comment_count || 0) + 1
+          }
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to create comment:', error)
+    } finally {
+      setSubmittingComment(false)
+    }
+  }
+
+  // Handle deleting a comment
+  const handleDeleteComment = async (commentId) => {
+    if (!currentMediaId) return
+
+    try {
+      await api.deleteMediaComment(currentMediaId, commentId)
+      setComments(prev => prev.filter(c => c.id !== commentId))
+      // Update comment count in stats
+      setMediaStats(prev => ({
+        ...prev,
+        [currentMediaId]: {
+          ...prev[currentMediaId],
+          comment_count: Math.max(0, (prev[currentMediaId]?.comment_count || 0) - 1)
+        }
+      }))
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    }
+  }
+
+  // Close comments panel when lightbox closes
+  useEffect(() => {
+    if (!actualOpen) {
+      setShowComments(false)
+      setComments([])
+      setNewComment('')
+    }
+  }, [actualOpen])
+
+  // Reload comments when switching images (if comments panel is open)
+  useEffect(() => {
+    if (showComments && currentMediaId) {
+      loadComments(currentMediaId)
+    }
+  }, [currentMediaId, showComments])
 
   // Helper to get full URL or extract full size from image object
   const getFullUrl = (img) => {
@@ -336,6 +532,8 @@ function ImageGallery({
               images={images}
               mediaStats={mediaStats}
               onLike={handleLikeMedia}
+              onToggleComments={handleToggleComments}
+              showComments={showComments}
               user={user}
               likingMedia={likingMedia}
             />,
@@ -356,6 +554,21 @@ function ImageGallery({
           captionsContainer: showCaptions ? {} : { display: 'none' }
         }}
       />
+
+      {/* Comments Panel - rendered via portal above lightbox */}
+      {actualOpen && showComments && enableEngagement && (
+        <CommentsPanel
+          comments={comments}
+          loading={loadingComments}
+          user={user}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          onSubmit={handleSubmitComment}
+          onDelete={handleDeleteComment}
+          submitting={submittingComment}
+          onClose={() => setShowComments(false)}
+        />
+      )}
     </>
   )
 }
