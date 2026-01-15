@@ -1520,11 +1520,12 @@ class ApiService {
     }
   }
 
-  async likeMedia(mediaId) {
+  async likeMedia(mediaId, reactionType = 'heart') {
     try {
       const response = await fetch(`${API_BASE}/media/${mediaId}/likes`, {
         method: 'POST',
-        headers: await this.getAuthHeaders()
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ reaction_type: reactionType })
       })
       if (!response.ok) throw new Error('Failed to like media')
       return await response.json()

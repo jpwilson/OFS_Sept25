@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Lightbox, { useLightboxState } from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
@@ -14,35 +14,115 @@ import styles from './ImageGallery.module.css'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+// Reaction types with emoji mappings
+const REACTIONS = {
+  heart: { emoji: '❤️', label: 'Love' },
+  laugh: { emoji: '😂', label: 'Haha' },
+  sad: { emoji: '😢', label: 'Sad' },
+  wow: { emoji: '😮', label: 'Wow' },
+  love: { emoji: '😍', label: 'Heart Eyes' },
+  clap: { emoji: '👏', label: 'Applause' },
+  fire: { emoji: '🔥', label: 'Fire' },
+  hundred: { emoji: '💯', label: 'Perfect' },
+  hug: { emoji: '🤗', label: 'Care' },
+  smile: { emoji: '😊', label: 'Happy' }
+}
+
 // Custom engagement toolbar component - must be rendered inside lightbox
 function EngagementToolbar({
   images,
   mediaStats,
-  onLike,
+  onReact,
+  onUnreact,
   onToggleComments,
   showComments,
   user,
   likingMedia
 }) {
   const { currentIndex } = useLightboxState()
+  const [showReactionPicker, setShowReactionPicker] = useState(false)
+  const pickerTimeoutRef = useRef(null)
+
   const currentMedia = images[currentIndex]
   const currentMediaId = currentMedia?.id
-  const stats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false }) : null
+  const stats = currentMediaId ? (mediaStats[currentMediaId] || { like_count: 0, comment_count: 0, is_liked: false, user_reaction: null }) : null
+
+  // Get the user's current reaction emoji, or default heart
+  const userReaction = stats?.user_reaction
+  const displayEmoji = userReaction ? REACTIONS[userReaction]?.emoji : '♡'
+
+  const handleMouseEnter = () => {
+    if (!user) return
+    if (pickerTimeoutRef.current) clearTimeout(pickerTimeoutRef.current)
+    setShowReactionPicker(true)
+  }
+
+  const handleMouseLeave = () => {
+    pickerTimeoutRef.current = setTimeout(() => {
+      setShowReactionPicker(false)
+    }, 300)
+  }
+
+  const handleReactionClick = (reactionType) => {
+    if (stats?.is_liked && stats?.user_reaction === reactionType) {
+      // If clicking the same reaction, remove it
+      onUnreact(currentMediaId)
+    } else {
+      // Add or change reaction
+      onReact(currentMediaId, reactionType)
+    }
+    setShowReactionPicker(false)
+  }
+
+  const handleMainButtonClick = () => {
+    if (!user) return
+    if (stats?.is_liked) {
+      // If already reacted, remove the reaction
+      onUnreact(currentMediaId)
+    } else {
+      // Default to heart reaction
+      onReact(currentMediaId, 'heart')
+    }
+  }
 
   if (!currentMediaId) return null
 
   return (
     <div className={styles.engagementToolbar}>
-      <button
-        type="button"
-        className={`${styles.toolbarLikeBtn} ${stats?.is_liked ? styles.liked : ''}`}
-        onClick={() => onLike(currentMediaId)}
-        disabled={!user || likingMedia === currentMediaId}
-        title={user ? (stats?.is_liked ? 'Unlike' : 'Like') : 'Login to like'}
+      <div
+        className={styles.reactionContainer}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <span className={styles.toolbarHeart}>{stats?.is_liked ? '♥' : '♡'}</span>
-        {stats?.like_count > 0 && <span className={styles.toolbarCount}>{stats.like_count}</span>}
-      </button>
+        <button
+          type="button"
+          className={`${styles.toolbarLikeBtn} ${stats?.is_liked ? styles.liked : ''}`}
+          onClick={handleMainButtonClick}
+          disabled={!user || likingMedia === currentMediaId}
+          title={user ? (stats?.is_liked ? 'Remove reaction' : 'React') : 'Login to react'}
+        >
+          <span className={styles.toolbarHeart}>{displayEmoji}</span>
+          {stats?.like_count > 0 && <span className={styles.toolbarCount}>{stats.like_count}</span>}
+        </button>
+
+        {/* Reaction Picker */}
+        {showReactionPicker && user && (
+          <div className={styles.reactionPicker}>
+            {Object.entries(REACTIONS).map(([type, { emoji, label }]) => (
+              <button
+                key={type}
+                type="button"
+                className={`${styles.reactionOption} ${stats?.user_reaction === type ? styles.selected : ''}`}
+                onClick={() => handleReactionClick(type)}
+                title={label}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <button
         type="button"
         className={`${styles.toolbarBtn} ${showComments ? styles.active : ''}`}
@@ -172,8 +252,8 @@ function ImageGallery({
   const setViewMode = onViewModeChange || setInternalViewMode
 
   // Media engagement state
-  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked } }
-  const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being liked/unliked
+  const [mediaStats, setMediaStats] = useState({}) // { mediaId: { like_count, comment_count, is_liked, user_reaction, reaction_counts } }
+  const [likingMedia, setLikingMedia] = useState(null) // mediaId currently being reacted to
 
   // Comment state
   const [showComments, setShowComments] = useState(false)
@@ -209,7 +289,9 @@ function ImageGallery({
         statsMap[stat.media_id] = {
           like_count: stat.like_count,
           comment_count: stat.comment_count,
-          is_liked: stat.is_liked
+          is_liked: stat.is_liked,
+          user_reaction: stat.user_reaction || null,
+          reaction_counts: stat.reaction_counts || {}
         }
       })
       setMediaStats(statsMap)
@@ -218,36 +300,76 @@ function ImageGallery({
     }
   }
 
-  const handleLikeMedia = async (mediaId) => {
+  const handleReact = async (mediaId, reactionType) => {
     if (!user || likingMedia) return
 
     setLikingMedia(mediaId)
-    const currentStats = mediaStats[mediaId] || { like_count: 0, comment_count: 0, is_liked: false }
+    const currentStats = mediaStats[mediaId] || { like_count: 0, comment_count: 0, is_liked: false, user_reaction: null, reaction_counts: {} }
 
     try {
-      if (currentStats.is_liked) {
-        await api.unlikeMedia(mediaId)
-        setMediaStats(prev => ({
-          ...prev,
-          [mediaId]: {
-            ...currentStats,
-            like_count: Math.max(0, currentStats.like_count - 1),
-            is_liked: false
-          }
-        }))
-      } else {
-        await api.likeMedia(mediaId)
-        setMediaStats(prev => ({
-          ...prev,
-          [mediaId]: {
-            ...currentStats,
-            like_count: currentStats.like_count + 1,
-            is_liked: true
-          }
-        }))
+      await api.likeMedia(mediaId, reactionType)
+
+      // Update local state
+      const newReactionCounts = { ...currentStats.reaction_counts }
+
+      // If user previously had a different reaction, decrement its count
+      if (currentStats.is_liked && currentStats.user_reaction && currentStats.user_reaction !== reactionType) {
+        newReactionCounts[currentStats.user_reaction] = Math.max(0, (newReactionCounts[currentStats.user_reaction] || 0) - 1)
+        if (newReactionCounts[currentStats.user_reaction] === 0) delete newReactionCounts[currentStats.user_reaction]
       }
+
+      // Increment new reaction count (only if not already reacted)
+      if (!currentStats.is_liked) {
+        newReactionCounts[reactionType] = (newReactionCounts[reactionType] || 0) + 1
+      } else if (currentStats.user_reaction !== reactionType) {
+        newReactionCounts[reactionType] = (newReactionCounts[reactionType] || 0) + 1
+      }
+
+      setMediaStats(prev => ({
+        ...prev,
+        [mediaId]: {
+          ...currentStats,
+          like_count: currentStats.is_liked ? currentStats.like_count : currentStats.like_count + 1,
+          is_liked: true,
+          user_reaction: reactionType,
+          reaction_counts: newReactionCounts
+        }
+      }))
     } catch (error) {
-      console.error('Failed to toggle media like:', error)
+      console.error('Failed to react to media:', error)
+    } finally {
+      setLikingMedia(null)
+    }
+  }
+
+  const handleUnreact = async (mediaId) => {
+    if (!user || likingMedia) return
+
+    setLikingMedia(mediaId)
+    const currentStats = mediaStats[mediaId] || { like_count: 0, comment_count: 0, is_liked: false, user_reaction: null, reaction_counts: {} }
+
+    try {
+      await api.unlikeMedia(mediaId)
+
+      // Update local state
+      const newReactionCounts = { ...currentStats.reaction_counts }
+      if (currentStats.user_reaction) {
+        newReactionCounts[currentStats.user_reaction] = Math.max(0, (newReactionCounts[currentStats.user_reaction] || 0) - 1)
+        if (newReactionCounts[currentStats.user_reaction] === 0) delete newReactionCounts[currentStats.user_reaction]
+      }
+
+      setMediaStats(prev => ({
+        ...prev,
+        [mediaId]: {
+          ...currentStats,
+          like_count: Math.max(0, currentStats.like_count - 1),
+          is_liked: false,
+          user_reaction: null,
+          reaction_counts: newReactionCounts
+        }
+      }))
+    } catch (error) {
+      console.error('Failed to remove reaction:', error)
     } finally {
       setLikingMedia(null)
     }
@@ -441,7 +563,12 @@ function ImageGallery({
                   <div className={styles.statsOverlay}>
                     {stats.like_count > 0 && (
                       <span className={styles.statItem}>
-                        <span className={styles.statIcon}>♥</span>
+                        <span className={styles.statIcon}>
+                          {/* Show most popular reaction or default heart */}
+                          {stats.reaction_counts && Object.keys(stats.reaction_counts).length > 0
+                            ? REACTIONS[Object.entries(stats.reaction_counts).sort((a, b) => b[1] - a[1])[0][0]]?.emoji || '❤️'
+                            : '❤️'}
+                        </span>
                         <span className={styles.statCount}>{stats.like_count}</span>
                       </span>
                     )}
@@ -531,7 +658,8 @@ function ImageGallery({
               key="engagement"
               images={images}
               mediaStats={mediaStats}
-              onLike={handleLikeMedia}
+              onReact={handleReact}
+              onUnreact={handleUnreact}
               onToggleComments={handleToggleComments}
               showComments={showComments}
               user={user}

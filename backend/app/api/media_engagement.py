@@ -1,18 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.event_image import EventImage
-from ..models.media_like import MediaLike
+from ..models.media_like import MediaLike, REACTION_TYPES
 from ..models.media_comment import MediaComment
 
 router = APIRouter(prefix="/media", tags=["media-engagement"])
 
 # ============ Schemas ============
+
+class MediaLikeCreate(BaseModel):
+    reaction_type: str = 'heart'
 
 class MediaLikeResponse(BaseModel):
     id: int
@@ -21,6 +24,7 @@ class MediaLikeResponse(BaseModel):
     username: str
     display_name: Optional[str]
     avatar_url: Optional[str]
+    reaction_type: str
     created_at: datetime
 
     class Config:
@@ -29,6 +33,8 @@ class MediaLikeResponse(BaseModel):
 class MediaLikeStats(BaseModel):
     like_count: int
     is_liked: bool
+    user_reaction: Optional[str]  # The reaction type used by current user
+    reaction_counts: Dict[str, int]  # Count per reaction type
     recent_likes: List[MediaLikeResponse]
 
 class MediaCommentCreate(BaseModel):
@@ -57,6 +63,8 @@ class BatchMediaStats(BaseModel):
     like_count: int
     comment_count: int
     is_liked: bool
+    user_reaction: Optional[str] = None  # The reaction type used by current user
+    reaction_counts: Optional[Dict[str, int]] = None  # Count per reaction type
 
 # ============ Batch Endpoints (must be before parameterized routes) ============
 
@@ -80,26 +88,36 @@ def get_batch_media_stats(
 
     results = []
     for media_id in media_ids:
-        like_count = db.query(MediaLike).filter(
+        # Get all likes for this media
+        likes = db.query(MediaLike).filter(
             MediaLike.event_image_id == media_id
-        ).count()
+        ).all()
+
+        like_count = len(likes)
 
         comment_count = db.query(MediaComment).filter(
             MediaComment.event_image_id == media_id
         ).count()
 
         is_liked = False
-        if current_user:
-            is_liked = db.query(MediaLike).filter(
-                MediaLike.event_image_id == media_id,
-                MediaLike.user_id == current_user.id
-            ).first() is not None
+        user_reaction = None
+        reaction_counts = {}
+
+        # Process likes
+        for like in likes:
+            reaction_type = like.reaction_type or 'heart'
+            reaction_counts[reaction_type] = reaction_counts.get(reaction_type, 0) + 1
+            if current_user and like.user_id == current_user.id:
+                is_liked = True
+                user_reaction = reaction_type
 
         results.append(BatchMediaStats(
             media_id=media_id,
             like_count=like_count,
             comment_count=comment_count,
-            is_liked=is_liked
+            is_liked=is_liked,
+            user_reaction=user_reaction,
+            reaction_counts=reaction_counts if reaction_counts else None
         ))
 
     return results
@@ -145,10 +163,16 @@ def get_batch_media_likes(
 @router.post("/{media_id}/likes")
 def like_media(
     media_id: int,
+    like_data: MediaLikeCreate = MediaLikeCreate(),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Like a media item (image/video)"""
+    """Like a media item (image/video) with a reaction type"""
+    # Validate reaction type
+    reaction_type = like_data.reaction_type
+    if reaction_type not in REACTION_TYPES:
+        reaction_type = 'heart'
+
     # Check if media exists
     media = db.query(EventImage).filter(EventImage.id == media_id).first()
     if not media:
@@ -161,18 +185,24 @@ def like_media(
     ).first()
 
     if existing_like:
-        return {"message": "Already liked", "liked": True}
+        # If already liked with different reaction, update it
+        if existing_like.reaction_type != reaction_type:
+            existing_like.reaction_type = reaction_type
+            db.commit()
+            return {"message": "Reaction updated", "liked": True, "reaction_type": reaction_type}
+        return {"message": "Already liked", "liked": True, "reaction_type": existing_like.reaction_type}
 
     # Create like
     new_like = MediaLike(
         event_image_id=media_id,
-        user_id=current_user.id
+        user_id=current_user.id,
+        reaction_type=reaction_type
     )
 
     db.add(new_like)
     db.commit()
 
-    return {"message": "Media liked", "liked": True}
+    return {"message": "Media liked", "liked": True, "reaction_type": reaction_type}
 
 @router.delete("/{media_id}/likes")
 def unlike_media(
@@ -206,10 +236,21 @@ def get_media_likes(
         MediaLike.event_image_id == media_id
     ).order_by(MediaLike.created_at.desc()).all()
 
-    # Check if current user liked
+    # Check if current user liked and get their reaction type
     is_liked = False
+    user_reaction = None
     if current_user:
-        is_liked = any(like.user_id == current_user.id for like in likes)
+        for like in likes:
+            if like.user_id == current_user.id:
+                is_liked = True
+                user_reaction = like.reaction_type
+                break
+
+    # Count reactions by type
+    reaction_counts = {}
+    for like in likes:
+        reaction_type = like.reaction_type or 'heart'
+        reaction_counts[reaction_type] = reaction_counts.get(reaction_type, 0) + 1
 
     # Get recent likes with user info (limit to 5)
     recent_likes = [
@@ -220,6 +261,7 @@ def get_media_likes(
             username=like.user.username,
             display_name=like.user.display_name,
             avatar_url=like.user.avatar_url,
+            reaction_type=like.reaction_type or 'heart',
             created_at=like.created_at
         )
         for like in likes[:5]
@@ -228,6 +270,8 @@ def get_media_likes(
     return MediaLikeStats(
         like_count=len(likes),
         is_liked=is_liked,
+        user_reaction=user_reaction,
+        reaction_counts=reaction_counts,
         recent_likes=recent_likes
     )
 
