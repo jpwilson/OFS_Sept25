@@ -872,37 +872,54 @@ function EventDetail({ isShareMode = false }) {
       }
     })
 
-    // Inject captions under images (must be done here, not in useEffect,
+    // Inject captions under images AND videos (must be done here, not in useEffect,
     // because React will overwrite DOM changes made after render)
     if (eventImages && eventImages.length > 0) {
-      const images = doc.querySelectorAll('img')
       const normalizeUrl = (url) => {
         if (!url) return ''
         return url.replace('/full/', '/').replace('/medium/', '/').replace('/thumbnails/', '/')
       }
       const getFilename = (url) => url?.split('/').pop()?.split('?')[0] || ''
 
+      // Handle images
+      const images = doc.querySelectorAll('img')
       images.forEach((img) => {
-        // Use img.src (resolved URL) or getAttribute('src') (raw attribute)
         const imgSrc = img.src || img.getAttribute('src') || ''
         const normalizedImgSrc = normalizeUrl(imgSrc)
         const imgFilename = getFilename(imgSrc)
 
-        // Find matching caption - PRIORITIZE matches that have captions
-        // (there may be duplicate eventImage records, some with captions some without)
         let matchingImage = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedImgSrc && ei.caption)
         if (!matchingImage) {
           matchingImage = eventImages.find(ei => getFilename(ei.image_url) === imgFilename && ei.caption)
         }
 
         if (matchingImage && matchingImage.caption) {
-          // Create caption element and insert after image
-          // Styling: smaller than body, semi-bold, hugs image above, clear gap before next
           const captionDiv = doc.createElement('div')
           captionDiv.className = 'image-caption'
           captionDiv.style.cssText = 'font-size: 0.85em; color: #aaa; font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
           captionDiv.textContent = matchingImage.caption
           img.parentNode.insertBefore(captionDiv, img.nextSibling)
+        }
+      })
+
+      // Handle videos - same logic
+      const videos = doc.querySelectorAll('video')
+      videos.forEach((video) => {
+        const videoSrc = video.src || video.getAttribute('src') || ''
+        const normalizedVideoSrc = normalizeUrl(videoSrc)
+        const videoFilename = getFilename(videoSrc)
+
+        let matchingVideo = eventImages.find(ei => normalizeUrl(ei.image_url) === normalizedVideoSrc && ei.caption)
+        if (!matchingVideo) {
+          matchingVideo = eventImages.find(ei => getFilename(ei.image_url) === videoFilename && ei.caption)
+        }
+
+        if (matchingVideo && matchingVideo.caption) {
+          const captionDiv = doc.createElement('div')
+          captionDiv.className = 'video-caption'
+          captionDiv.style.cssText = 'font-size: 0.85em; color: #aaa; font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
+          captionDiv.textContent = matchingVideo.caption
+          video.parentNode.insertBefore(captionDiv, video.nextSibling)
         }
       })
     }
