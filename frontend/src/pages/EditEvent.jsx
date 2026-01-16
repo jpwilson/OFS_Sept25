@@ -416,15 +416,15 @@ function EditEvent() {
         t.tagged_user_id ? `user:${t.tagged_user_id}` : `profile:${t.tag_profile_id}`
       )
 
-      // Remove tags that were deleted
+      // Remove tags that were deleted (use numeric ID, not slug)
       for (const tag of existingTags) {
         const key = tag.tagged_user_id ? `user:${tag.tagged_user_id}` : `profile:${tag.tag_profile_id}`
         if (!currentTagKeys.includes(key)) {
-          await apiService.removeEventTag(id, tag.id)
+          await apiService.removeEventTag(eventNumericId, tag.id)
         }
       }
 
-      // Add new tags
+      // Add new tags (use numeric ID, not slug)
       const newTags = selectedTags.filter(t => {
         const key = t.type === 'user' ? `user:${t.id}` : `profile:${t.id}`
         return !existingTagKeys.includes(key)
@@ -435,7 +435,7 @@ function EditEvent() {
           user_id: tag.type === 'user' ? tag.id : null,
           profile_id: tag.type === 'profile' ? tag.id : null
         }))
-        await apiService.addEventTags(id, tagsToAdd)
+        await apiService.addEventTags(eventNumericId, tagsToAdd)
       }
 
       const action = shouldPublish !== undefined

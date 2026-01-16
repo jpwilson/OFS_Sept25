@@ -17,8 +17,9 @@
 ## Before You Start Working
 
 1. **Read CURRENT_STATE.md** - Critical patterns, recent work, what NOT to do
-2. **Check recent commits:** `git log --oneline -20`
-3. **Understand the workflow:** No local database - we test in production
+2. **Check TODO.md** - See active tasks and planned features
+3. **Check recent commits:** `git log --oneline -20`
+4. **Understand the workflow:** No local database - we test in production
 
 ---
 
@@ -43,9 +44,10 @@
 | File | When to Read |
 |------|--------------|
 | **CURRENT_STATE.md** | First - onboarding, patterns, recent features |
+| **TODO.md** | Active task list - check for ongoing work and planned features |
 | **ARCHITECTURE.md** | For system design, data flow, schemas |
 | **CHANGELOG.md** | For project history and past decisions |
-| **DATABASE_NOTES.md** | For connection pooling details |
+| **DATABASE_NOTES.md** | For Alembic migrations and connection pooling |
 | **README.md** | For tech stack overview |
 
 ---
