@@ -6,10 +6,7 @@
 
 ## In Progress / High Priority
 
-### Event Update Bug (CRITICAL)
-- [ ] Fix 422 error when updating events with videos/captions
-- Issue: "[object Object]" error on Update & Publish
-- Backend returning 422 Unprocessable Content
+*No critical items currently*
 
 ---
 
@@ -44,6 +41,7 @@
 
 ## Completed (January 2026)
 
+- [x] Event tags bug fix (was using slug instead of numeric ID)
 - [x] Unified pricing pages (logged-in and logged-out)
 - [x] Free tier messaging update ("View-only - cannot create events")
 - [x] Ad blocker troubleshooting note on billing page
