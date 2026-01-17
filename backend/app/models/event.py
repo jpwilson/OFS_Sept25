@@ -27,6 +27,7 @@ class Event(Base):
     # Privacy and categorization
     privacy_level = Column(String, default="public")  # 'public', 'followers', 'close_family', 'custom_group', 'private'
     category = Column(String, nullable=True)  # Event category
+    category_2 = Column(String, nullable=True)  # Secondary category (optional)
     custom_group_id = Column(Integer, ForeignKey("custom_groups.id", ondelete="SET NULL"), nullable=True)
 
     # Shareable links

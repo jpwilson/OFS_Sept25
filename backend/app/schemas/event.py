@@ -40,6 +40,7 @@ class EventBase(BaseModel):
     has_multiple_locations: bool = False
     privacy_level: str = "public"  # 'public', 'followers', 'close_family', 'custom_group', 'private'
     category: Optional[str] = None
+    category_2: Optional[str] = None  # Secondary category (optional)
     custom_group_id: Optional[int] = None
 
 class EventCreate(EventBase):
@@ -60,6 +61,7 @@ class EventUpdate(BaseModel):
     is_published: Optional[bool] = None
     privacy_level: Optional[str] = None
     category: Optional[str] = None
+    category_2: Optional[str] = None
     custom_group_id: Optional[int] = None
     gps_locations: Optional[List[GPSLocation]] = []
 
@@ -75,6 +77,7 @@ class EventResponse(EventBase):
     is_published: bool
     privacy_level: str
     category: Optional[str] = None
+    category_2: Optional[str] = None
     custom_group_id: Optional[int] = None
     share_enabled: bool = False
     share_expires_at: Optional[datetime] = None

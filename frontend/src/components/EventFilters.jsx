@@ -5,7 +5,7 @@ import apiService from '../services/api'
 import { useToast } from './Toast'
 import { useAuth } from '../context/AuthContext'
 
-// Predefined categories
+// Predefined categories (simple list for dropdown)
 const CATEGORIES = [
   'Birthday',
   'Anniversary',
@@ -15,6 +15,18 @@ const CATEGORIES = [
   'Project',
   'Daily Life',
   'Milestone'
+]
+
+// Categories with icons for the visual ribbon
+const CATEGORIES_WITH_ICONS = [
+  { value: 'Birthday', icon: '🎂', color: '#ff6b9d' },
+  { value: 'Anniversary', icon: '💝', color: '#c44569' },
+  { value: 'Vacation', icon: '✈️', color: '#4a90e2' },
+  { value: 'Family Gathering', icon: '👨‍👩‍👧‍👦', color: '#6c5ce7' },
+  { value: 'Holiday', icon: '🎄', color: '#00b894' },
+  { value: 'Project', icon: '🛠️', color: '#fdcb6e' },
+  { value: 'Daily Life', icon: '☕', color: '#74b9ff' },
+  { value: 'Milestone', icon: '🏆', color: '#fab1a0' }
 ]
 
 export default function EventFilters({
@@ -523,6 +535,35 @@ export default function EventFilters({
               </button>
             </div>
             </div>
+          </div>
+
+          {/* Category Ribbon */}
+          <div className={styles.categoryRibbon}>
+            <button
+              className={`${styles.categoryChip} ${styles.allChip} ${selectedCategories.length === 0 ? styles.selected : ''}`}
+              onClick={() => setSelectedCategories([])}
+            >
+              <span className={styles.chipIcon}>✨</span>
+              <span className={styles.chipLabel}>All</span>
+            </button>
+
+            {CATEGORIES_WITH_ICONS.map(cat => (
+              <button
+                key={cat.value}
+                className={`${styles.categoryChip} ${selectedCategories.includes(cat.value) ? styles.selected : ''}`}
+                onClick={() => {
+                  if (selectedCategories.includes(cat.value)) {
+                    setSelectedCategories(prev => prev.filter(c => c !== cat.value))
+                  } else {
+                    setSelectedCategories(prev => [...prev, cat.value])
+                  }
+                }}
+                style={{ '--chip-color': cat.color }}
+              >
+                <span className={styles.chipIcon}>{cat.icon}</span>
+                <span className={styles.chipLabel}>{cat.value}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}

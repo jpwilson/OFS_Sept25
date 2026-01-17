@@ -2,12 +2,55 @@
   margin-bottom: 24px;
 }
 
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .label {
-  display: block;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.selectedIndicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+}
+
+.selectedCount {
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 500;
+}
+
+.clearAllBtn {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.clearAllBtn:hover {
+  color: #e63946;
+  background: rgba(230, 57, 70, 0.1);
 }
 
 .categories {
@@ -96,6 +139,62 @@
   background: #fee;
   color: #e63946;
   border-color: #e63946;
+}
+
+.addButton {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.customSelected {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.customTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid #667eea;
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.customTag button {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.customTag button:hover {
+  color: #e63946;
 }
 
 @media (max-width: 768px) {

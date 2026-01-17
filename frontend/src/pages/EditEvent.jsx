@@ -34,6 +34,7 @@ function EditEvent() {
     has_multiple_locations: true,
     privacy_level: 'public',
     category: '',
+    category_2: '',
     custom_group_id: null
   })
   const [startDate, setStartDate] = useState(null)
@@ -87,6 +88,7 @@ function EditEvent() {
         has_multiple_locations: true,
         privacy_level: event.privacy_level || 'public',
         category: event.category || '',
+        category_2: event.category_2 || '',
         custom_group_id: event.custom_group_id || null
       })
 
@@ -526,7 +528,9 @@ function EditEvent() {
 
           <CategorySelector
             value={formData.category}
+            value2={formData.category_2}
             onChange={(value) => setFormData({ ...formData, category: value })}
+            onChange2={(value) => setFormData({ ...formData, category_2: value })}
           />
 
           <div className={styles.formGroup}>

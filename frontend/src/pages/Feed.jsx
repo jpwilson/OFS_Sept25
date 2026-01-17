@@ -100,9 +100,12 @@ function Feed() {
       filtered = filtered.filter(event => following.includes(event.author_username))
     }
 
-    // Apply category filter (multi-select)
+    // Apply category filter (multi-select, check both category columns)
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(event => selectedCategories.includes(event.category))
+      filtered = filtered.filter(event =>
+        selectedCategories.includes(event.category) ||
+        selectedCategories.includes(event.category_2)
+      )
     }
 
     // Apply user filter (multi-select)
