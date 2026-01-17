@@ -46,13 +46,21 @@ export default function EventFilters({
   sortDirection,
   setSortDirection,
   mutedUsers,
-  onMutedUsersChange
+  onMutedUsersChange,
+  filtersExpanded,
+  setFiltersExpanded
 }) {
   const { showToast } = useToast()
   const { user } = useAuth()
-  const [filtersExpanded, setFiltersExpanded] = useState(() => {
-    return window.innerWidth > 768
-  })
+  // Track if we're on mobile for conditional rendering
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 480)
+
+  // Update isMobile on resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 480)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false)
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -221,8 +229,8 @@ export default function EventFilters({
 
   return (
     <div className={styles.filtersContainer}>
-      {/* Show toggle in header only when collapsed */}
-      {!filtersExpanded && (
+      {/* Show toggle in header only when collapsed - NOT on mobile (toggle is in Feed header) */}
+      {!filtersExpanded && !isMobile && (
         <div className={styles.filtersHeader}>
           <button
             className={styles.filterToggle}
@@ -238,100 +246,203 @@ export default function EventFilters({
         <div className={styles.filters}>
           {/* Main filter row - search + filters inline on large screens */}
           <div className={styles.mainFilterRow}>
-            {/* User Search */}
-            <div className={styles.userSearchSection}>
-              <div className={styles.searchInputWrapper}>
-                <span className={styles.searchIcon}>🔍</span>
-                <input
-                  type="text"
-                  id="user-search"
-                  placeholder="Find family & friends"
-                  value={userSearchQuery}
-                  onChange={(e) => setUserSearchQuery(e.target.value)}
-                  className={styles.userSearchInput}
-                />
-              </div>
-              {searchingUsers && (
-                <div className={styles.searchLoading}>Searching...</div>
-              )}
-              {userSearchResults.length > 0 && (
-                <div className={styles.userSearchResults}>
-                  {userSearchResults.map(result => {
-                    const isFollowing = following.includes(result.username)
-                    const isPending = result.followRequested
-                    const canClickProfile = isFollowing || (!isPending && !isFollowing)
-
-                    return (
-                      <div key={result.id} className={styles.userSearchResult}>
-                        {canClickProfile ? (
-                          <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
-                            <div className={styles.userSearchAvatar}>
-                              {result.full_name?.charAt(0) || result.username.charAt(0)}
-                            </div>
-                            <div className={styles.userSearchDetails}>
-                              <div className={styles.userSearchName}>
-                                {result.full_name || result.username}
-                              </div>
-                              <div className={styles.userSearchUsername}>@{result.username}</div>
-                            </div>
-                          </Link>
-                        ) : (
-                          <div className={styles.userSearchInfoDisabled}>
-                            <div className={styles.userSearchAvatar}>
-                              {result.full_name?.charAt(0) || result.username.charAt(0)}
-                            </div>
-                            <div className={styles.userSearchDetails}>
-                              <div className={styles.userSearchName}>
-                                {result.full_name || result.username}
-                              </div>
-                              <div className={styles.userSearchUsername}>@{result.username}</div>
-                            </div>
-                          </div>
-                        )}
-                        {isPending ? (
-                          <span className={styles.requestSentText}>Request Sent</span>
-                        ) : isFollowing ? (
-                          <span className={styles.followingText}>Following</span>
-                        ) : (
-                          <button
-                            className={styles.followButton}
-                            onClick={() => handleFollowUser(result.username)}
-                          >
-                            Request to Follow
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
+            {/* Mobile: Order toggle + Search on same row */}
+            {isMobile && (
+              <div className={styles.mobileTopRow}>
+                {/* Order By Toggle - slider style */}
+                <div className={styles.orderByToggle}>
+                  <button
+                    className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
+                    onClick={() => setOrderBy('upload_date')}
+                    title="Sort by when the event was uploaded"
+                  >
+                    Upload
+                  </button>
+                  <button
+                    className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
+                    onClick={() => setOrderBy('event_date')}
+                    title="Sort by when the event occurred"
+                  >
+                    Event
+                  </button>
+                  <button
+                    className={styles.sortDirectionButton}
+                    onClick={() => setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')}
+                    title={sortDirection === 'desc' ? 'Most recent first' : 'Oldest first'}
+                  >
+                    {sortDirection === 'desc' ? '↓' : '↑'}
+                  </button>
                 </div>
-              )}
-            </div>
+
+                {/* User Search - right side on mobile */}
+                <div className={styles.userSearchSection}>
+                  <div className={styles.searchInputWrapper}>
+                    <span className={styles.searchIcon}>🔍</span>
+                    <input
+                      type="text"
+                      id="user-search-mobile"
+                      placeholder="Find family & friends"
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      className={styles.userSearchInput}
+                    />
+                  </div>
+                  {searchingUsers && (
+                    <div className={styles.searchLoading}>Searching...</div>
+                  )}
+                  {userSearchResults.length > 0 && (
+                    <div className={styles.userSearchResults}>
+                      {userSearchResults.map(result => {
+                        const isFollowing = following.includes(result.username)
+                        const isPending = result.followRequested
+                        const canClickProfile = isFollowing || (!isPending && !isFollowing)
+
+                        return (
+                          <div key={result.id} className={styles.userSearchResult}>
+                            {canClickProfile ? (
+                              <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
+                                <div className={styles.userSearchAvatar}>
+                                  {result.full_name?.charAt(0) || result.username.charAt(0)}
+                                </div>
+                                <div className={styles.userSearchDetails}>
+                                  <div className={styles.userSearchName}>
+                                    {result.full_name || result.username}
+                                  </div>
+                                  <div className={styles.userSearchUsername}>@{result.username}</div>
+                                </div>
+                              </Link>
+                            ) : (
+                              <div className={styles.userSearchInfoDisabled}>
+                                <div className={styles.userSearchAvatar}>
+                                  {result.full_name?.charAt(0) || result.username.charAt(0)}
+                                </div>
+                                <div className={styles.userSearchDetails}>
+                                  <div className={styles.userSearchName}>
+                                    {result.full_name || result.username}
+                                  </div>
+                                  <div className={styles.userSearchUsername}>@{result.username}</div>
+                                </div>
+                              </div>
+                            )}
+                            {isPending ? (
+                              <span className={styles.requestSentText}>Request Sent</span>
+                            ) : isFollowing ? (
+                              <span className={styles.followingText}>Following</span>
+                            ) : (
+                              <button
+                                className={styles.followButton}
+                                onClick={() => handleFollowUser(result.username)}
+                              >
+                                Request to Follow
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Desktop: User Search in its own section */}
+            {!isMobile && (
+              <div className={styles.userSearchSection}>
+                <div className={styles.searchInputWrapper}>
+                  <span className={styles.searchIcon}>🔍</span>
+                  <input
+                    type="text"
+                    id="user-search"
+                    placeholder="Find family & friends"
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    className={styles.userSearchInput}
+                  />
+                </div>
+                {searchingUsers && (
+                  <div className={styles.searchLoading}>Searching...</div>
+                )}
+                {userSearchResults.length > 0 && (
+                  <div className={styles.userSearchResults}>
+                    {userSearchResults.map(result => {
+                      const isFollowing = following.includes(result.username)
+                      const isPending = result.followRequested
+                      const canClickProfile = isFollowing || (!isPending && !isFollowing)
+
+                      return (
+                        <div key={result.id} className={styles.userSearchResult}>
+                          {canClickProfile ? (
+                            <Link to={`/profile/${result.username}`} className={styles.userSearchInfo}>
+                              <div className={styles.userSearchAvatar}>
+                                {result.full_name?.charAt(0) || result.username.charAt(0)}
+                              </div>
+                              <div className={styles.userSearchDetails}>
+                                <div className={styles.userSearchName}>
+                                  {result.full_name || result.username}
+                                </div>
+                                <div className={styles.userSearchUsername}>@{result.username}</div>
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className={styles.userSearchInfoDisabled}>
+                              <div className={styles.userSearchAvatar}>
+                                {result.full_name?.charAt(0) || result.username.charAt(0)}
+                              </div>
+                              <div className={styles.userSearchDetails}>
+                                <div className={styles.userSearchName}>
+                                  {result.full_name || result.username}
+                                </div>
+                                <div className={styles.userSearchUsername}>@{result.username}</div>
+                              </div>
+                            </div>
+                          )}
+                          {isPending ? (
+                            <span className={styles.requestSentText}>Request Sent</span>
+                          ) : isFollowing ? (
+                            <span className={styles.followingText}>Following</span>
+                          ) : (
+                            <button
+                              className={styles.followButton}
+                              onClick={() => handleFollowUser(result.username)}
+                            >
+                              Request to Follow
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className={styles.filterRow}>
-            {/* Order By Toggle - slider style */}
-            <div className={styles.orderByToggle}>
-              <button
-                className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
-                onClick={() => setOrderBy('upload_date')}
-                title="Sort by when the event was uploaded"
-              >
-                Upload Date
-              </button>
-              <button
-                className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
-                onClick={() => setOrderBy('event_date')}
-                title="Sort by when the event occurred"
-              >
-                Event Date
-              </button>
-              <button
-                className={styles.sortDirectionButton}
-                onClick={() => setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')}
-                title={sortDirection === 'desc' ? 'Currently: Most recent first' : 'Currently: Oldest first'}
-              >
-                {sortDirection === 'desc' ? '↓' : '↑'}
-              </button>
-            </div>
+            {/* Order By Toggle - slider style - desktop only */}
+            {!isMobile && (
+              <div className={styles.orderByToggle}>
+                <button
+                  className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
+                  onClick={() => setOrderBy('upload_date')}
+                  title="Sort by when the event was uploaded"
+                >
+                  Upload Date
+                </button>
+                <button
+                  className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
+                  onClick={() => setOrderBy('event_date')}
+                  title="Sort by when the event occurred"
+                >
+                  Event Date
+                </button>
+                <button
+                  className={styles.sortDirectionButton}
+                  onClick={() => setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')}
+                  title={sortDirection === 'desc' ? 'Currently: Most recent first' : 'Currently: Oldest first'}
+                >
+                  {sortDirection === 'desc' ? '↓' : '↑'}
+                </button>
+              </div>
+            )}
 
             {/* Date Dropdown */}
             <div className={styles.dateDropdownWrapper}>
@@ -372,44 +483,46 @@ export default function EventFilters({
               )}
             </div>
 
-            {/* Category Dropdown */}
-            <div className={styles.categoryDropdownWrapper}>
-              <button
-                className={`${styles.dropdownButton} ${selectedCategories.length > 0 ? styles.hasSelection : ''}`}
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              >
-                {selectedCategories.length === 0 ? 'Categories' : `${selectedCategories.length} selected`}
-                <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
-              </button>
-              {categoryDropdownOpen && (
-                <div className={styles.dropdownMenu}>
-                  {CATEGORIES.map(cat => (
-                    <label key={cat} className={styles.dropdownOption}>
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(cat)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedCategories(prev => [...prev, cat])
-                          } else {
-                            setSelectedCategories(prev => prev.filter(c => c !== cat))
-                          }
-                        }}
-                      />
-                      <span>{cat}</span>
-                    </label>
-                  ))}
-                  {selectedCategories.length > 0 && (
-                    <button
-                      className={styles.clearBtn}
-                      onClick={() => setSelectedCategories([])}
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* Category Dropdown - hidden on mobile (we have the ribbon) */}
+            {!isMobile && (
+              <div className={styles.categoryDropdownWrapper}>
+                <button
+                  className={`${styles.dropdownButton} ${selectedCategories.length > 0 ? styles.hasSelection : ''}`}
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                >
+                  {selectedCategories.length === 0 ? 'Categories' : `${selectedCategories.length} selected`}
+                  <span className={styles.dropdownArrow}>{categoryDropdownOpen ? '▲' : '▼'}</span>
+                </button>
+                {categoryDropdownOpen && (
+                  <div className={styles.dropdownMenu}>
+                    {CATEGORIES.map(cat => (
+                      <label key={cat} className={styles.dropdownOption}>
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategories(prev => [...prev, cat])
+                            } else {
+                              setSelectedCategories(prev => prev.filter(c => c !== cat))
+                            }
+                          }}
+                        />
+                        <span>{cat}</span>
+                      </label>
+                    ))}
+                    {selectedCategories.length > 0 && (
+                      <button
+                        className={styles.clearBtn}
+                        onClick={() => setSelectedCategories([])}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* User Dropdown */}
             <div className={styles.userDropdownWrapper}>
@@ -558,16 +671,18 @@ export default function EventFilters({
               )}
             </div>
 
-            {/* Hide Filters - right aligned */}
-            <div className={styles.hideFilterWrapper}>
-              <button
-                className={styles.filterToggle}
-                onClick={() => setFiltersExpanded(false)}
-              >
-                <span className={styles.arrowRed}>▲</span>
-                {' Hide Filters'}
-              </button>
-            </div>
+            {/* Hide Filters - right aligned - NOT on mobile (toggle is in Feed header) */}
+            {!isMobile && (
+              <div className={styles.hideFilterWrapper}>
+                <button
+                  className={styles.filterToggle}
+                  onClick={() => setFiltersExpanded(false)}
+                >
+                  <span className={styles.arrowRed}>▲</span>
+                  {' Hide Filters'}
+                </button>
+              </div>
+            )}
             </div>
           </div>
 

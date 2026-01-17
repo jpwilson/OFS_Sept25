@@ -42,6 +42,9 @@ function Feed() {
   const [orderBy, setOrderBy] = useState('upload_date') // 'event_date' or 'upload_date'
   const [sortDirection, setSortDirection] = useState('desc') // 'asc' or 'desc'
   const [mutedUsers, setMutedUsers] = useState([])
+  const [filtersExpanded, setFiltersExpanded] = useState(() => {
+    return window.innerWidth > 480
+  })
 
   // Require login to view Feed
   useEffect(() => {
@@ -196,7 +199,19 @@ function Feed() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1 className={styles.pageTitle}>Explore Events</h1>
-          <ViewToggle activeView={activeView} onChange={handleViewChange} />
+          <div className={styles.headerRight}>
+            <ViewToggle activeView={activeView} onChange={handleViewChange} />
+            {/* Mobile filter toggle - appears in header row on small screens */}
+            <button
+              className={`${styles.mobileFilterToggle} ${filtersExpanded ? styles.expanded : ''}`}
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+            >
+              <span className={filtersExpanded ? styles.arrowRed : styles.arrowGreen}>
+                {filtersExpanded ? '▲' : '▼'}
+              </span>
+              {filtersExpanded ? ' Hide Filters' : ' Show Filters'}
+            </button>
+          </div>
         </div>
 
         {filteredEvents.length !== events.length && (
@@ -224,6 +239,8 @@ function Feed() {
         setSortDirection={setSortDirection}
         mutedUsers={mutedUsers}
         onMutedUsersChange={handleMutedUsersChange}
+        filtersExpanded={filtersExpanded}
+        setFiltersExpanded={setFiltersExpanded}
       />
 
       <div className={styles.viewContent}>

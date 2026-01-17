@@ -20,6 +20,40 @@
   flex-wrap: wrap;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Mobile filter toggle - only shows on mobile */
+.mobileFilterToggle {
+  display: none;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.mobileFilterToggle:hover {
+  background: var(--hover-bg);
+  border-color: var(--text-tertiary);
+}
+
+.mobileFilterToggle .arrowGreen {
+  color: #00ff88;
+}
+
+.mobileFilterToggle .arrowRed {
+  color: #ff4757;
+}
+
 .pageTitle {
   font-size: 28px;
   font-weight: 700;
@@ -748,5 +782,28 @@
     flex-direction: column;
     gap: 8px;
     align-items: flex-end;
+  }
+}
+
+/* Mobile: Show filter toggle in header */
+@media (max-width: 480px) {
+  .header {
+    padding: 16px;
+  }
+
+  .headerTop {
+    gap: 12px;
+  }
+
+  .pageTitle {
+    font-size: 22px;
+  }
+
+  .headerRight {
+    gap: 8px;
+  }
+
+  .mobileFilterToggle {
+    display: block;
   }
 }

@@ -879,3 +879,127 @@
     font-size: 12px;
   }
 }
+
+/* Mobile (phone) layout - special reorganization */
+@media (max-width: 480px) {
+  .filtersContainer {
+    padding: 8px 12px;
+  }
+
+  /* Hide the desktop-only toggle */
+  .filtersHeader {
+    display: none;
+  }
+
+  /* Main filter row becomes stacked differently on mobile */
+  .mainFilterRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Row 1: Order toggle on left, search on right */
+  .mobileTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mobileTopRow .orderByToggle {
+    flex-shrink: 0;
+  }
+
+  .mobileTopRow .userSearchSection {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Order by toggle - compact on mobile */
+  .orderByToggle {
+    flex-shrink: 0;
+  }
+
+  .orderByButton {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .sortDirectionButton {
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  /* Search section - flexible on mobile */
+  .userSearchSection {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .searchInputWrapper {
+    padding: 0 8px;
+  }
+
+  .userSearchInput {
+    padding: 8px 0;
+    font-size: 13px;
+  }
+
+  .searchIcon {
+    font-size: 12px;
+  }
+
+  /* Filter row - all buttons on one row, centered, wrapping */
+  .filterRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* Make buttons more compact on mobile */
+  .dropdownButton,
+  .filterButton {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .dropdownArrow {
+    font-size: 8px;
+  }
+
+  /* Person filter buttons compact */
+  .personFilter {
+    gap: 3px;
+  }
+
+  /* Category dropdown hidden on mobile via JS */
+  /* Mute dropdown compact */
+  .muteDropdownWrapper .dropdownButton {
+    padding: 6px 8px;
+  }
+
+  /* Category ribbon adjustments */
+  .categoryRibbonWrapper {
+    padding: 0;
+    margin-top: 4px;
+  }
+
+  .categoryRibbon {
+    padding: 6px 12px;
+    margin: 0 -12px;
+  }
+
+  .categoryChip {
+    padding: 5px 10px;
+  }
+
+  .chipIcon {
+    font-size: 14px;
+  }
+
+  .chipLabel {
+    font-size: 11px;
+  }
+}
