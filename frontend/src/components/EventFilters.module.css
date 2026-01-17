@@ -262,19 +262,14 @@
   white-space: nowrap;
 }
 
-/* Filter Row - horizontal scroll on mobile instead of wrapping */
+/* Filter Row - centered, wraps on medium viewports */
 .filterRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  flex-wrap: wrap;
   padding-bottom: 4px;
-}
-
-.filterRow::-webkit-scrollbar {
-  display: none;
 }
 
 /* Shared dropdown wrapper styles */
@@ -737,32 +732,65 @@
   color: white;
 }
 
-/* Responsive - mobile */
+/* Large screens: search and filters on same row */
+@media (min-width: 1200px) {
+  .filterRow {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Medium screens: filters wrap nicely */
+@media (max-width: 1199px) and (min-width: 769px) {
+  .filterRow {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hideFilterWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+}
+
+/* Tablet/small screens */
 @media (max-width: 768px) {
   .filtersContainer {
     padding: 12px 16px;
   }
 
-  /* Filter row stays horizontal with scroll */
+  /* Filter row wraps centered */
   .filterRow {
-    justify-content: flex-start;
+    justify-content: center;
     gap: 6px;
-    padding-bottom: 8px;
   }
 
-  /* Hide filters stays inline */
+  /* Hide filters on its own row, right aligned */
   .hideFilterWrapper {
-    margin-left: auto;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
   }
 
-  /* Category ribbon - full bleed scroll */
+  /* Category ribbon - horizontal scroll */
   .categoryRibbon {
     justify-content: flex-start;
     margin: 0 -16px;
     padding: 8px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .categoryRibbon::-webkit-scrollbar {
+    display: none;
   }
 }
 
+/* Mobile - smaller buttons */
 @media (max-width: 600px) {
   .dropdownButton {
     padding: 6px 10px;

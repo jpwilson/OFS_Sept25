@@ -201,6 +201,11 @@
   .feed.small {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Hide column toggle when 3 columns can't fit */
+  .cardSizeSelector {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
