@@ -214,11 +214,13 @@ function Feed() {
           </div>
         </div>
 
+{/* Filter count hidden for now
         {filteredEvents.length !== events.length && (
           <div className={styles.filterInfo}>
             Showing {filteredEvents.length} of {events.length} events
           </div>
         )}
+*/}
       </div>
 
       <EventFilters

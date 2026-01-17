@@ -799,11 +799,17 @@
     font-size: 22px;
   }
 
+  /* Header right section - spread view toggles and filter button */
   .headerRight {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 8px;
   }
 
   .mobileFilterToggle {
     display: block;
+    margin-left: auto;
   }
 }

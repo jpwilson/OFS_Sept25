@@ -249,21 +249,23 @@ export default function EventFilters({
             {/* Mobile: Order toggle + Search on same row */}
             {isMobile && (
               <div className={styles.mobileTopRow}>
-                {/* Order By Toggle - slider style */}
-                <div className={styles.orderByToggle}>
+                {/* Order By Toggle - stacked labels on mobile */}
+                <div className={`${styles.orderByToggle} ${styles.mobileOrderToggle}`}>
                   <button
-                    className={`${styles.orderByButton} ${styles.orderByLeft} ${orderBy === 'upload_date' ? styles.active : ''}`}
+                    className={`${styles.orderByButton} ${styles.orderByLeft} ${styles.stackedButton} ${orderBy === 'upload_date' ? styles.active : ''}`}
                     onClick={() => setOrderBy('upload_date')}
                     title="Sort by when the event was uploaded"
                   >
-                    Upload
+                    <span className={styles.buttonMainText}>Upload</span>
+                    <span className={styles.buttonSubText}>Date</span>
                   </button>
                   <button
-                    className={`${styles.orderByButton} ${styles.orderByRight} ${orderBy === 'event_date' ? styles.active : ''}`}
+                    className={`${styles.orderByButton} ${styles.orderByRight} ${styles.stackedButton} ${orderBy === 'event_date' ? styles.active : ''}`}
                     onClick={() => setOrderBy('event_date')}
                     title="Sort by when the event occurred"
                   >
-                    Event
+                    <span className={styles.buttonMainText}>Event</span>
+                    <span className={styles.buttonSubText}>Date</span>
                   </button>
                   <button
                     className={styles.sortDirectionButton}
@@ -537,6 +539,15 @@ export default function EventFilters({
                 <div className={styles.dropdownMenu}>
                   {followingUsers && followingUsers.length > 0 ? (
                     <>
+                      {/* All option - checked when no specific users selected */}
+                      <label className={`${styles.dropdownOption} ${styles.allOption}`}>
+                        <input
+                          type="checkbox"
+                          checked={!selectedUsers || selectedUsers.length === 0}
+                          onChange={() => setSelectedUsers([])}
+                        />
+                        <span>All</span>
+                      </label>
                       {followingUsers.map(user => (
                         <label key={user.username} className={styles.dropdownOption}>
                           <input
@@ -553,14 +564,6 @@ export default function EventFilters({
                           <span>{user.full_name || user.username}</span>
                         </label>
                       ))}
-                      {selectedUsers && selectedUsers.length > 0 && (
-                        <button
-                          className={styles.clearBtn}
-                          onClick={() => setSelectedUsers([])}
-                        >
-                          Clear
-                        </button>
-                      )}
                     </>
                   ) : (
                     <div className={styles.noUsersMessage}>
@@ -571,14 +574,16 @@ export default function EventFilters({
               )}
             </div>
 
-            {/* Person Filter Buttons */}
+            {/* Person Filter Buttons - All button hidden on mobile */}
             <div className={styles.personFilter}>
-              <button
-                className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-                onClick={() => setFilter('all')}
-              >
-                All
-              </button>
+              {!isMobile && (
+                <button
+                  className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  All
+                </button>
+              )}
               <button
                 className={`${styles.filterButton} ${filter === 'following' ? styles.active : ''}`}
                 onClick={() => setFilter('following')}

@@ -417,6 +417,14 @@
   font-style: italic;
 }
 
+/* All option in dropdown - highlighted style */
+.allOption {
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 4px;
+  padding-bottom: 10px;
+  font-weight: 600;
+}
+
 /* Order By toggle - slider style */
 .orderByToggle {
   display: flex;
@@ -914,6 +922,40 @@
   .mobileTopRow .userSearchSection {
     flex: 1;
     min-width: 0;
+  }
+
+  /* Stacked button labels for mobile order toggle */
+  .mobileOrderToggle {
+    align-items: stretch;
+  }
+
+  .stackedButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    line-height: 1.1;
+  }
+
+  .buttonMainText {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .buttonSubText {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: 0.8;
+  }
+
+  /* Taller search bar to match */
+  .mobileTopRow .searchInputWrapper {
+    padding: 4px 10px;
+  }
+
+  .mobileTopRow .userSearchInput {
+    padding: 10px 0;
   }
 
   /* Order by toggle - compact on mobile */
