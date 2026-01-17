@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './EventFilters.module.css'
 import apiService from '../services/api'
@@ -63,6 +63,40 @@ export default function EventFilters({
   const [muteSearchQuery, setMuteSearchQuery] = useState('')
   const [muteSearchResults, setMuteSearchResults] = useState([])
   const [searchingMuteUsers, setSearchingMuteUsers] = useState(false)
+
+  // Category ribbon scroll state
+  const ribbonRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  // Check scroll position to show/hide arrows
+  const checkScrollPosition = useCallback(() => {
+    const ribbon = ribbonRef.current
+    if (!ribbon) return
+
+    const { scrollLeft, scrollWidth, clientWidth } = ribbon
+    setCanScrollLeft(scrollLeft > 5)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5)
+  }, [])
+
+  // Scroll ribbon left or right
+  const scrollRibbon = (direction) => {
+    const ribbon = ribbonRef.current
+    if (!ribbon) return
+
+    const scrollAmount = 200
+    ribbon.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    })
+  }
+
+  // Check scroll on mount and when content changes
+  useEffect(() => {
+    checkScrollPosition()
+    window.addEventListener('resize', checkScrollPosition)
+    return () => window.removeEventListener('resize', checkScrollPosition)
+  }, [checkScrollPosition])
 
   // User search with debouncing
   useEffect(() => {
@@ -537,33 +571,55 @@ export default function EventFilters({
             </div>
           </div>
 
-          {/* Category Ribbon */}
-          <div className={styles.categoryRibbon}>
+          {/* Category Ribbon with scroll arrows */}
+          <div className={styles.categoryRibbonWrapper}>
             <button
-              className={`${styles.categoryChip} ${styles.allChip} ${selectedCategories.length === 0 ? styles.selected : ''}`}
-              onClick={() => setSelectedCategories([])}
+              className={`${styles.scrollArrow} ${styles.scrollArrowLeft} ${!canScrollLeft ? styles.hidden : ''}`}
+              onClick={() => scrollRibbon('left')}
+              aria-label="Scroll categories left"
             >
-              <span className={styles.chipIcon}>✨</span>
-              <span className={styles.chipLabel}>All</span>
+              ‹
             </button>
 
-            {CATEGORIES_WITH_ICONS.map(cat => (
+            <div
+              className={styles.categoryRibbon}
+              ref={ribbonRef}
+              onScroll={checkScrollPosition}
+            >
               <button
-                key={cat.value}
-                className={`${styles.categoryChip} ${selectedCategories.includes(cat.value) ? styles.selected : ''}`}
-                onClick={() => {
-                  if (selectedCategories.includes(cat.value)) {
-                    setSelectedCategories(prev => prev.filter(c => c !== cat.value))
-                  } else {
-                    setSelectedCategories(prev => [...prev, cat.value])
-                  }
-                }}
-                style={{ '--chip-color': cat.color }}
+                className={`${styles.categoryChip} ${styles.allChip} ${selectedCategories.length === 0 ? styles.selected : ''}`}
+                onClick={() => setSelectedCategories([])}
               >
-                <span className={styles.chipIcon}>{cat.icon}</span>
-                <span className={styles.chipLabel}>{cat.value}</span>
+                <span className={styles.chipIcon}>✨</span>
+                <span className={styles.chipLabel}>All</span>
               </button>
-            ))}
+
+              {CATEGORIES_WITH_ICONS.map(cat => (
+                <button
+                  key={cat.value}
+                  className={`${styles.categoryChip} ${selectedCategories.includes(cat.value) ? styles.selected : ''}`}
+                  onClick={() => {
+                    if (selectedCategories.includes(cat.value)) {
+                      setSelectedCategories(prev => prev.filter(c => c !== cat.value))
+                    } else {
+                      setSelectedCategories(prev => [...prev, cat.value])
+                    }
+                  }}
+                  style={{ '--chip-color': cat.color }}
+                >
+                  <span className={styles.chipIcon}>{cat.icon}</span>
+                  <span className={styles.chipLabel}>{cat.value}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              className={`${styles.scrollArrow} ${styles.scrollArrowRight} ${!canScrollRight ? styles.hidden : ''}`}
+              onClick={() => scrollRibbon('right')}
+              aria-label="Scroll categories right"
+            >
+              ›
+            </button>
           </div>
         </div>
       )}
