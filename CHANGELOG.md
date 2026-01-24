@@ -20,6 +20,18 @@ This document captures the evolution of Our Family Socials from initial concept 
 
 ## January 2026
 
+### Feedback & Error Tracking (Jan 24)
+- **Feedback Widget**: Floating "?" button on all pages for bug reports, feature requests
+- **Error Logging**: Client-side errors logged to Vercel for debugging
+- **Rate Limiting**: 3 submissions per minute per IP to prevent abuse
+
+### Upload Reliability Improvements (Jan 24)
+- **Retry Logic**: 2 retries on mobile, 3 on desktop with exponential backoff
+- **Timeout Protection**: 90s mobile, 60s desktop (prevents infinite hangs)
+- **GPS Extraction Timeout**: 5s max, skipped for files >30MB
+- **Mobile-Aware Errors**: Specific hints like "try switching to WiFi"
+- **Error Logging**: Failed uploads logged for debugging
+
 ### Mobile UX Improvements
 - Image gallery: Comments panel as bottom sheet (Post button always visible)
 - Image gallery: Persistent close button when zoomed
