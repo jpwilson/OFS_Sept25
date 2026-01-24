@@ -3,6 +3,7 @@ import Header from './Header'
 import Footer from './Footer'
 import TrialBanner from './TrialBanner'
 import WelcomeModal from './WelcomeModal'
+import FeedbackWidget from './FeedbackWidget'
 
 function Layout() {
   return (
@@ -14,6 +15,7 @@ function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <FeedbackWidget />
     </>
   )
 }

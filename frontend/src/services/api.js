@@ -481,11 +481,16 @@ class ApiService {
   }
 
   // Upload image to Cloudinary (used for all image types)
-  async uploadImageToCloudinary(file) {
+  async uploadImageToCloudinary(file, timeoutMs = 60000) {
+    const isMobile = window.innerWidth <= 480
+    const actualTimeout = isMobile ? 90000 : timeoutMs
+
     console.log('[UPLOAD DEBUG] Starting Cloudinary upload:', {
       fileName: file.name,
       fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
       fileType: file.type,
+      isMobile,
+      timeout: actualTimeout,
       timestamp: new Date().toISOString()
     })
 
@@ -500,70 +505,146 @@ class ApiService {
     const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
     console.log('[UPLOAD DEBUG] Sending to Cloudinary...', uploadUrl)
 
-    const startTime = Date.now()
-    const response = await fetch(uploadUrl, { method: 'POST', body: formData })
-    console.log('[UPLOAD DEBUG] Cloudinary responded in', Date.now() - startTime, 'ms, status:', response.status)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), actualTimeout)
 
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('[UPLOAD DEBUG] Cloudinary error:', error)
-      throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
+    try {
+      const startTime = Date.now()
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      console.log('[UPLOAD DEBUG] Cloudinary responded in', Date.now() - startTime, 'ms, status:', response.status)
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('[UPLOAD DEBUG] Cloudinary error:', error)
+        throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
+      }
+
+      const result = await response.json()
+      console.log('[UPLOAD DEBUG] Upload successful, URL:', result.secure_url?.substring(0, 50) + '...')
+      // Apply transformations via URL (max 2000px, auto quality, auto format)
+      return result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_auto/')
+    } catch (error) {
+      clearTimeout(timeoutId)
+      if (error.name === 'AbortError') {
+        throw new Error('Upload timed out. Please check your connection and try again.')
+      }
+      throw error
     }
-
-    const result = await response.json()
-    console.log('[UPLOAD DEBUG] Upload successful, URL:', result.secure_url?.substring(0, 50) + '...')
-    // Apply transformations via URL (max 2000px, auto quality, auto format)
-    return result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_auto/')
   }
 
   // Event Image methods (for caption system)
   // All images now go to Cloudinary for faster global uploads (fixes UK timeout issues)
   async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
-    try {
-      console.log('[UPLOAD DEBUG] uploadEventImage started:', { eventId, fileName: file.name })
+    const isMobile = window.innerWidth <= 480
+    const maxRetries = isMobile ? 2 : 3
+    let lastError = null
 
-      // Extract GPS data client-side BEFORE uploading
+    console.log('[UPLOAD DEBUG] uploadEventImage started:', {
+      eventId,
+      fileName: file.name,
+      fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      isMobile
+    })
+
+    // Extract GPS data client-side BEFORE uploading (with timeout protection)
+    let gpsData = null
+    try {
       console.log('[UPLOAD DEBUG] Extracting GPS data...')
       const { extractGPSFromImage } = await import('../utils/exifExtractor.js')
-      const gpsData = await extractGPSFromImage(file)
+      gpsData = await extractGPSFromImage(file)
       console.log('[UPLOAD DEBUG] GPS extraction complete:', gpsData ? 'found' : 'none')
-
-      // Upload ALL images to Cloudinary (global CDN - fast for UK and worldwide)
-      console.log('[UPLOAD DEBUG] Starting Cloudinary upload...')
-      const imageUrl = await this.uploadImageToCloudinary(file)
-      console.log('[UPLOAD DEBUG] Cloudinary upload complete')
-
-      // Save record to database via backend (includes GPS data)
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token || localStorage.getItem('token')
-
-      const response = await fetch(`${API_BASE}/upload/event-image-record`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          event_id: eventId,
-          image_url: imageUrl,
-          caption,
-          order_index: orderIndex,
-          latitude: gpsData?.latitude || null,
-          longitude: gpsData?.longitude || null,
-          timestamp: gpsData?.timestamp || null
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to save image record')
-      }
-
-      return await response.json()
-    } catch (error) {
-      console.error('Error uploading event image:', error)
-      throw error
+    } catch (gpsError) {
+      console.warn('[UPLOAD DEBUG] GPS extraction failed, continuing without:', gpsError)
     }
+
+    // Retry loop for upload
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[UPLOAD DEBUG] Cloudinary upload attempt ${attempt}/${maxRetries}`)
+
+        // Upload to Cloudinary with timeout
+        const uploadTimeout = isMobile ? 90000 : 60000 // 90s mobile, 60s desktop
+        const imageUrl = await Promise.race([
+          this.uploadImageToCloudinary(file),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Upload timed out')), uploadTimeout)
+          )
+        ])
+
+        console.log('[UPLOAD DEBUG] Cloudinary upload complete')
+
+        // Save record to database via backend (includes GPS data)
+        const { data: { session } } = await supabase.auth.getSession()
+        const token = session?.access_token || localStorage.getItem('token')
+
+        const response = await fetch(`${API_BASE}/upload/event-image-record`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            event_id: eventId,
+            image_url: imageUrl,
+            caption,
+            order_index: orderIndex,
+            latitude: gpsData?.latitude || null,
+            longitude: gpsData?.longitude || null,
+            timestamp: gpsData?.timestamp || null
+          })
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.detail || 'Failed to save image record')
+        }
+
+        console.log('[UPLOAD DEBUG] Image record saved successfully')
+        return await response.json()
+      } catch (error) {
+        lastError = error
+        console.error(`[UPLOAD DEBUG] Attempt ${attempt} failed:`, error.message)
+
+        // Log error for debugging
+        this.logClientError({
+          error_message: `Upload attempt ${attempt} failed: ${error.message}`,
+          component_name: 'uploadEventImage',
+          page_url: window.location.href,
+          is_mobile: isMobile,
+          additional_context: {
+            eventId,
+            fileName: file.name,
+            fileSize: file.size,
+            attempt
+          }
+        })
+
+        // Only retry on network/timeout errors, not auth errors
+        if (error.message?.includes('401') || error.message?.includes('403')) {
+          throw error
+        }
+
+        // Wait before retrying (exponential backoff)
+        if (attempt < maxRetries) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 5000)
+          console.log(`[UPLOAD DEBUG] Waiting ${waitTime}ms before retry...`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+        }
+      }
+    }
+
+    // All retries failed
+    const errorMessage = isMobile
+      ? 'Upload failed. Please check your connection and try again. If on mobile, try switching to WiFi.'
+      : 'Upload failed after multiple attempts. Please check your connection and try again.'
+
+    console.error('[UPLOAD DEBUG] All retries exhausted:', lastError)
+    throw new Error(errorMessage)
   }
 
   async getEventImages(eventId) {
@@ -2373,6 +2454,47 @@ class ApiService {
     } catch (error) {
       console.error('Error unmuting user:', error)
       throw error
+    }
+  }
+
+  // ========================================
+  // FEEDBACK & ERROR LOGGING
+  // ========================================
+
+  async submitFeedback(feedbackData) {
+    try {
+      const headers = await this.getAuthHeaders()
+      const response = await fetch(`${API_BASE}/feedback`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(feedbackData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to submit feedback')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error submitting feedback:', error)
+      throw error
+    }
+  }
+
+  async logClientError(errorData) {
+    try {
+      // Fire and forget - don't block on errors
+      const headers = await this.getAuthHeaders()
+      fetch(`${API_BASE}/feedback/log-error`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(errorData)
+      }).catch(() => {
+        // Silently fail - we don't want error logging to cause more errors
+      })
+    } catch {
+      // Silently fail
     }
   }
 }
