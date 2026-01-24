@@ -41,6 +41,10 @@
 
 ## Completed (January 2026)
 
+- [x] Mobile image comments UX improvements (bottom sheet, close button, visible engagement)
+- [x] Mobile filter layout reorganization (stacked date toggle, bottom sheet, right-aligned toggle)
+- [x] Category filter ribbon with icons and scroll arrows
+- [x] Multi-category support (events can have 2 categories)
 - [x] Event tags bug fix (was using slug instead of numeric ID)
 - [x] Unified pricing pages (logged-in and logged-out)
 - [x] Free tier messaging update ("View-only - cannot create events")

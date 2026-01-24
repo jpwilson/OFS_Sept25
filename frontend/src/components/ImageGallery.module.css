@@ -616,7 +616,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Mobile responsive */
+/* Mobile responsive - tablet */
 @media (max-width: 768px) {
   .engagementPanel {
     bottom: 120px;
@@ -637,5 +637,90 @@
 
   .engagementIcon {
     font-size: 16px;
+  }
+}
+
+/* Mobile close button - hidden by default */
+.mobileCloseBtn {
+  display: none;
+}
+
+/* Mobile phone - bottom sheet comments panel */
+@media (max-width: 480px) {
+  /* Comments panel becomes bottom sheet */
+  .commentsOverlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .commentsPanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .commentForm {
+    position: sticky;
+    bottom: 0;
+    background: rgba(20, 20, 20, 0.98);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  /* Persistent close button */
+  .mobileCloseBtn {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10002;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 28px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+  }
+
+  .mobileCloseBtn:active {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(0.95);
+  }
+
+  /* More visible engagement buttons */
+  .engagementPanel {
+    bottom: 80px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 24px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .engagementBtn {
+    background: transparent;
+  }
+
+  /* Highlight when has comments */
+  .hasComments {
+    background: rgba(102, 126, 234, 0.2);
+  }
+
+  .hasComments .engagementIcon {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
 }

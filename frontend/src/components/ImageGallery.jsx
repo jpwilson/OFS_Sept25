@@ -142,11 +142,11 @@ function EngagementToolbar({
 
       <button
         type="button"
-        className={`${styles.toolbarBtn} ${showComments ? styles.active : ''}`}
+        className={`${styles.toolbarBtn} ${showComments ? styles.active : ''} ${stats?.comment_count > 0 ? styles.hasComments : ''}`}
         onClick={onToggleComments}
         title="Comments"
       >
-        <span>💬</span>
+        <span className={styles.engagementIcon}>💬</span>
         {stats?.comment_count > 0 && <span className={styles.toolbarCount}>{stats.comment_count}</span>}
       </button>
     </div>
@@ -258,6 +258,14 @@ function ImageGallery({
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(initialIndex)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 480)
+
+  // Update isMobile on resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 480)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Use external lightbox control if provided
   const actualOpen = lightboxOpen !== undefined ? lightboxOpen : open
@@ -699,6 +707,17 @@ function ImageGallery({
           captionsContainer: showCaptions ? {} : { display: 'none' }
         }}
       />
+
+      {/* Mobile close button - always visible on mobile when lightbox is open */}
+      {isMobile && actualOpen && (
+        <button
+          className={styles.mobileCloseBtn}
+          onClick={closeLightbox}
+          aria-label="Close gallery"
+        >
+          ×
+        </button>
+      )}
 
       {/* Comments Panel - rendered via portal above lightbox */}
       {actualOpen && showComments && enableEngagement && (

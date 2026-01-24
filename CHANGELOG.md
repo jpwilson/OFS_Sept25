@@ -20,6 +20,21 @@ This document captures the evolution of Our Family Socials from initial concept 
 
 ## January 2026
 
+### Mobile UX Improvements
+- Image gallery: Comments panel as bottom sheet (Post button always visible)
+- Image gallery: Persistent close button when zoomed
+- Image gallery: More visible engagement buttons with pulse animation
+- Feed filters: Reorganized mobile layout with stacked date toggle
+- Feed filters: Show/Hide Filters button in header row
+- Feed filters: "All" moved into Users dropdown on mobile
+- All mobile changes scoped to 480px breakpoint
+
+### Category System
+- Category filter ribbon with icons (Peloton-style design)
+- Multi-category support (events can have up to 2 categories)
+- Scroll arrows for category ribbon on desktop
+- Visual chip design with hover animations
+
 ### Quick Add Feature
 - Floating "+" button in header for rapid event creation
 - Hover expansion with tooltip
