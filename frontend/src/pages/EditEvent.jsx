@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -18,6 +19,7 @@ import styles from './CreateEvent.module.css'
 function EditEvent() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user, canAccessContent, isExpired, isTrialExpired } = useAuth()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({
@@ -479,7 +481,39 @@ function EditEvent() {
     )
   }
 
+  const isBlocked = user && !canAccessContent && (isExpired || isTrialExpired)
+
   return (
+    <>
+    {isBlocked && (
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px 28px',
+        textAlign: 'center',
+        color: 'white',
+        fontSize: '15px',
+        fontWeight: 500
+      }}>
+        <div style={{ marginBottom: '8px', fontSize: '16px', fontWeight: 700 }}>
+          You are no longer able to edit or create events
+        </div>
+        <div style={{ opacity: 0.9, marginBottom: '12px' }}>
+          Upgrade to Pro to regain full access to event creation and editing.
+        </div>
+        <a href="/billing" style={{
+          display: 'inline-block',
+          background: 'white',
+          color: '#764ba2',
+          padding: '10px 24px',
+          borderRadius: '8px',
+          fontWeight: 700,
+          textDecoration: 'none'
+        }}>
+          Upgrade to Pro
+        </a>
+      </div>
+    )}
+    <div style={isBlocked ? { opacity: 0.4, pointerEvents: 'none', filter: 'grayscale(0.5)' } : undefined}>
     <div className={styles.container}>
       <div className={styles.formWrapper}>
         <h1 className={styles.title}>Edit Event</h1>
@@ -782,6 +816,8 @@ function EditEvent() {
         initialName={newTagProfileName}
       />
     </div>
+    </div>
+    </>
   )
 }
 

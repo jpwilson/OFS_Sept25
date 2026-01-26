@@ -19,7 +19,7 @@ import { mockEventDetails } from '../data/mockEvents'
 function EventDetail({ isShareMode = false }) {
   const { id, token } = useParams()
   const navigate = useNavigate()
-  const { user, isTrialExpired, canAccessContent } = useAuth()
+  const { user, isTrialExpired, canAccessContent, isExpired } = useAuth()
   const { showToast } = useToast()
   const { confirm } = useConfirm()
   const [event, setEvent] = useState(null)
@@ -87,6 +87,7 @@ function EventDetail({ isShareMode = false }) {
 
   // In share mode, author features are disabled
   const isAuthor = !isShareMode && user && event && user.username === event.author_username
+  const isEditingBlocked = isAuthor && !canAccessContent && (isExpired || isTrialExpired)
 
   // Handle gallery button click from navigation
   const handleGalleryClick = useCallback(() => {
@@ -1122,7 +1123,13 @@ function EventDetail({ isShareMode = false }) {
               <div className={styles.authorButtons}>
                 <button
                   className={styles.editButton}
-                  onClick={() => navigate(`/event/${id}/edit`)}
+                  onClick={() => {
+                    if (isEditingBlocked) {
+                      confirm({ title: 'Pro Feature', message: 'You are no longer able to edit or create events. Upgrade to Pro to regain full access.', confirmText: 'Upgrade to Pro', cancelText: 'Close' }).then(ok => { if (ok) navigate('/billing') })
+                    } else {
+                      navigate(`/event/${id}/edit`)
+                    }
+                  }}
                 >
                   ✎ Edit
                 </button>
@@ -1135,21 +1142,39 @@ function EventDetail({ isShareMode = false }) {
                 {event.is_published ? (
                   <button
                     className={styles.unpublishButton}
-                    onClick={handleUnpublish}
+                    onClick={() => {
+                      if (isEditingBlocked) {
+                        confirm({ title: 'Pro Feature', message: 'You are no longer able to edit or create events. Upgrade to Pro to regain full access.', confirmText: 'Upgrade to Pro', cancelText: 'Close' }).then(ok => { if (ok) navigate('/billing') })
+                      } else {
+                        handleUnpublish()
+                      }
+                    }}
                   >
                     📋 Move to Drafts
                   </button>
                 ) : (
                   <button
                     className={styles.publishButton}
-                    onClick={handlePublish}
+                    onClick={() => {
+                      if (isEditingBlocked) {
+                        confirm({ title: 'Pro Feature', message: 'You are no longer able to edit or create events. Upgrade to Pro to regain full access.', confirmText: 'Upgrade to Pro', cancelText: 'Close' }).then(ok => { if (ok) navigate('/billing') })
+                      } else {
+                        handlePublish()
+                      }
+                    }}
                   >
                     ✓ Publish
                   </button>
                 )}
                 <button
                   className={styles.deleteButton}
-                  onClick={handleDelete}
+                  onClick={() => {
+                    if (isEditingBlocked) {
+                      confirm({ title: 'Pro Feature', message: 'You are no longer able to edit or create events. Upgrade to Pro to regain full access.', confirmText: 'Upgrade to Pro', cancelText: 'Close' }).then(ok => { if (ok) navigate('/billing') })
+                    } else {
+                      handleDelete()
+                    }
+                  }}
                 >
                   🗑 Delete
                 </button>
