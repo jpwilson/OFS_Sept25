@@ -162,6 +162,15 @@ function Header() {
             ) : (
               <Link to="/login" onClick={closeMobileMenu}>Login</Link>
             )}
+            <button
+              className={styles.feedbackButtonMobile}
+              onClick={() => {
+                closeMobileMenu()
+                window.dispatchEvent(new Event('open-feedback'))
+              }}
+            >
+              ? Feedback
+            </button>
           </nav>
         </div>
       )}

@@ -9,12 +9,19 @@ function FeedbackWidget() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 480)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768)
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 480)
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Listen for open-feedback event from hamburger menu
+  useEffect(() => {
+    const handleOpenFeedback = () => setIsOpen(true)
+    window.addEventListener('open-feedback', handleOpenFeedback)
+    return () => window.removeEventListener('open-feedback', handleOpenFeedback)
   }, [])
 
   const handleSubmit = async (e) => {
@@ -54,15 +61,17 @@ function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating button */}
-      <button
-        className={`${styles.floatingButton} ${isOpen ? styles.hidden : ''}`}
-        onClick={() => setIsOpen(true)}
-        aria-label="Send feedback"
-        title="Send feedback"
-      >
-        <span className={styles.feedbackIcon}>?</span>
-      </button>
+      {/* Floating button - desktop only (hidden when hamburger menu appears) */}
+      {!isMobile && (
+        <button
+          className={`${styles.floatingButton} ${isOpen ? styles.hidden : ''}`}
+          onClick={() => setIsOpen(true)}
+          aria-label="Send feedback"
+          title="Send feedback"
+        >
+          <span className={styles.feedbackIcon}>?</span>
+        </button>
+      )}
 
       {/* Feedback panel */}
       {isOpen && (

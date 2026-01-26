@@ -302,3 +302,22 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
+
+/* Feedback Button - Mobile Menu */
+.feedbackButtonMobile {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 15px;
+  padding: 12px 0;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.2s;
+  border-radius: 8px;
+  margin-top: auto;
+}
+
+.feedbackButtonMobile:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}

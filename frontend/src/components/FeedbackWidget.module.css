@@ -209,12 +209,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 480px) {
-  .floatingButton {
-    bottom: 80px; /* Above mobile nav if present */
-    right: 16px;
-  }
-
+@media (max-width: 768px) {
   .overlay {
     padding: 0;
     align-items: flex-end;
