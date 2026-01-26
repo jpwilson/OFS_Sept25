@@ -293,9 +293,9 @@ export default function Billing() {
             <h2>Current Plan</h2>
             {isPaidSubscriber ? (
               isSubscriptionCanceled ? (
-                <span className={`${styles.badge} ${styles.cancelingBadge}`}>Canceled</span>
+                <span className={`${styles.badge} ${styles.cancelingBadge}`}>Pro (Canceled)</span>
               ) : (
-                <span className={styles.badge}>Active</span>
+                <span className={styles.badge}>Pro</span>
               )
             ) : isTrialActive ? (
               <span className={`${styles.badge} ${styles.trialBadge}`}>Trial</span>
@@ -365,7 +365,32 @@ export default function Billing() {
           ) : (
             <div className={styles.statusContent}>
               <p className={styles.statusText}>
-                Your free trial has ended. Subscribe to continue using all features.
+                {user?.trial_end_date ? (
+                  <>Your free trial ended on{' '}
+                    <strong>
+                      {new Date(user.trial_end_date).toLocaleDateString('en-US', {
+                        month: 'long', day: 'numeric', year: 'numeric'
+                      })}
+                    </strong>
+                  </>
+                ) : (
+                  <>Your free trial has ended</>
+                )}
+              </p>
+              <button
+                className={styles.primaryButton}
+                onClick={() => {
+                  const pricingSection = document.getElementById('pricing-section')
+                  if (pricingSection) {
+                    pricingSection.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+                style={{ marginTop: '12px', fontSize: '16px', padding: '14px 32px' }}
+              >
+                Resubscribe
+              </button>
+              <p className={styles.statusSubtext} style={{ marginTop: '8px' }}>
+                Enjoy all the benefits and share your life with your family.
               </p>
             </div>
           )}
@@ -493,7 +518,7 @@ export default function Billing() {
 
         {/* Pricing Section (show if not paid) */}
         {!isPaidSubscriber && (
-          <>
+          <div id="pricing-section">
             {/* Billing Toggle */}
             <div className={styles.billingToggle}>
               <button
@@ -573,7 +598,7 @@ export default function Billing() {
                 {loading ? 'Loading...' : 'Get Lifetime Access'}
               </button>
             </div>
-          </>
+          </div>
         )}
 
         {/* FAQ Section */}

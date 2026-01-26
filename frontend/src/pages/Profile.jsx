@@ -15,7 +15,7 @@ import { ProfileSkeleton } from '../components/Skeleton'
 function Profile() {
   const { username } = useParams()
   const location = useLocation()
-  const { user: currentUser, logout } = useAuth()
+  const { user: currentUser, logout, isTrialActive, isPaidSubscriber } = useAuth()
   const { showToast } = useToast()
   const { confirm } = useConfirm()
   const navigate = useNavigate()
@@ -416,8 +416,8 @@ function Profile() {
         </div>
       </div>
 
-      {/* Show upgrade ribbon if user is at limit (5/5 events) */}
-      {isOwnProfile && currentUser?.subscription_tier === 'free' && events.length >= 5 && (
+      {/* Show upgrade ribbon if user is at limit (5/5 events) - only during active trial, never-paid users */}
+      {isOwnProfile && isTrialActive && !isPaidSubscriber && currentUser?.subscription_tier === 'free' && events.length >= 5 && (
         <UpgradeRibbon eventCount={events.length} limit={5} />
       )}
 

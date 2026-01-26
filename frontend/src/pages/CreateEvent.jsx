@@ -18,7 +18,7 @@ import styles from './CreateEvent.module.css'
 
 function CreateEvent() {
   const navigate = useNavigate()
-  const { user, isTrialExpired, canAccessContent } = useAuth()
+  const { user, isTrialExpired, canAccessContent, isExpired } = useAuth()
   const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: '',
@@ -306,23 +306,40 @@ function CreateEvent() {
     }
   }
 
-  // Block expired trial users from creating events - show upgrade modal immediately
-  if (user && isTrialExpired && !canAccessContent) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.formWrapper}>
-          <h1 className={styles.title}>Create New Event</h1>
-          <UpgradeModal
-            isOpen={true}
-            onClose={() => navigate('/feed')}
-            context="create"
-          />
-        </div>
-      </div>
-    )
-  }
+  // Block expired users from creating events - show grayed out form with banner
+  const isBlocked = user && !canAccessContent && (isTrialExpired || isExpired)
 
   return (
+    <>
+    {isBlocked && (
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px 28px',
+        textAlign: 'center',
+        color: 'white',
+        fontSize: '15px',
+        fontWeight: 500
+      }}>
+        <div style={{ marginBottom: '8px', fontSize: '16px', fontWeight: 700 }}>
+          Free tier users are unable to create events
+        </div>
+        <div style={{ opacity: 0.9, marginBottom: '12px' }}>
+          Upgrade to Pro to share your family moments and memories.
+        </div>
+        <a href="/billing" style={{
+          display: 'inline-block',
+          background: 'white',
+          color: '#764ba2',
+          padding: '10px 24px',
+          borderRadius: '8px',
+          fontWeight: 700,
+          textDecoration: 'none'
+        }}>
+          Upgrade to Pro
+        </a>
+      </div>
+    )}
+    <div style={isBlocked ? { opacity: 0.4, pointerEvents: 'none', filter: 'grayscale(0.5)' } : undefined}>
     <div className={styles.container}>
       <div className={styles.formWrapper}>
         <h1 className={styles.title}>Create New Event</h1>
@@ -618,6 +635,8 @@ function CreateEvent() {
         initialName={newTagProfileName}
       />
     </div>
+    </div>
+    </>
   )
 }
 

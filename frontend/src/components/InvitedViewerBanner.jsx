@@ -1,40 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import apiService from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import styles from './InvitedViewerBanner.module.css'
 
 export default function InvitedViewerBanner() {
-  const [viewerStatus, setViewerStatus] = useState(null)
-  const [inviters, setInviters] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { canAccessContent, isExpired } = useAuth()
   const [dismissed, setDismissed] = useState(false)
 
-  useEffect(() => {
-    loadViewerStatus()
-  }, [])
-
-  async function loadViewerStatus() {
-    try {
-      const [status, invitersData] = await Promise.all([
-        apiService.getViewerStatus(),
-        apiService.getMyInviters()
-      ])
-      setViewerStatus(status)
-      setInviters(invitersData.inviters || invitersData || [])
-    } catch (error) {
-      console.error('Failed to load viewer status:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Don't show if loading, dismissed, or not a restricted viewer
-  if (loading || dismissed || !viewerStatus?.is_restricted) {
+  // Only show for expired users who can't access content
+  // This replaces the old "invited viewer" banner which was misleading
+  if (dismissed || canAccessContent || !isExpired) {
     return null
   }
-
-  const inviterList = Array.isArray(inviters) ? inviters : []
-  const inviterNames = inviterList.map(inv => inv.username).join(', ')
 
   return (
     <div className={styles.banner}>
@@ -42,18 +19,15 @@ export default function InvitedViewerBanner() {
         <div className={styles.icon}>👁️</div>
         <div className={styles.text}>
           <p className={styles.title}>
-            You're viewing as an invited guest
+            Your free trial has ended
           </p>
           <p className={styles.subtitle}>
-            {inviterList.length === 1
-              ? `You can only see events from @${inviterNames}`
-              : `You can only see events from ${inviterList.length} people who invited you`
-            }
+            You can view and interact with events from people you follow. Upgrade to Pro to create events and access all features.
           </p>
         </div>
         <div className={styles.actions}>
-          <Link to="/checkout" className={styles.upgradeButton}>
-            Upgrade for Full Access
+          <Link to="/billing" className={styles.upgradeButton}>
+            Upgrade to Pro
           </Link>
           <button
             className={styles.dismissButton}

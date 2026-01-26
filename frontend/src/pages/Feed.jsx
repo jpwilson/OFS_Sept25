@@ -39,6 +39,7 @@ function Feed() {
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([]) // Multi-select user filter
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
+  const [upgradePromptEvent, setUpgradePromptEvent] = useState(null)
   const [orderBy, setOrderBy] = useState('upload_date') // 'event_date' or 'upload_date'
   const [sortDirection, setSortDirection] = useState('desc') // 'asc' or 'desc'
   const [mutedUsers, setMutedUsers] = useState([])
@@ -182,12 +183,19 @@ function Feed() {
           <div className={styles.upgradeModalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.upgradeModalClose} onClick={() => setShowUpgradePrompt(false)}>×</button>
             <div className={styles.upgradeModalIcon}>🔒</div>
-            <h3>Premium Content</h3>
-            <p>This event is from someone you don't follow. Follow them to see their events, or upgrade to Premium for full access.</p>
+            <h3>Follow Required</h3>
+            <p>
+              {upgradePromptEvent?.author_username
+                ? <>This event is from <strong>@{upgradePromptEvent.author_username}</strong>. Follow them to see their events.</>
+                : <>This event is from someone you don't follow. Follow them to see their events.</>
+              }
+            </p>
             <div className={styles.upgradeModalActions}>
-              <Link to="/billing" className={styles.upgradeModalButton}>
-                View Plans
-              </Link>
+              {upgradePromptEvent?.author_username && (
+                <Link to={`/profile/${upgradePromptEvent.author_username}`} className={styles.upgradeModalButton}>
+                  Visit Profile
+                </Link>
+              )}
               <button className={styles.upgradeModalSecondary} onClick={() => setShowUpgradePrompt(false)}>
                 Maybe Later
               </button>
@@ -250,7 +258,7 @@ function Feed() {
           <FeedView
             events={filteredEvents}
             following={following}
-            onUpgradePrompt={() => setShowUpgradePrompt(true)}
+            onUpgradePrompt={(event) => { setUpgradePromptEvent(event); setShowUpgradePrompt(true) }}
           />
         )}
         {activeView === 'calendar' && (

@@ -1017,16 +1017,13 @@ function EventDetail({ isShareMode = false }) {
 
           <div className={styles.privacyActions}>
             <p className={styles.privacyExplainer}>
-              Your free trial has ended. Subscribe to Premium for unlimited access to all events,
-              or follow <strong>@{privacyError.author_username}</strong> to see their content.
+              This event is from <strong>@{privacyError.author_username}</strong>.
+              Follow them to see their events.
             </p>
-            <Link to="/billing" className={styles.primaryButton}>
-              View Plans
-            </Link>
-            <Link to={`/profile/${privacyError.author_username}`} className={styles.secondaryButton}>
+            <Link to={`/profile/${privacyError.author_username}`} className={styles.primaryButton}>
               Visit @{privacyError.author_username}'s Profile
             </Link>
-            <Link to="/feed" className={styles.tertiaryButton}>
+            <Link to="/feed" className={styles.secondaryButton}>
               Back to Feed
             </Link>
           </div>

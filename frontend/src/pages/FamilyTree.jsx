@@ -33,7 +33,7 @@ function getGroupForRelationship(relationship) {
 }
 
 export default function FamilyTree() {
-  const { user } = useAuth()
+  const { user, canAccessContent, isExpired, isTrialExpired } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [relationships, setRelationships] = useState([])
@@ -104,6 +104,8 @@ export default function FamilyTree() {
 
   const totalConnections = relationships.length + tagProfiles.length
 
+  const isBlocked = user && !canAccessContent && (isExpired || isTrialExpired)
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -114,7 +116,39 @@ export default function FamilyTree() {
 
   return (
     <div className={styles.container}>
-      <div className={`${styles.content} ${view === 'tree' ? styles.contentWide : ''}`}>
+      {isBlocked && (
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          padding: '20px 28px',
+          textAlign: 'center',
+          color: 'white',
+          fontSize: '15px',
+          fontWeight: 500,
+          borderRadius: '12px',
+          margin: '20px auto',
+          maxWidth: '600px'
+        }}>
+          <div style={{ marginBottom: '8px', fontSize: '16px', fontWeight: 700 }}>
+            Family Tree is a Pro feature
+          </div>
+          <div style={{ opacity: 0.9, marginBottom: '12px' }}>
+            Upgrade to Pro to build and explore your family tree.
+          </div>
+          <a href="/billing" style={{
+            display: 'inline-block',
+            background: 'white',
+            color: '#764ba2',
+            padding: '10px 24px',
+            borderRadius: '8px',
+            fontWeight: 700,
+            textDecoration: 'none'
+          }}>
+            Upgrade to Pro
+          </a>
+        </div>
+      )}
+      <div className={`${styles.content} ${view === 'tree' ? styles.contentWide : ''}`}
+        style={isBlocked ? { opacity: 0.3, pointerEvents: 'none', filter: 'grayscale(0.5)' } : undefined}>
         <div className={styles.header}>
           <button className={styles.backButton} onClick={() => navigate(-1)}>
             ← Back

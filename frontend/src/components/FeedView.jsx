@@ -54,13 +54,15 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
       return
     }
 
+    // Authors can always view their own events
+    const isOwnEvent = event.author_id === user.id || event.author_username === user.username
     const isFollowingAuthor = following.includes(event.author_username)
     const isPublicEvent = event.privacy_level === 'public'
 
-    if (isFollowingAuthor || isPublicEvent) {
+    if (isOwnEvent || isFollowingAuthor || isPublicEvent) {
       navigate(`/event/${eventPath}`)
     } else if (onUpgradePrompt) {
-      onUpgradePrompt()
+      onUpgradePrompt(event)
     }
   }
 
