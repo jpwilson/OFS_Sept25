@@ -304,20 +304,36 @@
 }
 
 /* Feedback Button - Mobile Menu */
-.feedbackButtonMobile {
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 15px;
-  padding: 12px 0;
-  cursor: pointer;
-  text-align: center;
-  transition: color 0.2s;
-  border-radius: 8px;
+.feedbackButtonWrapper {
+  display: flex;
+  justify-content: center;
   margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.feedbackButtonMobile {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .feedbackButtonMobile:hover {
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.feedbackButtonIcon {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1;
 }

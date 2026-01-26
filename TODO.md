@@ -1,31 +1,41 @@
 # Our Family Socials - TODO List
 
-**Last Updated:** January 24, 2026
+**Last Updated:** January 26, 2026
 
 ---
 
-## In Progress / High Priority
+## CRITICAL - Fix Now
+
+### Subscription & Billing UX (Broken)
+**Status:** Users with expired trials see broken/misleading UI
+- [ ] Plan still says "Pro" after trial expires (should say "Free (view-only)")
+- [ ] "Your subscription is set to end on" shows blank date
+- [ ] Status shows "Canceling" instead of "Expired" for ended trials
+- [ ] Users don't get clear notification that trial ended
+- [ ] Correct date display: future date shown, "today" if current, "ended on [date]" if past
+- [ ] Correct status labels: Active, Canceled (if user canceled), Expired (if trial ran out)
+- [ ] Functionality breaks in unexpected ways after trial expires
+- [ ] Graceful degradation: define exactly what free users can/cannot do
 
 ### Session/Login Persistence Issues
 **Symptoms:** Users getting logged out unexpectedly, especially on mobile
-**To Investigate:**
-- [ ] Check Supabase token refresh behavior
-- [ ] Test if `onAuthStateChange` is firing correctly
-- [ ] Check if mobile browsers are clearing localStorage/session
-- [ ] Add logging to track when sessions expire vs get refreshed
+- [ ] Add logging to `onAuthStateChange` to track session events
+- [ ] Check if mobile Safari is clearing localStorage
+- [ ] Test token refresh behavior when app is backgrounded
+- [ ] Check if `getAuthHeaders()` token refresh silently fails
+- [ ] Improve logout error handling (catch errors, clear state regardless)
 
 ### Event Creation Issues
-**Symptoms:** TBD - need user to describe specific problems
-**To Investigate:**
 - [ ] Image upload failures (now has retry logic + better error messages)
 - [ ] Form submission errors
 - [ ] Mobile-specific issues
+- [ ] Needs user testing to identify specific symptoms
 
 ---
 
-## Pending Actions
+## High Priority
 
-### Run Feedback Table SQL (Required)
+### Run Feedback Table SQL (Required for feedback widget to work)
 ```sql
 CREATE TABLE IF NOT EXISTS feedback (
     id SERIAL PRIMARY KEY,
@@ -46,35 +56,62 @@ CREATE INDEX idx_feedback_status ON feedback(status);
 CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 ```
 
-### Consider Adding Sentry (Free Tier)
-- 5,000 errors/month
-- 7-day retention
-- Session replay (50/month)
-- Would help diagnose upload and auth issues
+### Feedback Widget Improvements
+**Current state:** Floating button on desktop, purple ? in hamburger on mobile. Bug/Feature/Other categories. Rate limited (3/min). Captures context.
+- [ ] Add image/screenshot attachment support (upload to Cloudinary)
+- [ ] Add 30-second video attachment support
+- [ ] Show users they can attach media (UI hint)
+- [ ] Admin endpoint to view/manage submitted feedback
+- [ ] Superuser role: ability to assign admin privileges to users
+- [ ] Admin dashboard page for reviewing feedback
+- [ ] Email notification to admin on new feedback
+- [ ] Status tracking (user can see if feedback was addressed)
+- [ ] Help/Glossary section: ? button will eventually open a sub-menu with Feedback, Glossary, etc.
+
+### Superuser / Admin System
+- [ ] Add `is_admin` or `role` field to users table
+- [ ] Admin-only API endpoints (feedback review, user management)
+- [ ] Admin UI (protected routes)
 
 ---
 
-## Planned Features
+## Medium Priority
+
+### Monitoring & Observability
+**Recommendation:** Sentry (free tier: 5k errors/month, 50 session replays, 7-day retention)
+- [ ] Integrate Sentry for auto-capturing errors
+- [ ] Session replay to see what users experience
+- Alternatives considered: LogRocket (1k sessions/mo), Datadog (overkill)
+
+### Upload Improvements (Beyond Current Retries)
+- [ ] Monitor Vercel function logs for upload failure patterns
+- [ ] Track which step fails: GPS extraction, Cloudinary upload, or DB record
+- [ ] Compare mobile vs desktop success rates
+- [ ] Show per-image progress during multi-image upload
+- [ ] Allow partial success (if 3/5 images upload, save those 3)
+- [ ] Queue uploads and retry failed ones
+- [ ] Detect connection quality before upload
+- [ ] Compress more aggressively on mobile
 
 ### Notification System Upgrade
-**Current State:**
-- Event comments trigger email notifications
-- New followers trigger notifications
-- New events from followed users trigger notifications
-
-**Missing:**
+**Current:** Event comments, new followers, new events from followed users trigger email notifications
 - [ ] Media reaction notifications (when someone reacts to your photo/video)
 - [ ] Media comment notifications (when someone comments on your photo/video)
 - [ ] Add user preferences: `notify_media_reaction`, `notify_media_comment`
 - [ ] Consider batching/digest for high-volume engagement
 - [ ] Decision needed: individual vs daily digest vs comments-only
 
+---
+
+## Low Priority / Future
+
 ### Staging Environment
-- [ ] Set up staging environment for testing before production
+- [ ] Set up staging branch deploying to separate Vercel URL
+- [ ] Prevent breaking production with untested changes
 
 ### Testing Infrastructure
-- [ ] Add linting
-- [ ] Add functional tests
+- [ ] Add ESLint for code quality
+- [ ] Add basic functional tests (login, create event, upload)
 
 ### Username Change Feature
 - [ ] Allow users to change username
@@ -85,6 +122,7 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 
 ## Completed (January 2026)
 
+- [x] **Feedback ? button in hamburger menu** - purple circle, centered under Profile (Jan 26)
 - [x] **Feedback widget** - floating button for bug reports/feature requests (Jan 24)
 - [x] **Error logging endpoint** - client errors logged to Vercel (Jan 24)
 - [x] **Upload retry logic** - 2-3 retries with exponential backoff (Jan 24)
@@ -112,3 +150,4 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 - Reactions and comments work for both images AND videos
 - All database changes should use Alembic migrations
 - Always run `npm run build` before pushing
+- Single TODO.md for all tracking (no separate backlog files)

@@ -162,15 +162,18 @@ function Header() {
             ) : (
               <Link to="/login" onClick={closeMobileMenu}>Login</Link>
             )}
-            <button
-              className={styles.feedbackButtonMobile}
-              onClick={() => {
-                closeMobileMenu()
-                window.dispatchEvent(new Event('open-feedback'))
-              }}
-            >
-              ? Feedback
-            </button>
+            <div className={styles.feedbackButtonWrapper}>
+              <button
+                className={styles.feedbackButtonMobile}
+                onClick={() => {
+                  closeMobileMenu()
+                  window.dispatchEvent(new Event('open-feedback'))
+                }}
+                aria-label="Send feedback"
+              >
+                <span className={styles.feedbackButtonIcon}>?</span>
+              </button>
+            </div>
           </nav>
         </div>
       )}
