@@ -20,7 +20,7 @@ export default function InvitedViewerBanner() {
         apiService.getMyInviters()
       ])
       setViewerStatus(status)
-      setInviters(invitersData)
+      setInviters(invitersData.inviters || invitersData || [])
     } catch (error) {
       console.error('Failed to load viewer status:', error)
     } finally {
@@ -33,7 +33,8 @@ export default function InvitedViewerBanner() {
     return null
   }
 
-  const inviterNames = inviters.map(inv => inv.username).join(', ')
+  const inviterList = Array.isArray(inviters) ? inviters : []
+  const inviterNames = inviterList.map(inv => inv.username).join(', ')
 
   return (
     <div className={styles.banner}>
@@ -44,9 +45,9 @@ export default function InvitedViewerBanner() {
             You're viewing as an invited guest
           </p>
           <p className={styles.subtitle}>
-            {inviters.length === 1
+            {inviterList.length === 1
               ? `You can only see events from @${inviterNames}`
-              : `You can only see events from ${inviters.length} people who invited you`
+              : `You can only see events from ${inviterList.length} people who invited you`
             }
           </p>
         </div>

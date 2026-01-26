@@ -316,23 +316,33 @@ export function AuthProvider({ children }) {
   }
 
   // Subscription helper values (derived from user object)
-  const subscriptionStatus = user?.subscription_status || 'trial'
-  const subscriptionTier = user?.subscription_tier || 'free'
+  const rawSubscriptionStatus = user?.subscription_status || 'trial'
+  const rawSubscriptionTier = user?.subscription_tier || 'free'
   const subscriptionStartedAt = user?.subscription_started_at ? new Date(user.subscription_started_at) : null
   const subscriptionEndsAt = user?.subscription_ends_at ? new Date(user.subscription_ends_at) : null
   const trialDaysRemaining = user?.trial_days_remaining ?? 30 // Default to 30 if not set
   const isWithinFirst5Days = user?.is_within_first_5_days || false
   // canAccessContent from backend, defaults to true for logged-in users
   const canAccessContent = user?.can_access_content ?? true
+
+  // Frontend safety net: if status is 'canceled' but end date is past, treat as expired
+  // This catches cases where the backend auto-correction hasn't run yet
+  const isSubscriptionEndDatePast = subscriptionEndsAt && subscriptionEndsAt < new Date()
+  const subscriptionStatus = (rawSubscriptionStatus === 'canceled' && isSubscriptionEndDatePast)
+    ? 'expired' : rawSubscriptionStatus
+  const subscriptionTier = (rawSubscriptionStatus === 'canceled' && isSubscriptionEndDatePast)
+    ? 'free' : rawSubscriptionTier
+
   // Trial is active if user has days remaining OR if trial was never started (legacy user)
   const hasTrialDates = user?.trial_end_date != null
   const isTrialActive = subscriptionStatus === 'trial' && (trialDaysRemaining > 0 || !hasTrialDates)
-  // User is paid subscriber if active OR canceled (they still have access until period ends)
+  // User is paid subscriber if active OR canceled with future end date (they still have access until period ends)
   const isPaidSubscriber = ['active', 'canceled'].includes(subscriptionStatus) && ['premium', 'family'].includes(subscriptionTier)
-  // Subscription is set to cancel at end of period
+  // Subscription is set to cancel at end of period (but not yet expired)
   const isSubscriptionCanceled = subscriptionStatus === 'canceled' && ['premium', 'family'].includes(subscriptionTier)
-  // Only expired if they HAD a trial and it's now over
+  // Expired: trial ran out OR subscription ended
   const isTrialExpired = subscriptionStatus === 'trial' && hasTrialDates && trialDaysRemaining <= 0
+  const isExpired = subscriptionStatus === 'expired'
 
   const value = {
     user,
@@ -357,7 +367,8 @@ export function AuthProvider({ children }) {
     isTrialActive,
     isPaidSubscriber,
     isSubscriptionCanceled,
-    isTrialExpired
+    isTrialExpired,
+    isExpired
   }
 
   return (

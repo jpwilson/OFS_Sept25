@@ -53,6 +53,34 @@ def get_current_user_profile(
         Follow.status == "accepted"
     ).count()
 
+    # Auto-correct stale subscription states (Stripe webhook may have failed)
+    from datetime import datetime
+    state_corrected = False
+
+    if current_user.subscription_status == 'canceled':
+        should_expire = False
+        if current_user.subscription_ends_at is None:
+            should_expire = True
+        elif current_user.subscription_ends_at < datetime.utcnow():
+            should_expire = True
+
+        if should_expire:
+            print(f"[AUTO-CORRECT] User {current_user.id} ({current_user.username}): canceled -> expired (end date past or missing)")
+            current_user.subscription_status = 'expired'
+            current_user.subscription_tier = 'free'
+            current_user.stripe_subscription_id = None
+            state_corrected = True
+
+    if current_user.subscription_status == 'trial' and current_user.trial_end_date:
+        if current_user.trial_end_date < datetime.utcnow():
+            print(f"[AUTO-CORRECT] User {current_user.id} ({current_user.username}): trial -> expired (trial ended)")
+            current_user.subscription_status = 'expired'
+            state_corrected = True
+
+    if state_corrected:
+        db.commit()
+        db.refresh(current_user)
+
     return {
         "id": current_user.id,
         "username": current_user.username,

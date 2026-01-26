@@ -23,7 +23,9 @@ export default function Billing() {
     subscriptionEndsAt,
     subscriptionStartedAt,
     isTrialExpired,
-    subscriptionTier
+    isExpired,
+    subscriptionTier,
+    subscriptionStatus
   } = useAuth()
   const navigate = useNavigate()
   const [billingPeriod, setBillingPeriod] = useState('annual')
@@ -291,9 +293,9 @@ export default function Billing() {
             <h2>Current Plan</h2>
             {isPaidSubscriber ? (
               isSubscriptionCanceled ? (
-                <span className={`${styles.badge} ${styles.cancelingBadge}`}>Canceling</span>
+                <span className={`${styles.badge} ${styles.cancelingBadge}`}>Canceled</span>
               ) : (
-                <span className={styles.badge}>Pro</span>
+                <span className={styles.badge}>Active</span>
               )
             ) : isTrialActive ? (
               <span className={`${styles.badge} ${styles.trialBadge}`}>Trial</span>
@@ -307,22 +309,37 @@ export default function Billing() {
               {isSubscriptionCanceled ? (
                 <>
                   <p className={styles.statusText}>
-                    Your subscription is set to end on{' '}
-                    <strong>
-                      {subscriptionEndsAt?.toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </strong>
+                    {subscriptionEndsAt ? (
+                      subscriptionEndsAt < new Date() ? (
+                        <>Your subscription ended on{' '}
+                          <strong>
+                            {subscriptionEndsAt.toLocaleDateString('en-US', {
+                              month: 'long', day: 'numeric', year: 'numeric'
+                            })}
+                          </strong>
+                        </>
+                      ) : subscriptionEndsAt.toDateString() === new Date().toDateString() ? (
+                        <>Your subscription ends <strong>today</strong></>
+                      ) : (
+                        <>Your subscription will end on{' '}
+                          <strong>
+                            {subscriptionEndsAt.toLocaleDateString('en-US', {
+                              month: 'long', day: 'numeric', year: 'numeric'
+                            })}
+                          </strong>
+                        </>
+                      )
+                    ) : (
+                      <>Your subscription has been canceled</>
+                    )}
                   </p>
                   <p className={styles.statusSubtext}>
-                    You'll keep full access until then. Want to stay? You can resubscribe anytime.
+                    You can resubscribe anytime to regain full access.
                   </p>
                 </>
               ) : (
                 <p className={styles.statusText}>
-                  You're on the <strong>{subscriptionTier}</strong> plan. Thank you for your support!
+                  You're on the <strong>Pro</strong> plan. Thank you for your support!
                 </p>
               )}
               <button
@@ -354,8 +371,8 @@ export default function Billing() {
           )}
         </div>
 
-        {/* Payment History Section (show if paid) */}
-        {isPaidSubscriber && (
+        {/* Payment History Section (show if paid or expired) */}
+        {(isPaidSubscriber || isExpired) && (
           <>
             {/* Plan Details */}
             <div className={styles.planDetailsCard}>
@@ -364,7 +381,8 @@ export default function Billing() {
                 <div className={styles.planDetailRow}>
                   <span className={styles.planDetailLabel}>Plan</span>
                   <span className={styles.planDetailValue}>
-                    {subscriptionTier === 'premium' ? 'Pro' : subscriptionTier}
+                    {isExpired ? 'Free (view-only)' :
+                     subscriptionTier === 'premium' ? 'Pro' : subscriptionTier}
                   </span>
                 </div>
                 {subscriptionStartedAt && (

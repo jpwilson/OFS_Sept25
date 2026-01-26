@@ -139,9 +139,14 @@ class User(Base):
         """Check if user can view a specific event's detail page.
 
         Expired trial users can only view:
-        1. Public events (privacy_level == 'public')
-        2. Events from people they follow
+        1. Their own events
+        2. Public events (privacy_level == 'public')
+        3. Events from people they follow
         """
+        # Authors can ALWAYS view their own events
+        if event.author_id == self.id:
+            return True
+
         # Full access users can view anything
         if self.can_access_content():
             return True
