@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta
 import secrets
 from ..core.database import get_db
@@ -212,8 +212,11 @@ def view_shared_event(
     This endpoint is accessible without authentication but can accept auth
     to provide personalized messages
     """
-    # Find event by share token
-    event = db.query(Event).filter(
+    # Find event by share token (eager load locations and images for full event data)
+    event = db.query(Event).options(
+        joinedload(Event.locations),
+        joinedload(Event.images)
+    ).filter(
         Event.share_token == token,
         Event.share_enabled == True,
         Event.is_published == True,

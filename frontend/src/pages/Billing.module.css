@@ -5,7 +5,7 @@
 }
 
 .content {
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
@@ -156,19 +156,33 @@
   font-size: 11px;
 }
 
+/* Pricing row for side-by-side cards on desktop */
+.pricingRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .pricingRow {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 .priceCard {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 16px;
+  padding: 24px 20px;
   text-align: center;
-  margin-bottom: 40px;
 }
 
 .priceHeader h3 {
   color: white;
-  font-size: 22px;
-  margin: 0 0 20px 0;
+  font-size: 18px;
+  margin: 0 0 12px 0;
 }
 
 .priceAmount {
@@ -181,40 +195,40 @@
 
 .currency {
   color: #667eea;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .price {
   color: white;
-  font-size: 56px;
+  font-size: 40px;
   font-weight: 700;
   line-height: 1;
 }
 
 .period {
   color: #888;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .monthlyBreakdown {
   color: #888;
-  font-size: 14px;
-  margin: 0 0 24px 0;
+  font-size: 13px;
+  margin: 0 0 16px 0;
 }
 
 .features {
   list-style: none;
   padding: 0;
-  margin: 0 0 28px 0;
+  margin: 0 0 20px 0;
   text-align: left;
 }
 
 .features li {
   color: #ccc;
-  font-size: 14px;
-  padding: 10px 0;
-  padding-left: 28px;
+  font-size: 13px;
+  padding: 6px 0;
+  padding-left: 24px;
   position: relative;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -229,6 +243,7 @@
   left: 0;
   color: #667eea;
   font-weight: bold;
+  font-size: 13px;
 }
 
 .couponSection {
@@ -261,16 +276,16 @@
 
 .subscribeButton {
   width: 100%;
-  padding: 16px 24px;
+  padding: 14px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 17px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .subscribeButton:hover:not(:disabled) {
@@ -292,8 +307,9 @@
 .troubleshootNote {
   color: #888;
   font-size: 12px;
-  margin: 12px 0 0 0;
+  margin: 0 0 24px 0;
   font-style: italic;
+  text-align: center;
 }
 
 .primaryButton {
@@ -428,23 +444,22 @@
 .lifetimeCard {
   background: linear-gradient(135deg, rgba(246, 173, 85, 0.1) 0%, rgba(237, 137, 54, 0.1) 100%);
   border: 1px solid rgba(246, 173, 85, 0.3);
-  border-radius: 20px;
-  padding: 28px;
+  border-radius: 16px;
+  padding: 24px 20px;
   text-align: center;
-  margin-bottom: 40px;
 }
 
 .lifetimeHeader {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .lifetimeHeader h3 {
   color: white;
-  font-size: 20px;
+  font-size: 18px;
   margin: 0;
 }
 
@@ -460,18 +475,18 @@
 
 .lifetimeDescription {
   color: #aaa;
-  font-size: 14px;
-  margin: 16px 0;
+  font-size: 13px;
+  margin: 8px 0 16px 0;
 }
 
 .lifetimeButton {
   width: 100%;
-  padding: 14px 24px;
+  padding: 14px 20px;
   background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;

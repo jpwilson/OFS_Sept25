@@ -1363,3 +1363,48 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
+
+/* Bottom CTA for shared event view */
+.shareBottomCta {
+  text-align: center;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-top: 1px solid var(--border-color);
+}
+
+.shareBottomLogo {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-bottom: 12px;
+  color: #667eea;
+  transition: opacity 0.2s;
+}
+
+.shareBottomLogo:hover {
+  opacity: 0.8;
+}
+
+.shareBottomText {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 20px 0;
+}
+
+.shareBottomButton {
+  display: inline-block;
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.shareBottomButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}

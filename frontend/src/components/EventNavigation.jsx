@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import styles from './EventNavigation.module.css'
 
-function EventNavigation({ sections, activeSection, imageCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onMapClick, hideInlineImages, onToggleInlineImages }) {
+function EventNavigation({ sections, activeSection, imageCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onMapClick, hideInlineImages, onToggleInlineImages, isShareMode }) {
   const [expanded, setExpanded] = useState(() => {
     // Collapse all sections by default
     const initialState = {}
@@ -48,6 +48,11 @@ function EventNavigation({ sections, activeSection, imageCount, locationCount, i
         <div className={styles.overlay} onClick={onToggle} />
       )}
       <nav className={`${styles.navigation} ${isMobile ? styles.mobile : ''} ${isMobile && isOpen ? styles.open : ''}`}>
+      {isShareMode && (
+        <a href="https://ourfamilysocials.com" className={styles.homeLogo}>
+          Our Family Socials
+        </a>
+      )}
       <div className={styles.header}>
         <h3 className={styles.title}>Contents</h3>
       </div>

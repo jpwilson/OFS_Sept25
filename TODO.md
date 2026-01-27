@@ -25,6 +25,14 @@
 - [ ] Check if `getAuthHeaders()` token refresh silently fails
 - [ ] Improve logout error handling (catch errors, clear state regardless)
 
+### Stripe Checkout 500 Error (Intermittent)
+**Symptoms:** `POST /api/v1/stripe/create-checkout-session` returns 500 Internal Server Error intermittently. Works on retry (e.g., 3rd click). Observed in production.
+- [ ] Add error logging to `create-checkout-session` endpoint to capture root cause
+- [ ] Check if Stripe API key or session creation is timing out
+- [ ] Check if auth token refresh race condition causes intermittent failures
+- [ ] Add retry logic on frontend for checkout session creation
+- [ ] Monitor Vercel function logs for patterns
+
 ### Event Creation Issues
 - [ ] Image upload failures (now has retry logic + better error messages)
 - [ ] Form submission errors

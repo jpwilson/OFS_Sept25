@@ -21,6 +21,7 @@ function ShareEventModal({ isOpen, onClose, event, isManageMode = false }) {
   const [copied, setCopied] = useState(false)
   const [extendDays, setExtendDays] = useState(3)
   const [extending, setExtending] = useState(false)
+  const [checkingLink, setCheckingLink] = useState(false)
 
   // Email form state
   const [recipientEmail, setRecipientEmail] = useState('')
@@ -38,13 +39,19 @@ function ShareEventModal({ isOpen, onClose, event, isManageMode = false }) {
   }, [isOpen, event])
 
   async function loadExistingShareLink() {
+    setCheckingLink(true)
     try {
       const link = await apiService.getShareLink(event.id)
       if (link) {
         setShareLink(link)
       }
     } catch (error) {
-      console.error('Failed to load share link:', error)
+      // 404 means no active link - this is normal
+      if (!error.message?.includes('404')) {
+        console.error('Failed to load share link:', error)
+      }
+    } finally {
+      setCheckingLink(false)
     }
   }
 
@@ -196,15 +203,13 @@ function ShareEventModal({ isOpen, onClose, event, isManageMode = false }) {
           {activeTab === 'link' ? (
             // Link Tab Content
             <>
-              <p className={styles.description}>
-                {isManageMode
-                  ? 'Manage the temporary public link for this event. Anyone with the link can view it, even if they\'re not signed in.'
-                  : 'Create a temporary public link to share this event. Anyone with the link can view it, even if they\'re not signed in.'
-                }
-              </p>
-
-              {shareLink && !isExpired(shareLink.expires_at) ? (
+              {checkingLink ? (
+                <p className={styles.description}>Checking for existing share link...</p>
+              ) : shareLink && !isExpired(shareLink.expires_at) ? (
                 <div className={styles.activeLinkSection}>
+                  <div className={styles.activeLinkBanner}>
+                    This event has an active share link
+                  </div>
                   <div className={styles.linkBox}>
                     <input
                       type="text"
@@ -282,6 +287,9 @@ function ShareEventModal({ isOpen, onClose, event, isManageMode = false }) {
                 </div>
               ) : (
                 <div className={styles.createLinkSection}>
+                  <p className={styles.description}>
+                    Create a temporary public link to share this event. Anyone with the link can view it, even if they're not signed in.
+                  </p>
                   <label className={styles.label}>Link expires in:</label>
                   <div className={styles.daysSelector}>
                     {[1, 2, 3, 4, 5].map(days => (

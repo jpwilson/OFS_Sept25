@@ -321,9 +321,12 @@ function EventDetail({ isShareMode = false }) {
         loadLikes(eventId)
       }
     } else if (event && isShareMode) {
-      // In share mode, build locations from event data directly
+      // In share mode, use locations from the API response (same as regular mode)
+      const eventLocations = event.locations || []
+
+      // Add primary event location at the beginning (same as loadLocations does)
       if (event.latitude && event.longitude) {
-        setLocations([{
+        const primaryLocation = {
           id: 'primary',
           event_id: event.id,
           location_name: event.location_name || 'Event Location',
@@ -334,7 +337,10 @@ function EventDetail({ isShareMode = false }) {
           timestamp: event.start_date,
           section_id: null,
           section_title: 'Event Start'
-        }])
+        }
+        setLocations([primaryLocation, ...eventLocations])
+      } else {
+        setLocations(eventLocations)
       }
     }
   }, [event, isShareMode])
@@ -1242,6 +1248,7 @@ function EventDetail({ isShareMode = false }) {
             onMapClick={handleMapClick}
             hideInlineImages={hideInlineImages}
             onToggleInlineImages={() => setHideInlineImages(!hideInlineImages)}
+            isShareMode={isShareMode && !user}
           />
         )}
 
@@ -1498,6 +1505,21 @@ function EventDetail({ isShareMode = false }) {
       </div>
         </div>
       </div>
+
+      {/* Bottom CTA for shared event view */}
+      {isShareMode && !user && (
+        <div className={styles.shareBottomCta}>
+          <a href="https://ourfamilysocials.com" className={styles.shareBottomLogo}>
+            Our Family Socials
+          </a>
+          <p className={styles.shareBottomText}>
+            Create and share your own family memories
+          </p>
+          <Link to="/login?signup=true" className={styles.shareBottomButton}>
+            Sign Up Free
+          </Link>
+        </div>
+      )}
 
       {/* Login Prompt Modal */}
       <LoginPromptModal

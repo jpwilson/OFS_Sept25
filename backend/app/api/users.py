@@ -952,13 +952,17 @@ def mute_user(
         return {"message": "User already muted", "muted": True}
 
     # Create mute
-    mute = UserMute(
-        muter_id=current_user.id,
-        muted_user_id=user_to_mute.id
-    )
-
-    db.add(mute)
-    db.commit()
+    try:
+        mute = UserMute(
+            muter_id=current_user.id,
+            muted_user_id=user_to_mute.id
+        )
+        db.add(mute)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[MUTE ERROR] Failed to mute user {user_id} for user {current_user.id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to mute user: {str(e)}")
 
     return {"message": f"Muted {user_to_mute.username}", "muted": True}
 

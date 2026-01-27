@@ -70,6 +70,17 @@
   margin-bottom: 24px;
 }
 
+.activeLinkBanner {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, rgba(56, 161, 105, 0.15) 100%);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+  color: #68d391;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
 .activeLinkSection {
   display: flex;
   flex-direction: column;

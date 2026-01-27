@@ -536,68 +536,79 @@ export default function Billing() {
               </button>
             </div>
 
-            {/* Price Card */}
-            <div className={styles.priceCard}>
-              <div className={styles.priceHeader}>
-                <h3>Our Family Socials Pro</h3>
+            {/* Price Cards Row */}
+            <div className={styles.pricingRow}>
+              {/* Subscription Card */}
+              <div className={styles.priceCard}>
+                <div className={styles.priceHeader}>
+                  <h3>Pro</h3>
+                </div>
+                <div className={styles.priceAmount}>
+                  <span className={styles.currency}>$</span>
+                  <span className={styles.price}>{billingPeriod === 'annual' ? '108' : '12'}</span>
+                  <span className={styles.period}>/{billingPeriod === 'annual' ? 'year' : 'month'}</span>
+                </div>
+                {billingPeriod === 'annual' && (
+                  <p className={styles.monthlyBreakdown}>That's only $9/month</p>
+                )}
+
+                <ul className={styles.features}>
+                  <li>Unlimited family events</li>
+                  <li>Photo and video uploads</li>
+                  <li>Journey mapping</li>
+                  <li>Share events with anyone</li>
+                  <li>Timeline and map views</li>
+                  <li>GPS extraction from photos</li>
+                  <li>Privacy controls</li>
+                </ul>
+
+                <button
+                  className={styles.subscribeButton}
+                  onClick={() => handleSubscribe()}
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : 'Subscribe Now'}
+                </button>
+
+                <p className={styles.guarantee}>
+                  30-day money-back guarantee. Cancel anytime.
+                </p>
               </div>
-              <div className={styles.priceAmount}>
-                <span className={styles.currency}>$</span>
-                <span className={styles.price}>{billingPeriod === 'annual' ? '108' : '12'}</span>
-                <span className={styles.period}>/{billingPeriod === 'annual' ? 'year' : 'month'}</span>
+
+              {/* Lifetime Card */}
+              <div className={styles.lifetimeCard}>
+                <div className={styles.lifetimeHeader}>
+                  <h3>Lifetime</h3>
+                  <span className={styles.lifetimeBadge}>Best Value</span>
+                </div>
+                <div className={styles.priceAmount}>
+                  <span className={styles.currency}>$</span>
+                  <span className={styles.price}>294</span>
+                  <span className={styles.period}>one-time</span>
+                </div>
+                <p className={styles.lifetimeDescription}>
+                  Pay once, use forever. No recurring fees, no renewals.
+                </p>
+
+                <ul className={styles.features}>
+                  <li>Everything in Pro</li>
+                  <li>Never pay again</li>
+                  <li>All future updates</li>
+                </ul>
+
+                <button
+                  className={styles.lifetimeButton}
+                  onClick={() => handleSubscribe('lifetime')}
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : 'Get Lifetime Access'}
+                </button>
               </div>
-              {billingPeriod === 'annual' && (
-                <p className={styles.monthlyBreakdown}>That's only $9/month</p>
-              )}
-
-              <ul className={styles.features}>
-                <li>Unlimited family events</li>
-                <li>Photo and video uploads</li>
-                <li>Journey mapping with multiple locations</li>
-                <li>Share events with anyone</li>
-                <li>Timeline and map views</li>
-                <li>GPS extraction from photos</li>
-                <li>Privacy controls</li>
-              </ul>
-
-              <button
-                className={styles.subscribeButton}
-                onClick={() => handleSubscribe()}
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : 'Subscribe Now'}
-              </button>
-
-              <p className={styles.guarantee}>
-                30-day money-back guarantee. Cancel anytime.
-              </p>
-              <p className={styles.troubleshootNote}>
-                Having trouble with checkout? Try disabling ad blockers or use incognito mode.
-              </p>
             </div>
 
-            {/* Lifetime Option */}
-            <div className={styles.lifetimeCard}>
-              <div className={styles.lifetimeHeader}>
-                <h3>Lifetime Access</h3>
-                <span className={styles.lifetimeBadge}>Best Value</span>
-              </div>
-              <div className={styles.priceAmount}>
-                <span className={styles.currency}>$</span>
-                <span className={styles.price}>294</span>
-                <span className={styles.period}>one-time</span>
-              </div>
-              <p className={styles.lifetimeDescription}>
-                Pay once, use forever. No recurring fees, no renewals.
-              </p>
-              <button
-                className={styles.lifetimeButton}
-                onClick={() => handleSubscribe('lifetime')}
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : 'Get Lifetime Access'}
-              </button>
-            </div>
+            <p className={styles.troubleshootNote}>
+              Having trouble with checkout? Try disabling ad blockers or use incognito mode.
+            </p>
           </div>
         )}
 

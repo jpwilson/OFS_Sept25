@@ -13,6 +13,9 @@ export default function ShareSignUpBanner({ shareContext, onClose }) {
             Sign up free to follow @{authorUsername} and see all their events
           </p>
         </div>
+        <a href="https://ourfamilysocials.com" className={styles.logoLink}>
+          Our Family Socials
+        </a>
         <div className={styles.bannerActions}>
           <Link to="/login?signup=true" className={styles.signUpButton}>
             Sign Up Free

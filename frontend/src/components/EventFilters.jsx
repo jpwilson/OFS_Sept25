@@ -172,7 +172,7 @@ export default function EventFilters({
       }
     } catch (error) {
       console.error('Error muting user:', error)
-      showToast('Failed to mute user', 'error')
+      showToast(error.message || 'Failed to mute user', 'error')
     }
   }
 
@@ -185,7 +185,7 @@ export default function EventFilters({
       }
     } catch (error) {
       console.error('Error unmuting user:', error)
-      showToast('Failed to unmute user', 'error')
+      showToast(error.message || 'Failed to unmute user', 'error')
     }
   }
 

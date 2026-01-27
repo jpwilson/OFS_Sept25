@@ -2435,7 +2435,10 @@ class ApiService {
         method: 'POST',
         headers: await this.getAuthHeaders()
       })
-      if (!response.ok) throw new Error('Failed to mute user')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Failed to mute user (${response.status})`)
+      }
       return await response.json()
     } catch (error) {
       console.error('Error muting user:', error)
@@ -2449,7 +2452,10 @@ class ApiService {
         method: 'DELETE',
         headers: await this.getAuthHeaders()
       })
-      if (!response.ok) throw new Error('Failed to unmute user')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Failed to unmute user (${response.status})`)
+      }
       return await response.json()
     } catch (error) {
       console.error('Error unmuting user:', error)
