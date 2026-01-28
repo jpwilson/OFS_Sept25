@@ -344,6 +344,9 @@ export function AuthProvider({ children }) {
   const isTrialExpired = subscriptionStatus === 'trial' && hasTrialDates && trialDaysRemaining <= 0
   const isExpired = subscriptionStatus === 'expired'
 
+  // Superuser access
+  const isSuperuser = user?.is_superuser || false
+
   const value = {
     user,
     session,
@@ -368,7 +371,8 @@ export function AuthProvider({ children }) {
     isPaidSubscriber,
     isSubscriptionCanceled,
     isTrialExpired,
-    isExpired
+    isExpired,
+    isSuperuser
   }
 
   return (

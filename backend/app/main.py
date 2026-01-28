@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from .core.config import settings
 from .core.database import engine, Base
-from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback
+from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin
 
 # Tables are managed by migrations, not created on startup
 # Base.metadata.create_all(bind=engine)  # Removed to avoid connection exhaustion in serverless
@@ -48,6 +48,7 @@ app.include_router(event_tags.tag_requests_router, prefix=settings.API_V1_STR, t
 app.include_router(event_tags.search_router, prefix=settings.API_V1_STR, tags=["tag-search"])
 app.include_router(relationships.router, prefix=settings.API_V1_STR, tags=["relationships"])
 app.include_router(feedback.router, prefix=settings.API_V1_STR, tags=["feedback"])
+app.include_router(admin.router, prefix=settings.API_V1_STR, tags=["admin"])
 
 # Mount static files for serving uploaded images (only if directory exists)
 # In production (Vercel), files will be served from Supabase Storage instead

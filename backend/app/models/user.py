@@ -19,6 +19,7 @@ class User(Base):
     bio = Column(String, nullable=True)
     subscription_tier = Column(String, default='free')  # 'free', 'premium', 'family'
     is_active = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=False)  # Admin access
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

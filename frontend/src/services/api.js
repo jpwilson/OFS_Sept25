@@ -2503,6 +2503,80 @@ class ApiService {
       // Silently fail
     }
   }
+
+  // ========================================
+  // ADMIN ENDPOINTS (Superuser only)
+  // ========================================
+
+  async getAdminStats() {
+    const response = await fetch(`${API_BASE}/admin/stats`, {
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch admin stats')
+    return await response.json()
+  }
+
+  async getAdminUsers(search = '', skip = 0, limit = 50) {
+    const params = new URLSearchParams({ skip, limit })
+    if (search) params.append('search', search)
+    const response = await fetch(`${API_BASE}/admin/users?${params}`, {
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch admin users')
+    return await response.json()
+  }
+
+  async toggleSuperuser(userId, isSuperuser) {
+    const response = await fetch(`${API_BASE}/admin/users/${userId}/superuser`, {
+      method: 'PATCH',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify({ is_superuser: isSuperuser })
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to toggle superuser')
+    }
+    return await response.json()
+  }
+
+  async getAdminEvents(search = '', includeDeleted = false, skip = 0, limit = 50) {
+    const params = new URLSearchParams({ skip, limit, include_deleted: includeDeleted })
+    if (search) params.append('search', search)
+    const response = await fetch(`${API_BASE}/admin/events?${params}`, {
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch admin events')
+    return await response.json()
+  }
+
+  async toggleEventVisibility(eventId) {
+    const response = await fetch(`${API_BASE}/admin/events/${eventId}/visibility`, {
+      method: 'PATCH',
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to toggle event visibility')
+    return await response.json()
+  }
+
+  async getAdminFeedback(statusFilter = '', skip = 0, limit = 50) {
+    const params = new URLSearchParams({ skip, limit })
+    if (statusFilter) params.append('status_filter', statusFilter)
+    const response = await fetch(`${API_BASE}/admin/feedback?${params}`, {
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch admin feedback')
+    return await response.json()
+  }
+
+  async updateAdminFeedback(feedbackId, data) {
+    const response = await fetch(`${API_BASE}/admin/feedback/${feedbackId}`, {
+      method: 'PATCH',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify(data)
+    })
+    if (!response.ok) throw new Error('Failed to update feedback')
+    return await response.json()
+  }
 }
 
 export default new ApiService()

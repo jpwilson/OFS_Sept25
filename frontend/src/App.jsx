@@ -30,6 +30,20 @@ import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
 import Layout from './components/Layout'
+// Admin pages
+import AdminDashboard from './pages/AdminDashboard'
+import AdminUsers from './pages/AdminUsers'
+import AdminEvents from './pages/AdminEvents'
+import AdminFeedback from './pages/AdminFeedback'
+// Landing page variations (superuser only)
+import LandingV1 from './pages/LandingV1'
+import LandingV2 from './pages/LandingV2'
+import LandingV3 from './pages/LandingV3'
+import LandingV4 from './pages/LandingV4'
+import LandingV5 from './pages/LandingV5'
+import LandingV6 from './pages/LandingV6'
+import LandingV7 from './pages/LandingV7'
+import LandingV8 from './pages/LandingV8'
 
 // Redirect from old /signup?invite=TOKEN format to new /join/TOKEN format
 function SignupInviteRedirect() {
@@ -47,6 +61,14 @@ function SignupInviteRedirect() {
 function RootRedirect() {
   const { user } = useAuth()
   return user ? <Navigate to="/feed" replace /> : <Landing />
+}
+
+// Guard for superuser-only routes
+function SuperuserRoute({ children }) {
+  const { user, isSuperuser, loading } = useAuth()
+  if (loading) return null
+  if (!user || !isSuperuser) return <Navigate to="/feed" replace />
+  return children
 }
 
 function App() {
@@ -89,6 +111,20 @@ function App() {
               <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
               <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />
               <Route path="/groups" element={<Groups />} />
+              {/* Admin routes - superuser only */}
+              <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
+              <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
+              <Route path="/admin/events" element={<SuperuserRoute><AdminEvents /></SuperuserRoute>} />
+              <Route path="/admin/feedback" element={<SuperuserRoute><AdminFeedback /></SuperuserRoute>} />
+              {/* Landing page variations - superuser only */}
+              <Route path="/admin/landing-1" element={<SuperuserRoute><LandingV1 /></SuperuserRoute>} />
+              <Route path="/admin/landing-2" element={<SuperuserRoute><LandingV2 /></SuperuserRoute>} />
+              <Route path="/admin/landing-3" element={<SuperuserRoute><LandingV3 /></SuperuserRoute>} />
+              <Route path="/admin/landing-4" element={<SuperuserRoute><LandingV4 /></SuperuserRoute>} />
+              <Route path="/admin/landing-5" element={<SuperuserRoute><LandingV5 /></SuperuserRoute>} />
+              <Route path="/admin/landing-6" element={<SuperuserRoute><LandingV6 /></SuperuserRoute>} />
+              <Route path="/admin/landing-7" element={<SuperuserRoute><LandingV7 /></SuperuserRoute>} />
+              <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
             </Route>
           </Routes>
         </ConfirmProvider>

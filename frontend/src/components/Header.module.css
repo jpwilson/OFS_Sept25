@@ -76,6 +76,22 @@
   box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
+.adminLink {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: white !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s !important;
+}
+
+.adminLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
 /* Mobile menu overlay */
 .mobileMenuOverlay {
   display: none;

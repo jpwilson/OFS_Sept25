@@ -1,0 +1,502 @@
+/* LandingV4: Apple Minimal - Ultra-clean whitespace, large typography */
+
+.container {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Reveal Animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Minimal Nav */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 15, 20, 0.6);
+  backdrop-filter: blur(30px);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.navLinks a {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.navLinks a:hover {
+  color: var(--text-primary);
+}
+
+.navCta {
+  color: #667eea !important;
+  font-weight: 600;
+}
+
+/* Hero - Ultra minimal */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 48px;
+}
+
+.heroTitle {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -3px;
+  text-align: center;
+  max-width: 900px;
+}
+
+.accent {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Feature Sections */
+.feature {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 48px;
+  gap: 80px;
+}
+
+.featureContent {
+  text-align: center;
+  max-width: 800px;
+}
+
+.featureLabel {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #667eea;
+  margin-bottom: 20px;
+}
+
+.featureTitle {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -2px;
+}
+
+/* Visual Frames */
+.featureVisual {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: center;
+}
+
+.phoneFrame {
+  width: 280px;
+  background: var(--bg-secondary);
+  border-radius: 36px;
+  padding: 12px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.phoneFrame img {
+  width: 100%;
+  aspect-ratio: 9/16;
+  object-fit: cover;
+  border-radius: 28px;
+}
+
+.browserFrame {
+  width: 100%;
+  max-width: 700px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.browserHeader {
+  display: flex;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+}
+
+.browserHeader span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+
+.browserFrame img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.mapFrame {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.mapFrame img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+.mapPins {
+  position: absolute;
+  inset: 0;
+}
+
+.mapPins span {
+  position: absolute;
+  font-size: 28px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.mapPins span:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.mapPins span:nth-child(3) {
+  animation-delay: 1s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Privacy Section */
+.privacy {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 48px;
+  text-align: center;
+  background: var(--bg-secondary);
+}
+
+.privacyTitle {
+  font-size: 60px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+.privacyText {
+  font-size: 24px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Pricing */
+.pricing {
+  padding: 150px 48px;
+  text-align: center;
+}
+
+.pricingTitle {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  margin-bottom: 80px;
+}
+
+.pricingCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pricingCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: left;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricingCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2);
+}
+
+.pricingCard.featured {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.pricingCard h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.priceTag {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  margin-bottom: 8px;
+}
+
+.priceTag span {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.priceDesc {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 32px;
+}
+
+.pricingCard ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 32px;
+}
+
+.pricingCard li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pricingCard li:last-child {
+  border-bottom: none;
+}
+
+.pricingBtn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-primary);
+  transition: all 0.3s;
+}
+
+.pricingBtn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.pricingBtnPrimary {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  transition: all 0.3s;
+}
+
+.pricingBtnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+}
+
+/* Final CTA */
+.cta {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 48px;
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin-bottom: 40px;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 20px 48px;
+  font-size: 17px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.ctaButton:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.5);
+}
+
+.ctaNote {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-top: 20px;
+}
+
+/* Footer */
+.footer {
+  padding: 40px 48px;
+  border-top: 1px solid var(--border-color);
+}
+
+.footerContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footerContent span {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.footerLinks {
+  display: flex;
+  gap: 32px;
+}
+
+.footerLinks a {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  transition: color 0.2s;
+}
+
+.footerLinks a:hover {
+  color: var(--text-primary);
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+  .heroTitle {
+    font-size: 52px;
+  }
+
+  .featureTitle {
+    font-size: 40px;
+  }
+
+  .privacyTitle {
+    font-size: 44px;
+  }
+
+  .pricingTitle {
+    font-size: 40px;
+  }
+
+  .pricingCards {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+
+  .ctaTitle {
+    font-size: 44px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 16px 24px;
+  }
+
+  .hero,
+  .feature,
+  .privacy,
+  .pricing,
+  .cta {
+    padding: 80px 24px;
+  }
+
+  .heroTitle {
+    font-size: 40px;
+    letter-spacing: -1.5px;
+  }
+
+  .featureTitle {
+    font-size: 32px;
+  }
+
+  .privacyTitle {
+    font-size: 36px;
+  }
+
+  .privacyText {
+    font-size: 18px;
+  }
+
+  .priceTag {
+    font-size: 40px;
+  }
+
+  .ctaTitle {
+    font-size: 36px;
+  }
+
+  .footerContent {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+}

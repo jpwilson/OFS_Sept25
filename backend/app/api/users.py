@@ -102,7 +102,8 @@ def get_current_user_profile(
         "event_count": event_count,
         "follower_count": follower_count,
         "following_count": following_count,
-        "created_at": current_user.created_at.isoformat() if current_user.created_at else None
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
+        "is_superuser": getattr(current_user, 'is_superuser', False) or False
     }
 
 @router.get("/search/users")

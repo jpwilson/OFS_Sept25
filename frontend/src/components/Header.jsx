@@ -7,7 +7,7 @@ import QuickAddModal from './QuickAddModal'
 import styles from './Header.module.css'
 
 function Header() {
-  const { user, logout } = useAuth()
+  const { user, logout, isSuperuser } = useAuth()
   const navigate = useNavigate()
   const [notificationCounts, setNotificationCounts] = useState({
     total: 0,
@@ -109,6 +109,7 @@ function Header() {
         <Link to="/groups">Sharing</Link>
         {user && <Link to="/family-tree">Family</Link>}
         <Link to="/create">Create</Link>
+        {isSuperuser && <Link to="/admin" className={styles.adminLink}>Admin</Link>}
         {user ? (
           <span className={styles.profileLink}>
             <Link to={`/profile/${user.username}`}>Profile</Link>
@@ -145,6 +146,7 @@ function Header() {
             <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
             {user && <Link to="/family-tree" onClick={closeMobileMenu}>Family</Link>}
             <Link to="/create" onClick={closeMobileMenu}>Create</Link>
+            {isSuperuser && <Link to="/admin" onClick={closeMobileMenu} className={styles.adminLink}>Admin</Link>}
             {user ? (
               <span className={styles.profileLink}>
                 <Link to={`/profile/${user.username}`} onClick={closeMobileMenu}>
