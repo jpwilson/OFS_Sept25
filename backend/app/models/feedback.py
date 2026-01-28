@@ -23,8 +23,12 @@ class Feedback(Base):
     attachment_url = Column(String(500), nullable=True)
 
     # Status tracking
-    status = Column(String(50), default="new")  # new, reviewed, resolved
-    admin_notes = Column(Text, nullable=True)
+    status = Column(String(50), default="new")  # new, in_progress, resolved, closed
+    admin_notes = Column(Text, nullable=True)  # Internal notes (not visible to user)
+
+    # Admin reply (visible to user)
+    admin_reply = Column(Text, nullable=True)
+    admin_reply_at = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

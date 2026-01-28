@@ -2504,6 +2504,19 @@ class ApiService {
     }
   }
 
+  async getMyFeedback() {
+    try {
+      const response = await fetch(`${API_BASE}/feedback/my-feedback`, {
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to fetch my feedback')
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching my feedback:', error)
+      return { feedback: [] }
+    }
+  }
+
   // ========================================
   // ADMIN ENDPOINTS (Superuser only)
   // ========================================

@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import apiService from '../services/api'
 import styles from './FeedbackWidget.module.css'
+
+const MAX_VIDEO_DURATION = 20 // seconds
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 function FeedbackWidget() {
   const [isOpen, setIsOpen] = useState(false)
@@ -10,6 +13,9 @@ function FeedbackWidget() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768)
+  const [attachment, setAttachment] = useState(null) // { file, preview, type }
+  const [uploadingAttachment, setUploadingAttachment] = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
@@ -24,6 +30,104 @@ function FeedbackWidget() {
     return () => window.removeEventListener('open-feedback', handleOpenFeedback)
   }, [])
 
+  // Clean up preview URL when attachment changes
+  useEffect(() => {
+    return () => {
+      if (attachment?.preview) {
+        URL.revokeObjectURL(attachment.preview)
+      }
+    }
+  }, [attachment])
+
+  const checkVideoDuration = (file) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.preload = 'metadata'
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src)
+        if (video.duration > MAX_VIDEO_DURATION) {
+          reject(new Error(`Video must be ${MAX_VIDEO_DURATION} seconds or less (yours is ${Math.round(video.duration)}s)`))
+        } else {
+          resolve(video.duration)
+        }
+      }
+      video.onerror = () => reject(new Error('Could not load video'))
+      video.src = URL.createObjectURL(file)
+    })
+  }
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setError('')
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      return
+    }
+
+    const isVideo = file.type.startsWith('video/')
+    const isImage = file.type.startsWith('image/')
+
+    if (!isVideo && !isImage) {
+      setError('Please select an image or video file')
+      return
+    }
+
+    // Check video duration
+    if (isVideo) {
+      try {
+        await checkVideoDuration(file)
+      } catch (err) {
+        setError(err.message)
+        return
+      }
+    }
+
+    setAttachment({
+      file,
+      preview: URL.createObjectURL(file),
+      type: isVideo ? 'video' : 'image'
+    })
+  }
+
+  const removeAttachment = () => {
+    if (attachment?.preview) {
+      URL.revokeObjectURL(attachment.preview)
+    }
+    setAttachment(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const uploadAttachment = async (file) => {
+    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
+    const isVideo = file.type.startsWith('video/')
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', isVideo ? CLOUDINARY_CONFIG.videoUploadPreset : CLOUDINARY_CONFIG.imageUploadPreset)
+    formData.append('folder', isVideo ? 'ofs/feedback-videos' : 'ofs/feedback-images')
+
+    const resourceType = isVideo ? 'video' : 'image'
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${resourceType}/upload`
+
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to upload attachment')
+    }
+
+    const result = await response.json()
+    return result.secure_url
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -36,16 +140,34 @@ function FeedbackWidget() {
     setIsSubmitting(true)
 
     try {
+      let attachmentUrl = null
+
+      // Upload attachment if present
+      if (attachment?.file) {
+        setUploadingAttachment(true)
+        try {
+          attachmentUrl = await uploadAttachment(attachment.file)
+        } catch (uploadErr) {
+          setError('Failed to upload attachment. Please try again.')
+          setIsSubmitting(false)
+          setUploadingAttachment(false)
+          return
+        }
+        setUploadingAttachment(false)
+      }
+
       await apiService.submitFeedback({
         feedback_type: feedbackType,
         message: message.trim(),
         page_url: window.location.href,
         screen_size: `${window.innerWidth}x${window.innerHeight}`,
-        is_mobile: isMobile
+        is_mobile: isMobile,
+        attachment_url: attachmentUrl
       })
 
       setSubmitted(true)
       setMessage('')
+      removeAttachment()
 
       // Reset after showing success
       setTimeout(() => {
@@ -56,6 +178,7 @@ function FeedbackWidget() {
       setError(err.message || 'Failed to submit feedback. Please try again.')
     } finally {
       setIsSubmitting(false)
+      setUploadingAttachment(false)
     }
   }
 
@@ -134,6 +257,39 @@ function FeedbackWidget() {
                   maxLength={5000}
                 />
 
+                {/* Attachment section */}
+                <div className={styles.attachmentSection}>
+                  {attachment ? (
+                    <div className={styles.attachmentPreview}>
+                      {attachment.type === 'video' ? (
+                        <video src={attachment.preview} className={styles.previewMedia} controls />
+                      ) : (
+                        <img src={attachment.preview} alt="Attachment" className={styles.previewMedia} />
+                      )}
+                      <button
+                        type="button"
+                        className={styles.removeAttachment}
+                        onClick={removeAttachment}
+                        aria-label="Remove attachment"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <label className={styles.attachButton}>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={handleFileSelect}
+                        className={styles.fileInput}
+                      />
+                      <span className={styles.attachIcon}>📎</span>
+                      <span>Add screenshot or video (max 20s)</span>
+                    </label>
+                  )}
+                </div>
+
                 {error && <p className={styles.error}>{error}</p>}
 
                 <div className={styles.footer}>
@@ -145,7 +301,7 @@ function FeedbackWidget() {
                     className={styles.submitButton}
                     disabled={isSubmitting || message.trim().length < 10}
                   >
-                    {isSubmitting ? 'Sending...' : 'Send'}
+                    {uploadingAttachment ? 'Uploading...' : isSubmitting ? 'Sending...' : 'Send'}
                   </button>
                 </div>
               </form>

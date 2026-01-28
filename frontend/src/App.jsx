@@ -25,6 +25,7 @@ import Notifications from './pages/Notifications'
 import Preferences from './pages/Preferences'
 import Relationships from './pages/Relationships'
 import Tags from './pages/Tags'
+import MyFeedback from './pages/MyFeedback'
 import FAQ from './pages/FAQ'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
@@ -101,6 +102,7 @@ function App() {
               <Route path="/settings" element={<Preferences />} />
               <Route path="/relationships" element={<Relationships />} />
               <Route path="/tags" element={<Tags />} />
+              <Route path="/my-feedback" element={<MyFeedback />} />
               {/* Backwards compatibility redirects */}
               <Route path="/settings/notifications" element={<Navigate to="/notifications" replace />} />
               <Route path="/preferences" element={<Navigate to="/settings" replace />} />

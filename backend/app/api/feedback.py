@@ -152,3 +152,30 @@ async def log_client_error(
         print(f"  Context: {error.additional_context}")
 
     return {"logged": True}
+
+
+@router.get("/my-feedback")
+async def get_my_feedback(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the current user's feedback submissions with admin replies."""
+    items = db.query(Feedback).filter(
+        Feedback.user_id == current_user.id
+    ).order_by(Feedback.created_at.desc()).all()
+
+    return {
+        "feedback": [
+            {
+                "id": f.id,
+                "feedback_type": f.feedback_type,
+                "message": f.message,
+                "status": f.status,
+                "attachment_url": f.attachment_url,
+                "admin_reply": getattr(f, 'admin_reply', None),
+                "admin_reply_at": f.admin_reply_at.isoformat() if getattr(f, 'admin_reply_at', None) else None,
+                "created_at": f.created_at.isoformat() if f.created_at else None
+            }
+            for f in items
+        ]
+    }

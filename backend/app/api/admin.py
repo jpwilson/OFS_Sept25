@@ -21,8 +21,9 @@ class SuperuserToggle(BaseModel):
 
 
 class FeedbackUpdate(BaseModel):
-    status: Optional[str] = None  # "new", "reviewed", "resolved"
+    status: Optional[str] = None  # "new", "in_progress", "resolved", "closed"
     admin_notes: Optional[str] = None
+    admin_reply: Optional[str] = None  # Reply visible to user
 
 
 # ========================================
@@ -237,12 +238,16 @@ def list_feedback(
             {
                 "id": f.id,
                 "user_id": f.user_id,
-                "username": f.user.username if f.user else "Anonymous",
+                "username": f.user.username if f.user else None,
+                "display_name": f.user.display_name or f.user.full_name if f.user else None,
+                "email": f.user.email if f.user else None,
                 "feedback_type": f.feedback_type,
                 "message": f.message,
                 "page_url": f.page_url,
                 "status": f.status,
                 "admin_notes": f.admin_notes,
+                "admin_reply": getattr(f, 'admin_reply', None),
+                "admin_reply_at": f.admin_reply_at.isoformat() if getattr(f, 'admin_reply_at', None) else None,
                 "is_mobile": f.is_mobile,
                 "attachment_url": f.attachment_url,
                 "created_at": f.created_at.isoformat() if f.created_at else None
@@ -262,7 +267,9 @@ def update_feedback(
     current_user: User = Depends(get_current_superuser),
     db: Session = Depends(get_db)
 ):
-    """Update feedback status or admin notes. Superuser only."""
+    """Update feedback status, notes, or reply. Superuser only."""
+    from datetime import datetime
+
     fb = db.query(Feedback).filter(Feedback.id == feedback_id).first()
     if not fb:
         raise HTTPException(status_code=404, detail="Feedback not found")
@@ -271,6 +278,9 @@ def update_feedback(
         fb.status = data.status
     if data.admin_notes is not None:
         fb.admin_notes = data.admin_notes
+    if data.admin_reply is not None:
+        fb.admin_reply = data.admin_reply
+        fb.admin_reply_at = datetime.utcnow()
 
     db.commit()
     return {"message": "Feedback updated", "id": fb.id, "status": fb.status}

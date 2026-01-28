@@ -20,6 +20,7 @@ function AdminFeedback() {
   const [page, setPage] = useState(0)
   const [expandedId, setExpandedId] = useState(null)
   const [editingNotes, setEditingNotes] = useState({})
+  const [editingReply, setEditingReply] = useState({})
   const limit = 50
   const { showToast } = useToast()
 
@@ -84,6 +85,32 @@ function AdminFeedback() {
     }))
   }
 
+  function startEditingReply(id, currentReply) {
+    setEditingReply(prev => ({
+      ...prev,
+      [id]: currentReply || ''
+    }))
+  }
+
+  async function handleSaveReply(id) {
+    try {
+      const reply = editingReply[id] || ''
+      await apiService.updateAdminFeedback(id, { admin_reply: reply })
+      setFeedback(feedback.map(f =>
+        f.id === id ? { ...f, admin_reply: reply, admin_reply_at: new Date().toISOString() } : f
+      ))
+      setEditingReply(prev => {
+        const next = { ...prev }
+        delete next[id]
+        return next
+      })
+      showToast('Reply sent', 'success')
+    } catch (err) {
+      console.error('Failed to save reply:', err)
+      showToast('Failed to save reply', 'error')
+    }
+  }
+
   const totalPages = Math.ceil(total / limit)
 
   return (
@@ -135,15 +162,22 @@ function AdminFeedback() {
                   <span className={styles.date}>
                     {new Date(item.created_at).toLocaleDateString()}
                   </span>
-                  {item.user_username && (
-                    <Link
-                      to={`/profile/${item.user_username}`}
-                      className={styles.username}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      @{item.user_username}
-                    </Link>
-                  )}
+                  <div className={styles.userInfo}>
+                    {item.display_name && (
+                      <span className={styles.displayName}>{item.display_name}</span>
+                    )}
+                    {item.username ? (
+                      <Link
+                        to={`/profile/${item.username}`}
+                        className={styles.username}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{item.username}
+                      </Link>
+                    ) : (
+                      <span className={styles.anonymous}>Anonymous</span>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.cardActions}>
                   <select
@@ -182,9 +216,20 @@ function AdminFeedback() {
                     </div>
                   )}
 
-                  {item.user_email && (
+                  {item.email && (
                     <div className={styles.metadata}>
-                      <strong>Email:</strong> {item.user_email}
+                      <strong>Email:</strong> {item.email}
+                    </div>
+                  )}
+
+                  {item.attachment_url && (
+                    <div className={styles.attachmentSection}>
+                      <h4>Attachment:</h4>
+                      {item.attachment_url.includes('video') ? (
+                        <video src={item.attachment_url} controls className={styles.attachmentVideo} />
+                      ) : (
+                        <img src={item.attachment_url} alt="Attachment" className={styles.attachmentImage} />
+                      )}
                     </div>
                   )}
 
@@ -232,6 +277,62 @@ function AdminFeedback() {
                           className={styles.editNotesBtn}
                         >
                           {item.admin_notes ? 'Edit Notes' : 'Add Notes'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reply Section - Visible to User */}
+                  <div className={styles.replySection}>
+                    <h4>Reply to User {item.username ? `(@${item.username})` : ''}</h4>
+                    <p className={styles.replyHint}>This reply will be visible to the user in their feedback history</p>
+                    {editingReply.hasOwnProperty(item.id) ? (
+                      <div className={styles.replyEdit}>
+                        <textarea
+                          value={editingReply[item.id]}
+                          onChange={(e) => setEditingReply(prev => ({
+                            ...prev,
+                            [item.id]: e.target.value
+                          }))}
+                          className={styles.replyTextarea}
+                          placeholder="Type your reply to the user..."
+                        />
+                        <div className={styles.replyActions}>
+                          <button
+                            onClick={() => handleSaveReply(item.id)}
+                            className={styles.sendReplyBtn}
+                          >
+                            Send Reply
+                          </button>
+                          <button
+                            onClick={() => setEditingReply(prev => {
+                              const next = { ...prev }
+                              delete next[item.id]
+                              return next
+                            })}
+                            className={styles.cancelBtn}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.replyDisplay}>
+                        {item.admin_reply ? (
+                          <>
+                            <p className={styles.existingReply}>{item.admin_reply}</p>
+                            <span className={styles.replyDate}>
+                              Sent {item.admin_reply_at ? new Date(item.admin_reply_at).toLocaleString() : ''}
+                            </span>
+                          </>
+                        ) : (
+                          <p className={styles.noReply}>No reply sent yet</p>
+                        )}
+                        <button
+                          onClick={() => startEditingReply(item.id, item.admin_reply)}
+                          className={styles.editReplyBtn}
+                        >
+                          {item.admin_reply ? 'Edit Reply' : 'Send Reply'}
                         </button>
                       </div>
                     )}

@@ -145,6 +145,72 @@
   color: var(--text-muted, #888);
 }
 
+/* Attachment section */
+.attachmentSection {
+  margin-top: 12px;
+}
+
+.attachButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted, #888);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.attachButton:hover {
+  border-color: var(--accent-color, #3b82f6);
+  color: var(--accent-color, #3b82f6);
+}
+
+.fileInput {
+  display: none;
+}
+
+.attachIcon {
+  font-size: 16px;
+}
+
+.attachmentPreview {
+  position: relative;
+  display: inline-block;
+}
+
+.previewMedia {
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.removeAttachment {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.removeAttachment:hover {
+  transform: scale(1.1);
+}
+
 .error {
   color: #ef4444;
   font-size: 13px;
