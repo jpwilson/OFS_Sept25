@@ -17,9 +17,11 @@ function AdminDashboard() {
       setLoading(true)
       const data = await apiService.getAdminStats()
       setStats(data)
+      setError(null)
     } catch (err) {
       console.error('Failed to load admin stats:', err)
-      setError('Failed to load statistics')
+      // Show more detailed error for debugging
+      setError(`Failed to load statistics: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -74,8 +76,8 @@ function AdminDashboard() {
           </div>
           <div className={styles.statCard}>
             <div className={styles.statIcon}>🆕</div>
-            <div className={styles.statValue}>{stats?.pending_feedback || 0}</div>
-            <div className={styles.statLabel}>Pending Feedback</div>
+            <div className={styles.statValue}>{stats?.new_feedback || 0}</div>
+            <div className={styles.statLabel}>New Feedback</div>
           </div>
           <div className={styles.statCard}>
             <div className={styles.statIcon}>🛡️</div>

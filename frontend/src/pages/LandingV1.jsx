@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV1.module.css'
 
 // Custom hook for scroll-triggered animations
@@ -43,15 +42,7 @@ function AnimatedSection({ children, className = '', delay = 0 }) {
 }
 
 function LandingV1() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const [billingPeriod, setBillingPeriod] = useState('annual')
-
-  useEffect(() => {
-    if (user) {
-      navigate('/feed')
-    }
-  }, [user, navigate])
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id)

@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV6.module.css'
 
 function useInView() {
@@ -33,13 +32,6 @@ function GlassCard({ children, className = '', delay = 0 }) {
 }
 
 function LandingV6() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) navigate('/feed')
-  }, [user, navigate])
-
   return (
     <div className={styles.container}>
       {/* Background orbs */}

@@ -1,19 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV2.module.css'
 
 function LandingV2() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const [activeChapter, setActiveChapter] = useState(0)
   const containerRef = useRef(null)
-
-  useEffect(() => {
-    if (user) {
-      navigate('/feed')
-    }
-  }, [user, navigate])
 
   useEffect(() => {
     const container = containerRef.current

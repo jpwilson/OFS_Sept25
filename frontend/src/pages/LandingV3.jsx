@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV3.module.css'
 
 function useScrollAnimation() {
@@ -35,13 +34,7 @@ function AnimatedElement({ children, className = '', delay = 0 }) {
 }
 
 function LandingV3() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const [billingPeriod, setBillingPeriod] = useState('annual')
-
-  useEffect(() => {
-    if (user) navigate('/feed')
-  }, [user, navigate])
 
   const heroImages = [
     { src: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80', alt: 'Paris' },

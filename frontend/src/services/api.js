@@ -2512,7 +2512,10 @@ class ApiService {
     const response = await fetch(`${API_BASE}/admin/stats`, {
       headers: await this.getAuthHeaders()
     })
-    if (!response.ok) throw new Error('Failed to fetch admin stats')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`)
+    }
     return await response.json()
   }
 

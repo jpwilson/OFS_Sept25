@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV4.module.css'
 
 function useScrollReveal() {
@@ -34,13 +33,6 @@ function RevealSection({ children, className = '' }) {
 }
 
 function LandingV4() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) navigate('/feed')
-  }, [user, navigate])
-
   return (
     <div className={styles.container}>
       {/* Minimal Nav */}

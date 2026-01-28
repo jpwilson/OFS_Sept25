@@ -35,27 +35,33 @@ def get_admin_stats(
     db: Session = Depends(get_db)
 ):
     """Get dashboard statistics. Superuser only."""
-    total_users = db.query(func.count(User.id)).scalar()
-    total_events = db.query(func.count(Event.id)).filter(Event.is_deleted == False).scalar()
-    published_events = db.query(func.count(Event.id)).filter(
-        Event.is_published == True, Event.is_deleted == False
-    ).scalar()
-    total_feedback = db.query(func.count(Feedback.id)).scalar()
-    new_feedback = db.query(func.count(Feedback.id)).filter(Feedback.status == "new").scalar()
-    premium_users = db.query(func.count(User.id)).filter(
-        User.subscription_tier.in_(['premium', 'family'])
-    ).scalar()
-    superusers = db.query(func.count(User.id)).filter(User.is_superuser == True).scalar()
+    try:
+        total_users = db.query(func.count(User.id)).scalar()
+        total_events = db.query(func.count(Event.id)).filter(Event.is_deleted == False).scalar()
+        published_events = db.query(func.count(Event.id)).filter(
+            Event.is_published == True, Event.is_deleted == False
+        ).scalar()
+        total_feedback = db.query(func.count(Feedback.id)).scalar()
+        new_feedback = db.query(func.count(Feedback.id)).filter(Feedback.status == "new").scalar()
+        premium_users = db.query(func.count(User.id)).filter(
+            User.subscription_tier.in_(['premium', 'family'])
+        ).scalar()
+        superusers = db.query(func.count(User.id)).filter(User.is_superuser == True).scalar()
 
-    return {
-        "total_users": total_users,
-        "total_events": total_events,
-        "published_events": published_events,
-        "total_feedback": total_feedback,
-        "new_feedback": new_feedback,
-        "premium_users": premium_users,
-        "superusers": superusers
-    }
+        return {
+            "total_users": total_users,
+            "total_events": total_events,
+            "published_events": published_events,
+            "total_feedback": total_feedback,
+            "new_feedback": new_feedback,
+            "premium_users": premium_users,
+            "superusers": superusers
+        }
+    except Exception as e:
+        print(f"🔴 ADMIN STATS ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stats: {str(e)}")
 
 
 # ========================================

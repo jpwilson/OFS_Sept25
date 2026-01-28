@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV7.module.css'
 
 function useInView() {
@@ -46,13 +45,6 @@ function SplitSection({ title, description, cta, ctaLink, image, imageAlt, rever
 }
 
 function LandingV7() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) navigate('/feed')
-  }, [user, navigate])
-
   return (
     <div className={styles.container}>
       {/* Nav */}

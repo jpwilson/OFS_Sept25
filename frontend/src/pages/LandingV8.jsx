@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useEffect, useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import styles from './LandingV8.module.css'
 
 function useInView() {
@@ -33,13 +32,6 @@ function FadeIn({ children, className = '', delay = 0 }) {
 }
 
 function LandingV8() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) navigate('/feed')
-  }, [user, navigate])
-
   const testimonials = [
     { quote: "Finally a place where our family photos aren't mixed with ads and politics.", author: "The Martinez Family", location: "California" },
     { quote: "We use it to stay connected with grandparents who live across the country.", author: "Sarah W.", location: "New York" },
