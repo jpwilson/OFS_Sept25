@@ -12,6 +12,25 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Available tile layers
+const TILE_LAYERS = {
+  street: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    name: 'Street'
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; Esri',
+    name: 'Satellite'
+  },
+  terrain: {
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+    name: 'Terrain'
+  }
+};
+
 // Custom numbered marker icon
 const createNumberedIcon = (number) => {
   return L.divIcon({
@@ -52,6 +71,7 @@ function FitBounds({ locations }) {
 
 function EventMap({ locations, onLocationClick }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [activeLayer, setActiveLayer] = useState('street');
 
   if (!locations || locations.length === 0) {
     return (
@@ -75,8 +95,23 @@ function EventMap({ locations, onLocationClick }) {
     }
   };
 
+  const currentTile = TILE_LAYERS[activeLayer];
+
   return (
     <div className={styles.mapContainer}>
+      {/* Tile Layer Toggle */}
+      <div className={styles.layerToggle}>
+        {Object.entries(TILE_LAYERS).map(([key, layer]) => (
+          <button
+            key={key}
+            className={`${styles.layerBtn} ${activeLayer === key ? styles.active : ''}`}
+            onClick={() => setActiveLayer(key)}
+          >
+            {layer.name}
+          </button>
+        ))}
+      </div>
+
       <MapContainer
         center={[centerLat, centerLng]}
         zoom={10}
@@ -87,8 +122,9 @@ function EventMap({ locations, onLocationClick }) {
         minZoom={2}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={activeLayer}
+          attribution={currentTile.attribution}
+          url={currentTile.url}
         />
 
         <FitBounds locations={locations} />
@@ -98,9 +134,10 @@ function EventMap({ locations, onLocationClick }) {
           <Polyline
             positions={pathCoordinates}
             color="#667eea"
-            weight={3}
-            opacity={0.7}
-            smoothFactor={1}
+            weight={4}
+            opacity={0.8}
+            dashArray="10, 6"
+            lineCap="round"
           />
         )}
 
@@ -108,7 +145,7 @@ function EventMap({ locations, onLocationClick }) {
         {locations.map((location, index) => {
           const isPrimary = location.location_type === 'primary'
           const markerIcon = isPrimary ? createPrimaryIcon() : createNumberedIcon(index)
-          const locationLabel = isPrimary ? 'Event Start' : `Location ${index}`
+          const locationLabel = isPrimary ? 'Start' : index
 
           return (
             <Marker
@@ -120,14 +157,26 @@ function EventMap({ locations, onLocationClick }) {
               }}
             >
               <Popup>
-                <div className={styles.popup}>
-                  <div className={styles.popupNumber}>{locationLabel}</div>
-                  <div className={styles.popupName}>{location.location_name}</div>
-                  {location.timestamp && (
-                    <div className={styles.popupDate}>
-                      {new Date(location.timestamp).toLocaleDateString()}
+                <div className={styles.popupCard}>
+                  {location.associated_image_url && (
+                    <div className={styles.popupImage}>
+                      <img src={location.associated_image_url} alt="" />
                     </div>
                   )}
+                  <div className={styles.popupContent}>
+                    <span className={styles.popupNumber}>{locationLabel}</span>
+                    <h4 className={styles.popupName}>{location.location_name}</h4>
+                    {location.timestamp && (
+                      <div className={styles.popupMeta}>
+                        <span className={styles.popupDate}>
+                          {new Date(location.timestamp).toLocaleDateString()}
+                        </span>
+                        <span className={styles.popupTime}>
+                          {new Date(location.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Popup>
             </Marker>

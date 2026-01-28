@@ -11,6 +11,7 @@ class EventLocationBase(BaseModel):
     order_index: int = 0
     section_id: Optional[str] = None
     section_title: Optional[str] = None
+    associated_image_url: Optional[str] = None  # Image thumbnail for map popup
     additional_data: Optional[str] = None  # JSON string
 
 class EventLocationCreate(EventLocationBase):
@@ -24,6 +25,7 @@ class EventLocationUpdate(BaseModel):
     order_index: Optional[int] = None
     section_id: Optional[str] = None
     section_title: Optional[str] = None
+    associated_image_url: Optional[str] = None
     additional_data: Optional[str] = None
 
 class EventLocation(EventLocationBase):

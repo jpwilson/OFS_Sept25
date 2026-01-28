@@ -16,6 +16,7 @@ class EventLocation(Base):
     order_index = Column(Integer, default=0)  # For manual ordering
     section_id = Column(String, nullable=True)  # Links to H1/H2 section anchor (e.g., 'section-2')
     section_title = Column(String, nullable=True)  # Human-readable section name
+    associated_image_url = Column(String, nullable=True)  # Image thumbnail for map popup
     additional_data = Column(Text, nullable=True)  # JSON string for additional data (altitude, accuracy, etc.)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
