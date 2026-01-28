@@ -15,6 +15,7 @@ import ShareSignUpBanner from '../components/ShareSignUpBanner'
 import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
+import { extractLocationImageMappings } from '../utils/locationExtractor'
 
 function EventDetail({ isShareMode = false }) {
   const { id, token } = useParams()
@@ -324,6 +325,17 @@ function EventDetail({ isShareMode = false }) {
       // In share mode, use locations from the API response (same as regular mode)
       const eventLocations = event.locations || []
 
+      // Extract image mappings from the event description HTML
+      const imageMappings = extractLocationImageMappings(event.description || '')
+
+      // Enrich locations with associated images from the HTML content
+      const enrichedLocations = eventLocations.map(loc => {
+        if (loc.associated_image_url) return loc
+        const key = `${parseFloat(loc.latitude).toFixed(6)},${parseFloat(loc.longitude).toFixed(6)}`
+        const imageUrl = imageMappings.get(key)
+        return imageUrl ? { ...loc, associated_image_url: imageUrl } : loc
+      })
+
       // Add primary event location at the beginning (same as loadLocations does)
       if (event.latitude && event.longitude) {
         const primaryLocation = {
@@ -338,9 +350,9 @@ function EventDetail({ isShareMode = false }) {
           section_id: null,
           section_title: 'Event Start'
         }
-        setLocations([primaryLocation, ...eventLocations])
+        setLocations([primaryLocation, ...enrichedLocations])
       } else {
-        setLocations(eventLocations)
+        setLocations(enrichedLocations)
       }
     }
   }, [event, isShareMode])
@@ -524,6 +536,22 @@ function EventDetail({ isShareMode = false }) {
       const data = await apiService.getEventLocations(eventId)
       const eventLocations = data || []
 
+      // Extract image mappings from the event description HTML
+      // This finds the first image after each location marker in the content
+      const imageMappings = extractLocationImageMappings(event?.description || '')
+
+      // Enrich locations with associated images from the HTML content
+      const enrichedLocations = eventLocations.map(loc => {
+        // If location already has an associated image, use it
+        if (loc.associated_image_url) return loc
+
+        // Try to find an image for this location from the HTML content
+        const key = `${parseFloat(loc.latitude).toFixed(6)},${parseFloat(loc.longitude).toFixed(6)}`
+        const imageUrl = imageMappings.get(key)
+
+        return imageUrl ? { ...loc, associated_image_url: imageUrl } : loc
+      })
+
       // Add primary event location as the first location (if coordinates exist)
       // This is the location from the "Location" field in the event form
       // Show map even for single-location events - only hide if NO coordinates at all
@@ -540,9 +568,9 @@ function EventDetail({ isShareMode = false }) {
           section_id: null,
           section_title: 'Event Start'
         }
-        setLocations([primaryLocation, ...eventLocations])
+        setLocations([primaryLocation, ...enrichedLocations])
       } else {
-        setLocations(eventLocations)
+        setLocations(enrichedLocations)
       }
     } catch (error) {
       console.error('Error loading locations:', error)
@@ -1314,7 +1342,7 @@ function EventDetail({ isShareMode = false }) {
         <div className={styles.mapSection} ref={mapRef}>
           <div className={styles.mapContainer}>
             <div className={styles.mapFadeOverlay}></div>
-            <EventMap locations={locations} />
+            <EventMap locations={locations} eventCoverImage={event?.cover_image_url} />
             <div className={styles.mapTitleOverlay}>
               <h2 className={styles.mapTitle}>Journey Map</h2>
             </div>

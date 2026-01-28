@@ -83,3 +83,80 @@ export async function validateLocationCount(htmlContent, maxLocations = 20) {
     maxLocations
   };
 }
+
+/**
+ * Extract location-to-image mappings from HTML content
+ * For each location marker, finds the first image that comes after it in the document
+ * @param {string} htmlContent - The HTML content from the editor
+ * @returns {Map} Map of "lat,lng" to image URL
+ */
+export function extractLocationImageMappings(htmlContent) {
+  if (!htmlContent) return new Map();
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlContent, 'text/html');
+  const mappings = new Map();
+
+  // Get all location markers
+  const locationElements = doc.querySelectorAll('[data-location-marker]');
+
+  locationElements.forEach((element) => {
+    const latitude = element.getAttribute('data-latitude');
+    const longitude = element.getAttribute('data-longitude');
+
+    if (!latitude || !longitude) return;
+
+    // Find the next image after this location marker
+    // Walk through siblings and descendants to find the first img
+    let current = element;
+    let foundImage = null;
+
+    // Walk through the DOM in document order after this element
+    while (current && !foundImage) {
+      // Check next sibling and its descendants
+      if (current.nextElementSibling) {
+        current = current.nextElementSibling;
+        // Check if it's an image or contains images
+        if (current.tagName === 'IMG') {
+          foundImage = current;
+        } else {
+          const img = current.querySelector('img');
+          if (img) {
+            foundImage = img;
+          }
+        }
+      } else {
+        // Move to parent's next sibling
+        current = current.parentElement;
+        if (current) {
+          current = current.nextElementSibling;
+          if (current) {
+            if (current.tagName === 'IMG') {
+              foundImage = current;
+            } else {
+              const img = current.querySelector('img');
+              if (img) {
+                foundImage = img;
+              }
+            }
+          }
+        }
+      }
+
+      // Stop if we hit another location marker
+      if (current && current.hasAttribute && current.hasAttribute('data-location-marker')) {
+        break;
+      }
+      if (current && current.querySelector && current.querySelector('[data-location-marker]')) {
+        break;
+      }
+    }
+
+    if (foundImage) {
+      const key = `${parseFloat(latitude).toFixed(6)},${parseFloat(longitude).toFixed(6)}`;
+      mappings.set(key, foundImage.src);
+    }
+  });
+
+  return mappings;
+}

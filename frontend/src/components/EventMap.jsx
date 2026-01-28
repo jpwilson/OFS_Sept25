@@ -31,6 +31,14 @@ const TILE_LAYERS = {
   }
 };
 
+// Truncate location name to max 6 words
+function truncateLocationName(name, maxWords = 6) {
+  if (!name) return '';
+  const words = name.split(/[\s,]+/).filter(w => w.length > 0);
+  if (words.length <= maxWords) return name;
+  return words.slice(0, maxWords).join(', ');
+}
+
 // Custom numbered marker icon
 const createNumberedIcon = (number) => {
   return L.divIcon({
@@ -69,9 +77,9 @@ function FitBounds({ locations }) {
   return null;
 }
 
-function EventMap({ locations, onLocationClick }) {
+function EventMap({ locations, onLocationClick, eventCoverImage }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [activeLayer, setActiveLayer] = useState('street');
+  const [activeLayer, setActiveLayer] = useState('satellite');
 
   if (!locations || locations.length === 0) {
     return (
@@ -147,6 +155,9 @@ function EventMap({ locations, onLocationClick }) {
           const markerIcon = isPrimary ? createPrimaryIcon() : createNumberedIcon(index)
           const locationLabel = isPrimary ? 'Start' : index
 
+          // Use cover image for primary location, otherwise use associated image
+          const popupImage = isPrimary ? eventCoverImage : location.associated_image_url
+
           return (
             <Marker
               key={location.id}
@@ -158,14 +169,14 @@ function EventMap({ locations, onLocationClick }) {
             >
               <Popup>
                 <div className={styles.popupCard}>
-                  {location.associated_image_url && (
+                  {popupImage && (
                     <div className={styles.popupImage}>
-                      <img src={location.associated_image_url} alt="" />
+                      <img src={popupImage} alt="" />
                     </div>
                   )}
                   <div className={styles.popupContent}>
                     <span className={styles.popupNumber}>{locationLabel}</span>
-                    <h4 className={styles.popupName}>{location.location_name}</h4>
+                    <h4 className={styles.popupName}>{truncateLocationName(location.location_name)}</h4>
                     {location.timestamp && (
                       <div className={styles.popupMeta}>
                         <span className={styles.popupDate}>
