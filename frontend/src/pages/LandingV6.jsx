@@ -34,6 +34,11 @@ function GlassCard({ children, className = '', delay = 0 }) {
 function LandingV6() {
   return (
     <div className={styles.container}>
+      {/* Admin Back Button */}
+      <Link to="/admin" className={styles.adminBackBtn}>
+        ← Back to Admin
+      </Link>
+
       {/* Background orbs */}
       <div className={styles.orbContainer}>
         <div className={`${styles.orb} ${styles.orb1}`}></div>

@@ -147,59 +147,164 @@
   color: #667eea;
 }
 
-/* Landing Page Variations Section */
-.landingSection {
+/* Projects Section */
+.projectsSection {
   margin-bottom: 48px;
 }
 
-.landingGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+.projectCategory {
+  margin-bottom: 24px;
 }
 
-.landingCard {
+.categoryTitle {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categoryIcon {
+  font-size: 16px;
+}
+
+.projectCard {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 16px 20px;
+  overflow: hidden;
+}
+
+.projectHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.projectHeader:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.projectInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.projectIcon {
+  font-size: 28px;
+}
+
+.projectInfo h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.projectInfo p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.chevron {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+}
+
+.chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.projectContent {
+  border-top: 1px solid var(--border-color);
+  padding: 12px;
+}
+
+.variationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.variationItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
-.landingCard:hover {
-  border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-  transform: translateY(-2px);
+.variationItem:hover {
+  background: rgba(102, 126, 234, 0.08);
 }
 
-.landingNumber {
-  width: 36px;
-  height: 36px;
+.variationNumber {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 6px;
   flex-shrink: 0;
 }
 
-.landingContent h3 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2px;
+.variationInfo {
+  flex: 1;
+  min-width: 0;
 }
 
-.landingContent p {
-  font-size: 13px;
+.variationName {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.variationDesc {
+  display: block;
+  font-size: 12px;
   color: var(--text-secondary);
+}
+
+.variationArrow {
+  font-size: 16px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s, color 0.2s;
+}
+
+.variationItem:hover .variationArrow {
+  transform: translateX(4px);
+  color: #667eea;
+}
+
+.emptyState {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  text-align: center;
 }
 
 /* Mobile responsive */

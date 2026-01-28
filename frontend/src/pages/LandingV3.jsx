@@ -49,6 +49,11 @@ function LandingV3() {
 
   return (
     <div className={styles.container}>
+      {/* Admin Back Button */}
+      <Link to="/admin" className={styles.adminBackBtn}>
+        ← Back to Admin
+      </Link>
+
       {/* Nav */}
       <nav className={styles.nav}>
         <h1 className={styles.logo}>Our Family Socials</h1>

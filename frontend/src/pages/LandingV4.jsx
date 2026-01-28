@@ -35,6 +35,11 @@ function RevealSection({ children, className = '' }) {
 function LandingV4() {
   return (
     <div className={styles.container}>
+      {/* Admin Back Button */}
+      <Link to="/admin" className={styles.adminBackBtn}>
+        ← Back to Admin
+      </Link>
+
       {/* Minimal Nav */}
       <nav className={styles.nav}>
         <span className={styles.logo}>OFS</span>

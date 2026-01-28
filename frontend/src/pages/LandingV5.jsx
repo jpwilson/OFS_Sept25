@@ -34,6 +34,11 @@ function AnimatedBox({ children, className = '', delay = 0 }) {
 function LandingV5() {
   return (
     <div className={styles.container}>
+      {/* Admin Back Button */}
+      <Link to="/admin" className={styles.adminBackBtn}>
+        ← Back to Admin
+      </Link>
+
       {/* Nav */}
       <nav className={styles.nav}>
         <div className={styles.navLeft}>

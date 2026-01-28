@@ -33,6 +33,11 @@ function LandingV2() {
 
   return (
     <div className={styles.container} ref={containerRef}>
+      {/* Admin Back Button */}
+      <Link to="/admin" className={styles.adminBackBtn}>
+        ← Back to Admin
+      </Link>
+
       {/* Minimal Navigation */}
       <nav className={styles.nav}>
         <Link to="/" className={styles.logo}>OFS</Link>
