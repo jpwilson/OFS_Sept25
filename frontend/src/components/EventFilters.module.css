@@ -748,12 +748,21 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.categoryChip:hover {
-  background: var(--hover-bg);
-  border-color: var(--chip-color, #667eea);
-  transform: translateY(-2px) scale(1.02);
+/* Only apply hover styles on devices with actual hover capability (mouse/trackpad) */
+@media (hover: hover) {
+  .categoryChip:hover {
+    background: var(--hover-bg);
+    border-color: var(--chip-color, #667eea);
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+/* Touch feedback for mobile - brief active state */
+.categoryChip:active {
+  transform: scale(0.98);
 }
 
 .categoryChip.selected {
