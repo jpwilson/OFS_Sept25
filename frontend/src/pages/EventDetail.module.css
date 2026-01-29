@@ -349,6 +349,29 @@
   border-bottom-color: #8a9ff8;
 }
 
+/* Read stats (word count, read time) */
+.readStats {
+  display: flex;
+  align-items: center;
+  color: var(--text-tertiary, #888);
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.readStats::before {
+  content: '·';
+  margin-right: 8px;
+  color: var(--text-tertiary, #888);
+}
+
+.readStatsDesktop {
+  display: inline;
+}
+
+.readStatsMobile {
+  display: none;
+}
+
 /* Engagement stats in header */
 .engagementStats {
   display: flex;
@@ -1143,6 +1166,15 @@
   .dateMobile {
     display: inline;
   }
+
+  /* Mobile: show short read stats */
+  .readStatsDesktop {
+    display: none;
+  }
+
+  .readStatsMobile {
+    display: inline;
+  }
 }
 
 /* Desktop: show full title and full name */
@@ -1170,7 +1202,17 @@
   .dateMobile {
     display: none;
   }
+
+  /* Desktop: show full read stats */
+  .readStatsDesktop {
+    display: inline;
+  }
+
+  .readStatsMobile {
+    display: none;
+  }
 }
+
 /* Video Section */
 .videoSection {
   margin: 48px 0;

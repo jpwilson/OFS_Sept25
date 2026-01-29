@@ -898,6 +898,26 @@ function EventDetail({ isShareMode = false }) {
     return videos
   }, [event, eventImages])
 
+  // Calculate word count and estimated read time
+  const readStats = useMemo(() => {
+    if (!event || !event.description) return { wordCount: 0, readTime: 0 }
+
+    // Strip HTML tags and get plain text
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(event.description, 'text/html')
+    const text = doc.body.textContent || ''
+
+    // Count words (split by whitespace, filter empty)
+    const words = text.split(/\s+/).filter(word => word.length > 0)
+    const wordCount = words.length
+
+    // Average reading speed: 200-250 words per minute
+    // Using 200 wpm for a comfortable pace
+    const readTime = Math.max(1, Math.ceil(wordCount / 200))
+
+    return { wordCount, readTime }
+  }, [event])
+
   // Parse headings from rich HTML content and generate sections
   // Also inject captions under images
   const parsedContent = useMemo(() => {
@@ -1251,6 +1271,16 @@ function EventDetail({ isShareMode = false }) {
             <span className={styles.dateMobile}>{formatDateRange(event.start_date, event.end_date, true)}</span>
             <span>·</span>
             <ShortLocation locationName={event.location_name} maxWords={3} />
+            {readStats.wordCount > 0 && (
+              <span className={styles.readStats}>
+                <span className={styles.readStatsDesktop}>
+                  {readStats.wordCount.toLocaleString()} words · {readStats.readTime} min read
+                </span>
+                <span className={styles.readStatsMobile}>
+                  {readStats.readTime} min
+                </span>
+              </span>
+            )}
             <span className={styles.engagementStats}>
               <button
                 className={styles.statButton}
