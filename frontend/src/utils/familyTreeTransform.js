@@ -166,6 +166,22 @@ function isSpouseRelationship(relationshipType) {
 }
 
 /**
+ * Check if relationship is a sibling type
+ */
+function isSiblingRelationship(relationshipType) {
+  if (!relationshipType) return false
+  const rel = relationshipType.toLowerCase()
+  return ['sister', 'brother', 'sibling', 'half-sister', 'half-brother', 'stepsister', 'stepbrother'].some(t => rel.includes(t))
+}
+
+/**
+ * Check if relationship is same-level (should use horizontal connections)
+ */
+function isSameLevelRelationship(relationshipType) {
+  return isSpouseRelationship(relationshipType) || isSiblingRelationship(relationshipType)
+}
+
+/**
  * Check if this is a former/ex relationship
  */
 function isFormerRelationship(relationshipType) {
@@ -322,6 +338,8 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       const relationshipType = rel.my_relationship_to_them || rel.relationship_to_you || 'family'
       const level = getRelationshipLevel(relationshipType)
       const isSpouse = isSpouseRelationship(relationshipType)
+      const isSibling = isSiblingRelationship(relationshipType)
+      const isSameLevel = isSpouse || isSibling
       const isFormer = isFormerRelationship(relationshipType)
 
       if (isSpouse) {
@@ -344,14 +362,11 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       })
 
       // Add edge from user to this person
-      // Direction depends on relationship level
-      const edgeSource = level < 0 ? personId : userId // Parents point to user
-      const edgeTarget = level < 0 ? userId : personId  // User points to children
-
-      edges.push({
+      // For same-level (spouse/sibling): horizontal connection using side handles
+      // For parent: top/bottom handles with parent as source
+      // For child: top/bottom handles with user as source
+      const edgeConfig = {
         id: `edge-${userId}-${personId}`,
-        source: isSpouse ? userId : edgeSource,
-        target: isSpouse ? personId : edgeTarget,
         type: 'smoothstep',
         label: relationshipType,
         labelStyle: {
@@ -370,7 +385,42 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
           strokeDasharray: isFormer ? '5,5' : '0'
         },
         animated: isSpouse && !isFormer
-      })
+      }
+
+      if (isSameLevel) {
+        // Horizontal connection - determine direction based on position
+        // sortOrder < 500 = left of user, >= 500 = right of user
+        const personSortOrder = getNodeSortOrder({ data: { relationship: relationshipType, isCurrentUser: false } })
+        const isLeftOfUser = personSortOrder < 500
+
+        if (isLeftOfUser) {
+          // Person is left of user: their right -> user's left
+          edgeConfig.source = personId
+          edgeConfig.target = userId
+          edgeConfig.sourceHandle = 'right'
+          edgeConfig.targetHandle = 'left'
+        } else {
+          // Person is right of user: user's right -> their left
+          edgeConfig.source = userId
+          edgeConfig.target = personId
+          edgeConfig.sourceHandle = 'right'
+          edgeConfig.targetHandle = 'left'
+        }
+      } else if (level < 0) {
+        // Parent: person (parent) bottom -> user top
+        edgeConfig.source = personId
+        edgeConfig.target = userId
+        edgeConfig.sourceHandle = 'bottom'
+        edgeConfig.targetHandle = 'top'
+      } else {
+        // Child: user bottom -> person top
+        edgeConfig.source = userId
+        edgeConfig.target = personId
+        edgeConfig.sourceHandle = 'bottom'
+        edgeConfig.targetHandle = 'top'
+      }
+
+      edges.push(edgeConfig)
     })
   }
 
@@ -382,6 +432,7 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       const personId = `tag-${tag.id}`
       const relationshipType = tag.relationship_to_creator || 'family'
       const level = getRelationshipLevel(relationshipType)
+      const isSameLevel = isSameLevelRelationship(relationshipType)
       const isFormer = isFormerRelationship(relationshipType)
 
       // Add node
@@ -399,14 +450,9 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
         position: { x: 0, y: 0 }
       })
 
-      // Add edge
-      const edgeSource = level < 0 ? personId : userId
-      const edgeTarget = level < 0 ? userId : personId
-
-      edges.push({
+      // Add edge with proper handles
+      const edgeConfig = {
         id: `edge-${userId}-${personId}`,
-        source: edgeSource,
-        target: edgeTarget,
         type: 'smoothstep',
         label: relationshipType,
         labelStyle: {
@@ -424,7 +470,37 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
           strokeWidth: 2,
           strokeDasharray: isFormer ? '5,5' : '0'
         }
-      })
+      }
+
+      if (isSameLevel) {
+        // Horizontal connection - determine direction based on position
+        const personSortOrder = getNodeSortOrder({ data: { relationship: relationshipType, isCurrentUser: false } })
+        const isLeftOfUser = personSortOrder < 500
+
+        if (isLeftOfUser) {
+          edgeConfig.source = personId
+          edgeConfig.target = userId
+          edgeConfig.sourceHandle = 'right'
+          edgeConfig.targetHandle = 'left'
+        } else {
+          edgeConfig.source = userId
+          edgeConfig.target = personId
+          edgeConfig.sourceHandle = 'right'
+          edgeConfig.targetHandle = 'left'
+        }
+      } else if (level < 0) {
+        edgeConfig.source = personId
+        edgeConfig.target = userId
+        edgeConfig.sourceHandle = 'bottom'
+        edgeConfig.targetHandle = 'top'
+      } else {
+        edgeConfig.source = userId
+        edgeConfig.target = personId
+        edgeConfig.sourceHandle = 'bottom'
+        edgeConfig.targetHandle = 'top'
+      }
+
+      edges.push(edgeConfig)
     })
   }
 
