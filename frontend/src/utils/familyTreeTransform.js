@@ -175,8 +175,56 @@ function isFormerRelationship(relationshipType) {
 }
 
 /**
+ * Get sort order for a node based on relationship type
+ * Lower number = further left
+ */
+function getNodeSortOrder(node) {
+  const rel = (node.data.relationship || '').toLowerCase()
+  const isCurrentUser = node.data.isCurrentUser
+
+  // Current user always in middle
+  if (isCurrentUser) return 500
+
+  // Spouse: wife to the right of husband
+  if (['wife', 'spouse', 'partner'].some(t => rel.includes(t)) && !rel.includes('husband')) {
+    return 600 // Wife goes right of user
+  }
+  if (['husband'].some(t => rel.includes(t))) {
+    return 400 // Husband goes left of user
+  }
+
+  // Brothers before sisters (left to right)
+  if (['brother', 'brother-in-law'].some(t => rel.includes(t))) {
+    return 300
+  }
+  if (['sister', 'sister-in-law'].some(t => rel.includes(t))) {
+    return 700
+  }
+
+  // Sons before daughters (left to right)
+  if (['son', 'son-in-law', 'grandson'].some(t => rel.includes(t))) {
+    return 400
+  }
+  if (['daughter', 'daughter-in-law', 'granddaughter'].some(t => rel.includes(t))) {
+    return 600
+  }
+
+  // Fathers before mothers
+  if (['father', 'father-in-law', 'grandfather'].some(t => rel.includes(t))) {
+    return 400
+  }
+  if (['mother', 'mother-in-law', 'grandmother'].some(t => rel.includes(t))) {
+    return 600
+  }
+
+  // Default
+  return 500
+}
+
+/**
  * Apply simple hierarchical layout to nodes
  * Groups nodes by rank/level and positions them
+ * Conventions: husband left, wife right; brothers left of sisters
  */
 function applyHierarchicalLayout(nodes) {
   const nodeWidth = 220
@@ -194,13 +242,17 @@ function applyHierarchicalLayout(nodes) {
     rankGroups[rank].push(node)
   })
 
+  // Sort nodes within each rank by convention
+  Object.keys(rankGroups).forEach(rank => {
+    rankGroups[rank].sort((a, b) => getNodeSortOrder(a) - getNodeSortOrder(b))
+  })
+
   // Get sorted ranks (negative first for parents above)
   const sortedRanks = Object.keys(rankGroups)
     .map(Number)
     .sort((a, b) => a - b)
 
   // Find the center rank (0 = user level)
-  const centerRankIndex = sortedRanks.indexOf(0)
   const centerY = 300 // Base Y position for user
 
   // Position nodes
@@ -211,7 +263,6 @@ function applyHierarchicalLayout(nodes) {
     const totalInRank = nodesInRank.length
 
     // Calculate Y based on rank (negative ranks go up)
-    const rankIndex = sortedRanks.indexOf(rank)
     const y = centerY + (rank * verticalSpacing)
 
     // Calculate X to center the row
