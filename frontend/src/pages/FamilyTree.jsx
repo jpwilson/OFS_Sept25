@@ -74,7 +74,7 @@ export default function FamilyTree() {
 
   // Group relationships by category
   const groupedRelationships = relationships.reduce((acc, rel) => {
-    const group = getGroupForRelationship(rel.relationship_to_you)
+    const group = getGroupForRelationship(rel.my_relationship_to_them || rel.relationship_to_you)
     if (!acc[group]) acc[group] = []
     acc[group].push(rel)
     return acc
@@ -153,7 +153,10 @@ export default function FamilyTree() {
           <button className={styles.backButton} onClick={() => navigate(-1)}>
             ← Back
           </button>
-          <h1 className={styles.title}>Family Tree</h1>
+          <h1 className={styles.title}>
+            Family Tree
+            <span className={styles.betaBadge} title="This feature is still in progress">BETA</span>
+          </h1>
           <p className={styles.subtitle}>{totalConnections} connection{totalConnections !== 1 ? 's' : ''}</p>
 
           {/* View Toggle */}
@@ -251,7 +254,7 @@ export default function FamilyTree() {
                         )}
                         <div className={styles.connectionDetails}>
                           <strong>{rel.other_user_display_name || rel.other_user_username}</strong>
-                          <span className={styles.relationshipLabel}>{rel.relationship_to_you}</span>
+                          <span className={styles.relationshipLabel}>{rel.my_relationship_to_them || rel.relationship_to_you}</span>
                         </div>
                         <span className={styles.verifiedBadge} title="Verified relationship">✓</span>
                       </Link>

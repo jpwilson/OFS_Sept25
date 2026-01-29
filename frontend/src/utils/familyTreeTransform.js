@@ -92,7 +92,9 @@ const EDGE_COLORS = {
  * Get the hierarchy level for a relationship type
  */
 function getRelationshipLevel(relationshipType) {
-  if (!relationshipType) return 1 // Default to child level
+  if (!relationshipType || relationshipType.toLowerCase() === 'family') {
+    return 2 // Unknown/generic "family" goes below children
+  }
 
   const rel = relationshipType.toLowerCase().trim()
 
@@ -108,8 +110,8 @@ function getRelationshipLevel(relationshipType) {
     }
   }
 
-  // Default: treat as child level for display
-  return 1
+  // Default: unknown relationships go below children
+  return 2
 }
 
 /**
@@ -266,7 +268,7 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       if (!rel || !rel.other_user_id) return
 
       const personId = `user-${rel.other_user_id}`
-      const relationshipType = rel.relationship_to_you || 'family'
+      const relationshipType = rel.my_relationship_to_them || rel.relationship_to_you || 'family'
       const level = getRelationshipLevel(relationshipType)
       const isSpouse = isSpouseRelationship(relationshipType)
       const isFormer = isFormerRelationship(relationshipType)
