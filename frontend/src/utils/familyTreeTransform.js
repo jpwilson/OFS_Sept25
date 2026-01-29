@@ -1,8 +1,7 @@
 /**
  * Transform OFS relationships and tag profiles into React Flow format
- * Uses Dagre for hierarchical layout
+ * Uses manual hierarchical layout (Dagre has ESM compatibility issues with Vite)
  */
-import dagre from '@dagrejs/dagre'
 
 // Relationship type to hierarchy level mapping
 // Level 0 = same as user, negative = above, positive = below
@@ -174,50 +173,53 @@ function isFormerRelationship(relationshipType) {
 }
 
 /**
- * Apply Dagre layout to nodes and edges
+ * Apply simple hierarchical layout to nodes
+ * Groups nodes by rank/level and positions them
  */
-function applyDagreLayout(nodes, edges, direction = 'TB') {
-  const dagreGraph = new dagre.graphlib.Graph()
-  dagreGraph.setDefaultEdgeLabel(() => ({}))
+function applyHierarchicalLayout(nodes) {
+  const nodeWidth = 220
+  const nodeHeight = 90
+  const horizontalSpacing = 60
+  const verticalSpacing = 120
 
-  // Configure the graph
-  dagreGraph.setGraph({
-    rankdir: direction,
-    nodesep: 60,      // Horizontal spacing between nodes
-    ranksep: 100,     // Vertical spacing between ranks
-    marginx: 50,
-    marginy: 50,
-  })
-
-  // Add nodes with their dimensions
-  const nodeWidth = 200
-  const nodeHeight = 80
-
+  // Group nodes by rank
+  const rankGroups = {}
   nodes.forEach(node => {
-    dagreGraph.setNode(node.id, {
-      width: nodeWidth,
-      height: nodeHeight,
-      rank: node.data.rank || 0
-    })
+    const rank = node.data.rank || 0
+    if (!rankGroups[rank]) {
+      rankGroups[rank] = []
+    }
+    rankGroups[rank].push(node)
   })
 
-  // Add edges
-  edges.forEach(edge => {
-    dagreGraph.setEdge(edge.source, edge.target)
-  })
+  // Get sorted ranks (negative first for parents above)
+  const sortedRanks = Object.keys(rankGroups)
+    .map(Number)
+    .sort((a, b) => a - b)
 
-  // Run the layout
-  dagre.layout(dagreGraph)
+  // Find the center rank (0 = user level)
+  const centerRankIndex = sortedRanks.indexOf(0)
+  const centerY = 300 // Base Y position for user
 
-  // Apply positions to nodes
+  // Position nodes
   return nodes.map(node => {
-    const nodeWithPosition = dagreGraph.node(node.id)
+    const rank = node.data.rank || 0
+    const nodesInRank = rankGroups[rank]
+    const indexInRank = nodesInRank.indexOf(node)
+    const totalInRank = nodesInRank.length
+
+    // Calculate Y based on rank (negative ranks go up)
+    const rankIndex = sortedRanks.indexOf(rank)
+    const y = centerY + (rank * verticalSpacing)
+
+    // Calculate X to center the row
+    const totalWidth = totalInRank * nodeWidth + (totalInRank - 1) * horizontalSpacing
+    const startX = -totalWidth / 2
+    const x = startX + indexInRank * (nodeWidth + horizontalSpacing)
+
     return {
       ...node,
-      position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2
-      }
+      position: { x, y }
     }
   })
 }
@@ -373,8 +375,8 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
     })
   }
 
-  // 4. Apply Dagre layout
-  const layoutedNodes = applyDagreLayout(nodes, edges)
+  // 4. Apply hierarchical layout
+  const layoutedNodes = applyHierarchicalLayout(nodes)
 
   // 5. Adjust spouse positions to be beside user instead of above/below
   if (spouseIds.length > 0) {
