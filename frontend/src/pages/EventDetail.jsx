@@ -43,8 +43,7 @@ function EventDetail({ isShareMode = false }) {
   const [loginPromptAction, setLoginPromptAction] = useState('continue')
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const [showShareModal, setShowShareModal] = useState(false)
-  const [hideInlineImages, setHideInlineImages] = useState(false)
-  const [hideInlineVideos, setHideInlineVideos] = useState(false)
+  const [hideInlineMedia, setHideInlineMedia] = useState(false)
   const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const [eventTags, setEventTags] = useState([])
   const [shareContext, setShareContext] = useState(null)
@@ -56,30 +55,25 @@ function EventDetail({ isShareMode = false }) {
   const commentsSectionRef = useRef(null)
   const videoSectionRef = useRef(null)
 
-  // Hide/show inline images in content
+  // Hide/show inline media (images and videos) in content
   useEffect(() => {
     if (!contentRef.current || !event) return
 
     const images = contentRef.current.querySelectorAll('img')
-    images.forEach(img => {
-      img.style.display = hideInlineImages ? 'none' : ''
-    })
-  }, [hideInlineImages, event])
-
-  // Hide/show inline videos in content
-  useEffect(() => {
-    if (!contentRef.current || !event) return
-
     const videos = contentRef.current.querySelectorAll('video')
-    videos.forEach(video => {
-      video.style.display = hideInlineVideos ? 'none' : ''
-    })
-  }, [hideInlineVideos, event])
 
-  // Reset toggles when event changes
+    images.forEach(img => {
+      img.style.display = hideInlineMedia ? 'none' : ''
+    })
+
+    videos.forEach(video => {
+      video.style.display = hideInlineMedia ? 'none' : ''
+    })
+  }, [hideInlineMedia, event])
+
+  // Reset toggle when event changes
   useEffect(() => {
-    setHideInlineImages(false)
-    setHideInlineVideos(false)
+    setHideInlineMedia(false)
   }, [id])
 
   // Track scroll position for floating TOC button
@@ -1332,10 +1326,8 @@ function EventDetail({ isShareMode = false }) {
             onGalleryClick={handleGalleryClick}
             onVideosClick={handleVideosClick}
             onMapClick={handleMapClick}
-            hideInlineImages={hideInlineImages}
-            onToggleInlineImages={() => setHideInlineImages(!hideInlineImages)}
-            hideInlineVideos={hideInlineVideos}
-            onToggleInlineVideos={() => setHideInlineVideos(!hideInlineVideos)}
+            hideInlineMedia={hideInlineMedia}
+            onToggleInlineMedia={() => setHideInlineMedia(!hideInlineMedia)}
             isShareMode={isShareMode && !user}
           />
         )}
