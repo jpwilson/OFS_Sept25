@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import styles from './EventNavigation.module.css'
 
-function EventNavigation({ sections, activeSection, imageCount, videoCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onVideosClick, onMapClick, hideInlineMedia, onToggleInlineMedia, isShareMode }) {
+function EventNavigation({ sections, activeSection, mediaCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onMapClick, hideInlineMedia, onToggleInlineMedia, isShareMode }) {
   const [expanded, setExpanded] = useState(() => {
     // Collapse all sections by default
     const initialState = {}
@@ -63,19 +63,13 @@ function EventNavigation({ sections, activeSection, imageCount, videoCount, loca
         </button>
       )}
 
-      {imageCount > 0 && onGalleryClick && (
+      {mediaCount > 0 && onGalleryClick && (
         <button className={styles.galleryButton} onClick={onGalleryClick}>
-          📷 View all {imageCount} {imageCount === 1 ? 'image' : 'images'}
+          📷 View all {mediaCount} media
         </button>
       )}
 
-      {videoCount > 0 && onVideosClick && (
-        <button className={styles.videosButton} onClick={onVideosClick}>
-          🎬 View all {videoCount} {videoCount === 1 ? 'video' : 'videos'}
-        </button>
-      )}
-
-      {(imageCount > 0 || videoCount > 0) && onToggleInlineMedia && (
+      {mediaCount > 0 && onToggleInlineMedia && (
         <div className={styles.toggleContainer}>
           <label className={styles.toggleLabel}>
             <span>Hide inline media</span>

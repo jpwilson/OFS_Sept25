@@ -302,27 +302,6 @@ function EventDetail({ isShareMode = false }) {
     }
   }, [isMobile])
 
-  // Scroll to media gallery (videos are now in the combined gallery)
-  const handleVideosClick = useCallback(() => {
-    // Scroll to the gallery section
-    const gallery = document.querySelector('[class*="gallerySection"]')
-    if (gallery) {
-      const offset = 80
-      const elementPosition = gallery.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - offset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-    }
-
-    // Close mobile menu if open
-    if (isMobile) {
-      setIsMobileNavOpen(false)
-    }
-  }, [isMobile])
-
   // Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => {
@@ -1328,14 +1307,12 @@ function EventDetail({ isShareMode = false }) {
           <EventNavigation
             sections={sections}
             activeSection={activeSection}
-            imageCount={allImages.length}
-            videoCount={allVideos.length}
+            mediaCount={allMedia.length}
             locationCount={locations.length}
             isMobile={isMobile}
             isOpen={isMobileNavOpen}
             onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
             onGalleryClick={handleGalleryClick}
-            onVideosClick={handleVideosClick}
             onMapClick={handleMapClick}
             hideInlineMedia={hideInlineMedia}
             onToggleInlineMedia={() => setHideInlineMedia(!hideInlineMedia)}
