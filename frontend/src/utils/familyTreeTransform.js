@@ -1,280 +1,407 @@
 /**
- * Transform OFS relationships and tag profiles into family-chart data format
+ * Transform OFS relationships and tag profiles into React Flow format
+ * Uses Dagre for hierarchical layout
  */
+import dagre from '@dagrejs/dagre'
 
-// Infer gender from relationship type
-// Gender is required by family-chart - defaults to 'M' if can't determine
-function inferGender(relationshipType) {
-  if (!relationshipType) return 'M'
-  const rel = relationshipType.toLowerCase()
+// Relationship type to hierarchy level mapping
+// Level 0 = same as user, negative = above, positive = below
+const RELATIONSHIP_LEVELS = {
+  // Parents and parent-level (above user)
+  'mother': -1,
+  'father': -1,
+  'parent': -1,
+  'stepmother': -1,
+  'stepfather': -1,
+  'mother-in-law': -1,
+  'father-in-law': -1,
 
-  // Female indicators
-  if (['wife', 'mother', 'daughter', 'sister', 'grandmother', 'granddaughter',
-       'aunt', 'niece', 'mother-in-law', 'sister-in-law', 'daughter-in-law'].some(t => rel.includes(t))) {
-    return 'F'
-  }
+  // Grandparents (2 levels above)
+  'grandmother': -2,
+  'grandfather': -2,
+  'grandparent': -2,
 
-  // Male indicators
-  if (['husband', 'father', 'son', 'brother', 'grandfather', 'grandson',
-       'uncle', 'nephew', 'father-in-law', 'brother-in-law', 'son-in-law'].some(t => rel.includes(t))) {
-    return 'M'
-  }
+  // Great-grandparents (3 levels above)
+  'great-grandmother': -3,
+  'great-grandfather': -3,
 
-  // Default to M if can't determine
-  return 'M'
+  // Same level as user
+  'wife': 0,
+  'husband': 0,
+  'spouse': 0,
+  'partner': 0,
+  'sister': 0,
+  'brother': 0,
+  'sibling': 0,
+  'half-sister': 0,
+  'half-brother': 0,
+  'stepsister': 0,
+  'stepbrother': 0,
+  'sister-in-law': 0,
+  'brother-in-law': 0,
+  'cousin': 0,
+
+  // Children (below user)
+  'daughter': 1,
+  'son': 1,
+  'child': 1,
+  'stepdaughter': 1,
+  'stepson': 1,
+  'daughter-in-law': 1,
+  'son-in-law': 1,
+
+  // Grandchildren (2 levels below)
+  'granddaughter': 2,
+  'grandson': 2,
+  'grandchild': 2,
+
+  // Great-grandchildren (3 levels below)
+  'great-granddaughter': 3,
+  'great-grandson': 3,
+
+  // Extended family
+  'aunt': -1,
+  'uncle': -1,
+  'niece': 1,
+  'nephew': 1,
+
+  // Non-family
+  'friend': 0,
+  'best friend': 0,
+  'close friend': 0,
+  'pet': 1,
+  'dog': 1,
+  'cat': 1,
 }
 
-// Link two people based on relationship type
-function linkRelationship(people, userId, otherId, relType) {
-  // Guard against undefined/null values
-  if (!relType) return
-
-  const userKey = `user-${userId}`
-  const otherKey = otherId?.startsWith?.('user-') || otherId?.startsWith?.('tag-') ? otherId : `user-${otherId}`
-
-  const user = people.get(userKey)
-  const other = people.get(otherKey)
-
-  if (!user || !other) return
-
-  const rel = relType.toLowerCase()
-
-  // Spouse relationships
-  if (['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))) {
-    if (!user.rels.spouses.includes(other.id)) {
-      user.rels.spouses.push(other.id)
-    }
-    if (!other.rels.spouses.includes(user.id)) {
-      other.rels.spouses.push(user.id)
-    }
-  }
-  // Children (they are my child, so I am their parent)
-  else if (['daughter', 'son', 'child', 'stepdaughter', 'stepson'].some(t => rel.includes(t))) {
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
-  // Parents (they are my parent, so I am their child)
-  else if (['mother', 'father', 'parent', 'stepmother', 'stepfather'].some(t => rel.includes(t))) {
-    if (!user.rels.parents.includes(other.id)) {
-      user.rels.parents.push(other.id)
-    }
-    if (!other.rels.children.includes(user.id)) {
-      other.rels.children.push(user.id)
-    }
-  }
-  // Grandparents (they are my grandparent)
-  else if (['grandmother', 'grandfather', 'grandparent'].some(t => rel.includes(t))) {
-    // For simplicity, treat as parent level (proper multi-gen would need placeholder nodes)
-    if (!user.rels.parents.includes(other.id)) {
-      user.rels.parents.push(other.id)
-    }
-    if (!other.rels.children.includes(user.id)) {
-      other.rels.children.push(user.id)
-    }
-  }
-  // Grandchildren
-  else if (['granddaughter', 'grandson', 'grandchild'].some(t => rel.includes(t))) {
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
-  // Siblings - in family-chart, siblings share parents
-  // Without shared parent data, we'll show them as children of the user for visibility
-  else if (['sister', 'brother', 'sibling', 'half-sister', 'half-brother',
-            'stepsister', 'stepbrother'].some(t => rel.includes(t))) {
-    // Show siblings at same level by treating them as children (workaround)
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
-  // In-laws - approximate as extended family
-  else if (['mother-in-law', 'father-in-law'].some(t => rel.includes(t))) {
-    // In-law parents - treat as parents level for display
-    if (!user.rels.parents.includes(other.id)) {
-      user.rels.parents.push(other.id)
-    }
-  }
-  else if (['sister-in-law', 'brother-in-law'].some(t => rel.includes(t))) {
-    // Siblings of spouse - show as children for visibility
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
-  else if (['daughter-in-law', 'son-in-law'].some(t => rel.includes(t))) {
-    // Children's spouses - treat as children level
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-  }
-  // Pets - treat as children for tree structure
-  else if (['pet', 'dog', 'cat'].some(t => rel.includes(t))) {
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
-  // Default: add as child for display purposes
-  else {
-    if (!user.rels.children.includes(other.id)) {
-      user.rels.children.push(other.id)
-    }
-    if (!other.rels.parents.includes(user.id)) {
-      other.rels.parents.push(user.id)
-    }
-  }
+// Edge colors by relationship category
+const EDGE_COLORS = {
+  spouse: '#f472b6',      // Pink
+  parent: '#60a5fa',      // Blue
+  child: '#4ade80',       // Green
+  sibling: '#fbbf24',     // Gold
+  'in-law': '#f97316',    // Orange
+  grandparent: '#94a3b8', // Gray
+  grandchild: '#34d399',  // Teal
+  extended: '#a78bfa',    // Light purple
+  friend: '#06b6d4',      // Cyan
+  pet: '#fb923c',         // Light orange
+  default: '#9ca3af',     // Default gray
 }
 
 /**
- * Transform OFS data to family-chart format
+ * Get the hierarchy level for a relationship type
+ */
+function getRelationshipLevel(relationshipType) {
+  if (!relationshipType) return 1 // Default to child level
+
+  const rel = relationshipType.toLowerCase().trim()
+
+  // Check for exact match first
+  if (RELATIONSHIP_LEVELS[rel] !== undefined) {
+    return RELATIONSHIP_LEVELS[rel]
+  }
+
+  // Check for partial matches
+  for (const [key, level] of Object.entries(RELATIONSHIP_LEVELS)) {
+    if (rel.includes(key)) {
+      return level
+    }
+  }
+
+  // Default: treat as child level for display
+  return 1
+}
+
+/**
+ * Get edge color based on relationship type
+ */
+function getEdgeColor(relationshipType) {
+  if (!relationshipType) return EDGE_COLORS.default
+
+  const rel = relationshipType.toLowerCase()
+
+  if (['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))) {
+    return EDGE_COLORS.spouse
+  }
+  if (['mother', 'father', 'parent', 'stepmother', 'stepfather'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
+    return EDGE_COLORS.parent
+  }
+  if (['daughter', 'son', 'child', 'stepdaughter', 'stepson'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
+    return EDGE_COLORS.child
+  }
+  if (['sister', 'brother', 'sibling', 'half-sister', 'half-brother', 'stepsister', 'stepbrother'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
+    return EDGE_COLORS.sibling
+  }
+  if (rel.includes('-in-law')) {
+    return EDGE_COLORS['in-law']
+  }
+  if (['grandmother', 'grandfather', 'grandparent', 'great-grand'].some(t => rel.includes(t)) && rel.includes('grand') && !rel.includes('child')) {
+    return EDGE_COLORS.grandparent
+  }
+  if (['granddaughter', 'grandson', 'grandchild', 'great-grand'].some(t => rel.includes(t)) && rel.includes('child')) {
+    return EDGE_COLORS.grandchild
+  }
+  if (['aunt', 'uncle', 'niece', 'nephew', 'cousin'].some(t => rel.includes(t))) {
+    return EDGE_COLORS.extended
+  }
+  if (['friend'].some(t => rel.includes(t))) {
+    return EDGE_COLORS.friend
+  }
+  if (['pet', 'dog', 'cat'].some(t => rel.includes(t))) {
+    return EDGE_COLORS.pet
+  }
+
+  return EDGE_COLORS.default
+}
+
+/**
+ * Check if relationship is a spouse type
+ */
+function isSpouseRelationship(relationshipType) {
+  if (!relationshipType) return false
+  const rel = relationshipType.toLowerCase()
+  return ['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))
+}
+
+/**
+ * Check if this is a former/ex relationship
+ */
+function isFormerRelationship(relationshipType) {
+  if (!relationshipType) return false
+  const rel = relationshipType.toLowerCase()
+  return rel.includes('ex-') || rel.includes('former') || rel.includes('divorced')
+}
+
+/**
+ * Apply Dagre layout to nodes and edges
+ */
+function applyDagreLayout(nodes, edges, direction = 'TB') {
+  const dagreGraph = new dagre.graphlib.Graph()
+  dagreGraph.setDefaultEdgeLabel(() => ({}))
+
+  // Configure the graph
+  dagreGraph.setGraph({
+    rankdir: direction,
+    nodesep: 60,      // Horizontal spacing between nodes
+    ranksep: 100,     // Vertical spacing between ranks
+    marginx: 50,
+    marginy: 50,
+  })
+
+  // Add nodes with their dimensions
+  const nodeWidth = 200
+  const nodeHeight = 80
+
+  nodes.forEach(node => {
+    dagreGraph.setNode(node.id, {
+      width: nodeWidth,
+      height: nodeHeight,
+      rank: node.data.rank || 0
+    })
+  })
+
+  // Add edges
+  edges.forEach(edge => {
+    dagreGraph.setEdge(edge.source, edge.target)
+  })
+
+  // Run the layout
+  dagre.layout(dagreGraph)
+
+  // Apply positions to nodes
+  return nodes.map(node => {
+    const nodeWithPosition = dagreGraph.node(node.id)
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2
+      }
+    }
+  })
+}
+
+/**
+ * Transform OFS data to React Flow format
  * @param {Object} currentUser - The logged in user
  * @param {Array} relationships - Verified user relationships
  * @param {Array} tagProfiles - Tag profiles (non-users)
- * @returns {Array} Data in family-chart format
+ * @returns {Object} { nodes, edges } for React Flow
  */
-export function transformToFamilyChart(currentUser, relationships, tagProfiles) {
+export function transformToReactFlow(currentUser, relationships, tagProfiles) {
   // Guard against missing user
   if (!currentUser || !currentUser.id) {
-    console.warn('transformToFamilyChart: No current user provided')
-    return []
+    console.warn('transformToReactFlow: No current user provided')
+    return { nodes: [], edges: [] }
   }
 
-  const people = new Map()
+  const nodes = []
+  const edges = []
+  const userId = `user-${currentUser.id}`
 
-  // 1. Add current user as center/main node
-  // Gender is required by family-chart - default to 'M' if not specified
-  const userGender = currentUser.gender === 'F' || currentUser.gender === 'female' ? 'F' : 'M'
-
-  people.set(`user-${currentUser.id}`, {
-    id: `user-${currentUser.id}`,
+  // 1. Add current user as center node (rank 0)
+  nodes.push({
+    id: userId,
+    type: 'familyMember',
     data: {
-      'first name': currentUser.full_name || currentUser.display_name || currentUser.username,
-      'last name': '',
-      'gender': userGender,
-      'avatar': currentUser.avatar_url || '',
-      'isCurrentUser': true
+      name: currentUser.full_name || currentUser.display_name || currentUser.username,
+      avatar: currentUser.avatar_url || '',
+      relationship: 'You',
+      isCurrentUser: true,
+      username: currentUser.username,
+      rank: 0
     },
-    rels: { spouses: [], children: [], parents: [] }
+    position: { x: 0, y: 0 } // Will be calculated by Dagre
   })
+
+  // Track spouse IDs for special positioning
+  const spouseIds = []
 
   // 2. Add verified user relationships
   if (relationships && relationships.length > 0) {
     relationships.forEach(rel => {
-      // Skip if missing required data
       if (!rel || !rel.other_user_id) return
 
       const personId = `user-${rel.other_user_id}`
       const relationshipType = rel.relationship_to_you || 'family'
+      const level = getRelationshipLevel(relationshipType)
+      const isSpouse = isSpouseRelationship(relationshipType)
+      const isFormer = isFormerRelationship(relationshipType)
 
-      // Only add if not already in map
-      if (!people.has(personId)) {
-        people.set(personId, {
-          id: personId,
-          data: {
-            'first name': rel.other_user_display_name || rel.other_user_full_name || rel.other_user_username || 'Unknown',
-            'last name': '',
-            'gender': inferGender(relationshipType),
-            'avatar': rel.other_user_avatar_url || '',
-            'username': rel.other_user_username,
-            'verified': true,
-            'relationship': relationshipType
-          },
-          rels: { spouses: [], children: [], parents: [] }
-        })
+      if (isSpouse) {
+        spouseIds.push(personId)
       }
 
-      // Create bidirectional link
-      linkRelationship(people, currentUser.id, personId, relationshipType)
+      // Add node
+      nodes.push({
+        id: personId,
+        type: 'familyMember',
+        data: {
+          name: rel.other_user_display_name || rel.other_user_full_name || rel.other_user_username || 'Unknown',
+          avatar: rel.other_user_avatar_url || '',
+          relationship: relationshipType,
+          isCurrentUser: false,
+          username: rel.other_user_username,
+          rank: level
+        },
+        position: { x: 0, y: 0 }
+      })
+
+      // Add edge from user to this person
+      // Direction depends on relationship level
+      const edgeSource = level < 0 ? personId : userId // Parents point to user
+      const edgeTarget = level < 0 ? userId : personId  // User points to children
+
+      edges.push({
+        id: `edge-${userId}-${personId}`,
+        source: isSpouse ? userId : edgeSource,
+        target: isSpouse ? personId : edgeTarget,
+        type: 'smoothstep',
+        label: relationshipType,
+        labelStyle: {
+          fill: 'var(--text-secondary)',
+          fontSize: 11,
+          fontWeight: 500
+        },
+        labelBgStyle: {
+          fill: 'var(--bg-secondary)',
+          fillOpacity: 0.9
+        },
+        labelBgPadding: [4, 4],
+        style: {
+          stroke: getEdgeColor(relationshipType),
+          strokeWidth: 2,
+          strokeDasharray: isFormer ? '5,5' : '0'
+        },
+        animated: isSpouse && !isFormer
+      })
     })
   }
 
   // 3. Add tag profiles (non-users like pets, kids without accounts)
   if (tagProfiles && tagProfiles.length > 0) {
     tagProfiles.forEach(tag => {
-      // Skip if missing required data
       if (!tag || !tag.id) return
 
       const personId = `tag-${tag.id}`
       const relationshipType = tag.relationship_to_creator || 'family'
+      const level = getRelationshipLevel(relationshipType)
+      const isFormer = isFormerRelationship(relationshipType)
 
-      if (!people.has(personId)) {
-        people.set(personId, {
-          id: personId,
-          data: {
-            'first name': tag.name || 'Unknown',
-            'last name': '',
-            'gender': inferGender(relationshipType),
-            'avatar': tag.photo_url || '',
-            'isTag': true,
-            'relationship': relationshipType
-          },
-          rels: { spouses: [], children: [], parents: [] }
-        })
-      }
+      // Add node
+      nodes.push({
+        id: personId,
+        type: 'familyMember',
+        data: {
+          name: tag.name || 'Unknown',
+          avatar: tag.photo_url || '',
+          relationship: relationshipType,
+          isCurrentUser: false,
+          isTag: true,
+          rank: level
+        },
+        position: { x: 0, y: 0 }
+      })
 
-      // Link to creator
-      linkRelationship(people, currentUser.id, personId, relationshipType)
+      // Add edge
+      const edgeSource = level < 0 ? personId : userId
+      const edgeTarget = level < 0 ? userId : personId
+
+      edges.push({
+        id: `edge-${userId}-${personId}`,
+        source: edgeSource,
+        target: edgeTarget,
+        type: 'smoothstep',
+        label: relationshipType,
+        labelStyle: {
+          fill: 'var(--text-secondary)',
+          fontSize: 11,
+          fontWeight: 500
+        },
+        labelBgStyle: {
+          fill: 'var(--bg-secondary)',
+          fillOpacity: 0.9
+        },
+        labelBgPadding: [4, 4],
+        style: {
+          stroke: getEdgeColor(relationshipType),
+          strokeWidth: 2,
+          strokeDasharray: isFormer ? '5,5' : '0'
+        }
+      })
     })
   }
 
-  // Convert Map to array for family-chart
-  return Array.from(people.values())
+  // 4. Apply Dagre layout
+  const layoutedNodes = applyDagreLayout(nodes, edges)
+
+  // 5. Adjust spouse positions to be beside user instead of above/below
+  if (spouseIds.length > 0) {
+    const userNode = layoutedNodes.find(n => n.id === userId)
+    if (userNode) {
+      spouseIds.forEach((spouseId, index) => {
+        const spouseNode = layoutedNodes.find(n => n.id === spouseId)
+        if (spouseNode) {
+          // Position spouse to the right of user
+          spouseNode.position = {
+            x: userNode.position.x + 250 * (index + 1),
+            y: userNode.position.y
+          }
+        }
+      })
+    }
+  }
+
+  return { nodes: layoutedNodes, edges }
 }
 
 /**
- * Get color for relationship group
- * @param {string} relationshipType
- * @returns {string} Hex color
+ * Get color for relationship group (exported for other uses)
  */
 export function getRelationshipColor(relationshipType) {
-  if (!relationshipType) return '#9ca3af'
-
-  const rel = relationshipType.toLowerCase()
-
-  if (['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))) {
-    return '#f472b6' // Pink
-  }
-  if (['daughter', 'son', 'child'].some(t => rel.includes(t))) {
-    return '#4ade80' // Green
-  }
-  if (['mother', 'father', 'parent'].some(t => rel.includes(t))) {
-    return '#60a5fa' // Blue
-  }
-  if (['sister', 'brother', 'sibling'].some(t => rel.includes(t))) {
-    return '#fbbf24' // Yellow/Gold
-  }
-  if (['grandmother', 'grandfather'].some(t => rel.includes(t))) {
-    return '#94a3b8' // Gray
-  }
-  if (['granddaughter', 'grandson'].some(t => rel.includes(t))) {
-    return '#34d399' // Teal
-  }
-  if (['aunt', 'uncle', 'niece', 'nephew', 'cousin'].some(t => rel.includes(t))) {
-    return '#a78bfa' // Light purple
-  }
-  if (rel.includes('-in-law')) {
-    return '#f97316' // Orange
-  }
-  if (['friend'].some(t => rel.includes(t))) {
-    return '#06b6d4' // Cyan
-  }
-  if (['pet', 'dog', 'cat'].some(t => rel.includes(t))) {
-    return '#fb923c' // Light orange
-  }
-
-  return '#9ca3af' // Default gray
+  return getEdgeColor(relationshipType)
 }
+
+// Keep the old function name as alias for backwards compatibility during migration
+export const transformToFamilyChart = transformToReactFlow

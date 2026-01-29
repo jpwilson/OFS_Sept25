@@ -1,0 +1,119 @@
+/* Family Node - Custom React Flow node for family tree */
+
+.familyNode {
+  background: var(--bg-secondary, #1e1e2e);
+  border: 2px solid var(--border-light, #363654);
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 180px;
+  max-width: 220px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.familyNode:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
+}
+
+/* Current user gets special highlight */
+.currentUser {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+}
+
+.currentUser::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--border-light, #363654);
+}
+
+.avatarPlaceholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.nodeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.relationship {
+  font-size: 12px;
+  color: var(--text-secondary, #a0a0b0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* React Flow handles - connection points */
+.handle {
+  width: 8px;
+  height: 8px;
+  background: #667eea;
+  border: 2px solid var(--bg-secondary, #1e1e2e);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.familyNode:hover .handle {
+  opacity: 1;
+}
+
+/* Animated entrance */
+@keyframes nodeEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.familyNode {
+  animation: nodeEntrance 0.4s ease-out;
+}

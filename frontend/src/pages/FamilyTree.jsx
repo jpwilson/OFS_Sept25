@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import apiService from '../services/api'
-import { transformToFamilyChart } from '../utils/familyTreeTransform'
+import { transformToReactFlow } from '../utils/familyTreeTransform'
 import styles from './FamilyTree.module.css'
 
 // Lazy load the graph component to reduce initial bundle size
@@ -40,12 +40,12 @@ export default function FamilyTree() {
   const [tagProfiles, setTagProfiles] = useState([])
   const [view, setView] = useState('list') // 'list' or 'tree'
 
-  // Transform data for the tree graph view
+  // Transform data for the tree graph view (React Flow format: { nodes, edges })
   const graphData = useMemo(() => {
     if (!user || (relationships.length === 0 && tagProfiles.length === 0)) {
-      return []
+      return { nodes: [], edges: [] }
     }
-    return transformToFamilyChart(user, relationships, tagProfiles)
+    return transformToReactFlow(user, relationships, tagProfiles)
   }, [user, relationships, tagProfiles])
 
   useEffect(() => {

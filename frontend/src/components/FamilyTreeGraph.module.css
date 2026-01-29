@@ -1,3 +1,5 @@
+/* Family Tree Graph - React Flow container */
+
 .graphContainer {
   position: relative;
   width: 100%;
@@ -9,110 +11,89 @@
   border: 1px solid var(--border-color);
 }
 
-.chart {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+/* React Flow customization */
+.graphContainer :global(.react-flow__node) {
+  cursor: pointer;
 }
 
-/* Force family-chart SVG to fill container */
-.chart :global(#f3Canvas) {
-  width: 100% !important;
-  height: 100% !important;
-  display: block !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
+.graphContainer :global(.react-flow__edge-path) {
+  stroke-linecap: round;
 }
 
-.chart :global(#f3Canvas > svg),
-.chart :global(svg.main_svg) {
-  width: 100% !important;
-  height: 100% !important;
-  display: block !important;
+.graphContainer :global(.react-flow__edge-text) {
+  font-size: 11px;
 }
 
-/* Style the cards for dark theme (default) */
-.chart :global(.card .card-body-rect) {
-  fill: #1a1a2e !important;
-  stroke: #3a3a5a !important;
-  rx: 8 !important;
-  ry: 8 !important;
+.graphContainer :global(.react-flow__edge-textbg) {
+  fill: var(--bg-secondary);
 }
 
-.chart :global(.card .card-outline) {
-  fill: transparent !important;
-  stroke: #3a3a5a !important;
+.graphContainer :global(.react-flow__attribution) {
+  display: none;
 }
 
-.chart :global(.card text) {
-  fill: #ffffff !important;
-}
-
-.chart :global(.card.main .card-body-rect),
-.chart :global(.card .card-main-outline) {
-  fill: #2d5a27 !important;
-  stroke: #4a7c44 !important;
-}
-
-.chart :global(.link) {
-  stroke: #666 !important;
-}
-
-/* Light theme overrides for family tree */
-:global([data-theme="light"]) .chart :global(.card .card-body-rect) {
-  fill: #f3f1f8 !important;
-  stroke: #ccc6d8 !important;
-}
-
-:global([data-theme="light"]) .chart :global(.card .card-outline) {
-  stroke: #ccc6d8 !important;
-}
-
-:global([data-theme="light"]) .chart :global(.card text) {
-  fill: #1a1a2e !important;
-}
-
-:global([data-theme="light"]) .chart :global(.card.main .card-body-rect),
-:global([data-theme="light"]) .chart :global(.card .card-main-outline) {
-  fill: #4a7c44 !important;
-  stroke: #2d5a27 !important;
-}
-
-:global([data-theme="light"]) .chart :global(.card.main text) {
-  fill: #ffffff !important;
-}
-
-:global([data-theme="light"]) .chart :global(.link) {
-  stroke: #9990a8 !important;
-}
-
-/* Controls */
+/* Custom controls styling */
 .controls {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 
-.controlButton {
+.controls :global(button) {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.controls :global(button:last-child) {
+  border-bottom: none !important;
+}
+
+.controls :global(button:hover) {
+  background: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.controls :global(button svg),
+.controls :global(button path) {
+  fill: currentColor !important;
+}
+
+/* Export panel */
+.exportPanel {
+  background: transparent;
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.controlButton:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--accent);
+.exportButton:hover {
+  background: var(--hover-bg);
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.exportButton svg {
+  flex-shrink: 0;
 }
 
 /* Legend */
@@ -173,8 +154,11 @@
     display: none;
   }
 
-  .controls {
-    bottom: 12px;
-    right: 12px;
+  .exportButton span {
+    display: none;
+  }
+
+  .exportButton {
+    padding: 10px;
   }
 }
