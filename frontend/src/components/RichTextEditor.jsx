@@ -16,8 +16,8 @@ import { getVideoMetadata } from '../utils/videoCompression'
 import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from '../config/cloudinary'
 
 // Upload limits per event
-const MAX_IMAGES_PER_EVENT = 100
-const MAX_VIDEOS_PER_EVENT = 30
+const MAX_IMAGES_PER_EVENT = 200
+const MAX_VIDEOS_PER_EVENT = 20
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange, eventId = null }) {
   const [isDragging, setIsDragging] = useState(false)
