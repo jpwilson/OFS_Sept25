@@ -49,6 +49,12 @@
   gap: 10px;
 }
 
+/* BETA badge with tooltip */
+.betaContainer {
+  position: relative;
+  display: inline-flex;
+}
+
 .betaBadge {
   font-size: 11px;
   font-weight: 600;
@@ -59,6 +65,43 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: help;
+}
+
+.betaTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-tertiary, #2a2a3e);
+  color: var(--text-primary, #fff);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color, #363654);
+}
+
+.betaTooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: var(--bg-tertiary, #2a2a3e);
+}
+
+.betaContainer:hover .betaTooltip,
+.betaContainer:focus .betaTooltip,
+.betaContainer:active .betaTooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
 .subtitle {

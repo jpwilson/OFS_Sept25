@@ -73,16 +73,24 @@ const RELATIONSHIP_LEVELS = {
   'cat': 1,
 }
 
-// Edge colors by relationship category
+// Edge colors by relationship category - more distinct colors
 const EDGE_COLORS = {
-  spouse: '#f472b6',      // Pink
-  parent: '#60a5fa',      // Blue
-  child: '#4ade80',       // Green
-  sibling: '#fbbf24',     // Gold
-  'in-law': '#f97316',    // Orange
+  spouse: '#f472b6',      // Pink - romantic partners
+  wife: '#f472b6',        // Pink
+  husband: '#f472b6',     // Pink
+  mother: '#ec4899',      // Hot pink - mothers
+  father: '#3b82f6',      // Blue - fathers
+  parent: '#8b5cf6',      // Purple - generic parent
+  daughter: '#10b981',    // Emerald - daughters
+  son: '#22d3ee',         // Cyan - sons
+  child: '#4ade80',       // Green - generic child
+  sister: '#f59e0b',      // Amber - sisters
+  brother: '#eab308',     // Yellow - brothers
+  sibling: '#fbbf24',     // Gold - generic sibling
+  'in-law': '#f97316',    // Orange - all in-laws
   grandparent: '#94a3b8', // Gray
   grandchild: '#34d399',  // Teal
-  extended: '#a78bfa',    // Light purple
+  extended: '#a78bfa',    // Light purple - aunt/uncle/cousin
   friend: '#06b6d4',      // Cyan
   pet: '#fb923c',         // Light orange
   default: '#9ca3af',     // Default gray
@@ -116,39 +124,77 @@ function getRelationshipLevel(relationshipType) {
 
 /**
  * Get edge color based on relationship type
+ * More specific relationships get their own colors
  */
 function getEdgeColor(relationshipType) {
   if (!relationshipType) return EDGE_COLORS.default
 
   const rel = relationshipType.toLowerCase()
 
-  if (['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))) {
-    return EDGE_COLORS.spouse
-  }
-  if (['mother', 'father', 'parent', 'stepmother', 'stepfather'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
-    return EDGE_COLORS.parent
-  }
-  if (['daughter', 'son', 'child', 'stepdaughter', 'stepson'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
-    return EDGE_COLORS.child
-  }
-  if (['sister', 'brother', 'sibling', 'half-sister', 'half-brother', 'stepsister', 'stepbrother'].some(t => rel.includes(t)) && !rel.includes('-in-law')) {
-    return EDGE_COLORS.sibling
-  }
+  // Check in-laws first (before parent/sibling checks)
   if (rel.includes('-in-law')) {
     return EDGE_COLORS['in-law']
   }
-  if (['grandmother', 'grandfather', 'grandparent', 'great-grand'].some(t => rel.includes(t)) && rel.includes('grand') && !rel.includes('child')) {
+
+  // Spouse - pink
+  if (['wife', 'husband', 'spouse', 'partner'].some(t => rel.includes(t))) {
+    return EDGE_COLORS.spouse
+  }
+
+  // Parents - specific colors for mother vs father
+  if (rel.includes('mother') || rel.includes('stepmother')) {
+    return EDGE_COLORS.mother
+  }
+  if (rel.includes('father') || rel.includes('stepfather')) {
+    return EDGE_COLORS.father
+  }
+  if (rel.includes('parent')) {
+    return EDGE_COLORS.parent
+  }
+
+  // Children - specific colors for daughter vs son
+  if (rel.includes('daughter') || rel.includes('stepdaughter')) {
+    return EDGE_COLORS.daughter
+  }
+  if (rel.includes('son') || rel.includes('stepson')) {
+    return EDGE_COLORS.son
+  }
+  if (rel.includes('child')) {
+    return EDGE_COLORS.child
+  }
+
+  // Siblings - specific colors for sister vs brother
+  if (rel.includes('sister')) {
+    return EDGE_COLORS.sister
+  }
+  if (rel.includes('brother')) {
+    return EDGE_COLORS.brother
+  }
+  if (rel.includes('sibling')) {
+    return EDGE_COLORS.sibling
+  }
+
+  // Grandparents
+  if (['grandmother', 'grandfather', 'grandparent'].some(t => rel.includes(t)) && !rel.includes('child')) {
     return EDGE_COLORS.grandparent
   }
-  if (['granddaughter', 'grandson', 'grandchild', 'great-grand'].some(t => rel.includes(t)) && rel.includes('child')) {
+
+  // Grandchildren
+  if (['granddaughter', 'grandson', 'grandchild'].some(t => rel.includes(t))) {
     return EDGE_COLORS.grandchild
   }
+
+  // Extended family
   if (['aunt', 'uncle', 'niece', 'nephew', 'cousin'].some(t => rel.includes(t))) {
     return EDGE_COLORS.extended
   }
-  if (['friend'].some(t => rel.includes(t))) {
+
+  // Friends
+  if (rel.includes('friend')) {
     return EDGE_COLORS.friend
   }
+
+  // Pets
   if (['pet', 'dog', 'cat'].some(t => rel.includes(t))) {
     return EDGE_COLORS.pet
   }
@@ -365,22 +411,25 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       // For same-level (spouse/sibling): horizontal connection using side handles
       // For parent: top/bottom handles with parent as source
       // For child: top/bottom handles with user as source
+      const edgeColor = getEdgeColor(relationshipType)
       const edgeConfig = {
         id: `edge-${userId}-${personId}`,
         type: 'smoothstep',
         label: relationshipType,
         labelStyle: {
-          fill: 'var(--text-secondary)',
+          fill: edgeColor,
           fontSize: 11,
-          fontWeight: 500
+          fontWeight: 600,
+          transform: 'translateY(-8px)'
         },
         labelBgStyle: {
-          fill: 'var(--bg-secondary)',
-          fillOpacity: 0.9
+          fill: 'var(--bg-primary, #1a1a2e)',
+          fillOpacity: 1
         },
-        labelBgPadding: [4, 4],
+        labelBgPadding: [6, 8],
+        labelBgBorderRadius: 4,
         style: {
-          stroke: getEdgeColor(relationshipType),
+          stroke: edgeColor,
           strokeWidth: 2,
           strokeDasharray: isFormer ? '5,5' : '0'
         },
@@ -451,22 +500,25 @@ export function transformToReactFlow(currentUser, relationships, tagProfiles) {
       })
 
       // Add edge with proper handles
+      const edgeColor = getEdgeColor(relationshipType)
       const edgeConfig = {
         id: `edge-${userId}-${personId}`,
         type: 'smoothstep',
         label: relationshipType,
         labelStyle: {
-          fill: 'var(--text-secondary)',
+          fill: edgeColor,
           fontSize: 11,
-          fontWeight: 500
+          fontWeight: 600,
+          transform: 'translateY(-8px)'
         },
         labelBgStyle: {
-          fill: 'var(--bg-secondary)',
-          fillOpacity: 0.9
+          fill: 'var(--bg-primary, #1a1a2e)',
+          fillOpacity: 1
         },
-        labelBgPadding: [4, 4],
+        labelBgPadding: [6, 8],
+        labelBgBorderRadius: 4,
         style: {
-          stroke: getEdgeColor(relationshipType),
+          stroke: edgeColor,
           strokeWidth: 2,
           strokeDasharray: isFormer ? '5,5' : '0'
         }

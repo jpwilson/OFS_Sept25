@@ -155,7 +155,12 @@ export default function FamilyTree() {
           </button>
           <h1 className={styles.title}>
             Family Tree
-            <span className={styles.betaBadge} title="This feature is still in progress">BETA</span>
+            <span className={styles.betaContainer}>
+              <span className={styles.betaBadge}>BETA</span>
+              <span className={styles.betaTooltip}>
+                This feature is experimental and still being improved. Layout and styling may change.
+              </span>
+            </span>
           </h1>
           <p className={styles.subtitle}>{totalConnections} connection{totalConnections !== 1 ? 's' : ''}</p>
 

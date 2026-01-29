@@ -35,6 +35,17 @@
   opacity: 0.5;
 }
 
+/* Tag profiles (non-users) get purple border */
+.tagNode {
+  border-color: #a855f7;
+  border-style: dashed;
+}
+
+.tagNode:hover {
+  border-color: #c084fc;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.25);
+}
+
 .nodeContent {
   display: flex;
   align-items: center;

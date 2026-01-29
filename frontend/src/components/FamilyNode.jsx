@@ -6,7 +6,7 @@ function FamilyNode({ data }) {
   const { name, avatar, relationship, isCurrentUser, isTag } = data
 
   return (
-    <div className={`${styles.familyNode} ${isCurrentUser ? styles.currentUser : ''}`}>
+    <div className={`${styles.familyNode} ${isCurrentUser ? styles.currentUser : ''} ${isTag ? styles.tagNode : ''}`}>
       {/* Top handle for incoming connections (from parents) */}
       <Handle
         type="target"
