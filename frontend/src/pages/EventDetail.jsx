@@ -55,12 +55,14 @@ function EventDetail({ isShareMode = false }) {
   const commentsSectionRef = useRef(null)
   const videoSectionRef = useRef(null)
 
-  // Hide/show inline media (images and videos) in content
+  // Hide/show inline media (images, videos, and their captions) in content
   useEffect(() => {
     if (!contentRef.current || !event) return
 
     const images = contentRef.current.querySelectorAll('img')
     const videos = contentRef.current.querySelectorAll('video')
+    const imageCaptions = contentRef.current.querySelectorAll('.image-caption')
+    const videoCaptions = contentRef.current.querySelectorAll('.video-caption')
 
     images.forEach(img => {
       img.style.display = hideInlineMedia ? 'none' : ''
@@ -68,6 +70,14 @@ function EventDetail({ isShareMode = false }) {
 
     videos.forEach(video => {
       video.style.display = hideInlineMedia ? 'none' : ''
+    })
+
+    imageCaptions.forEach(caption => {
+      caption.style.display = hideInlineMedia ? 'none' : ''
+    })
+
+    videoCaptions.forEach(caption => {
+      caption.style.display = hideInlineMedia ? 'none' : ''
     })
   }, [hideInlineMedia, event])
 
