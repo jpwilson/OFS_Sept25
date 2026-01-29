@@ -44,6 +44,7 @@ function EventDetail({ isShareMode = false }) {
   const [lightboxState, setLightboxState] = useState({ open: false, index: 0 })
   const [showShareModal, setShowShareModal] = useState(false)
   const [hideInlineImages, setHideInlineImages] = useState(false)
+  const [hideInlineVideos, setHideInlineVideos] = useState(false)
   const [showFloatingTOC, setShowFloatingTOC] = useState(false)
   const [eventTags, setEventTags] = useState([])
   const [shareContext, setShareContext] = useState(null)
@@ -53,26 +54,32 @@ function EventDetail({ isShareMode = false }) {
   const mapRef = useRef(null)
   const likesSectionRef = useRef(null)
   const commentsSectionRef = useRef(null)
+  const videoSectionRef = useRef(null)
 
   // Hide/show inline images in content
   useEffect(() => {
     if (!contentRef.current || !event) return
 
     const images = contentRef.current.querySelectorAll('img')
-    const videos = contentRef.current.querySelectorAll('video')
-
     images.forEach(img => {
       img.style.display = hideInlineImages ? 'none' : ''
     })
-
-    videos.forEach(video => {
-      video.style.display = hideInlineImages ? 'none' : ''
-    })
   }, [hideInlineImages, event])
 
-  // Reset toggle when event changes
+  // Hide/show inline videos in content
+  useEffect(() => {
+    if (!contentRef.current || !event) return
+
+    const videos = contentRef.current.querySelectorAll('video')
+    videos.forEach(video => {
+      video.style.display = hideInlineVideos ? 'none' : ''
+    })
+  }, [hideInlineVideos, event])
+
+  // Reset toggles when event changes
   useEffect(() => {
     setHideInlineImages(false)
+    setHideInlineVideos(false)
   }, [id])
 
   // Track scroll position for floating TOC button
@@ -278,6 +285,25 @@ function EventDetail({ isShareMode = false }) {
     if (mapRef.current) {
       const offset = 80
       const elementPosition = mapRef.current.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - offset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+
+    // Close mobile menu if open
+    if (isMobile) {
+      setIsMobileNavOpen(false)
+    }
+  }, [isMobile])
+
+  // Scroll to video section
+  const handleVideosClick = useCallback(() => {
+    if (videoSectionRef.current) {
+      const offset = 80
+      const elementPosition = videoSectionRef.current.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - offset
 
       window.scrollTo({
@@ -1267,15 +1293,19 @@ function EventDetail({ isShareMode = false }) {
           <EventNavigation
             sections={sections}
             activeSection={activeSection}
-            imageCount={allMedia.length}
+            imageCount={allImages.length}
+            videoCount={allVideos.length}
             locationCount={locations.length}
             isMobile={isMobile}
             isOpen={isMobileNavOpen}
             onToggle={() => setIsMobileNavOpen(!isMobileNavOpen)}
             onGalleryClick={handleGalleryClick}
+            onVideosClick={handleVideosClick}
             onMapClick={handleMapClick}
             hideInlineImages={hideInlineImages}
             onToggleInlineImages={() => setHideInlineImages(!hideInlineImages)}
+            hideInlineVideos={hideInlineVideos}
+            onToggleInlineVideos={() => setHideInlineVideos(!hideInlineVideos)}
             isShareMode={isShareMode && !user}
           />
         )}
@@ -1380,7 +1410,7 @@ function EventDetail({ isShareMode = false }) {
 
       {/* Video Gallery */}
       {allVideos.length > 0 && (
-        <div className={styles.videoSection}>
+        <div className={styles.videoSection} ref={videoSectionRef}>
           <h3 className={styles.videoSectionTitle}>Videos</h3>
           <div className={styles.videoGrid}>
             {allVideos.map((video, index) => (

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import styles from './EventNavigation.module.css'
 
-function EventNavigation({ sections, activeSection, imageCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onMapClick, hideInlineImages, onToggleInlineImages, isShareMode }) {
+function EventNavigation({ sections, activeSection, imageCount, videoCount, locationCount, isMobile, isOpen, onToggle, onGalleryClick, onVideosClick, onMapClick, hideInlineImages, onToggleInlineImages, hideInlineVideos, onToggleInlineVideos, isShareMode }) {
   const [expanded, setExpanded] = useState(() => {
     // Collapse all sections by default
     const initialState = {}
@@ -69,6 +69,12 @@ function EventNavigation({ sections, activeSection, imageCount, locationCount, i
         </button>
       )}
 
+      {videoCount > 0 && onVideosClick && (
+        <button className={styles.videosButton} onClick={onVideosClick}>
+          🎬 View all {videoCount} {videoCount === 1 ? 'video' : 'videos'}
+        </button>
+      )}
+
       {imageCount > 0 && onToggleInlineImages && (
         <div className={styles.toggleContainer}>
           <label className={styles.toggleLabel}>
@@ -76,6 +82,20 @@ function EventNavigation({ sections, activeSection, imageCount, locationCount, i
             <div
               className={`${styles.toggleSwitch} ${hideInlineImages ? styles.toggleActive : ''}`}
               onClick={onToggleInlineImages}
+            >
+              <div className={styles.toggleSlider}></div>
+            </div>
+          </label>
+        </div>
+      )}
+
+      {videoCount > 0 && onToggleInlineVideos && (
+        <div className={styles.toggleContainer}>
+          <label className={styles.toggleLabel}>
+            <span>Hide inline videos</span>
+            <div
+              className={`${styles.toggleSwitch} ${hideInlineVideos ? styles.toggleActive : ''}`}
+              onClick={onToggleInlineVideos}
             >
               <div className={styles.toggleSlider}></div>
             </div>
