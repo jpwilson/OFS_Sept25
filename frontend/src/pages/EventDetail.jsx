@@ -53,7 +53,6 @@ function EventDetail({ isShareMode = false }) {
   const mapRef = useRef(null)
   const likesSectionRef = useRef(null)
   const commentsSectionRef = useRef(null)
-  const videoSectionRef = useRef(null)
 
   // Hide/show inline media (images, videos, and their captions) in content
   useEffect(() => {
@@ -303,11 +302,13 @@ function EventDetail({ isShareMode = false }) {
     }
   }, [isMobile])
 
-  // Scroll to video section
+  // Scroll to media gallery (videos are now in the combined gallery)
   const handleVideosClick = useCallback(() => {
-    if (videoSectionRef.current) {
+    // Scroll to the gallery section
+    const gallery = document.querySelector('[class*="gallerySection"]')
+    if (gallery) {
       const offset = 80
-      const elementPosition = videoSectionRef.current.getBoundingClientRect().top
+      const elementPosition = gallery.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - offset
 
       window.scrollTo({
@@ -1440,27 +1441,6 @@ function EventDetail({ isShareMode = false }) {
         </div>
       )}
 
-      {/* Video Gallery */}
-      {allVideos.length > 0 && (
-        <div className={styles.videoSection} ref={videoSectionRef}>
-          <h3 className={styles.videoSectionTitle}>Videos</h3>
-          <div className={styles.videoGrid}>
-            {allVideos.map((video, index) => (
-              <div key={video.id || index} className={styles.videoItem}>
-                <video
-                  src={video.src}
-                  controls
-                  className={styles.videoPlayer}
-                  preload="metadata"
-                />
-                {video.caption && (
-                  <div className={styles.videoCaption}>{video.caption}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className={styles.interactions} ref={likesSectionRef}>
         <div className={styles.likeSection}>

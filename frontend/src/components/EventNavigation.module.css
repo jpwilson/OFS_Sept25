@@ -47,9 +47,32 @@
   margin: 0;
 }
 
+.mapButton {
+  width: calc(100% - 40px);
+  margin: 12px 20px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mapButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
+}
+
 .galleryButton {
   width: calc(100% - 40px);
-  margin: 16px 20px;
+  margin: 0 20px 12px 20px;
   padding: 12px 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -72,7 +95,7 @@
 
 .videosButton {
   width: calc(100% - 40px);
-  margin: 0 20px 16px 20px;
+  margin: 0 20px 12px 20px;
   padding: 12px 16px;
   background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
   color: white;
@@ -91,29 +114,6 @@
 .videosButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(244, 114, 182, 0.4);
-}
-
-.mapButton {
-  width: calc(100% - 40px);
-  margin: 0 20px 16px 20px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.mapButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
 }
 
 .sections {
