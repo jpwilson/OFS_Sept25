@@ -11,6 +11,8 @@ function AdminUsers() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortOrder, setSortOrder] = useState('desc')
   const limit = 50
   const { showToast } = useToast()
 
@@ -25,12 +27,12 @@ function AdminUsers() {
 
   useEffect(() => {
     loadUsers()
-  }, [debouncedSearch, page])
+  }, [debouncedSearch, page, sortBy, sortOrder])
 
   async function loadUsers() {
     try {
       setLoading(true)
-      const data = await apiService.getAdminUsers(debouncedSearch, page * limit, limit)
+      const data = await apiService.getAdminUsers(debouncedSearch, page * limit, limit, sortBy, sortOrder)
       setUsers(data.users)
       setTotal(data.total)
     } catch (err) {
@@ -53,6 +55,38 @@ function AdminUsers() {
       console.error('Failed to toggle superuser:', err)
       showToast('Failed to update superuser status', 'error')
     }
+  }
+
+  function handleSort(column) {
+    if (sortBy === column) {
+      // Toggle sort order if clicking same column
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New column, default to descending
+      setSortBy(column)
+      setSortOrder('desc')
+    }
+    setPage(0)
+  }
+
+  function SortHeader({ column, children }) {
+    const isActive = sortBy === column
+    return (
+      <th
+        onClick={() => handleSort(column)}
+        className={`${styles.sortable} ${isActive ? styles.sortActive : ''}`}
+      >
+        {children}
+        <span className={styles.sortArrow}>
+          {isActive ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+        </span>
+      </th>
+    )
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—'
+    return new Date(dateStr).toLocaleDateString()
   }
 
   const totalPages = Math.ceil(total / limit)
@@ -83,21 +117,25 @@ function AdminUsers() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Subscription</th>
-              <th>Joined</th>
+              <SortHeader column="username">User</SortHeader>
+              <SortHeader column="email">Email</SortHeader>
+              <SortHeader column="subscription_tier">Subscription</SortHeader>
+              <SortHeader column="created_at">Joined</SortHeader>
+              <SortHeader column="last_login">Last Login</SortHeader>
+              <th>Events</th>
+              <th>Earliest Event</th>
+              <th>Latest Event</th>
               <th>Superuser</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className={styles.loadingCell}>Loading...</td>
+                <td colSpan="9" className={styles.loadingCell}>Loading...</td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan="5" className={styles.emptyCell}>No users found</td>
+                <td colSpan="9" className={styles.emptyCell}>No users found</td>
               </tr>
             ) : (
               users.map(user => (
@@ -119,7 +157,19 @@ function AdminUsers() {
                     </span>
                   </td>
                   <td className={styles.date}>
-                    {new Date(user.created_at).toLocaleDateString()}
+                    {formatDate(user.created_at)}
+                  </td>
+                  <td className={styles.date}>
+                    {formatDate(user.last_login)}
+                  </td>
+                  <td className={styles.number}>
+                    {user.event_count || 0}
+                  </td>
+                  <td className={styles.date}>
+                    {formatDate(user.earliest_event)}
+                  </td>
+                  <td className={styles.date}>
+                    {formatDate(user.latest_event)}
                   </td>
                   <td>
                     <button

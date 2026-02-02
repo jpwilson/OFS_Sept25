@@ -10,8 +10,11 @@ function AdminEvents() {
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [includeDeleted, setIncludeDeleted] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('all')
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortOrder, setSortOrder] = useState('desc')
   const limit = 50
   const { showToast } = useToast()
 
@@ -26,12 +29,20 @@ function AdminEvents() {
 
   useEffect(() => {
     loadEvents()
-  }, [debouncedSearch, includeDeleted, page])
+  }, [debouncedSearch, includeDeleted, statusFilter, page, sortBy, sortOrder])
 
   async function loadEvents() {
     try {
       setLoading(true)
-      const data = await apiService.getAdminEvents(debouncedSearch, includeDeleted, page * limit, limit)
+      const data = await apiService.getAdminEvents(
+        debouncedSearch,
+        includeDeleted,
+        page * limit,
+        limit,
+        sortBy,
+        sortOrder,
+        statusFilter
+      )
       setEvents(data.events)
       setTotal(data.total)
     } catch (err) {
@@ -56,6 +67,36 @@ function AdminEvents() {
     }
   }
 
+  function handleSort(column) {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('desc')
+    }
+    setPage(0)
+  }
+
+  function SortHeader({ column, children }) {
+    const isActive = sortBy === column
+    return (
+      <th
+        onClick={() => handleSort(column)}
+        className={`${styles.sortable} ${isActive ? styles.sortActive : ''}`}
+      >
+        {children}
+        <span className={styles.sortArrow}>
+          {isActive ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+        </span>
+      </th>
+    )
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—'
+    return new Date(dateStr).toLocaleDateString()
+  }
+
   const totalPages = Math.ceil(total / limit)
 
   return (
@@ -77,6 +118,29 @@ function AdminEvents() {
           onChange={(e) => setSearch(e.target.value)}
           className={styles.searchInput}
         />
+
+        {/* Status filter tabs */}
+        <div className={styles.statusTabs}>
+          <button
+            className={`${styles.statusTab} ${statusFilter === 'all' ? styles.active : ''}`}
+            onClick={() => { setStatusFilter('all'); setPage(0) }}
+          >
+            All
+          </button>
+          <button
+            className={`${styles.statusTab} ${statusFilter === 'published' ? styles.active : ''}`}
+            onClick={() => { setStatusFilter('published'); setPage(0) }}
+          >
+            Published
+          </button>
+          <button
+            className={`${styles.statusTab} ${statusFilter === 'draft' ? styles.active : ''}`}
+            onClick={() => { setStatusFilter('draft'); setPage(0) }}
+          >
+            Draft
+          </button>
+        </div>
+
         <label className={styles.checkbox}>
           <input
             type="checkbox"
@@ -95,22 +159,25 @@ function AdminEvents() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Event</th>
+              <SortHeader column="title">Event</SortHeader>
               <th>Creator</th>
-              <th>Date</th>
+              <SortHeader column="event_date">Event Date</SortHeader>
               <th>Photos</th>
-              <th>Status</th>
+              <th>Videos</th>
+              <th>Reactions</th>
+              <th>Comments</th>
+              <SortHeader column="is_published">Status</SortHeader>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className={styles.loadingCell}>Loading...</td>
+                <td colSpan="9" className={styles.loadingCell}>Loading...</td>
               </tr>
             ) : events.length === 0 ? (
               <tr>
-                <td colSpan="6" className={styles.emptyCell}>No events found</td>
+                <td colSpan="9" className={styles.emptyCell}>No events found</td>
               </tr>
             ) : (
               events.map(event => (
@@ -122,20 +189,31 @@ function AdminEvents() {
                   </td>
                   <td>
                     <Link to={`/profile/${event.creator_username}`} className={styles.creator}>
-                      @{event.creator_username}
+                      @{event.creator_username || '—'}
                     </Link>
                   </td>
                   <td className={styles.date}>
-                    {event.event_date ? new Date(event.event_date).toLocaleDateString() : '—'}
+                    {formatDate(event.event_date)}
                   </td>
-                  <td className={styles.photoCount}>
+                  <td className={styles.number}>
                     {event.photo_count || 0}
+                  </td>
+                  <td className={styles.number}>
+                    {event.video_count || 0}
+                  </td>
+                  <td className={styles.number}>
+                    {event.reaction_count || 0}
+                  </td>
+                  <td className={styles.number}>
+                    {event.comment_count || 0}
                   </td>
                   <td>
                     {event.is_deleted ? (
                       <span className={`${styles.badge} ${styles.hidden}`}>Hidden</span>
+                    ) : event.is_published ? (
+                      <span className={`${styles.badge} ${styles.published}`}>Published</span>
                     ) : (
-                      <span className={`${styles.badge} ${styles.visible}`}>Visible</span>
+                      <span className={`${styles.badge} ${styles.draft}`}>Draft</span>
                     )}
                   </td>
                   <td>

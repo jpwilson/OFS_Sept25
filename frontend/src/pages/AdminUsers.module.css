@@ -90,6 +90,26 @@
   background: var(--bg-tertiary);
 }
 
+/* Sortable headers */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.sortable:hover {
+  color: #667eea;
+}
+
+.sortActive {
+  color: #667eea;
+}
+
+.sortArrow {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
 .table tr:last-child td {
   border-bottom: none;
 }
@@ -135,6 +155,12 @@
 .date {
   font-size: 13px;
   color: var(--text-tertiary);
+}
+
+.number {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 /* Badge */

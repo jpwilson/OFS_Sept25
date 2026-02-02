@@ -80,6 +80,36 @@
   cursor: pointer;
 }
 
+/* Status filter tabs */
+.statusTabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.statusTab {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.statusTab:hover {
+  color: var(--text-primary);
+}
+
+.statusTab.active {
+  background: var(--bg-secondary);
+  color: #667eea;
+}
+
 /* Table */
 .tableWrapper {
   overflow-x: auto;
@@ -107,6 +137,26 @@
   letter-spacing: 0.5px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
+}
+
+/* Sortable headers */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.sortable:hover {
+  color: #667eea;
+}
+
+.sortActive {
+  color: #667eea;
+}
+
+.sortArrow {
+  margin-left: 4px;
+  font-size: 10px;
 }
 
 .table tr:last-child td {
@@ -165,6 +215,13 @@
   color: var(--text-secondary);
 }
 
+.number {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
 /* Badge */
 .badge {
   display: inline-block;
@@ -174,7 +231,8 @@
   font-weight: 600;
 }
 
-.visible {
+.visible,
+.published {
   background: rgba(34, 197, 94, 0.15);
   color: #22c55e;
 }
@@ -182,6 +240,11 @@
 .hidden {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+}
+
+.draft {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
 }
 
 /* Action buttons */
