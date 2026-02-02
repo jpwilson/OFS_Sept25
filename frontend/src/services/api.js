@@ -6,8 +6,13 @@ const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'l
   : 'http://localhost:8000'
 const API_BASE = `${API_URL}/api/v1`
 
+// Generate short unique ID for request correlation
+const generateRequestId = () => {
+  return Math.random().toString(36).substring(2, 10)
+}
+
 class ApiService {
-  async getAuthHeaders() {
+  async getAuthHeaders(requestId = null) {
     // Try to get Supabase session first and refresh if needed
     const { data: { session }, error } = await supabase.auth.getSession()
 
@@ -26,25 +31,36 @@ class ApiService {
         console.log('Token expiring soon, refreshing...')
         const { data: { session: newSession } } = await supabase.auth.refreshSession()
         if (newSession?.access_token) {
+          const reqId = requestId || generateRequestId()
           return {
             'Content-Type': 'application/json',
+            'X-Request-ID': reqId,
             'Authorization': `Bearer ${newSession.access_token}`
           }
         }
       }
 
+      const reqId = requestId || generateRequestId()
       return {
         'Content-Type': 'application/json',
+        'X-Request-ID': reqId,
         'Authorization': `Bearer ${session.access_token}`
       }
     }
 
     // Fallback to legacy token
     const legacyToken = localStorage.getItem('token')
+    const reqId = requestId || generateRequestId()
     return {
       'Content-Type': 'application/json',
+      'X-Request-ID': reqId,
       ...(legacyToken && { 'Authorization': `Bearer ${legacyToken}` })
     }
+  }
+
+  // Helper to log errors with request context
+  logError(requestId, endpoint, status, error) {
+    console.error(`[${requestId}] API Error - ${endpoint}: ${status}`, error)
   }
 
   async getEvents(orderBy = 'event_date') {

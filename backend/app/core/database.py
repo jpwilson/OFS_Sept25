@@ -2,7 +2,18 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
+import logging
+import sys
+
 from .config import settings
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+db_logger = logging.getLogger("ofs.db")
 
 # For serverless (Vercel), use NullPool - no persistent connections
 # This avoids connection pool exhaustion when multiple instances spin up
@@ -34,3 +45,20 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# Database connection event logging for debugging
+@event.listens_for(engine, "connect")
+def on_connect(dbapi_conn, connection_record):
+    db_logger.info(f"DB connection established: {id(dbapi_conn)}")
+
+
+@event.listens_for(engine, "close")
+def on_close(dbapi_conn, connection_record):
+    db_logger.info(f"DB connection closed: {id(dbapi_conn)}")
+
+
+# Log connection errors
+@event.listens_for(engine, "handle_error")
+def on_error(exception_context):
+    db_logger.error(f"DB error: {exception_context.original_exception}")

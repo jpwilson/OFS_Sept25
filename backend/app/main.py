@@ -1,10 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import logging
+import sys
+import time
+import uuid
+
 from .core.config import settings
 from .core.database import engine, Base
 from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin
+
+# Configure logging for Vercel (stdout capture)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger("ofs")
 
 # Tables are managed by migrations, not created on startup
 # Base.metadata.create_all(bind=engine)  # Removed to avoid connection exhaustion in serverless
@@ -26,6 +39,35 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Request logging middleware with correlation IDs
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    # Get or generate correlation ID
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4())[:8])
+    start_time = time.time()
+
+    # Log request start (skip health checks to reduce noise)
+    path = request.url.path
+    if path not in ["/", "/health", "/debug/env"]:
+        logger.info(f"[{request_id}] START {request.method} {path}")
+
+    try:
+        response = await call_next(request)
+        duration = time.time() - start_time
+
+        # Log request completion (skip health checks)
+        if path not in ["/", "/health", "/debug/env"]:
+            logger.info(f"[{request_id}] END {response.status_code} in {duration:.3f}s")
+
+        # Add correlation ID to response headers for debugging
+        response.headers["X-Request-ID"] = request_id
+        return response
+
+    except Exception as e:
+        duration = time.time() - start_time
+        logger.error(f"[{request_id}] FAILED after {duration:.3f}s: {type(e).__name__}: {e}")
+        raise
 
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(events.router, prefix=settings.API_V1_STR)
