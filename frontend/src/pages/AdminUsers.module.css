@@ -88,6 +88,32 @@
   letter-spacing: 0.5px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
+  white-space: nowrap;
+}
+
+/* Sortable headers */
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.sortableHeader:hover {
+  color: #667eea;
+}
+
+.sortableHeader.activeSort {
+  color: #667eea;
+}
+
+.sortIcon {
+  margin-left: 6px;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.sortableHeader.activeSort .sortIcon {
+  opacity: 1;
 }
 
 .table tr:last-child td {
@@ -135,6 +161,13 @@
 .date {
   font-size: 13px;
   color: var(--text-tertiary);
+}
+
+.number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
 }
 
 /* Badge */

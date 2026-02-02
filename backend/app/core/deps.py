@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from typing import Optional
+from datetime import datetime, timedelta
 from .database import get_db
 from .security import decode_token
 from .config import settings
@@ -10,6 +11,18 @@ from ..models.user import User
 
 security = HTTPBearer()
 security_optional = HTTPBearer(auto_error=False)
+
+
+def _update_last_login(user: User, db: Session):
+    """Update user's last_login if it's been more than 1 hour since last update."""
+    now = datetime.utcnow()
+    if user.last_login is None or (now - user.last_login) > timedelta(hours=1):
+        try:
+            user.last_login = now
+            db.commit()
+        except Exception:
+            db.rollback()  # Don't fail auth if last_login update fails
+
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -74,6 +87,7 @@ def get_current_user(
                     print(f"🟢 User found! ID: {user.id}, Username: {user.username}, Email: {user.email}")
                     if user.is_active:
                         print(f"🟢 User is active, returning user")
+                        _update_last_login(user, db)
                         return user
                     else:
                         print(f"🔴 User account is inactive")
@@ -134,6 +148,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found"
         )
+    _update_last_login(user, db)
     return user
 
 

@@ -22,6 +22,7 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)  # Admin access
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)  # Tracks last authentication
 
     # Subscription & Trial fields
     trial_start_date = Column(DateTime, nullable=True)
