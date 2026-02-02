@@ -1,0 +1,283 @@
+/* FeedCardPreview - Image-only cards with glass hover overlay */
+
+.card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.imageContainer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--bg-tertiary);
+}
+
+/* Base glass overlay (hidden by default for A, B) */
+.glassOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Content inside overlays */
+.content {
+  color: white;
+  width: 100%;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.author {
+  color: #a5b4fc;
+  font-weight: 500;
+}
+
+.date {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.location {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.location::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Variant label */
+.variantLabel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  z-index: 10;
+}
+
+/* ==============================================
+   VARIANT A - Slide Up Glass
+   ============================================== */
+
+.variantA .glassOverlay {
+  transform: translateY(100%);
+  opacity: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.variantA:hover .glassOverlay {
+  transform: translateY(0);
+}
+
+.variantA .content {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease 0.1s, opacity 0.3s ease 0.1s;
+}
+
+.variantA:hover .content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ==============================================
+   VARIANT B - Fade In Glass
+   ============================================== */
+
+.variantB .glassOverlay {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.variantB:hover .glassOverlay {
+  opacity: 1;
+}
+
+.variantB .title {
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.3s ease 0.1s, opacity 0.3s ease 0.1s;
+}
+
+.variantB:hover .title {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.variantB .meta {
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.3s ease 0.15s, opacity 0.3s ease 0.15s;
+}
+
+.variantB:hover .meta {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+.variantB .location {
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.3s ease 0.2s, opacity 0.3s ease 0.2s;
+}
+
+.variantB:hover .location {
+  transform: translateY(0);
+  opacity: 0.7;
+}
+
+/* ==============================================
+   VARIANT C - Split Glass (Top + Bottom meet)
+   ============================================== */
+
+.variantC .glassOverlay {
+  display: none;
+}
+
+.splitTop,
+.splitBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  padding: 20px;
+}
+
+.splitTop {
+  top: 0;
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  align-items: flex-end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.splitBottom {
+  bottom: 0;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  align-items: flex-start;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.variantC:hover .splitTop {
+  transform: translateY(0);
+}
+
+.variantC:hover .splitBottom {
+  transform: translateY(0);
+}
+
+.splitTop .content,
+.splitBottom .content {
+  opacity: 0;
+  transition: opacity 0.3s ease 0.15s;
+}
+
+.variantC:hover .splitTop .content,
+.variantC:hover .splitBottom .content {
+  opacity: 1;
+}
+
+/* ==============================================
+   VARIANT D - Corner Reveal (diagonal wipe)
+   ============================================== */
+
+.variantD .glassOverlay {
+  display: none;
+}
+
+.cornerOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  clip-path: polygon(0 100%, 0 100%, 0 100%);
+  transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.variantD:hover .cornerOverlay {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.cornerOverlay .content {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+}
+
+.variantD:hover .cornerOverlay .content {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ==============================================
+   Responsive
+   ============================================== */
+
+@media (max-width: 768px) {
+  .card {
+    aspect-ratio: 3 / 4;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .meta {
+    font-size: 12px;
+  }
+}
