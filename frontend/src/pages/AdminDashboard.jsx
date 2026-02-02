@@ -123,14 +123,6 @@ function AdminDashboard() {
             </div>
             <div className={styles.linkArrow}>→</div>
           </Link>
-          <Link to="/admin/design" className={styles.linkCard}>
-            <div className={styles.linkIcon}>🎨</div>
-            <div className={styles.linkContent}>
-              <h3>Design Preview</h3>
-              <p>Preview feed cards and landing pages</p>
-            </div>
-            <div className={styles.linkArrow}>→</div>
-          </Link>
         </div>
       </section>
 

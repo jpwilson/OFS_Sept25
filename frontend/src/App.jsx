@@ -36,7 +36,6 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
 import AdminEvents from './pages/AdminEvents'
 import AdminFeedback from './pages/AdminFeedback'
-import AdminDesignPreview from './pages/AdminDesignPreview'
 // Landing page variations (superuser only)
 import LandingV1 from './pages/LandingV1'
 import LandingV2 from './pages/LandingV2'
@@ -119,7 +118,6 @@ function App() {
               <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
               <Route path="/admin/events" element={<SuperuserRoute><AdminEvents /></SuperuserRoute>} />
               <Route path="/admin/feedback" element={<SuperuserRoute><AdminFeedback /></SuperuserRoute>} />
-              <Route path="/admin/design" element={<SuperuserRoute><AdminDesignPreview /></SuperuserRoute>} />
               {/* Landing page variations - superuser only */}
               <Route path="/admin/landing-1" element={<SuperuserRoute><LandingV1 /></SuperuserRoute>} />
               <Route path="/admin/landing-2" element={<SuperuserRoute><LandingV2 /></SuperuserRoute>} />

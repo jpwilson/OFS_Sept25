@@ -2612,8 +2612,8 @@ class ApiService {
     return await response.json()
   }
 
-  async getAdminUsers(search = '', skip = 0, limit = 50, sortBy = 'created_at', sortOrder = 'desc') {
-    const params = new URLSearchParams({ skip, limit, sort_by: sortBy, sort_order: sortOrder })
+  async getAdminUsers(search = '', skip = 0, limit = 50) {
+    const params = new URLSearchParams({ skip, limit })
     if (search) params.append('search', search)
     const response = await fetch(`${API_BASE}/admin/users?${params}`, {
       headers: await this.getAuthHeaders()
@@ -2635,8 +2635,8 @@ class ApiService {
     return await response.json()
   }
 
-  async getAdminEvents(search = '', includeDeleted = false, skip = 0, limit = 50, sortBy = 'created_at', sortOrder = 'desc', statusFilter = 'all') {
-    const params = new URLSearchParams({ skip, limit, include_deleted: includeDeleted, sort_by: sortBy, sort_order: sortOrder, status_filter: statusFilter })
+  async getAdminEvents(search = '', includeDeleted = false, skip = 0, limit = 50) {
+    const params = new URLSearchParams({ skip, limit, include_deleted: includeDeleted })
     if (search) params.append('search', search)
     const response = await fetch(`${API_BASE}/admin/events?${params}`, {
       headers: await this.getAuthHeaders()
