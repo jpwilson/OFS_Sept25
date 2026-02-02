@@ -57,28 +57,28 @@ function AdminDesignPreview() {
           <span className={styles.descBadge}>A</span>
           <div>
             <strong>Slide Up</strong>
-            <p>Glass panel slides up from bottom with bounce easing</p>
+            <p>Dark gradient slides up from bottom, no blur</p>
           </div>
         </div>
         <div className={styles.descCard}>
           <span className={styles.descBadge}>B</span>
           <div>
-            <strong>Fade In</strong>
-            <p>Elegant fade with staggered text animation</p>
+            <strong>Fade + Glossy</strong>
+            <p>Gradient fades in with glossy sweep animation</p>
           </div>
         </div>
         <div className={styles.descCard}>
           <span className={styles.descBadge}>C</span>
           <div>
-            <strong>Split</strong>
-            <p>Glass splits from center, top/bottom meet in middle</p>
+            <strong>Text Blur Only</strong>
+            <p>Blur only behind text area, image stays crisp</p>
           </div>
         </div>
         <div className={styles.descCard}>
           <span className={styles.descBadge}>D</span>
           <div>
             <strong>Corner Reveal</strong>
-            <p>Diagonal wipe expanding from bottom-left corner</p>
+            <p>Diagonal wipe with subtle gradient overlay</p>
           </div>
         </div>
       </div>

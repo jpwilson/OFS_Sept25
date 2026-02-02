@@ -228,6 +228,36 @@
   transform: rotate(180deg);
 }
 
+/* Standalone project card link */
+.projectCardLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+
+.projectCardLink:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.projectArrow {
+  font-size: 18px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+}
+
+.projectCardLink:hover .projectArrow {
+  transform: translateX(4px);
+  color: #667eea;
+}
+
 .projectContent {
   border-top: 1px solid var(--border-color);
   padding: 12px;

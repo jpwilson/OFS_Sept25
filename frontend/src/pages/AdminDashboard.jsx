@@ -123,14 +123,6 @@ function AdminDashboard() {
             </div>
             <div className={styles.linkArrow}>→</div>
           </Link>
-          <Link to="/admin/design" className={styles.linkCard}>
-            <div className={styles.linkIcon}>🎨</div>
-            <div className={styles.linkContent}>
-              <h3>Design Preview</h3>
-              <p>Preview feed card hover variations</p>
-            </div>
-            <div className={styles.linkArrow}>→</div>
-          </Link>
         </div>
       </section>
 
@@ -184,6 +176,18 @@ function AdminDashboard() {
               </div>
             )}
           </div>
+
+          {/* Feed Card Design Project */}
+          <Link to="/admin/design" className={styles.projectCardLink}>
+            <div className={styles.projectInfo}>
+              <span className={styles.projectIcon}>🖼️</span>
+              <div>
+                <h4>Feed Card Hover Effects</h4>
+                <p>Preview 4 glass overlay variations for feed cards</p>
+              </div>
+            </div>
+            <span className={styles.projectArrow}>→</span>
+          </Link>
         </div>
 
         {/* Completed Projects */}

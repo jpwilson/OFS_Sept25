@@ -1,14 +1,13 @@
-import { Link } from 'react-router-dom'
 import styles from './FeedCardPreview.module.css'
 
 /**
- * FeedCardPreview - Image-only card with glass overlay on hover
+ * FeedCardPreview - Image-only card with overlay on hover
  *
- * Four variations of glass reveal effects:
- * - A: Slide up from bottom
- * - B: Fade in overlay
- * - C: Split from center (top/bottom meet in middle)
- * - D: Corner reveal (expands from bottom-left)
+ * Four variations (NO image blur - image stays crisp):
+ * - A: Slide up gradient from bottom
+ * - B: Fade in gradient + glossy sweep animation
+ * - C: Text area blur only (blur behind text, not image)
+ * - D: Diagonal corner reveal wipe
  */
 function FeedCardPreview({ event, variant = 'A' }) {
   const variantClass = styles[`variant${variant}`]
@@ -32,7 +31,7 @@ function FeedCardPreview({ event, variant = 'A' }) {
         className={styles.imageContainer}
         style={{ backgroundImage: `url(${coverImage})` }}
       >
-        {/* Glass overlay */}
+        {/* Standard overlay for variants A, B */}
         <div className={styles.glassOverlay}>
           <div className={styles.content}>
             <h3 className={styles.title}>{event.title}</h3>
@@ -50,30 +49,27 @@ function FeedCardPreview({ event, variant = 'A' }) {
           </div>
         </div>
 
-        {/* Variant C: Split overlay (top half) */}
+        {/* Variant C: Text area with blur behind it only */}
         {variant === 'C' && (
-          <>
-            <div className={styles.splitTop}>
-              <div className={styles.content}>
-                <h3 className={styles.title}>{event.title}</h3>
+          <div className={styles.textBackdrop}>
+            <div className={styles.content}>
+              <h3 className={styles.title}>{event.title}</h3>
+              <div className={styles.meta}>
+                {event.author_name && (
+                  <span className={styles.author}>@{event.author_name}</span>
+                )}
+                {event.event_date && (
+                  <span className={styles.date}>{formatDate(event.event_date)}</span>
+                )}
               </div>
+              {event.location && (
+                <span className={styles.location}>{event.location}</span>
+              )}
             </div>
-            <div className={styles.splitBottom}>
-              <div className={styles.content}>
-                <div className={styles.meta}>
-                  {event.author_name && (
-                    <span className={styles.author}>@{event.author_name}</span>
-                  )}
-                  {event.event_date && (
-                    <span className={styles.date}>{formatDate(event.event_date)}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>
+          </div>
         )}
 
-        {/* Variant D: Corner mask overlay */}
+        {/* Variant D: Corner reveal overlay */}
         {variant === 'D' && (
           <div className={styles.cornerOverlay}>
             <div className={styles.content}>
@@ -86,6 +82,9 @@ function FeedCardPreview({ event, variant = 'A' }) {
                   <span className={styles.date}>{formatDate(event.event_date)}</span>
                 )}
               </div>
+              {event.location && (
+                <span className={styles.location}>{event.location}</span>
+              )}
             </div>
           </div>
         )}
