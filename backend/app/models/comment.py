@@ -13,5 +13,13 @@ class Comment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Threading support
+    parent_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
+    depth = Column(Integer, default=0)  # 0=top-level, 1=reply, 2=reply-to-reply (max)
+
+    # Relationships
     event = relationship("Event", back_populates="comments")
     author = relationship("User", back_populates="comments")
+    parent = relationship("Comment", remote_side=[id], back_populates="replies")
+    replies = relationship("Comment", back_populates="parent", cascade="all, delete-orphan")
+    reactions = relationship("CommentReaction", back_populates="comment", cascade="all, delete-orphan")

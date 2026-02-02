@@ -82,6 +82,10 @@ class User(Base):
     media_likes = relationship("MediaLike", back_populates="user", cascade="all, delete-orphan")
     media_comments = relationship("MediaComment", back_populates="author", cascade="all, delete-orphan")
 
+    # Comment reactions
+    comment_reactions = relationship("CommentReaction", back_populates="user", cascade="all, delete-orphan")
+    media_comment_reactions = relationship("MediaCommentReaction", back_populates="user", cascade="all, delete-orphan")
+
     # Subscription helper methods
     def get_trial_status(self):
         """Returns 'active', 'expired', or 'never_started'"""

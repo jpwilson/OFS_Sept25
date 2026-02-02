@@ -1013,12 +1013,15 @@ class ApiService {
     }
   }
 
-  async createComment(eventId, content) {
+  async createComment(eventId, content, parentId = null) {
     try {
+      const body = { content }
+      if (parentId) body.parent_id = parentId
+
       const response = await fetch(`${API_BASE}/events/${eventId}/comments`, {
         method: 'POST',
         headers: await this.getAuthHeaders(),
-        body: JSON.stringify({ content })
+        body: JSON.stringify(body)
       })
 
       if (!response.ok) {
@@ -1029,6 +1032,35 @@ class ApiService {
       return await response.json()
     } catch (error) {
       console.error('Error creating comment:', error)
+      throw error
+    }
+  }
+
+  async reactToComment(eventId, commentId, reactionType = 'heart') {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments/${commentId}/reactions`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ reaction_type: reactionType })
+      })
+      if (!response.ok) throw new Error('Failed to react to comment')
+      return await response.json()
+    } catch (error) {
+      console.error('Error reacting to comment:', error)
+      throw error
+    }
+  }
+
+  async removeCommentReaction(eventId, commentId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments/${commentId}/reactions`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to remove reaction')
+      return await response.json()
+    } catch (error) {
+      console.error('Error removing comment reaction:', error)
       throw error
     }
   }
@@ -1685,12 +1717,15 @@ class ApiService {
     }
   }
 
-  async createMediaComment(mediaId, content) {
+  async createMediaComment(mediaId, content, parentId = null) {
     try {
+      const body = { content }
+      if (parentId) body.parent_id = parentId
+
       const response = await fetch(`${API_BASE}/media/${mediaId}/comments`, {
         method: 'POST',
         headers: await this.getAuthHeaders(),
-        body: JSON.stringify({ content })
+        body: JSON.stringify(body)
       })
       if (!response.ok) {
         const error = await response.json()
@@ -1699,6 +1734,35 @@ class ApiService {
       return await response.json()
     } catch (error) {
       console.error('Error creating media comment:', error)
+      throw error
+    }
+  }
+
+  async reactToMediaComment(mediaId, commentId, reactionType = 'heart') {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments/${commentId}/reactions`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({ reaction_type: reactionType })
+      })
+      if (!response.ok) throw new Error('Failed to react to comment')
+      return await response.json()
+    } catch (error) {
+      console.error('Error reacting to media comment:', error)
+      throw error
+    }
+  }
+
+  async removeMediaCommentReaction(mediaId, commentId) {
+    try {
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments/${commentId}/reactions`, {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to remove reaction')
+      return await response.json()
+    } catch (error) {
+      console.error('Error removing media comment reaction:', error)
       throw error
     }
   }

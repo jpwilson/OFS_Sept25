@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import Lightbox, { useLightboxState } from "yet-another-react-lightbox"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
@@ -153,6 +153,35 @@ function EngagementToolbar({
   )
 }
 
+// Reaction emoji mapping for comments
+const COMMENT_REACTIONS = {
+  heart: { emoji: '❤️', label: 'Love' },
+  laugh: { emoji: '😂', label: 'Haha' },
+  sad: { emoji: '😢', label: 'Sad' },
+  wow: { emoji: '😮', label: 'Wow' },
+  love: { emoji: '😍', label: 'Heart Eyes' },
+  clap: { emoji: '👏', label: 'Applause' },
+  fire: { emoji: '🔥', label: 'Fire' },
+  hundred: { emoji: '💯', label: 'Perfect' },
+  hug: { emoji: '🤗', label: 'Care' },
+  smile: { emoji: '😊', label: 'Happy' }
+}
+
+// Build comment tree from flat list
+function buildCommentTree(flatComments) {
+  const map = {}
+  const roots = []
+  flatComments.forEach(c => { map[c.id] = { ...c, replies: [] } })
+  flatComments.forEach(c => {
+    if (c.parent_id && map[c.parent_id]) {
+      map[c.parent_id].replies.push(map[c.id])
+    } else {
+      roots.push(map[c.id])
+    }
+  })
+  return roots
+}
+
 // Comments Panel Component
 function CommentsPanel({
   comments,
@@ -163,7 +192,15 @@ function CommentsPanel({
   onSubmit,
   onDelete,
   submitting,
-  onClose
+  onClose,
+  replyingTo,
+  setReplyingTo,
+  replyContent,
+  setReplyContent,
+  onReplySubmit,
+  showReactionPicker,
+  setShowReactionPicker,
+  onCommentReaction
 }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -180,6 +217,108 @@ function CommentsPanel({
     return date.toLocaleDateString()
   }
 
+  const commentTree = useMemo(() => buildCommentTree(comments), [comments])
+
+  const renderComment = (comment, depth) => {
+    const canReply = depth < 2 // Max 3 levels
+    const indentStyle = depth > 0 ? { marginLeft: `${depth * 16}px`, borderLeft: '2px solid rgba(102, 126, 234, 0.3)', paddingLeft: '8px' } : {}
+
+    return (
+      <div key={comment.id}>
+        <div className={styles.comment} style={indentStyle}>
+          <div className={styles.commentHeader}>
+            <span className={styles.commentAuthor}>{comment.author_display_name || comment.author_username || 'User'}</span>
+            <span className={styles.commentDate}>{formatDate(comment.created_at)}</span>
+          </div>
+          <div className={styles.commentContent}>{comment.content}</div>
+
+          {/* Comment actions */}
+          <div className={styles.commentActions}>
+            {/* Reaction button */}
+            <div className={styles.commentReactionContainer}>
+              <button
+                className={`${styles.commentReactionBtn} ${comment.user_reaction ? styles.reacted : ''}`}
+                onClick={() => setShowReactionPicker(showReactionPicker === comment.id ? null : comment.id)}
+              >
+                {comment.user_reaction ? COMMENT_REACTIONS[comment.user_reaction]?.emoji : '♡'}
+                {comment.reaction_count > 0 && <span>{comment.reaction_count}</span>}
+              </button>
+
+              {showReactionPicker === comment.id && (
+                <div className={styles.commentReactionPicker}>
+                  {Object.entries(COMMENT_REACTIONS).map(([type, { emoji, label }]) => (
+                    <button
+                      key={type}
+                      className={styles.commentReactionOption}
+                      onClick={() => onCommentReaction(comment.id, type)}
+                      title={label}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Reply button */}
+            {canReply && user && (
+              <button
+                className={styles.replyBtn}
+                onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+              >
+                Reply
+              </button>
+            )}
+
+            {/* Delete button */}
+            {user && comment.author_id === user.id && (
+              <button
+                className={styles.deleteComment}
+                onClick={() => onDelete(comment.id)}
+                title="Delete comment"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Reply form */}
+          {replyingTo === comment.id && (
+            <div className={styles.inlineReplyForm}>
+              <input
+                type="text"
+                placeholder={`Reply to ${comment.author_display_name || comment.author_username}...`}
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                className={styles.replyInput}
+              />
+              <button
+                onClick={() => onReplySubmit(comment.id)}
+                disabled={!replyContent.trim() || submitting}
+                className={styles.replySubmitBtn}
+              >
+                {submitting ? '...' : 'Reply'}
+              </button>
+              <button
+                onClick={() => { setReplyingTo(null); setReplyContent('') }}
+                className={styles.replyCancelBtn}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Render nested replies */}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className={styles.commentReplies}>
+            {comment.replies.map(reply => renderComment(reply, depth + 1))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return createPortal(
     <div className={styles.commentsOverlay}>
       <div className={styles.commentsPanel}>
@@ -191,27 +330,10 @@ function CommentsPanel({
         <div className={styles.commentsList}>
           {loading ? (
             <div className={styles.loadingComments}>Loading comments...</div>
-          ) : comments.length === 0 ? (
+          ) : commentTree.length === 0 ? (
             <div className={styles.noComments}>No comments yet. Be the first!</div>
           ) : (
-            comments.map(comment => (
-              <div key={comment.id} className={styles.comment}>
-                <div className={styles.commentHeader}>
-                  <span className={styles.commentAuthor}>{comment.author_display_name || comment.author_username || 'User'}</span>
-                  <span className={styles.commentDate}>{formatDate(comment.created_at)}</span>
-                  {user && comment.author_id === user.id && (
-                    <button
-                      className={styles.deleteComment}
-                      onClick={() => onDelete(comment.id)}
-                      title="Delete comment"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-                <div className={styles.commentContent}>{comment.content}</div>
-              </div>
-            ))
+            commentTree.map(comment => renderComment(comment, 0))
           )}
         </div>
 
@@ -286,6 +408,9 @@ function ImageGallery({
   const [loadingComments, setLoadingComments] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [submittingComment, setSubmittingComment] = useState(false)
+  const [replyingTo, setReplyingTo] = useState(null) // Comment ID being replied to
+  const [replyContent, setReplyContent] = useState('')
+  const [showCommentReactionPicker, setShowCommentReactionPicker] = useState(null) // Comment ID for reaction picker
 
   // Get current media info for lightbox (moved up so it can be used in useEffect)
   const currentMedia = images[actualIndex]
@@ -467,6 +592,58 @@ function ImageGallery({
       }))
     } catch (error) {
       console.error('Failed to delete comment:', error)
+    }
+  }
+
+  // Handle submitting a reply to a comment
+  const handleReplySubmit = async (parentId) => {
+    if (!replyContent.trim() || !currentMediaId || submittingComment) return
+
+    setSubmittingComment(true)
+    try {
+      const reply = await api.createMediaComment(currentMediaId, replyContent.trim(), parentId)
+      if (reply) {
+        // Reload all comments to get proper nesting
+        const updatedComments = await api.getMediaComments(currentMediaId)
+        setComments(updatedComments)
+        setReplyContent('')
+        setReplyingTo(null)
+        // Update comment count
+        setMediaStats(prev => ({
+          ...prev,
+          [currentMediaId]: {
+            ...prev[currentMediaId],
+            comment_count: (prev[currentMediaId]?.comment_count || 0) + 1
+          }
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to create reply:', error)
+    } finally {
+      setSubmittingComment(false)
+    }
+  }
+
+  // Handle reacting to a comment
+  const handleCommentReaction = async (commentId, reactionType) => {
+    if (!user || !currentMediaId) return
+
+    try {
+      // Find the comment to check current reaction
+      const comment = comments.find(c => c.id === commentId)
+      if (comment?.user_reaction === reactionType) {
+        // Remove reaction
+        await api.removeMediaCommentReaction(currentMediaId, commentId)
+      } else {
+        // Add/update reaction
+        await api.reactToMediaComment(currentMediaId, commentId, reactionType)
+      }
+      setShowCommentReactionPicker(null)
+      // Reload comments to get updated reaction counts
+      const updatedComments = await api.getMediaComments(currentMediaId)
+      setComments(updatedComments)
+    } catch (error) {
+      console.error('Failed to react to comment:', error)
     }
   }
 
@@ -731,6 +908,14 @@ function ImageGallery({
           onDelete={handleDeleteComment}
           submitting={submittingComment}
           onClose={() => setShowComments(false)}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
+          replyContent={replyContent}
+          setReplyContent={setReplyContent}
+          onReplySubmit={handleReplySubmit}
+          showReactionPicker={showCommentReactionPicker}
+          setShowReactionPicker={setShowCommentReactionPicker}
+          onCommentReaction={handleCommentReaction}
         />
       )}
     </>

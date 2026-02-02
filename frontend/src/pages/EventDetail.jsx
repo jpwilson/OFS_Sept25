@@ -29,6 +29,9 @@ function EventDetail({ isShareMode = false }) {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [commentLoading, setCommentLoading] = useState(false)
+  const [replyingTo, setReplyingTo] = useState(null) // Comment ID we're replying to
+  const [replyContent, setReplyContent] = useState('')
+  const [showReactionPicker, setShowReactionPicker] = useState(null) // Comment ID for reaction picker
   const [likeStats, setLikeStats] = useState({ like_count: 0, is_liked: false, recent_likes: [] })
   const [showAllLikes, setShowAllLikes] = useState(false)
   const [allLikes, setAllLikes] = useState([])
@@ -623,6 +626,199 @@ function EventDetail({ isShareMode = false }) {
   async function loadComments(eventId) {
     const data = await apiService.getComments(eventId)
     setComments(data)
+  }
+
+  // Build comment tree from flat list
+  function buildCommentTree(flatComments) {
+    const map = {}
+    const roots = []
+    flatComments.forEach(c => { map[c.id] = { ...c, replies: [] } })
+    flatComments.forEach(c => {
+      if (c.parent_id && map[c.parent_id]) {
+        map[c.parent_id].replies.push(map[c.id])
+      } else {
+        roots.push(map[c.id])
+      }
+    })
+    return roots
+  }
+
+  const commentTree = useMemo(() => buildCommentTree(comments), [comments])
+
+  // Reaction emoji mapping
+  const REACTIONS = {
+    heart: { emoji: '❤️', label: 'Love' },
+    laugh: { emoji: '😂', label: 'Haha' },
+    sad: { emoji: '😢', label: 'Sad' },
+    wow: { emoji: '😮', label: 'Wow' },
+    love: { emoji: '😍', label: 'Heart Eyes' },
+    clap: { emoji: '👏', label: 'Applause' },
+    fire: { emoji: '🔥', label: 'Fire' },
+    hundred: { emoji: '💯', label: 'Perfect' },
+    hug: { emoji: '🤗', label: 'Care' },
+    smile: { emoji: '😊', label: 'Happy' }
+  }
+
+  async function handleReplySubmit(parentId) {
+    if (!user) {
+      setLoginPromptAction('reply to this comment')
+      setShowLoginPrompt(true)
+      return
+    }
+    if (!replyContent.trim() || commentLoading) return
+
+    setCommentLoading(true)
+    try {
+      await apiService.createComment(event.id, replyContent.trim(), parentId)
+      setReplyContent('')
+      setReplyingTo(null)
+      loadComments(event.id)
+      showToast('Reply posted', 'success')
+    } catch (error) {
+      console.error('Error creating reply:', error)
+      if (error.message.includes('depth limit')) {
+        showToast('Reply depth limit reached (max 3 levels)', 'error')
+      } else {
+        showToast('Failed to post reply', 'error')
+      }
+    }
+    setCommentLoading(false)
+  }
+
+  async function handleCommentReaction(commentId, reactionType) {
+    if (!user) {
+      setLoginPromptAction('react to comments')
+      setShowLoginPrompt(true)
+      return
+    }
+
+    try {
+      // Find the comment to check current reaction
+      const comment = comments.find(c => c.id === commentId)
+      if (comment?.user_reaction === reactionType) {
+        // Remove reaction if clicking same one
+        await apiService.removeCommentReaction(event.id, commentId)
+      } else {
+        // Add/update reaction
+        await apiService.reactToComment(event.id, commentId, reactionType)
+      }
+      setShowReactionPicker(null)
+      loadComments(event.id)
+    } catch (error) {
+      console.error('Error reacting to comment:', error)
+      showToast('Failed to add reaction', 'error')
+    }
+  }
+
+  // Render a comment with threading support
+  function renderComment(comment, depth) {
+    const canReply = depth < 2 // Max 3 levels (0, 1, 2)
+    const indentStyle = depth > 0 ? { marginLeft: `${depth * 24}px`, borderLeft: '2px solid var(--border-color)', paddingLeft: '12px' } : {}
+
+    return (
+      <div key={comment.id}>
+        <div className={styles.comment} style={indentStyle}>
+          <Link to={`/profile/${comment.author_username}`} className={styles.commentAvatar}>
+            {(comment.author_display_name || comment.author_full_name || comment.author_username).charAt(0).toUpperCase()}
+          </Link>
+          <div className={styles.commentContent}>
+            <div className={styles.commentHeader}>
+              <Link to={`/profile/${comment.author_username}`} className={styles.commentAuthor}>
+                {comment.author_display_name || comment.author_full_name || comment.author_username}
+              </Link>
+              <span className={styles.commentDate}>{formatCommentDate(comment.created_at)}</span>
+            </div>
+            <p className={styles.commentText}>{comment.content}</p>
+
+            {/* Comment actions: reactions, reply, delete */}
+            <div className={styles.commentActions}>
+              {/* Reaction button */}
+              <div className={styles.reactionContainer}>
+                <button
+                  className={`${styles.reactionBtn} ${comment.user_reaction ? styles.reacted : ''}`}
+                  onClick={() => setShowReactionPicker(showReactionPicker === comment.id ? null : comment.id)}
+                >
+                  {comment.user_reaction ? REACTIONS[comment.user_reaction]?.emoji : '♡'}
+                  {comment.reaction_count > 0 && <span className={styles.reactionCount}>{comment.reaction_count}</span>}
+                </button>
+
+                {/* Reaction picker */}
+                {showReactionPicker === comment.id && (
+                  <div className={styles.reactionPicker}>
+                    {Object.entries(REACTIONS).map(([type, { emoji, label }]) => (
+                      <button
+                        key={type}
+                        className={styles.reactionOption}
+                        onClick={() => handleCommentReaction(comment.id, type)}
+                        title={label}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Reply button */}
+              {canReply && user && (
+                <button
+                  className={styles.replyBtn}
+                  onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                >
+                  Reply
+                </button>
+              )}
+              {depth >= 2 && user && (
+                <span className={styles.depthLimit}>Max reply depth</span>
+              )}
+
+              {/* Delete button */}
+              {user && (user.id === comment.author_id || user.id === event.author_id) && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id)}
+                  className={styles.deleteComment}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+
+            {/* Reply form */}
+            {replyingTo === comment.id && (
+              <div className={styles.replyForm}>
+                <input
+                  type="text"
+                  placeholder={`Reply to ${comment.author_display_name || comment.author_username}...`}
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  className={styles.replyInput}
+                />
+                <button
+                  onClick={() => handleReplySubmit(comment.id)}
+                  disabled={!replyContent.trim() || commentLoading}
+                  className={styles.replySubmit}
+                >
+                  {commentLoading ? 'Posting...' : 'Reply'}
+                </button>
+                <button
+                  onClick={() => { setReplyingTo(null); setReplyContent('') }}
+                  className={styles.replyCancel}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Render nested replies */}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className={styles.replies}>
+            {comment.replies.map(reply => renderComment(reply, depth + 1))}
+          </div>
+        )}
+      </div>
+    )
   }
 
   async function loadLikes(eventId) {
@@ -1520,33 +1716,10 @@ function EventDetail({ isShareMode = false }) {
         )}
 
         <div className={styles.commentsList}>
-          {comments.length === 0 ? (
+          {commentTree.length === 0 ? (
             <p className={styles.noComments}>No comments yet. Be the first to share your thoughts!</p>
           ) : (
-            comments.map(comment => (
-              <div key={comment.id} className={styles.comment}>
-                <Link to={`/profile/${comment.author_username}`} className={styles.commentAvatar}>
-                  {(comment.author_full_name || comment.author_username).charAt(0).toUpperCase()}
-                </Link>
-                <div className={styles.commentContent}>
-                  <div className={styles.commentHeader}>
-                    <Link to={`/profile/${comment.author_username}`} className={styles.commentAuthor}>
-                      {comment.author_full_name || comment.author_username}
-                    </Link>
-                    <span className={styles.commentDate}>{formatCommentDate(comment.created_at)}</span>
-                  </div>
-                  <p className={styles.commentText}>{comment.content}</p>
-                  {user && (user.id === comment.author_id || user.id === event.author_id) && (
-                    <button
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className={styles.deleteComment}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
+            commentTree.map(comment => renderComment(comment, 0))
           )}
         </div>
       </div>

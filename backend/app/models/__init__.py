@@ -16,3 +16,5 @@ from .event_tag import EventTag
 from .tag_profile_claim import TagProfileClaim
 from .user_relationship import UserRelationship
 from .user_mute import UserMute
+from .comment_reaction import CommentReaction
+from .media_comment_reaction import MediaCommentReaction

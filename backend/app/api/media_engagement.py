@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
@@ -9,6 +10,7 @@ from ..models.user import User
 from ..models.event_image import EventImage
 from ..models.media_like import MediaLike, REACTION_TYPES
 from ..models.media_comment import MediaComment
+from ..models.media_comment_reaction import MediaCommentReaction, REACTION_TYPES as COMMENT_REACTION_TYPES
 
 router = APIRouter(prefix="/media", tags=["media-engagement"])
 
@@ -39,6 +41,10 @@ class MediaLikeStats(BaseModel):
 
 class MediaCommentCreate(BaseModel):
     content: str
+    parent_id: Optional[int] = None
+
+class MediaCommentReactionCreate(BaseModel):
+    reaction_type: str = 'heart'
 
 class MediaCommentResponse(BaseModel):
     id: int
@@ -49,6 +55,11 @@ class MediaCommentResponse(BaseModel):
     author_avatar_url: Optional[str]
     content: str
     created_at: datetime
+    parent_id: Optional[int] = None
+    depth: int = 0
+    reaction_count: int = 0
+    reaction_counts: Dict[str, int] = {}
+    user_reaction: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -297,11 +308,27 @@ def create_media_comment(
     if len(comment_data.content) > 1000:
         raise HTTPException(status_code=400, detail="Comment too long (max 1000 characters)")
 
+    # Handle threading
+    depth = 0
+    parent_id = None
+    if comment_data.parent_id:
+        parent = db.query(MediaComment).filter(MediaComment.id == comment_data.parent_id).first()
+        if not parent:
+            raise HTTPException(status_code=404, detail="Parent comment not found")
+        if parent.event_image_id != media_id:
+            raise HTTPException(status_code=400, detail="Parent comment belongs to different media")
+        if parent.depth >= 2:
+            raise HTTPException(status_code=400, detail="Reply depth limit reached (max 3 levels)")
+        depth = parent.depth + 1
+        parent_id = parent.id
+
     # Create comment
     new_comment = MediaComment(
         event_image_id=media_id,
         author_id=current_user.id,
-        content=comment_data.content.strip()
+        content=comment_data.content.strip(),
+        parent_id=parent_id,
+        depth=depth
     )
 
     db.add(new_comment)
@@ -316,18 +343,51 @@ def create_media_comment(
         author_display_name=current_user.display_name,
         author_avatar_url=current_user.avatar_url,
         content=new_comment.content,
-        created_at=new_comment.created_at
+        created_at=new_comment.created_at,
+        parent_id=new_comment.parent_id,
+        depth=new_comment.depth,
+        reaction_count=0,
+        reaction_counts={},
+        user_reaction=None
     )
 
 @router.get("/{media_id}/comments", response_model=List[MediaCommentResponse])
 def get_media_comments(
     media_id: int,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get all comments for a media item"""
+    """Get all comments for a media item with reaction data"""
     comments = db.query(MediaComment).filter(
         MediaComment.event_image_id == media_id
     ).order_by(MediaComment.created_at.asc()).all()
+
+    # Get reaction counts for all comments
+    comment_ids = [c.id for c in comments]
+    reaction_counts_query = db.query(
+        MediaCommentReaction.media_comment_id,
+        MediaCommentReaction.reaction_type,
+        func.count(MediaCommentReaction.id).label('count')
+    ).filter(MediaCommentReaction.media_comment_id.in_(comment_ids)).group_by(
+        MediaCommentReaction.media_comment_id, MediaCommentReaction.reaction_type
+    ).all()
+
+    # Build reaction counts dict
+    reaction_counts_map = {}
+    for row in reaction_counts_query:
+        if row.media_comment_id not in reaction_counts_map:
+            reaction_counts_map[row.media_comment_id] = {}
+        reaction_counts_map[row.media_comment_id][row.reaction_type] = row.count
+
+    # Get user's reactions if logged in
+    user_reactions_map = {}
+    if current_user:
+        user_reactions = db.query(MediaCommentReaction).filter(
+            MediaCommentReaction.media_comment_id.in_(comment_ids),
+            MediaCommentReaction.user_id == current_user.id
+        ).all()
+        for reaction in user_reactions:
+            user_reactions_map[reaction.media_comment_id] = reaction.reaction_type
 
     return [
         MediaCommentResponse(
@@ -338,7 +398,12 @@ def get_media_comments(
             author_display_name=comment.author.display_name,
             author_avatar_url=comment.author.avatar_url,
             content=comment.content,
-            created_at=comment.created_at
+            created_at=comment.created_at,
+            parent_id=comment.parent_id,
+            depth=comment.depth if comment.depth else 0,
+            reaction_count=sum(reaction_counts_map.get(comment.id, {}).values()),
+            reaction_counts=reaction_counts_map.get(comment.id, {}),
+            user_reaction=user_reactions_map.get(comment.id)
         )
         for comment in comments
     ]
@@ -366,3 +431,81 @@ def delete_media_comment(
     db.commit()
 
     return {"message": "Comment deleted"}
+
+
+# ============ Media Comment Reaction Endpoints ============
+
+@router.post("/{media_id}/comments/{comment_id}/reactions")
+def react_to_media_comment(
+    media_id: int,
+    comment_id: int,
+    reaction: MediaCommentReactionCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Add or update a reaction on a media comment"""
+    # Validate reaction type
+    if reaction.reaction_type not in COMMENT_REACTION_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid reaction type. Must be one of: {COMMENT_REACTION_TYPES}")
+
+    # Check comment exists and belongs to this media
+    comment = db.query(MediaComment).filter(
+        MediaComment.id == comment_id,
+        MediaComment.event_image_id == media_id
+    ).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Check if user already has a reaction
+    existing = db.query(MediaCommentReaction).filter(
+        MediaCommentReaction.media_comment_id == comment_id,
+        MediaCommentReaction.user_id == current_user.id
+    ).first()
+
+    if existing:
+        if existing.reaction_type == reaction.reaction_type:
+            return {"message": "Already reacted with this type", "reaction_type": existing.reaction_type}
+        # Update reaction type
+        existing.reaction_type = reaction.reaction_type
+        db.commit()
+        return {"message": "Reaction updated", "reaction_type": reaction.reaction_type}
+
+    # Create new reaction
+    new_reaction = MediaCommentReaction(
+        media_comment_id=comment_id,
+        user_id=current_user.id,
+        reaction_type=reaction.reaction_type
+    )
+    db.add(new_reaction)
+    db.commit()
+
+    return {"message": "Reaction added", "reaction_type": reaction.reaction_type}
+
+
+@router.delete("/{media_id}/comments/{comment_id}/reactions")
+def remove_media_comment_reaction(
+    media_id: int,
+    comment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Remove user's reaction from a media comment"""
+    # Check comment exists and belongs to this media
+    comment = db.query(MediaComment).filter(
+        MediaComment.id == comment_id,
+        MediaComment.event_image_id == media_id
+    ).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Delete the reaction
+    reaction = db.query(MediaCommentReaction).filter(
+        MediaCommentReaction.media_comment_id == comment_id,
+        MediaCommentReaction.user_id == current_user.id
+    ).first()
+
+    if reaction:
+        db.delete(reaction)
+        db.commit()
+
+    return {"message": "Reaction removed"}

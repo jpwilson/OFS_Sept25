@@ -1,19 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from sqlalchemy import func
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, get_current_user_optional
 from ..models.user import User
 from ..models.event import Event
 from ..models.comment import Comment
+from ..models.comment_reaction import CommentReaction, REACTION_TYPES
 from ..services.email_service import send_new_comment_email
 
 router = APIRouter(prefix="/events", tags=["comments"])
 
 class CommentCreate(BaseModel):
     content: str
+    parent_id: Optional[int] = None
+
+class ReactionCreate(BaseModel):
+    reaction_type: str = 'heart'
 
 class CommentResponse(BaseModel):
     id: int
@@ -25,6 +31,11 @@ class CommentResponse(BaseModel):
     author_avatar_url: Optional[str] = None
     content: str
     created_at: datetime
+    parent_id: Optional[int] = None
+    depth: int = 0
+    reaction_count: int = 0
+    reaction_counts: Dict[str, int] = {}
+    user_reaction: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -43,11 +54,27 @@ def create_comment(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
+    # Handle threading
+    depth = 0
+    parent_id = None
+    if comment.parent_id:
+        parent = db.query(Comment).filter(Comment.id == comment.parent_id).first()
+        if not parent:
+            raise HTTPException(status_code=404, detail="Parent comment not found")
+        if parent.event_id != event_id:
+            raise HTTPException(status_code=400, detail="Parent comment belongs to a different event")
+        if parent.depth >= 2:
+            raise HTTPException(status_code=400, detail="Reply depth limit reached (max 3 levels)")
+        depth = parent.depth + 1
+        parent_id = parent.id
+
     # Create comment
     new_comment = Comment(
         event_id=event_id,
         author_id=current_user.id,
-        content=comment.content
+        content=comment.content,
+        parent_id=parent_id,
+        depth=depth
     )
 
     db.add(new_comment)
@@ -86,16 +113,49 @@ def create_comment(
         author_display_name=current_user.display_name,
         author_avatar_url=current_user.avatar_url,
         content=new_comment.content,
-        created_at=new_comment.created_at
+        created_at=new_comment.created_at,
+        parent_id=new_comment.parent_id,
+        depth=new_comment.depth,
+        reaction_count=0,
+        reaction_counts={},
+        user_reaction=None
     )
 
 @router.get("/{event_id}/comments", response_model=List[CommentResponse])
 def get_comments(
     event_id: int,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get all comments for an event"""
-    comments = db.query(Comment).filter(Comment.event_id == event_id).order_by(Comment.created_at.desc()).all()
+    """Get all comments for an event with reaction data"""
+    comments = db.query(Comment).filter(Comment.event_id == event_id).order_by(Comment.created_at.asc()).all()
+
+    # Get reaction counts for all comments in one query
+    comment_ids = [c.id for c in comments]
+    reaction_counts_query = db.query(
+        CommentReaction.comment_id,
+        CommentReaction.reaction_type,
+        func.count(CommentReaction.id).label('count')
+    ).filter(CommentReaction.comment_id.in_(comment_ids)).group_by(
+        CommentReaction.comment_id, CommentReaction.reaction_type
+    ).all()
+
+    # Build reaction counts dict
+    reaction_counts_map = {}
+    for row in reaction_counts_query:
+        if row.comment_id not in reaction_counts_map:
+            reaction_counts_map[row.comment_id] = {}
+        reaction_counts_map[row.comment_id][row.reaction_type] = row.count
+
+    # Get user's reactions if logged in
+    user_reactions_map = {}
+    if current_user:
+        user_reactions = db.query(CommentReaction).filter(
+            CommentReaction.comment_id.in_(comment_ids),
+            CommentReaction.user_id == current_user.id
+        ).all()
+        for reaction in user_reactions:
+            user_reactions_map[reaction.comment_id] = reaction.reaction_type
 
     return [
         CommentResponse(
@@ -107,7 +167,12 @@ def get_comments(
             author_display_name=comment.author.display_name,
             author_avatar_url=comment.author.avatar_url,
             content=comment.content,
-            created_at=comment.created_at
+            created_at=comment.created_at,
+            parent_id=comment.parent_id,
+            depth=comment.depth if comment.depth else 0,
+            reaction_count=sum(reaction_counts_map.get(comment.id, {}).values()),
+            reaction_counts=reaction_counts_map.get(comment.id, {}),
+            user_reaction=user_reactions_map.get(comment.id)
         )
         for comment in comments
     ]
@@ -137,3 +202,80 @@ def delete_comment(
     db.commit()
 
     return {"message": "Comment deleted successfully"}
+
+
+# Comment Reactions
+@router.post("/{event_id}/comments/{comment_id}/reactions")
+def react_to_comment(
+    event_id: int,
+    comment_id: int,
+    reaction: ReactionCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Add or update a reaction on a comment"""
+    # Validate reaction type
+    if reaction.reaction_type not in REACTION_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid reaction type. Must be one of: {REACTION_TYPES}")
+
+    # Check comment exists and belongs to this event
+    comment = db.query(Comment).filter(
+        Comment.id == comment_id,
+        Comment.event_id == event_id
+    ).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Check if user already has a reaction
+    existing = db.query(CommentReaction).filter(
+        CommentReaction.comment_id == comment_id,
+        CommentReaction.user_id == current_user.id
+    ).first()
+
+    if existing:
+        if existing.reaction_type == reaction.reaction_type:
+            return {"message": "Already reacted with this type", "reaction_type": existing.reaction_type}
+        # Update reaction type
+        existing.reaction_type = reaction.reaction_type
+        db.commit()
+        return {"message": "Reaction updated", "reaction_type": reaction.reaction_type}
+
+    # Create new reaction
+    new_reaction = CommentReaction(
+        comment_id=comment_id,
+        user_id=current_user.id,
+        reaction_type=reaction.reaction_type
+    )
+    db.add(new_reaction)
+    db.commit()
+
+    return {"message": "Reaction added", "reaction_type": reaction.reaction_type}
+
+
+@router.delete("/{event_id}/comments/{comment_id}/reactions")
+def remove_comment_reaction(
+    event_id: int,
+    comment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Remove user's reaction from a comment"""
+    # Check comment exists and belongs to this event
+    comment = db.query(Comment).filter(
+        Comment.id == comment_id,
+        Comment.event_id == event_id
+    ).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Delete the reaction
+    reaction = db.query(CommentReaction).filter(
+        CommentReaction.comment_id == comment_id,
+        CommentReaction.user_id == current_user.id
+    ).first()
+
+    if reaction:
+        db.delete(reaction)
+        db.commit()
+
+    return {"message": "Reaction removed"}

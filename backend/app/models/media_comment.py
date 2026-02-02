@@ -13,6 +13,13 @@ class MediaComment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Threading support
+    parent_id = Column(Integer, ForeignKey("media_comments.id", ondelete="CASCADE"), nullable=True)
+    depth = Column(Integer, default=0)  # 0=top-level, 1=reply, 2=reply-to-reply (max)
+
     # Relationships
     event_image = relationship("EventImage", back_populates="media_comments")
     author = relationship("User", back_populates="media_comments")
+    parent = relationship("MediaComment", remote_side=[id], back_populates="replies")
+    replies = relationship("MediaComment", back_populates="parent", cascade="all, delete-orphan")
+    reactions = relationship("MediaCommentReaction", back_populates="media_comment", cascade="all, delete-orphan")

@@ -992,6 +992,168 @@
   text-decoration: underline;
 }
 
+/* Comment Actions (reactions, reply, delete) */
+.commentActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.reactionContainer {
+  position: relative;
+}
+
+.reactionBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.reactionBtn:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.reactionBtn.reacted {
+  color: #667eea;
+}
+
+.reactionCount {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.reactionPicker {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reactionOption {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.reactionOption:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.2);
+}
+
+.replyBtn {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.replyBtn:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.depthLimit {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.replyForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.replyInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.replyInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.replySubmit {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.replySubmit:hover {
+  background: #5a6fd6;
+}
+
+.replySubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.replyCancel {
+  padding: 8px 12px;
+  background: none;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.replyCancel:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.replies {
+  margin-top: 8px;
+}
+
 /* Mobile Menu Button */
 .mobileMenuButton {
   display: none; /* Hide on desktop */
