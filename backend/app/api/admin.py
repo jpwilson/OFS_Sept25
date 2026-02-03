@@ -120,8 +120,8 @@ def list_users(
             event_stats = db.query(
                 Event.author_id,
                 func.count(Event.id).label('event_count'),
-                func.min(Event.event_date).label('earliest_event'),
-                func.max(Event.event_date).label('latest_event')
+                func.min(Event.start_date).label('earliest_event'),
+                func.max(Event.start_date).label('latest_event')
             ).filter(
                 Event.author_id.in_(user_ids),
                 Event.is_deleted == False
@@ -242,7 +242,7 @@ def list_events(
         total = query.count()
 
         # Apply sorting - only use safe columns
-        safe_sort_columns = ['title', 'created_at', 'event_date', 'is_published']
+        safe_sort_columns = ['title', 'created_at', 'start_date', 'is_published']
         if sort_by not in safe_sort_columns:
             sort_by = 'created_at'
         sort_column = getattr(Event, sort_by, Event.created_at)
@@ -310,7 +310,7 @@ def list_events(
                     "is_published": e.is_published,
                     "is_deleted": e.is_deleted,
                     "view_count": e.view_count,
-                    "event_date": e.event_date.isoformat() if e.event_date else None,
+                    "event_date": e.start_date.isoformat() if e.start_date else None,
                     "created_at": e.created_at.isoformat() if e.created_at else None,
                     "photo_count": media_lookup.get(e.id, {}).get('photo_count', 0),
                     "video_count": media_lookup.get(e.id, {}).get('video_count', 0),
