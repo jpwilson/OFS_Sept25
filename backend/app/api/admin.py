@@ -83,78 +83,97 @@ def list_users(
     db: Session = Depends(get_db)
 ):
     """List all users with optional search. Superuser only."""
-    query = db.query(User)
+    try:
+        query = db.query(User)
 
-    if search:
-        search_term = f"%{search}%"
-        query = query.filter(
-            or_(
-                User.username.ilike(search_term),
-                User.email.ilike(search_term),
-                User.full_name.ilike(search_term),
-                User.display_name.ilike(search_term)
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    User.username.ilike(search_term),
+                    User.email.ilike(search_term),
+                    User.full_name.ilike(search_term),
+                    User.display_name.ilike(search_term)
+                )
             )
-        )
 
-    total = query.count()
+        total = query.count()
 
-    # Apply sorting
-    sort_column = getattr(User, sort_by, User.created_at)
-    if sort_order == "asc":
-        query = query.order_by(asc(sort_column))
-    else:
-        query = query.order_by(desc(sort_column))
+        # Apply sorting - only use safe columns that definitely exist
+        safe_sort_columns = ['username', 'email', 'created_at', 'subscription_tier']
+        if sort_by not in safe_sort_columns:
+            sort_by = 'created_at'
+        sort_column = getattr(User, sort_by, User.created_at)
+        if sort_order == "asc":
+            query = query.order_by(asc(sort_column))
+        else:
+            query = query.order_by(desc(sort_column))
 
-    users = query.offset(skip).limit(limit).all()
+        users = query.offset(skip).limit(limit).all()
 
-    # Batch fetch event stats for all users
-    user_ids = [u.id for u in users]
+        # Batch fetch event stats for all users
+        user_ids = [u.id for u in users]
 
-    # Get event counts and date ranges per user
-    event_stats = db.query(
-        Event.author_id,
-        func.count(Event.id).label('event_count'),
-        func.min(Event.event_date).label('earliest_event'),
-        func.max(Event.event_date).label('latest_event')
-    ).filter(
-        Event.author_id.in_(user_ids),
-        Event.is_deleted == False
-    ).group_by(Event.author_id).all()
+        # Get event counts and date ranges per user
+        stats_lookup = {}
+        if user_ids:
+            event_stats = db.query(
+                Event.author_id,
+                func.count(Event.id).label('event_count'),
+                func.min(Event.event_date).label('earliest_event'),
+                func.max(Event.event_date).label('latest_event')
+            ).filter(
+                Event.author_id.in_(user_ids),
+                Event.is_deleted == False
+            ).group_by(Event.author_id).all()
 
-    # Create lookup dict
-    stats_lookup = {
-        stat.author_id: {
-            'event_count': stat.event_count,
-            'earliest_event': stat.earliest_event,
-            'latest_event': stat.latest_event
-        }
-        for stat in event_stats
-    }
-
-    return {
-        "users": [
-            {
-                "id": u.id,
-                "username": u.username,
-                "email": u.email,
-                "display_name": u.display_name,
-                "full_name": u.full_name,
-                "subscription_tier": u.subscription_tier,
-                "subscription_status": u.subscription_status,
-                "is_superuser": getattr(u, 'is_superuser', False) or False,
-                "is_active": u.is_active,
-                "created_at": u.created_at.isoformat() if u.created_at else None,
-                "last_login": u.last_login.isoformat() if getattr(u, 'last_login', None) else None,
-                "event_count": stats_lookup.get(u.id, {}).get('event_count', 0),
-                "earliest_event": stats_lookup.get(u.id, {}).get('earliest_event').isoformat() if stats_lookup.get(u.id, {}).get('earliest_event') else None,
-                "latest_event": stats_lookup.get(u.id, {}).get('latest_event').isoformat() if stats_lookup.get(u.id, {}).get('latest_event') else None
+            # Create lookup dict
+            stats_lookup = {
+                stat.author_id: {
+                    'event_count': stat.event_count,
+                    'earliest_event': stat.earliest_event,
+                    'latest_event': stat.latest_event
+                }
+                for stat in event_stats
             }
-            for u in users
-        ],
-        "total": total,
-        "skip": skip,
-        "limit": limit
-    }
+
+        def safe_get_last_login(user):
+            """Safely get last_login, handling cases where column might not exist."""
+            try:
+                val = getattr(user, 'last_login', None)
+                return val.isoformat() if val else None
+            except Exception:
+                return None
+
+        return {
+            "users": [
+                {
+                    "id": u.id,
+                    "username": u.username,
+                    "email": u.email,
+                    "display_name": u.display_name,
+                    "full_name": u.full_name,
+                    "subscription_tier": u.subscription_tier,
+                    "subscription_status": u.subscription_status,
+                    "is_superuser": getattr(u, 'is_superuser', False) or False,
+                    "is_active": u.is_active,
+                    "created_at": u.created_at.isoformat() if u.created_at else None,
+                    "last_login": safe_get_last_login(u),
+                    "event_count": stats_lookup.get(u.id, {}).get('event_count', 0),
+                    "earliest_event": stats_lookup.get(u.id, {}).get('earliest_event').isoformat() if stats_lookup.get(u.id, {}).get('earliest_event') else None,
+                    "latest_event": stats_lookup.get(u.id, {}).get('latest_event').isoformat() if stats_lookup.get(u.id, {}).get('latest_event') else None
+                }
+                for u in users
+            ],
+            "total": total,
+            "skip": skip,
+            "limit": limit
+        }
+    except Exception as e:
+        print(f"🔴 ADMIN USERS ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch users: {str(e)}")
 
 
 @router.patch("/users/{user_id}/superuser")
@@ -199,102 +218,116 @@ def list_events(
     db: Session = Depends(get_db)
 ):
     """List all events with optional search. Superuser only."""
-    query = db.query(Event)
+    try:
+        query = db.query(Event)
 
-    if not include_deleted:
-        query = query.filter(Event.is_deleted == False)
+        if not include_deleted:
+            query = query.filter(Event.is_deleted == False)
 
-    # Apply status filter
-    if status_filter == "published":
-        query = query.filter(Event.is_published == True)
-    elif status_filter == "draft":
-        query = query.filter(Event.is_published == False)
+        # Apply status filter
+        if status_filter == "published":
+            query = query.filter(Event.is_published == True)
+        elif status_filter == "draft":
+            query = query.filter(Event.is_published == False)
 
-    if search:
-        search_term = f"%{search}%"
-        query = query.filter(
-            or_(
-                Event.title.ilike(search_term),
-                Event.slug.ilike(search_term)
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Event.title.ilike(search_term),
+                    Event.slug.ilike(search_term)
+                )
             )
-        )
 
-    total = query.count()
+        total = query.count()
 
-    # Apply sorting
-    sort_column = getattr(Event, sort_by, Event.created_at)
-    if sort_order == "asc":
-        query = query.order_by(asc(sort_column))
-    else:
-        query = query.order_by(desc(sort_column))
+        # Apply sorting - only use safe columns
+        safe_sort_columns = ['title', 'created_at', 'event_date', 'is_published']
+        if sort_by not in safe_sort_columns:
+            sort_by = 'created_at'
+        sort_column = getattr(Event, sort_by, Event.created_at)
+        if sort_order == "asc":
+            query = query.order_by(asc(sort_column))
+        else:
+            query = query.order_by(desc(sort_column))
 
-    events = query.offset(skip).limit(limit).all()
+        events = query.offset(skip).limit(limit).all()
 
-    # Batch fetch stats for all events
-    event_ids = [e.id for e in events]
+        # Batch fetch stats for all events
+        event_ids = [e.id for e in events]
 
-    # Get media counts (photos and videos) per event
-    media_stats = db.query(
-        EventImage.event_id,
-        func.sum(case((EventImage.media_type == 'image', 1), else_=0)).label('photo_count'),
-        func.sum(case((EventImage.media_type == 'video', 1), else_=0)).label('video_count')
-    ).filter(
-        EventImage.event_id.in_(event_ids)
-    ).group_by(EventImage.event_id).all()
+        media_lookup = {}
+        comment_lookup = {}
+        reaction_lookup = {}
 
-    media_lookup = {
-        stat.event_id: {
-            'photo_count': stat.photo_count or 0,
-            'video_count': stat.video_count or 0
-        }
-        for stat in media_stats
-    }
+        if event_ids:
+            # Get media counts (photos and videos) per event
+            media_stats = db.query(
+                EventImage.event_id,
+                func.sum(case((EventImage.media_type == 'image', 1), else_=0)).label('photo_count'),
+                func.sum(case((EventImage.media_type == 'video', 1), else_=0)).label('video_count')
+            ).filter(
+                EventImage.event_id.in_(event_ids)
+            ).group_by(EventImage.event_id).all()
 
-    # Get comment counts per event
-    comment_stats = db.query(
-        Comment.event_id,
-        func.count(Comment.id).label('comment_count')
-    ).filter(
-        Comment.event_id.in_(event_ids)
-    ).group_by(Comment.event_id).all()
-
-    comment_lookup = {stat.event_id: stat.comment_count for stat in comment_stats}
-
-    # Get reaction counts per event (likes)
-    reaction_stats = db.query(
-        Like.event_id,
-        func.count(Like.id).label('reaction_count')
-    ).filter(
-        Like.event_id.in_(event_ids)
-    ).group_by(Like.event_id).all()
-
-    reaction_lookup = {stat.event_id: stat.reaction_count for stat in reaction_stats}
-
-    return {
-        "events": [
-            {
-                "id": e.id,
-                "title": e.title,
-                "slug": e.slug,
-                "author_id": e.author_id,
-                "creator_username": e.author.username if e.author else None,
-                "privacy_level": e.privacy_level,
-                "is_published": e.is_published,
-                "is_deleted": e.is_deleted,
-                "view_count": e.view_count,
-                "event_date": e.event_date.isoformat() if e.event_date else None,
-                "created_at": e.created_at.isoformat() if e.created_at else None,
-                "photo_count": media_lookup.get(e.id, {}).get('photo_count', 0),
-                "video_count": media_lookup.get(e.id, {}).get('video_count', 0),
-                "comment_count": comment_lookup.get(e.id, 0),
-                "reaction_count": reaction_lookup.get(e.id, 0)
+            media_lookup = {
+                stat.event_id: {
+                    'photo_count': int(stat.photo_count or 0),
+                    'video_count': int(stat.video_count or 0)
+                }
+                for stat in media_stats
             }
-            for e in events
-        ],
-        "total": total,
-        "skip": skip,
-        "limit": limit
-    }
+
+            # Get comment counts per event
+            comment_stats = db.query(
+                Comment.event_id,
+                func.count(Comment.id).label('comment_count')
+            ).filter(
+                Comment.event_id.in_(event_ids)
+            ).group_by(Comment.event_id).all()
+
+            comment_lookup = {stat.event_id: stat.comment_count for stat in comment_stats}
+
+            # Get reaction counts per event (likes)
+            reaction_stats = db.query(
+                Like.event_id,
+                func.count(Like.id).label('reaction_count')
+            ).filter(
+                Like.event_id.in_(event_ids)
+            ).group_by(Like.event_id).all()
+
+            reaction_lookup = {stat.event_id: stat.reaction_count for stat in reaction_stats}
+
+        return {
+            "events": [
+                {
+                    "id": e.id,
+                    "title": e.title,
+                    "slug": e.slug,
+                    "author_id": e.author_id,
+                    "creator_username": e.author.username if e.author else None,
+                    "privacy_level": e.privacy_level,
+                    "is_published": e.is_published,
+                    "is_deleted": e.is_deleted,
+                    "view_count": e.view_count,
+                    "event_date": e.event_date.isoformat() if e.event_date else None,
+                    "created_at": e.created_at.isoformat() if e.created_at else None,
+                    "photo_count": media_lookup.get(e.id, {}).get('photo_count', 0),
+                    "video_count": media_lookup.get(e.id, {}).get('video_count', 0),
+                    "comment_count": comment_lookup.get(e.id, 0),
+                    "reaction_count": reaction_lookup.get(e.id, 0)
+                }
+                for e in events
+            ],
+            "total": total,
+            "skip": skip,
+            "limit": limit
+        }
+    except Exception as e:
+        print(f"🔴 ADMIN EVENTS ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch events: {str(e)}")
 
 
 @router.patch("/events/{event_id}/visibility")

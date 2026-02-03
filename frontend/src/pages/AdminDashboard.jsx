@@ -7,7 +7,7 @@ function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [expandedProjects, setExpandedProjects] = useState({ landingRedesign: true })
+  const [expandedProjects, setExpandedProjects] = useState({ landingRedesign: false })
 
   useEffect(() => {
     loadStats()

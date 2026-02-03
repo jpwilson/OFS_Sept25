@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './FeedView.module.css'
 import { useAuth } from '../context/AuthContext'
 import ShortLocation from './ShortLocation'
@@ -41,20 +41,80 @@ function formatDateRange(start, end) {
   return `${startMonth} - ${endDate.toLocaleDateString('en-US', options)}`
 }
 
+// Check if we're on mobile/touch device
+const isTouchDevice = () => {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+}
+
 export default function FeedView({ events = [], following = [], onUpgradePrompt }) {
   const { user, canAccessContent } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [cardSize, setCardSize] = useState('small')
+  const [activeCards, setActiveCards] = useState(new Set()) // Cards with visible text (for mobile)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Handle card click - check subscription access for expired users
-  const handleEventClick = (event) => {
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isTouchDevice() || window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Reset active cards when view param changes (feed/calendar/map/timeline)
+  useEffect(() => {
+    setActiveCards(new Set())
+  }, [searchParams.get('view')])
+
+  // Handle card click
+  const handleCardClick = (event, e) => {
     const eventPath = event.slug || event.id
+
+    if (isMobile) {
+      // On mobile: toggle text visibility
+      e.preventDefault()
+      setActiveCards(prev => {
+        const newSet = new Set(prev)
+        if (newSet.has(event.id)) {
+          newSet.delete(event.id)
+        } else {
+          newSet.add(event.id)
+        }
+        return newSet
+      })
+    } else {
+      // On desktop: navigate to event (check subscription access for expired users)
+      if (!user || canAccessContent) {
+        navigate(`/event/${eventPath}`)
+        return
+      }
+
+      // Authors can always view their own events
+      const isOwnEvent = event.author_id === user.id || event.author_username === user.username
+      const isFollowingAuthor = following.includes(event.author_username)
+      const isPublicEvent = event.privacy_level === 'public'
+
+      if (isOwnEvent || isFollowingAuthor || isPublicEvent) {
+        navigate(`/event/${eventPath}`)
+      } else if (onUpgradePrompt) {
+        onUpgradePrompt(event)
+      }
+    }
+  }
+
+  // Handle navigation when text is visible on mobile
+  const handleNavigate = (event, e) => {
+    e.stopPropagation()
+    const eventPath = event.slug || event.id
+
     if (!user || canAccessContent) {
       navigate(`/event/${eventPath}`)
       return
     }
 
-    // Authors can always view their own events
     const isOwnEvent = event.author_id === user.id || event.author_username === user.username
     const isFollowingAuthor = following.includes(event.author_username)
     const isPublicEvent = event.privacy_level === 'public'
@@ -101,36 +161,54 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
       </div>
 
       <div className={`${styles.feed} ${styles[cardSize]}`}>
-        {events.map(event => (
-          <div
-            key={event.id}
-            className={styles.eventCard}
-            onClick={() => handleEventClick(event)}
-          >
+        {events.map(event => {
+          const isActive = activeCards.has(event.id)
+          return (
             <div
-              className={styles.eventImage}
-              style={{ backgroundImage: `url(${event.cover_image_url})` }}
+              key={event.id}
+              className={`${styles.eventCard} ${isActive ? styles.active : ''}`}
+              onClick={(e) => handleCardClick(event, e)}
             >
-              <div className={styles.overlay}>
-                <h2 className={styles.title}>{getShortenedTitle(event.title)}</h2>
-                <div className={styles.meta}>
-                  <Link
-                    to={`/profile/${event.author_username}`}
-                    className={styles.authorLink}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {event.author_full_name || event.author_username}
-                  </Link>
-                  <span>·</span>
-                  <span>{formatDateRange(event.start_date, event.end_date)}</span>
-                  <span>·</span>
-                  <ShortLocation locationName={event.location_name} maxWords={3} />
+              <div
+                className={styles.eventImage}
+                style={{ backgroundImage: `url(${event.cover_image_url})` }}
+              >
+                {/* Glossy shine effect */}
+                <div className={styles.shine}></div>
+
+                <div className={styles.overlay}>
+                  <div className={styles.overlayContent}>
+                    <h2 className={styles.title}>{getShortenedTitle(event.title)}</h2>
+                    <div className={styles.meta}>
+                      <Link
+                        to={`/profile/${event.author_username}`}
+                        className={styles.authorLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {event.author_full_name || event.author_username}
+                      </Link>
+                      <span>·</span>
+                      <span>{formatDateRange(event.start_date, event.end_date)}</span>
+                      <span>·</span>
+                      <ShortLocation locationName={event.location_name} maxWords={3} />
+                    </div>
+                    <p className={styles.excerpt}>{getExcerpt(event)}</p>
+
+                    {/* View button on mobile when text is visible */}
+                    {isMobile && isActive && (
+                      <button
+                        className={styles.viewButton}
+                        onClick={(e) => handleNavigate(event, e)}
+                      >
+                        View Event →
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p className={styles.excerpt}>{getExcerpt(event)}</p>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
