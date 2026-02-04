@@ -13,6 +13,7 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import styles from './ImageGallery.module.css'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { getImageUrl, getVideoThumbnailUrl } from '../utils/cloudinaryUrl'
 
 // Reaction types with emoji mappings
 const REACTIONS = {
@@ -663,30 +664,37 @@ function ImageGallery({
     }
   }, [currentMediaId, showComments])
 
-  // Helper to get full URL or extract full size from image object
+  // Helper to get full URL for lightbox viewing (medium = 1200px, optimal for viewing)
   const getFullUrl = (img) => {
-    if (typeof img === 'string') {
-      // If it's already a string URL, try to convert medium/thumbnail to full
-      return img.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
-    }
-    // New format: { src, caption, id, alt }
-    if (img.src) {
-      return img.src.replace('/medium/', '/full/').replace('/thumbnails/', '/full/')
-    }
-    return img.urls?.full || img.url || img
+    const rawUrl = typeof img === 'string' ? img
+      : img.src || img.urls?.full || img.url || img
+
+    // Use medium size for lightbox (1200px - full stored resolution)
+    return getImageUrl(rawUrl, 'medium')
   }
 
-  // Helper to get thumbnail URL
+  // Helper to get thumbnail URL for grid (micro = 100px, fast loading)
   const getThumbnailUrl = (img) => {
-    if (typeof img === 'string') {
-      // If it's already a string URL, try to convert to thumbnail
-      return img.replace('/medium/', '/thumbnails/').replace('/full/', '/thumbnails/')
-    }
-    // New format: { src, caption, id, alt }
-    if (img.src) {
-      return img.src.replace('/medium/', '/thumbnails/').replace('/full/', '/thumbnails/')
-    }
-    return img.urls?.thumbnail || img.url || img
+    const isVideo = typeof img === 'object' && img.type === 'video'
+    const rawUrl = typeof img === 'string' ? img
+      : img.src || img.urls?.thumbnail || img.url || img
+
+    // Use micro size for grid thumbnails (100px - ~3KB each)
+    // For videos, use the video thumbnail helper
+    return isVideo
+      ? getVideoThumbnailUrl(rawUrl, 'micro')
+      : getImageUrl(rawUrl, 'micro')
+  }
+
+  // Helper to get small thumbnail for lightbox strip (small = 400px)
+  const getLightboxThumbnailUrl = (img) => {
+    const isVideo = typeof img === 'object' && img.type === 'video'
+    const rawUrl = typeof img === 'string' ? img
+      : img.src || img.urls?.thumbnail || img.url || img
+
+    return isVideo
+      ? getVideoThumbnailUrl(rawUrl, 'small')
+      : getImageUrl(rawUrl, 'small')
   }
 
   // Check if any images have captions

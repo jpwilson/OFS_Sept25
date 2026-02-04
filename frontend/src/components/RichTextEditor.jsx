@@ -14,6 +14,7 @@ import VideoTrimmer from './VideoTrimmer'
 import ProgressRibbon from './ProgressRibbon'
 import { getVideoMetadata } from '../utils/videoCompression'
 import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from '../config/cloudinary'
+import { processImageForUpload, isImageFile } from '../utils/imageProcessor'
 
 // Upload limits per event
 const MAX_IMAGES_PER_EVENT = 300
@@ -269,40 +270,140 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         return
       }
 
-      // Create tasks for each image
-      const newTasks = files.map((file, index) => {
-        const taskId = `img-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`
-        // Create a preview URL for the thumbnail
-        const previewUrl = URL.createObjectURL(file)
-        return {
-          id: taskId,
-          filename: file.name,
-          status: 'uploading',
-          progress: 0,
-          previewUrl,
-          file
-        }
-      })
-
-      setImageTasks(prev => [...prev, ...newTasks])
-
-      const uploadedUrls = []
-
-      // Upload images in parallel (but limit to 3 concurrent uploads)
-      for (let i = 0; i < newTasks.length; i++) {
-        const task = newTasks[i]
-        const url = await uploadImage(task.file, task.id)
-        if (url) {
-          uploadedUrls.push(url)
-          // Insert image immediately as it completes
-          editor.chain().focus().insertContent(`<img src="${url}"><p></p>`).run()
-        }
-        // Revoke object URL to free memory
-        URL.revokeObjectURL(task.previewUrl)
+      // Filter to only image files
+      const imageFiles = files.filter(f => isImageFile(f))
+      if (imageFiles.length === 0) {
+        showToast('Please select image files (JPG, PNG, GIF, WebP, or HEIC)', 'error')
+        return
       }
 
-      if (uploadedUrls.length > 0) {
-        showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded`, 'success')
+      // INSTANT PREVIEW FLOW:
+      // 1. Process each image immediately (extract EXIF, create preview, pre-resize)
+      // 2. Insert preview into editor right away (<100ms user feedback)
+      // 3. Upload pre-resized blob in background
+      // 4. Replace preview with final Cloudinary URL when done
+
+      const processedImages = []
+
+      // Step 1: Process all images (creates previews instantly)
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i]
+        const taskId = `img-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+
+        try {
+          // Process image: extract EXIF, create preview thumbnail, pre-resize for upload
+          const processed = await processImageForUpload(file)
+
+          // Create task for progress tracking
+          const task = {
+            id: taskId,
+            filename: file.name,
+            status: 'uploading',
+            progress: 0,
+            previewUrl: processed.previewDataUrl,
+            file,
+            uploadBlob: processed.uploadBlob,
+            exif: processed.exif,
+            previewDataUrl: processed.previewDataUrl
+          }
+
+          processedImages.push(task)
+          setImageTasks(prev => [...prev, task])
+
+          // Step 2: Insert preview into editor IMMEDIATELY
+          // User sees their image in <100ms instead of waiting for upload
+          editor.chain().focus().insertContent(`<img src="${processed.previewDataUrl}" data-pending-upload="${taskId}"><p></p>`).run()
+
+        } catch (error) {
+          console.error(`Failed to process ${file.name}:`, error)
+          showToast(`Failed to process ${file.name}`, 'error')
+        }
+      }
+
+      // Step 3: Upload all images in background
+      const uploadedCount = { success: 0, failed: 0 }
+
+      for (const task of processedImages) {
+        try {
+          // Helper to update task status
+          const updateTask = (updates) => {
+            setImageTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...updates } : t))
+          }
+
+          let finalUrl
+
+          if (eventId) {
+            // Upload to Cloudinary and save to database
+            // Pass the pre-resized blob instead of original file for faster upload
+            const result = await apiService.uploadEventImage(
+              task.uploadBlob,
+              eventId,
+              null, // caption
+              0,    // orderIndex
+              task.exif // Pass pre-extracted EXIF data
+            )
+            finalUrl = result.image_url
+
+            // Trigger GPS callback if coordinates found
+            if (gpsExtractionEnabled && onGPSExtracted && task.exif?.latitude) {
+              onGPSExtracted({
+                latitude: task.exif.latitude,
+                longitude: task.exif.longitude,
+                timestamp: task.exif.timestamp,
+                image_url: finalUrl
+              })
+            }
+          } else {
+            // Fallback for CreateEvent (no eventId yet)
+            const result = await apiService.uploadImage(task.uploadBlob)
+            finalUrl = result.url
+          }
+
+          // Step 4: Replace preview with final Cloudinary URL
+          // Find the image by its data-pending-upload attribute and replace src
+          const editorEl = document.querySelector('.ProseMirror')
+          if (editorEl) {
+            const pendingImg = editorEl.querySelector(`img[data-pending-upload="${task.id}"]`)
+            if (pendingImg) {
+              pendingImg.src = finalUrl
+              pendingImg.removeAttribute('data-pending-upload')
+            }
+          }
+
+          // Also update in editor state
+          const { state, view } = editor
+          const { doc } = state
+          let tr = state.tr
+          let replaced = false
+
+          doc.descendants((node, pos) => {
+            if (node.type.name === 'image' && node.attrs.src === task.previewDataUrl) {
+              tr = tr.setNodeMarkup(pos, null, { ...node.attrs, src: finalUrl })
+              replaced = true
+              return false
+            }
+          })
+
+          if (replaced) {
+            view.dispatch(tr)
+          }
+
+          updateTask({ status: 'complete', progress: 100 })
+          uploadedCount.success++
+
+        } catch (error) {
+          console.error(`Failed to upload ${task.filename}:`, error)
+          setImageTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'failed', error: error.message } : t))
+          uploadedCount.failed++
+        }
+      }
+
+      // Show summary toast
+      if (uploadedCount.success > 0) {
+        showToast(`${uploadedCount.success} image${uploadedCount.success > 1 ? 's' : ''} uploaded`, 'success')
+      }
+      if (uploadedCount.failed > 0) {
+        showToast(`${uploadedCount.failed} image${uploadedCount.failed > 1 ? 's' : ''} failed to upload`, 'error')
       }
 
       // Clean up completed tasks after a delay (keep failed for retry)
@@ -379,8 +480,17 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         // Format: start_offset (so) and end_offset (eo) in seconds
         const transformation = `so_${startTime},eo_${endTime}`
 
-        // Apply aggressive compression + trimming
-        const eagerTransform = `${transformation},q_auto:low,w_1280,h_720,c_limit,br_1m,fps_30,vc_h264,f_auto`
+        // Duration-based quality: shorter videos get higher resolution
+        // ≤30s: 720p (1280x720), 1Mbps - good quality for short clips
+        // >30s: 480p (854x480), 800kbps - reduces bandwidth for longer videos
+        const durationSeconds = endTime - startTime
+        const isShortVideo = durationSeconds <= 30
+
+        const videoQuality = isShortVideo
+          ? 'w_1280,h_720,c_limit,br_1m'   // 720p for short videos
+          : 'w_854,h_480,c_limit,br_800k'  // 480p for longer videos
+
+        const eagerTransform = `${transformation},q_auto:low,${videoQuality},fps_30,vc_h264,f_auto`
 
         formData.append('eager', eagerTransform)
         formData.append('eager_async', 'false') // Wait for transformation to complete

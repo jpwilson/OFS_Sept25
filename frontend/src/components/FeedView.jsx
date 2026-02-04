@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './FeedView.module.css'
 import { useAuth } from '../context/AuthContext'
 import ShortLocation from './ShortLocation'
+import { getImageUrl } from '../utils/cloudinaryUrl'
 
 // Helper to get clean excerpt text
 const getExcerpt = (event) => {
@@ -171,7 +172,7 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
             >
               <div
                 className={styles.eventImage}
-                style={{ backgroundImage: `url(${event.cover_image_url})` }}
+                style={{ backgroundImage: `url(${getImageUrl(event.cover_image_url, 'small')})` }}
               >
                 {/* Glossy shine effect */}
                 <div className={styles.shine}></div>

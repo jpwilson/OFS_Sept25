@@ -310,9 +310,10 @@ class ApiService {
     const result = await response.json()
     console.log('HEIC uploaded to Cloudinary:', result.secure_url)
 
-    // Apply transformations via URL (max 2000px, auto quality, JPEG format)
+    // Apply transformations via URL (max 1200px, auto quality, JPEG format)
     // Cloudinary auto-converts HEIC to displayable format
-    const imageUrl = result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_jpg/')
+    // Note: 1200px is sufficient for web viewing and reduces storage/bandwidth
+    const imageUrl = result.secure_url.replace('/upload/', '/upload/c_limit,w_1200,h_1200,q_auto,f_jpg/')
 
     console.log('Optimized image URL:', imageUrl)
 
@@ -344,9 +345,10 @@ class ApiService {
       const ctx = canvas.getContext('2d')
 
       img.onload = () => {
-        // Calculate new dimensions (max 2000px on longest side)
+        // Calculate new dimensions (max 1200px on longest side)
+        // 1200px is sufficient for web viewing and reduces upload size
         let { width, height } = img
-        const maxDimension = 2000
+        const maxDimension = 1200
 
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
@@ -542,8 +544,9 @@ class ApiService {
 
       const result = await response.json()
       console.log('[UPLOAD DEBUG] Upload successful, URL:', result.secure_url?.substring(0, 50) + '...')
-      // Apply transformations via URL (max 2000px, auto quality, auto format)
-      return result.secure_url.replace('/upload/', '/upload/c_limit,w_2000,h_2000,q_auto,f_auto/')
+      // Apply transformations via URL (max 1200px, auto quality, auto format)
+      // Note: 1200px is sufficient for web viewing and reduces storage/bandwidth
+      return result.secure_url.replace('/upload/', '/upload/c_limit,w_1200,h_1200,q_auto,f_auto/')
     } catch (error) {
       clearTimeout(timeoutId)
       if (error.name === 'AbortError') {
@@ -555,27 +558,37 @@ class ApiService {
 
   // Event Image methods (for caption system)
   // All images now go to Cloudinary for faster global uploads (fixes UK timeout issues)
-  async uploadEventImage(file, eventId, caption = null, orderIndex = 0) {
+  // preExtractedExif: Optional - if provided, skip EXIF extraction (for instant preview flow)
+  async uploadEventImage(file, eventId, caption = null, orderIndex = 0, preExtractedExif = null) {
     const isMobile = window.innerWidth <= 480
     const maxRetries = isMobile ? 2 : 3
     let lastError = null
 
+    // Handle both File and Blob (pre-resized images come as Blob)
+    const fileName = file.name || `image-${Date.now()}.jpg`
+    const fileSize = file.size
+
     console.log('[UPLOAD DEBUG] uploadEventImage started:', {
       eventId,
-      fileName: file.name,
-      fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
-      isMobile
+      fileName,
+      fileSize: `${(fileSize / 1024 / 1024).toFixed(2)}MB`,
+      isMobile,
+      hasPreExtractedExif: !!preExtractedExif
     })
 
-    // Extract GPS data client-side BEFORE uploading (with timeout protection)
-    let gpsData = null
-    try {
-      console.log('[UPLOAD DEBUG] Extracting GPS data...')
-      const { extractGPSFromImage } = await import('../utils/exifExtractor.js')
-      gpsData = await extractGPSFromImage(file)
-      console.log('[UPLOAD DEBUG] GPS extraction complete:', gpsData ? 'found' : 'none')
-    } catch (gpsError) {
-      console.warn('[UPLOAD DEBUG] GPS extraction failed, continuing without:', gpsError)
+    // Use pre-extracted EXIF if provided, otherwise extract now
+    let gpsData = preExtractedExif
+    if (!gpsData) {
+      try {
+        console.log('[UPLOAD DEBUG] Extracting GPS data...')
+        const { extractGPSFromImage } = await import('../utils/exifExtractor.js')
+        gpsData = await extractGPSFromImage(file)
+        console.log('[UPLOAD DEBUG] GPS extraction complete:', gpsData ? 'found' : 'none')
+      } catch (gpsError) {
+        console.warn('[UPLOAD DEBUG] GPS extraction failed, continuing without:', gpsError)
+      }
+    } else {
+      console.log('[UPLOAD DEBUG] Using pre-extracted EXIF data')
     }
 
     // Retry loop for upload
