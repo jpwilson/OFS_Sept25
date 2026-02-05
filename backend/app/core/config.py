@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "notifications@ourfamilysocials.com"
 
+    # AI Creator (for AI-assisted event creation)
+    ANTHROPIC_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True

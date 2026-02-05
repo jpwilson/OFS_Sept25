@@ -1162,6 +1162,21 @@ class ApiService {
     }
   }
 
+  async reverseGeocode(latitude, longitude) {
+    try {
+      const headers = await this.getAuthHeaders()
+      const response = await fetch(
+        `${API_BASE}/geocoding/reverse?latitude=${latitude}&longitude=${longitude}`,
+        { headers }
+      )
+      if (!response.ok) return null
+      return await response.json()
+    } catch (error) {
+      console.error('Error reverse geocoding:', error)
+      return null
+    }
+  }
+
   async extractLocationsFromImages(eventId) {
     try {
       const response = await fetch(`${API_BASE}/events/${eventId}/locations/extract-from-images`, {
@@ -2687,6 +2702,61 @@ class ApiService {
     })
     if (!response.ok) throw new Error('Failed to update feedback')
     return await response.json()
+  }
+
+  // ========================================
+  // AI CREATOR (Superuser only)
+  // ========================================
+
+  async transcribeAudio(audioBlob) {
+    try {
+      const formData = new FormData()
+      formData.append('file', audioBlob, 'recording.webm')
+
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || localStorage.getItem('token')
+
+      const response = await fetch(`${API_BASE}/admin/ai/transcribe`, {
+        method: 'POST',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to transcribe audio')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error transcribing audio:', error)
+      throw error
+    }
+  }
+
+  async generateAIStory(photos, userText = '') {
+    try {
+      const response = await fetch(`${API_BASE}/admin/ai/generate-story`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({
+          photos,
+          user_text: userText
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to generate AI story')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error generating AI story:', error)
+      throw error
+    }
   }
 }
 

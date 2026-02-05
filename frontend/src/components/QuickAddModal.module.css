@@ -22,6 +22,11 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transition: max-width 0.3s ease;
+}
+
+.modalExpanded {
+  max-width: 900px;
 }
 
 /* Header */
@@ -62,6 +67,36 @@
   font-size: 13px;
   color: #888;
   margin-top: 4px;
+}
+
+/* Mode Toggle */
+.modeToggle {
+  display: inline-flex;
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.modeButton {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #888;
+}
+
+.modeButton:hover {
+  color: #ccc;
+}
+
+.activeMode {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
 /* Content */
@@ -177,6 +212,7 @@
   border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+  display: inline-block;
 }
 
 @keyframes spin {
@@ -193,6 +229,21 @@
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 600;
+}
+
+.placeBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ccc;
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  max-width: calc(100% - 28px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .removeMedia {
@@ -556,6 +607,272 @@
   cursor: not-allowed;
 }
 
+/* ========================
+   AI MODE STYLES
+   ======================== */
+
+/* AI Hint Text */
+.aiHint {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 12px 0;
+}
+
+/* Voice Recorder */
+.voiceSection {
+  margin-bottom: 12px;
+}
+
+.voiceButton {
+  width: 100%;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voiceButton:hover {
+  border-color: #667eea;
+  color: #fff;
+}
+
+.recordingActive {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: 8px;
+}
+
+.recordingDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff4757;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.recordingTime {
+  color: #ff4757;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stopButton {
+  margin-left: auto;
+  padding: 8px 16px;
+  background: #ff4757;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.stopButton:hover {
+  background: #e63946;
+}
+
+/* Audio Preview */
+.audioPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audioPlayer {
+  width: 100%;
+  height: 36px;
+}
+
+.audioActions {
+  display: flex;
+  gap: 8px;
+}
+
+.transcribeButton {
+  flex: 1;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.transcribeButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.transcribeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.clearAudioButton {
+  padding: 8px 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.clearAudioButton:hover {
+  border-color: #ff4757;
+  color: #ff4757;
+}
+
+/* Generate Button */
+.generateButton {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.generateButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.generateButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* AI Result Panels */
+.resultPanels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.resultPanel {
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #444;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.panelSelect {
+  padding: 4px 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: transparent;
+  color: #888;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.panelSelect:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.panelActive {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.panelContent {
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.panelContent h1 {
+  font-size: 18px;
+  color: #fff;
+  margin: 16px 0 8px;
+}
+
+.panelContent h1:first-child {
+  margin-top: 0;
+}
+
+.panelContent h2 {
+  font-size: 15px;
+  color: #ddd;
+  margin: 12px 0 6px;
+}
+
+.panelContent p {
+  margin: 6px 0;
+}
+
+.panelContent img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.originalText {
+  color: #ccc;
+  white-space: pre-wrap;
+}
+
+.noContent {
+  color: #666;
+  font-style: italic;
+}
+
+/* Custom Edit */
+.customEditToggle {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.customEditor {
+  margin-top: 8px;
+  min-height: 150px;
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 12px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 600px) {
   .overlay {
@@ -567,6 +884,10 @@
     max-width: 100%;
     max-height: 95vh;
     border-radius: 20px 20px 0 0;
+  }
+
+  .modalExpanded {
+    max-width: 100%;
   }
 
   .optionalRow {
@@ -592,5 +913,9 @@
     left: 0;
     right: 0;
     min-width: auto;
+  }
+
+  .resultPanels {
+    grid-template-columns: 1fr;
   }
 }
