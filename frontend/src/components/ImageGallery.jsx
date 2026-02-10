@@ -94,6 +94,10 @@ function EngagementToolbar({
 
   return (
     <div className={styles.engagementToolbar}>
+      <span className={styles.imageCounter}>
+        {currentIndex + 1} of {images.length}
+      </span>
+
       <div
         className={styles.reactionContainer}
         onMouseEnter={handleMouseEnter}

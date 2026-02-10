@@ -168,12 +168,12 @@ async def generate_story(
         place_names = [p.place_name for p in sorted_photos if p.place_name]
         unique_places = list(dict.fromkeys(place_names))  # preserve order, deduplicate
 
-        # Build the photo descriptions for the text prompt
+        # Build the photo descriptions for the text prompt (include URLs so AI can reference them)
         photo_descriptions = []
         for i, p in enumerate(sorted_photos, 1):
             ts = p.timestamp or "no timestamp"
             place = p.place_name or "unknown location"
-            photo_descriptions.append(f"{i}. [{ts}] - [{place}]")
+            photo_descriptions.append(f"{i}. [{ts}] - [{place}] - URL: {p.image_url}")
 
         places_text = ""
         if unique_places:
@@ -196,12 +196,13 @@ Instructions:
 - Generate a warm, personal family narrative
 - Use <h1> tags for main story sections (these become the table of contents)
 - Use <h2> tags for subsections within each main section
-- Include <img src="url"> tags to place photos inline where they fit the story
+- Include <img src="EXACT_URL"> tags to place photos inline where they fit the story
+- IMPORTANT: Use the EXACT URLs listed above for each photo. Do NOT modify or abbreviate the URLs.
 - If GPS locations show a journey (multiple places), narrate in chronological order
 - If no GPS data, describe what you see in the photos
 - Pick the best category from: {categories_list}
 - Write in a warm, conversational tone as if the family member is sharing their story
-- Each photo MUST be included as an <img> tag exactly once in the story_html
+- Each photo MUST be included as an <img> tag exactly once in the story_html using its exact URL from the list above
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {{

@@ -241,6 +241,17 @@
   margin-right: 8px;
 }
 
+.imageCounter {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-variant-numeric: tabular-nums;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+
 /* Reaction container for hover popup */
 .reactionContainer {
   position: relative;
