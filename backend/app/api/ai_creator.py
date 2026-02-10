@@ -1,22 +1,70 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+from sqlalchemy import func
 import json
 import logging
 
 from ..core.config import settings
-from ..core.deps import get_current_superuser
+from ..core.deps import get_current_user
+from ..core.database import get_db
 from ..models.user import User
+from ..models.ai_usage_log import AIUsageLog
 
 logger = logging.getLogger("ofs")
 
 router = APIRouter(prefix="/admin/ai", tags=["ai-creator"])
+
+DAILY_LIMIT = 5
 
 ALLOWED_CATEGORIES = [
     "Birthday", "Anniversary", "Vacation", "Family Gathering", "Holiday",
     "Graduation", "Wedding", "Baby", "Achievement", "Project",
     "Daily Life", "Milestone", "Custom"
 ]
+
+
+# --- Helpers ---
+
+def check_ai_access(user: User):
+    """Check if user has access to AI features (paid, trial, or superuser)."""
+    if user.is_superuser:
+        return
+    if user.has_active_subscription():
+        return
+    if user.get_trial_status() == 'active':
+        return
+    raise HTTPException(
+        status_code=403,
+        detail="AI Assist requires an active subscription or free trial."
+    )
+
+
+def check_rate_limit(user: User, action_type: str, db: Session):
+    """Check if user has exceeded daily AI usage limit. Superusers are exempt."""
+    if user.is_superuser:
+        return
+
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    usage_count = db.query(func.count(AIUsageLog.id)).filter(
+        AIUsageLog.user_id == user.id,
+        AIUsageLog.created_at >= today_start
+    ).scalar()
+
+    if usage_count >= DAILY_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily AI limit reached ({DAILY_LIMIT}/day). Try again tomorrow."
+        )
+
+
+def log_usage(user: User, action_type: str, db: Session):
+    """Log an AI usage event."""
+    entry = AIUsageLog(user_id=user.id, action_type=action_type)
+    db.add(entry)
+    db.commit()
 
 
 # --- Schemas ---
@@ -48,9 +96,13 @@ class GenerateStoryResponse(BaseModel):
 @router.post("/transcribe")
 async def transcribe_audio(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_superuser)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Transcribe audio using OpenAI Whisper API."""
+    check_ai_access(current_user)
+    check_rate_limit(current_user, "transcribe", db)
+
     if not settings.OPENAI_API_KEY:
         raise HTTPException(status_code=500, detail="OpenAI API key not configured")
 
@@ -72,8 +124,11 @@ async def transcribe_audio(
             file=audio_file
         )
 
+        log_usage(current_user, "transcribe", db)
         return {"text": transcription.text}
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Transcription failed: {e}")
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
@@ -82,9 +137,13 @@ async def transcribe_audio(
 @router.post("/generate-story", response_model=GenerateStoryResponse)
 async def generate_story(
     request: GenerateStoryRequest,
-    current_user: User = Depends(get_current_superuser)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Generate an AI story from photos and optional text using Claude."""
+    check_ai_access(current_user)
+    check_rate_limit(current_user, "generate_story", db)
+
     if not settings.ANTHROPIC_API_KEY:
         raise HTTPException(status_code=500, detail="Anthropic API key not configured")
 
@@ -216,6 +275,8 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 "caption": cap.get("caption", "")
             })
 
+        log_usage(current_user, "generate_story", db)
+
         return GenerateStoryResponse(
             suggested_title=result.get("title", "Untitled Event"),
             story_html=result.get("story_html", ""),
@@ -229,6 +290,8 @@ Return ONLY valid JSON (no markdown, no code blocks):
         logger.error(f"Failed to parse AI response as JSON: {e}")
         logger.error(f"Raw response: {response_text[:500]}")
         raise HTTPException(status_code=500, detail="AI generated invalid response. Please try again.")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Story generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Story generation failed: {str(e)}")

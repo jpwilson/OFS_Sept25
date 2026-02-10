@@ -611,13 +611,6 @@
    AI MODE STYLES
    ======================== */
 
-/* AI Hint Text */
-.aiHint {
-  font-size: 13px;
-  color: #888;
-  margin: 0 0 12px 0;
-}
-
 /* Voice Recorder */
 .voiceSection {
   margin-bottom: 12px;
@@ -625,34 +618,59 @@
 
 .voiceButton {
   width: 100%;
-  padding: 12px;
+  padding: 20px 16px;
   background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  color: #ccc;
-  font-size: 14px;
+  border: 1px dashed #555;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .voiceButton:hover {
   border-color: #667eea;
-  color: #fff;
+  background: rgba(102, 126, 234, 0.05);
 }
 
-.recordingActive {
+.voiceMic {
+  font-size: 28px;
+}
+
+.voiceLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.voiceHint {
+  font-size: 12px;
+  color: #777;
+}
+
+.recordingButton {
+  width: 100%;
+  padding: 20px 16px;
+  background: rgba(255, 71, 87, 0.08);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
-  background: rgba(255, 71, 87, 0.1);
-  border: 1px solid rgba(255, 71, 87, 0.3);
-  border-radius: 8px;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.recordingButton:hover {
+  background: rgba(255, 71, 87, 0.12);
 }
 
 .recordingDot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #ff4757;
   animation: pulse 1s ease-in-out infinite;
@@ -665,77 +683,42 @@
 
 .recordingTime {
   color: #ff4757;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.stopButton {
-  margin-left: auto;
-  padding: 8px 16px;
-  background: #ff4757;
-  border: none;
-  border-radius: 6px;
-  color: white;
+.recordingLabel {
   font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
+  color: #ff8a94;
 }
 
-.stopButton:hover {
-  background: #e63946;
-}
-
-/* Audio Preview */
-.audioPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.audioPlayer {
+.transcribingState {
   width: 100%;
-  height: 36px;
-}
-
-.audioActions {
+  padding: 18px 16px;
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #99aaef;
+  font-size: 14px;
 }
 
-.transcribeButton {
-  flex: 1;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.doOverButton {
+  margin-top: 6px;
+  padding: 6px 12px;
+  background: transparent;
   border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 13px;
-  font-weight: 500;
+  color: #888;
+  font-size: 12px;
   cursor: pointer;
+  text-decoration: underline;
 }
 
-.transcribeButton:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.transcribeButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.clearAudioButton {
-  padding: 8px 12px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #999;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.clearAudioButton:hover {
-  border-color: #ff4757;
+.doOverButton:hover {
   color: #ff4757;
 }
 

@@ -26,11 +26,11 @@ const CATEGORIES = [
 
 function QuickAddModal({ isOpen, onClose }) {
   const navigate = useNavigate()
-  const { user, isSuperuser } = useAuth()
+  const { user, isSuperuser, isPaidSubscriber, isTrialActive } = useAuth()
   const { showToast } = useToast()
   const fileInputRef = useRef(null)
   const {
-    isRecording, audioBlob, audioUrl, duration,
+    isRecording, audioBlob, duration,
     startRecording, stopRecording, clearRecording
   } = useVoiceRecorder()
 
@@ -249,16 +249,23 @@ function QuickAddModal({ isOpen, onClose }) {
 
   // --- AI Mode Functions ---
 
-  const handleTranscribe = async () => {
-    if (!audioBlob) return
+  // Auto-transcribe when recording stops (audioBlob becomes available)
+  useEffect(() => {
+    if (audioBlob && aiMode && !isTranscribing) {
+      handleAutoTranscribe(audioBlob)
+    }
+  }, [audioBlob])
+
+  const handleAutoTranscribe = async (blob) => {
+    if (!blob) return
     setIsTranscribing(true)
     try {
-      const result = await apiService.transcribeAudio(audioBlob)
+      const result = await apiService.transcribeAudio(blob)
       setRawText(prev => prev ? `${prev} ${result.text}` : result.text)
       clearRecording()
-      showToast('Audio transcribed!', 'success')
     } catch (error) {
-      showToast('Failed to transcribe audio', 'error')
+      showToast('Failed to transcribe. Please type your description instead.', 'error')
+      clearRecording()
     } finally {
       setIsTranscribing(false)
     }
@@ -474,7 +481,7 @@ function QuickAddModal({ isOpen, onClose }) {
         <div className={styles.header}>
           <button className={styles.closeButton} onClick={onClose}>×</button>
 
-          {isSuperuser ? (
+          {(isSuperuser || isPaidSubscriber || isTrialActive) ? (
             <div className={styles.modeToggle}>
               <button
                 className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}
@@ -569,54 +576,37 @@ function QuickAddModal({ isOpen, onClose }) {
           {aiMode && (
             <div className={styles.section}>
               <label className={styles.label}>Describe Your Event</label>
-              <p className={styles.aiHint}>Record a voice note or type a description. The AI will use this along with your photos to write the story.</p>
 
-              {/* Voice Recorder */}
+              {/* Voice Recorder - simplified tap-to-talk */}
               <div className={styles.voiceSection}>
-                {!isRecording && !audioBlob && (
+                {!isRecording && !isTranscribing && (
                   <button
                     type="button"
                     className={styles.voiceButton}
                     onClick={startRecording}
                   >
-                    🎤 Record Voice Note
+                    <span className={styles.voiceMic}>🎤</span>
+                    <span className={styles.voiceLabel}>Tap to describe your event</span>
+                    <span className={styles.voiceHint}>Try it — it's faster than typing</span>
                   </button>
                 )}
 
                 {isRecording && (
-                  <div className={styles.recordingActive}>
+                  <button
+                    type="button"
+                    className={styles.recordingButton}
+                    onClick={stopRecording}
+                  >
                     <span className={styles.recordingDot}></span>
                     <span className={styles.recordingTime}>{formatDuration(duration)}</span>
-                    <button
-                      type="button"
-                      className={styles.stopButton}
-                      onClick={stopRecording}
-                    >
-                      ⏹ Stop
-                    </button>
-                  </div>
+                    <span className={styles.recordingLabel}>Tap to stop</span>
+                  </button>
                 )}
 
-                {audioBlob && !isRecording && (
-                  <div className={styles.audioPreview}>
-                    <audio src={audioUrl} controls className={styles.audioPlayer} />
-                    <div className={styles.audioActions}>
-                      <button
-                        type="button"
-                        className={styles.transcribeButton}
-                        onClick={handleTranscribe}
-                        disabled={isTranscribing}
-                      >
-                        {isTranscribing ? 'Transcribing...' : '📝 Transcribe'}
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.clearAudioButton}
-                        onClick={clearRecording}
-                      >
-                        ✕ Clear
-                      </button>
-                    </div>
+                {isTranscribing && (
+                  <div className={styles.transcribingState}>
+                    <span className={styles.spinner}></span>
+                    <span>Transcribing your voice note...</span>
                   </div>
                 )}
               </div>
@@ -626,9 +616,20 @@ function QuickAddModal({ isOpen, onClose }) {
                 className={styles.textarea}
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
-                placeholder="Type or dictate your event description... (optional if you have photos)"
-                rows={4}
+                placeholder="Or type your description here... (optional if you have photos)"
+                rows={3}
               />
+
+              {/* Clear / Do Over button */}
+              {rawText.trim() && (
+                <button
+                  type="button"
+                  className={styles.doOverButton}
+                  onClick={() => setRawText('')}
+                >
+                  Clear and start over
+                </button>
+              )}
 
               {/* Generate Button */}
               <button

@@ -18,3 +18,4 @@ from .user_relationship import UserRelationship
 from .user_mute import UserMute
 from .comment_reaction import CommentReaction
 from .media_comment_reaction import MediaCommentReaction
+from .ai_usage_log import AIUsageLog
