@@ -332,8 +332,11 @@ class ApiService {
 
   // Compress image to stay under Vercel's 4.5MB limit
   async compressImage(file, maxSizeMB = 4) {
-    // HEIC files are handled separately via direct Supabase upload
-    // This function should not receive HEIC files anymore
+    // HEIC/HEIF files cannot be decoded by browser canvas - return as-is
+    // They should be routed to Cloudinary before reaching this point
+    if (this.isHeicFile(file)) {
+      return file
+    }
 
     return new Promise((resolve) => {
       // If file is already small enough, return as-is
@@ -387,6 +390,13 @@ class ApiService {
 
   async uploadImage(file) {
     try {
+      // HEIC/HEIF files: upload directly to Cloudinary (browser can't process them)
+      if (this.isHeicFile(file)) {
+        console.log('HEIC detected in uploadImage, routing to Cloudinary')
+        const result = await this.uploadHeicFile(file, null)
+        return { url: result.image_url }
+      }
+
       // Compress image if needed (Vercel has 4.5MB body limit)
       const processedFile = await this.compressImage(file)
 

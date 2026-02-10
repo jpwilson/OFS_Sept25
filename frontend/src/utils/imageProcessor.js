@@ -30,9 +30,43 @@ import { extractGPSFromImage } from './exifExtractor'
  * }>}
  */
 export async function processImageForUpload(file) {
+  // Check if file is HEIC/HEIF (browser canvas can't decode these)
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+    /\.(heic|heif)$/i.test(file.name)
+
   // 1. Extract EXIF from ORIGINAL file (must be done before any resize)
   // This preserves GPS coordinates and timestamp
   const exif = await extractGPSFromImage(file)
+
+  if (isHeic) {
+    // HEIC files: skip canvas operations (createImageBitmap can't decode HEIC)
+    // Upload original file directly - Cloudinary handles HEIC conversion
+    console.log(`[ImageProcessor] HEIC detected: ${file.name} - skipping canvas resize`)
+    console.log(`  Original: ${formatBytes(file.size)}`)
+    console.log(`  EXIF GPS: ${exif ? `${exif.latitude}, ${exif.longitude}` : 'not found'}`)
+
+    // Create a small placeholder preview (browser can't render HEIC)
+    const placeholderCanvas = document.createElement('canvas')
+    placeholderCanvas.width = 100
+    placeholderCanvas.height = 100
+    const pCtx = placeholderCanvas.getContext('2d')
+    pCtx.fillStyle = '#2a2a2a'
+    pCtx.fillRect(0, 0, 100, 100)
+    pCtx.fillStyle = '#888'
+    pCtx.font = '12px sans-serif'
+    pCtx.textAlign = 'center'
+    pCtx.fillText('HEIC', 50, 55)
+    const heicPreview = placeholderCanvas.toDataURL('image/png')
+
+    return {
+      exif,
+      previewDataUrl: heicPreview,
+      uploadBlob: file, // Upload original - Cloudinary converts
+      originalSize: file.size,
+      uploadSize: file.size,
+      reduction: '0% (HEIC - server-side conversion)'
+    }
+  }
 
   // 2. Generate instant preview (100px thumbnail for immediate display)
   // This shows in editor within ~100ms while upload happens in background

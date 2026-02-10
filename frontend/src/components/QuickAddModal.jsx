@@ -64,13 +64,6 @@ function QuickAddModal({ isOpen, onClose }) {
   const [photoExifData, setPhotoExifData] = useState({}) // {previewUrl: {latitude, longitude, timestamp}}
   const [photoPlaceNames, setPhotoPlaceNames] = useState({}) // {cloudinaryUrl: placeName}
 
-  // Load last location on mount
-  useEffect(() => {
-    if (isOpen && user) {
-      loadLastLocation()
-    }
-  }, [isOpen, user])
-
   // Reset form when modal opens, restore draft if available
   useEffect(() => {
     if (isOpen) {
@@ -90,6 +83,7 @@ function QuickAddModal({ isOpen, onClose }) {
       // Check for saved draft
       const draft = loadDraft()
       if (draft) {
+        console.log('[Draft] Restoring draft:', draft)
         setTitle(draft.title || '')
         setDescription(draft.description || '')
         setShowDescription(!!draft.description)
@@ -117,9 +111,10 @@ function QuickAddModal({ isOpen, onClose }) {
         setDescription('')
         setShowDescription(false)
         setDate(new Date().toISOString().split('T')[0])
-        setLocation(null)
         setCategory('Daily Life')
         setRawText('')
+        // Only load last location when there's no draft
+        loadLastLocation()
       }
     }
   }, [isOpen])
@@ -151,7 +146,12 @@ function QuickAddModal({ isOpen, onClose }) {
       mediaUrls: uploadedMedia.map(m => ({ url: m.url, type: m.type })),
       savedAt: new Date().toISOString()
     }
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+      console.log('[Draft] Saved:', { title, mediaCount: uploadedMedia.length, hasText: !!rawText.trim() })
+    } catch (e) {
+      console.error('[Draft] Failed to save:', e)
+    }
   }
 
   const loadDraft = () => {
@@ -646,7 +646,7 @@ function QuickAddModal({ isOpen, onClose }) {
                       {m.type === 'video' ? (
                         <video src={m.previewUrl} className={styles.mediaThumbnail} />
                       ) : (
-                        <img src={m.previewUrl} alt="" className={styles.mediaThumbnail} />
+                        <img src={m.url || m.previewUrl} alt="" className={styles.mediaThumbnail} />
                       )}
                       {m.uploading && (
                         <div className={styles.uploadingOverlay}>
