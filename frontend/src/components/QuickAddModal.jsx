@@ -50,6 +50,9 @@ function QuickAddModal({ isOpen, onClose }) {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [showLocationDropdown, setShowLocationDropdown] = useState(false)
 
+  // Discard confirmation state
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
+
   // AI mode state
   const [aiMode, setAiMode] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
@@ -68,27 +71,56 @@ function QuickAddModal({ isOpen, onClose }) {
     }
   }, [isOpen, user])
 
-  // Reset form when modal opens
+  // Reset form when modal opens, restore draft if available
   useEffect(() => {
     if (isOpen) {
-      setMedia([])
-      setTitle('')
-      setDescription('')
-      setShowDescription(false)
-      setDate(new Date().toISOString().split('T')[0])
-      setCategory('Daily Life')
+      setShowDiscardConfirm(false)
       setErrors([])
       setIsSubmitting(false)
       setAiMode(false)
       setIsTranscribing(false)
       setIsGenerating(false)
-      setRawText('')
       setAiResult(null)
       setDescriptionChoice('enhanced')
       setCustomHtml('')
       setPhotoExifData({})
       setPhotoPlaceNames({})
       clearRecording()
+
+      // Check for saved draft
+      const draft = loadDraft()
+      if (draft) {
+        setTitle(draft.title || '')
+        setDescription(draft.description || '')
+        setShowDescription(!!draft.description)
+        setDate(draft.date || new Date().toISOString().split('T')[0])
+        setLocation(draft.location || null)
+        setCategory(draft.category || 'Daily Life')
+        setRawText(draft.rawText || '')
+        // Restore uploaded media from draft
+        if (draft.mediaUrls?.length > 0) {
+          setMedia(draft.mediaUrls.map(m => ({
+            file: null,
+            url: m.url,
+            uploading: false,
+            type: m.type,
+            previewUrl: m.url // Use cloudinary URL as preview
+          })))
+        } else {
+          setMedia([])
+        }
+        showToast('Draft restored', 'success')
+        clearDraft()
+      } else {
+        setMedia([])
+        setTitle('')
+        setDescription('')
+        setShowDescription(false)
+        setDate(new Date().toISOString().split('T')[0])
+        setLocation(null)
+        setCategory('Daily Life')
+        setRawText('')
+      }
     }
   }, [isOpen])
 
@@ -101,6 +133,74 @@ function QuickAddModal({ isOpen, onClose }) {
     } catch (error) {
       console.error('Failed to load last location:', error)
     }
+  }
+
+  // --- Draft Management ---
+
+  const DRAFT_KEY = 'quickAddDraft'
+
+  const saveDraft = () => {
+    const uploadedMedia = media.filter(m => m.url && !m.uploading)
+    const draft = {
+      title,
+      description,
+      rawText,
+      date,
+      location,
+      category,
+      mediaUrls: uploadedMedia.map(m => ({ url: m.url, type: m.type })),
+      savedAt: new Date().toISOString()
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+  }
+
+  const loadDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (!raw) return null
+      const draft = JSON.parse(raw)
+      // Expire drafts older than 7 days
+      if (draft.savedAt && (Date.now() - new Date(draft.savedAt).getTime()) > 7 * 24 * 60 * 60 * 1000) {
+        localStorage.removeItem(DRAFT_KEY)
+        return null
+      }
+      return draft
+    } catch {
+      return null
+    }
+  }
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY)
+  }
+
+  const hasUnsavedData = () => {
+    return title.trim() !== '' ||
+      description.trim() !== '' ||
+      rawText.trim() !== '' ||
+      media.some(m => m.url && !m.uploading) ||
+      aiResult !== null
+  }
+
+  const handleCloseAttempt = () => {
+    if (hasUnsavedData()) {
+      setShowDiscardConfirm(true)
+    } else {
+      onClose()
+    }
+  }
+
+  const handleSaveDraft = () => {
+    saveDraft()
+    setShowDiscardConfirm(false)
+    showToast('Draft saved', 'success')
+    onClose()
+  }
+
+  const handleDiscard = () => {
+    clearDraft()
+    setShowDiscardConfirm(false)
+    onClose()
   }
 
   // Reverse geocode GPS coordinates to get a place name
@@ -476,12 +576,12 @@ function QuickAddModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modal} ${aiMode ? styles.modalExpanded : ''}`} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.overlay}>
+      <div className={`${styles.modal} ${aiMode ? styles.modalExpanded : ''}`}>
         <div className={styles.header}>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
+          <button className={styles.closeButton} onClick={handleCloseAttempt}>×</button>
 
-          {(isSuperuser || isPaidSubscriber || isTrialActive) ? (
+          {isSuperuser ? (
             <div className={styles.modeToggle}>
               <button
                 className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}
@@ -494,6 +594,20 @@ function QuickAddModal({ isOpen, onClose }) {
                 onClick={() => setAiMode(true)}
               >
                 AI Assist
+              </button>
+            </div>
+          ) : (isPaidSubscriber || isTrialActive) ? (
+            <div className={styles.modeToggle}>
+              <button
+                className={`${styles.modeButton} ${styles.activeMode}`}
+              >
+                Quick Add
+              </button>
+              <button
+                className={`${styles.modeButton} ${styles.comingSoon}`}
+                onClick={() => showToast('AI Assist is coming soon!', 'info')}
+              >
+                AI Assist <span className={styles.comingSoonBadge}>Soon</span>
               </button>
             </div>
           ) : (
@@ -865,7 +979,7 @@ function QuickAddModal({ isOpen, onClose }) {
           <button
             type="button"
             className={styles.cancelButton}
-            onClick={onClose}
+            onClick={handleCloseAttempt}
           >
             Cancel
           </button>
@@ -878,6 +992,31 @@ function QuickAddModal({ isOpen, onClose }) {
             {isSubmitting ? 'Publishing...' : uploadingCount > 0 ? `Uploading (${uploadingCount})...` : 'Publish'}
           </button>
         </div>
+
+        {/* Discard Confirmation Dialog */}
+        {showDiscardConfirm && (
+          <div className={styles.confirmOverlay}>
+            <div className={styles.confirmDialog}>
+              <p className={styles.confirmText}>You have unsaved changes. Save as draft?</p>
+              <div className={styles.confirmActions}>
+                <button
+                  type="button"
+                  className={styles.discardButton}
+                  onClick={handleDiscard}
+                >
+                  Discard
+                </button>
+                <button
+                  type="button"
+                  className={styles.saveDraftButton}
+                  onClick={handleSaveDraft}
+                >
+                  Save Draft
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
