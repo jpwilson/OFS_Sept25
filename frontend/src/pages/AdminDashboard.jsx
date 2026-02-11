@@ -188,6 +188,17 @@ function AdminDashboard() {
             </div>
             <span className={styles.projectArrow}>→</span>
           </Link>
+
+          {/* Landing Page Social Proof Project */}
+          <div className={styles.projectCard}>
+            <div className={styles.projectInfo} style={{ padding: '16px' }}>
+              <span className={styles.projectIcon}>📸</span>
+              <div>
+                <h4>Landing Page Social Proof</h4>
+                <p>Curate high-quality Unsplash photography showcasing family moments. Create compelling demo events as social proof. Experiment with photo layouts, testimonial sections, and visual storytelling to convert landing page visitors.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Completed Projects */}

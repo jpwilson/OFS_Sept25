@@ -128,6 +128,20 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 
 ---
 
+## Completed (February 2026)
+
+- [x] **PWA Implementation** - manifest, service worker, platform-aware install prompts (iOS/Android/Desktop) (Feb 11)
+- [x] **SEO Meta Tags** - OG tags, Twitter cards, JSON-LD, robots.txt, sitemap.xml, AI crawler directives (Feb 11)
+- [x] **Landing Page Social Proof project** - Added to admin dashboard as experimentation project (Feb 11)
+- [x] **Liquid Glass UI** - Applied glassmorphism to header nav, view toggle, category chips, filters, modal toggle (Feb 11)
+- [x] **Split Create/AI Button** - Desktop hover-expands, mobile side-by-side Create + AI Create (Feb 11)
+- [x] **AI Create default mode** - Modal defaults to AI Create, renamed from AI Assist (Feb 11)
+- [x] **Category pluralization** - Display names pluralized (Birthdays, Vacations, etc.) while keeping DB values (Feb 11)
+- [x] **Blog page & FAQ route** - What's New blog page, in-app FAQ route (Feb 11)
+- [x] **Help menu** - ? button opens 3-option popup (Send Feedback, What's New, FAQ) (Feb 11)
+- [x] **AI caption-image mismatch fix** - Position-based matching instead of URL-based (Feb 11)
+- [x] **Category Clear All bug fix** - Functional state updates to avoid stale closures (Feb 11)
+
 ## Completed (January 2026)
 
 - [x] **Feedback ? button in hamburger menu** - purple circle, centered under Profile (Jan 26)

@@ -32,6 +32,7 @@ import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
 import Layout from './components/Layout'
+import InstallPrompt from './components/InstallPrompt'
 // Admin pages
 import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
@@ -133,6 +134,7 @@ function App() {
               <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
             </Route>
           </Routes>
+          <InstallPrompt />
         </ConfirmProvider>
       </ToastProvider>
     </AuthProvider>

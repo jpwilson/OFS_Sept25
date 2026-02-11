@@ -1,0 +1,41 @@
+# Our Family Socials - robots.txt
+# https://ourfamilysocials.com
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /feed
+Disallow: /profile
+Disallow: /create
+Disallow: /event/*
+Disallow: /family
+Disallow: /sharing
+
+# Allow landing page and public routes
+Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /blog
+
+# Sitemap
+Sitemap: https://ourfamilysocials.com/sitemap.xml
+
+# AI Crawlers - allow indexing of public pages for discovery
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /feed
+Disallow: /profile
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin
+Disallow: /feed
+Disallow: /profile
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
