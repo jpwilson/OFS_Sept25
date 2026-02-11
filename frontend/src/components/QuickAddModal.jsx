@@ -54,7 +54,7 @@ function QuickAddModal({ isOpen, onClose }) {
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
 
   // AI mode state
-  const [aiMode, setAiMode] = useState(false)
+  const [aiMode, setAiMode] = useState(true)
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [rawText, setRawText] = useState('')
@@ -589,16 +589,16 @@ function QuickAddModal({ isOpen, onClose }) {
           {(isSuperuser || isPaidSubscriber || isTrialActive) ? (
             <div className={styles.modeToggle}>
               <button
-                className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}
-                onClick={() => setAiMode(false)}
-              >
-                Quick Add
-              </button>
-              <button
                 className={`${styles.modeButton} ${aiMode ? styles.activeMode : ''}`}
                 onClick={() => setAiMode(true)}
               >
                 AI Assist <span className={styles.betaBadge}>Beta</span>
+              </button>
+              <button
+                className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}
+                onClick={() => setAiMode(false)}
+              >
+                Quick Add
               </button>
             </div>
           ) : (

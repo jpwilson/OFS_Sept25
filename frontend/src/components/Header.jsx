@@ -96,19 +96,28 @@ function Header() {
           <Link to="/billing" className={styles.premiumLink}>Go Premium</Link>
         )}
         {user && (
-          <button
-            className={styles.quickAddButton}
-            onClick={() => setShowQuickAdd(true)}
-            title="Quick Add"
-          >
-            <span className={styles.quickAddIcon}>+</span>
-            <span className={styles.quickAddText}>Quick Add</span>
-          </button>
+          <div className={styles.createSplitButton}>
+            <span className={styles.createPlusIcon}>+</span>
+            <div className={styles.createSplitOptions}>
+              <button
+                className={styles.createSplitOption}
+                onClick={() => navigate('/create')}
+              >
+                Create
+              </button>
+              <span className={styles.createSplitDivider} />
+              <button
+                className={styles.createSplitOption}
+                onClick={() => setShowQuickAdd(true)}
+              >
+                AI
+              </button>
+            </div>
+          </div>
         )}
         <Link to="/feed">Explore</Link>
         <Link to="/groups">Sharing</Link>
         {user && <Link to="/family-tree">Family</Link>}
-        <Link to="/create">Create</Link>
         {isSuperuser && <Link to="/admin" className={styles.adminLink}>Admin</Link>}
         {user ? (
           <span className={styles.profileLink}>
@@ -132,12 +141,20 @@ function Header() {
         <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu}>
           <nav className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
             {user && (
-              <button
-                className={styles.quickAddButtonMobile}
-                onClick={() => { setShowQuickAdd(true); closeMobileMenu() }}
-              >
-                + Quick Add
-              </button>
+              <div className={styles.mobileCreateRow}>
+                <button
+                  className={styles.mobileCreateButton}
+                  onClick={() => { closeMobileMenu(); navigate('/create') }}
+                >
+                  Create
+                </button>
+                <button
+                  className={styles.mobileAIButton}
+                  onClick={() => { setShowQuickAdd(true); closeMobileMenu() }}
+                >
+                  AI Create
+                </button>
+              </div>
             )}
             {user && user.subscription_tier === 'free' && (
               <Link to="/billing" className={styles.premiumLink} onClick={closeMobileMenu}>Go Premium</Link>
@@ -145,7 +162,6 @@ function Header() {
             <Link to="/feed" onClick={closeMobileMenu}>Explore</Link>
             <Link to="/groups" onClick={closeMobileMenu}>Sharing</Link>
             {user && <Link to="/family-tree" onClick={closeMobileMenu}>Family</Link>}
-            <Link to="/create" onClick={closeMobileMenu}>Create</Link>
             {isSuperuser && <Link to="/admin" onClick={closeMobileMenu} className={styles.adminLink}>Admin</Link>}
             {user ? (
               <span className={styles.profileLink}>
