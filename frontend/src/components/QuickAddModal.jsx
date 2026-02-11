@@ -531,14 +531,15 @@ function QuickAddModal({ isOpen, onClose }) {
 
       // Save photo captions if AI generated them
       if (aiMode && aiResult?.photo_captions?.length > 0) {
-        for (const cap of aiResult.photo_captions) {
+        for (let i = 0; i < aiResult.photo_captions.length; i++) {
+          const cap = aiResult.photo_captions[i]
           if (cap.image_url && cap.caption) {
             try {
               await apiService.createEventImage({
                 event_id: event.id,
                 image_url: cap.image_url,
                 caption: cap.caption,
-                display_order: 0
+                display_order: i
               })
             } catch (e) {
               console.warn('Failed to save caption for image:', e)
@@ -547,7 +548,11 @@ function QuickAddModal({ isOpen, onClose }) {
         }
       }
 
-      showToast('Event published!', 'success')
+      if (aiMode) {
+        showToast('Event published! AI Create is in beta and can make mistakes. Please review your event.', 'info')
+      } else {
+        showToast('Event published!', 'success')
+      }
       onClose()
       navigate(`/event/${event.slug || event.id}`)
     } catch (error) {
@@ -581,7 +586,7 @@ function QuickAddModal({ isOpen, onClose }) {
         <div className={styles.header}>
           <button className={styles.closeButton} onClick={handleCloseAttempt}>×</button>
 
-          {isSuperuser ? (
+          {(isSuperuser || isPaidSubscriber || isTrialActive) ? (
             <div className={styles.modeToggle}>
               <button
                 className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}
@@ -593,21 +598,7 @@ function QuickAddModal({ isOpen, onClose }) {
                 className={`${styles.modeButton} ${aiMode ? styles.activeMode : ''}`}
                 onClick={() => setAiMode(true)}
               >
-                AI Assist
-              </button>
-            </div>
-          ) : (isPaidSubscriber || isTrialActive) ? (
-            <div className={styles.modeToggle}>
-              <button
-                className={`${styles.modeButton} ${styles.activeMode}`}
-              >
-                Quick Add
-              </button>
-              <button
-                className={`${styles.modeButton} ${styles.comingSoon}`}
-                onClick={() => showToast('AI Assist is coming soon!', 'info')}
-              >
-                AI Assist <span className={styles.comingSoonBadge}>Soon</span>
+                AI Assist <span className={styles.betaBadge}>Beta</span>
               </button>
             </div>
           ) : (

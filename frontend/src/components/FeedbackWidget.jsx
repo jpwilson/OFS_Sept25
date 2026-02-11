@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import apiService from '../services/api'
 import styles from './FeedbackWidget.module.css'
 
@@ -6,6 +7,7 @@ const MAX_VIDEO_DURATION = 20 // seconds
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 function FeedbackWidget() {
+  const [showMenu, setShowMenu] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [feedbackType, setFeedbackType] = useState('bug')
   const [message, setMessage] = useState('')
@@ -16,6 +18,8 @@ function FeedbackWidget() {
   const [attachment, setAttachment] = useState(null) // { file, preview, type }
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
   const fileInputRef = useRef(null)
+  const menuRef = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
@@ -25,10 +29,25 @@ function FeedbackWidget() {
 
   // Listen for open-feedback event from hamburger menu
   useEffect(() => {
-    const handleOpenFeedback = () => setIsOpen(true)
+    const handleOpenFeedback = () => {
+      setShowMenu(false)
+      setIsOpen(true)
+    }
     window.addEventListener('open-feedback', handleOpenFeedback)
     return () => window.removeEventListener('open-feedback', handleOpenFeedback)
   }, [])
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!showMenu) return
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showMenu])
 
   // Clean up preview URL when attachment changes
   useEffect(() => {
@@ -186,14 +205,39 @@ function FeedbackWidget() {
     <>
       {/* Floating button - desktop only (hidden when hamburger menu appears) */}
       {!isMobile && (
-        <button
-          className={`${styles.floatingButton} ${isOpen ? styles.hidden : ''}`}
-          onClick={() => setIsOpen(true)}
-          aria-label="Send feedback"
-          title="Send feedback"
-        >
-          <span className={styles.feedbackIcon}>?</span>
-        </button>
+        <div className={styles.floatingContainer} ref={menuRef}>
+          <button
+            className={`${styles.floatingButton} ${(isOpen || showMenu) ? styles.hidden : ''}`}
+            onClick={() => setShowMenu(!showMenu)}
+            aria-label="Help menu"
+            title="Help"
+          >
+            <span className={styles.feedbackIcon}>?</span>
+          </button>
+
+          {showMenu && (
+            <div className={styles.helpMenu}>
+              <button
+                className={styles.helpMenuItem}
+                onClick={() => { setShowMenu(false); setIsOpen(true) }}
+              >
+                Send Feedback
+              </button>
+              <button
+                className={styles.helpMenuItem}
+                onClick={() => { setShowMenu(false); navigate('/blog') }}
+              >
+                What's New
+              </button>
+              <button
+                className={styles.helpMenuItem}
+                onClick={() => { setShowMenu(false); navigate('/faq') }}
+              >
+                FAQ
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Feedback panel */}

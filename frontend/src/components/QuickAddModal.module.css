@@ -99,15 +99,10 @@
   color: white;
 }
 
-.comingSoon {
-  cursor: default;
-  opacity: 0.6;
-}
-
-.comingSoonBadge {
+.betaBadge {
   font-size: 9px;
-  background: #555;
-  color: #ccc;
+  background: #2d6a4f;
+  color: #95d5b2;
   padding: 1px 5px;
   border-radius: 3px;
   margin-left: 4px;

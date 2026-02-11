@@ -204,11 +204,13 @@ Instructions:
 - Write in a warm, conversational tone as if the family member is sharing their story
 - Each photo MUST be included as an <img> tag exactly once in the story_html using its exact URL from the list above
 
+IMPORTANT for captions: Return exactly {len(sorted_photos)} captions in the SAME ORDER as the numbered photo list above (photo 1 first, photo 2 second, etc). Each caption should describe what is happening in that specific photo.
+
 Return ONLY valid JSON (no markdown, no code blocks):
 {{
   "title": "Event title",
   "story_html": "<h1>...</h1><p>...</p><img src='...'/>...",
-  "captions": [{{"image_url": "...", "caption": "..."}}],
+  "captions": ["caption for photo 1", "caption for photo 2", ...],
   "category": "one from the allowed list",
   "location_name": "primary location or null"
 }}"""
@@ -267,14 +269,23 @@ Return ONLY valid JSON (no markdown, no code blocks):
         if suggested_category not in ALLOWED_CATEGORIES:
             suggested_category = "Daily Life"
 
-        # Build photo captions list
-        captions = result.get("captions", [])
+        # Build photo captions list - match by position, override URLs for correctness
+        raw_captions = result.get("captions", [])
         photo_captions = []
-        for cap in captions:
-            photo_captions.append({
-                "image_url": cap.get("image_url", ""),
-                "caption": cap.get("caption", "")
-            })
+        for i, photo in enumerate(sorted_photos):
+            caption_text = ""
+            if i < len(raw_captions):
+                cap = raw_captions[i]
+                # Handle both string captions and dict captions
+                if isinstance(cap, str):
+                    caption_text = cap
+                elif isinstance(cap, dict):
+                    caption_text = cap.get("caption", "")
+            if caption_text:
+                photo_captions.append({
+                    "image_url": photo.image_url,  # Always use our known URL
+                    "caption": caption_text
+                })
 
         log_usage(current_user, "generate_story", db)
 

@@ -391,8 +391,8 @@ function CreateEvent() {
           <CategorySelector
             value={formData.category}
             value2={formData.category_2}
-            onChange={(value) => setFormData({ ...formData, category: value })}
-            onChange2={(value) => setFormData({ ...formData, category_2: value })}
+            onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+            onChange2={(value) => setFormData(prev => ({ ...prev, category_2: value }))}
           />
 
           <div className={styles.formGroup}>

@@ -27,6 +27,7 @@ import Relationships from './pages/Relationships'
 import Tags from './pages/Tags'
 import MyFeedback from './pages/MyFeedback'
 import FAQ from './pages/FAQ'
+import Blog from './pages/Blog'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -88,7 +89,6 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/faq" element={<FAQ />} />
             <Route path="/share/:token" element={<EventDetail isShareMode={true} />} />
             <Route path="/join/:token" element={<InviteLanding />} />
             <Route element={<Layout />}>
@@ -114,6 +114,8 @@ function App() {
               <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
               <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />
               <Route path="/groups" element={<Groups />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/faq" element={<FAQ />} />
               {/* Admin routes - superuser only */}
               <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
               <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />

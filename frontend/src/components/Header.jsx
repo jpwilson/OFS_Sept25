@@ -164,16 +164,17 @@ function Header() {
             ) : (
               <Link to="/login" onClick={closeMobileMenu}>Login</Link>
             )}
-            <div className={styles.feedbackButtonWrapper}>
+            <div className={styles.helpLinks}>
+              <Link to="/blog" onClick={closeMobileMenu}>What's New</Link>
+              <Link to="/faq" onClick={closeMobileMenu}>FAQ</Link>
               <button
                 className={styles.feedbackButtonMobile}
                 onClick={() => {
                   closeMobileMenu()
                   window.dispatchEvent(new Event('open-feedback'))
                 }}
-                aria-label="Send feedback"
               >
-                <span className={styles.feedbackButtonIcon}>?</span>
+                Send Feedback
               </button>
             </div>
           </nav>

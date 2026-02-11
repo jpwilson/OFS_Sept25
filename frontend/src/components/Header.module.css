@@ -319,37 +319,36 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
 
-/* Feedback Button - Mobile Menu */
-.feedbackButtonWrapper {
+/* Help Links - Mobile Menu */
+.helpLinks {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0;
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-color);
 }
 
-.feedbackButtonMobile {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.helpLinks a,
+.helpLinks button {
+  display: block;
+  padding: 10px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-decoration: none;
+  background: none;
   border: none;
-  color: white;
+  text-align: left;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: color 0.2s;
 }
 
-.feedbackButtonMobile:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+.helpLinks a:hover,
+.helpLinks button:hover {
+  color: var(--text-primary);
 }
 
-.feedbackButtonIcon {
-  font-size: 22px;
-  font-weight: bold;
-  line-height: 1;
+.feedbackButtonMobile {
+  font-size: 14px;
+  font-family: inherit;
 }
