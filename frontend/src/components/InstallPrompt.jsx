@@ -26,19 +26,22 @@ function InstallPrompt() {
     if (window.matchMedia('(display-mode: standalone)').matches) return
     if (window.navigator.standalone === true) return // iOS standalone check
 
-    // Detect platform
+    // Detect platform using multiple signals for reliability
     const ua = navigator.userAgent || ''
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua)) // iPad with desktop UA
     const isAndroid = /Android/.test(ua)
 
     if (isIOS) {
-      // iOS: Check if using Safari (PWA only works from Safari on iOS)
-      const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua)
-      if (isSafari) {
+      // On iOS, PWA install only works from Safari
+      // Chrome/Firefox/Edge on iOS include CriOS/FxiOS/EdgiOS in UA
+      const isNonSafariBrowser = /CriOS|FxiOS|OPiOS|EdgiOS/.test(ua)
+      if (isNonSafariBrowser) {
+        setPlatform('ios-not-safari')
+      } else {
         setPlatform('ios')
-        // Delay showing to not interrupt initial page load
-        setTimeout(() => setShowPrompt(true), 3000)
       }
+      setTimeout(() => setShowPrompt(true), 3000)
     } else if (isAndroid) {
       setPlatform('android')
     } else {
@@ -111,6 +114,12 @@ function InstallPrompt() {
             </p>
           )}
 
+          {platform === 'ios-not-safari' && (
+            <p className={styles.instructions}>
+              Open this page in <strong>Safari</strong> to install the app on your home screen
+            </p>
+          )}
+
           {platform === 'android' && (
             <p className={styles.instructions}>
               Install Our Family Socials for quick access from your home screen
@@ -135,7 +144,7 @@ function InstallPrompt() {
             </button>
           )}
           <button className={styles.dismissButton} onClick={handleDismiss}>
-            {platform === 'ios' ? 'Got it' : 'Not now'}
+            {platform === 'ios' || platform === 'ios-not-safari' ? 'Got it' : 'Not now'}
           </button>
         </div>
       </div>
