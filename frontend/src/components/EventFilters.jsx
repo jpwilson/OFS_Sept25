@@ -19,14 +19,14 @@ const CATEGORIES = [
 
 // Categories with icons for the visual ribbon
 const CATEGORIES_WITH_ICONS = [
-  { value: 'Birthday', icon: '🎂', color: '#ff6b9d' },
-  { value: 'Anniversary', icon: '💝', color: '#c44569' },
-  { value: 'Vacation', icon: '✈️', color: '#4a90e2' },
-  { value: 'Family Gathering', icon: '👨‍👩‍👧‍👦', color: '#6c5ce7' },
-  { value: 'Holiday', icon: '🎄', color: '#00b894' },
-  { value: 'Project', icon: '🛠️', color: '#fdcb6e' },
-  { value: 'Daily Life', icon: '☕', color: '#74b9ff' },
-  { value: 'Milestone', icon: '🏆', color: '#fab1a0' }
+  { value: 'Birthday', label: 'Birthdays', icon: '🎂', color: '#ff6b9d' },
+  { value: 'Anniversary', label: 'Anniversaries', icon: '💝', color: '#c44569' },
+  { value: 'Vacation', label: 'Vacations', icon: '✈️', color: '#4a90e2' },
+  { value: 'Family Gathering', label: 'Family Gatherings', icon: '👨‍👩‍👧‍👦', color: '#6c5ce7' },
+  { value: 'Holiday', label: 'Holidays', icon: '🎄', color: '#00b894' },
+  { value: 'Project', label: 'Projects', icon: '🛠️', color: '#fdcb6e' },
+  { value: 'Daily Life', label: 'Daily Life', icon: '☕', color: '#74b9ff' },
+  { value: 'Milestone', label: 'Milestones', icon: '🏆', color: '#fab1a0' }
 ]
 
 export default function EventFilters({
@@ -728,7 +728,7 @@ export default function EventFilters({
                   style={{ '--chip-color': cat.color }}
                 >
                   <span className={styles.chipIcon}>{cat.icon}</span>
-                  <span className={styles.chipLabel}>{cat.value}</span>
+                  <span className={styles.chipLabel}>{cat.label}</span>
                 </button>
               ))}
             </div>

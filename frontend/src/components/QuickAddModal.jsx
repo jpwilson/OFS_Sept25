@@ -9,19 +9,19 @@ import LocationAutocomplete from './LocationAutocomplete'
 import styles from './QuickAddModal.module.css'
 
 const CATEGORIES = [
-  { value: 'Daily Life', icon: '📷' },
-  { value: 'Birthday', icon: '🎂' },
-  { value: 'Anniversary', icon: '💝' },
-  { value: 'Vacation', icon: '✈️' },
-  { value: 'Family Gathering', icon: '👨‍👩‍👧‍👦' },
-  { value: 'Holiday', icon: '🎄' },
-  { value: 'Graduation', icon: '🎓' },
-  { value: 'Wedding', icon: '💒' },
-  { value: 'Baby', icon: '👶' },
-  { value: 'Achievement', icon: '🏆' },
-  { value: 'Milestone', icon: '🏅' },
-  { value: 'Project', icon: '🔨' },
-  { value: 'Custom', icon: '✨' }
+  { value: 'Daily Life', label: 'Daily Life', icon: '📷' },
+  { value: 'Birthday', label: 'Birthdays', icon: '🎂' },
+  { value: 'Anniversary', label: 'Anniversaries', icon: '💝' },
+  { value: 'Vacation', label: 'Vacations', icon: '✈️' },
+  { value: 'Family Gathering', label: 'Family Gatherings', icon: '👨‍👩‍👧‍👦' },
+  { value: 'Holiday', label: 'Holidays', icon: '🎄' },
+  { value: 'Graduation', label: 'Graduations', icon: '🎓' },
+  { value: 'Wedding', label: 'Weddings', icon: '💒' },
+  { value: 'Baby', label: 'Babies', icon: '👶' },
+  { value: 'Achievement', label: 'Achievements', icon: '🏆' },
+  { value: 'Milestone', label: 'Milestones', icon: '🏅' },
+  { value: 'Project', label: 'Projects', icon: '🔨' },
+  { value: 'Custom', label: 'Custom', icon: '✨' }
 ]
 
 function QuickAddModal({ isOpen, onClose }) {
@@ -926,7 +926,7 @@ function QuickAddModal({ isOpen, onClose }) {
                   className={styles.categoryButton}
                   onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                 >
-                  {CATEGORIES.find(c => c.value === category)?.icon} {category}
+                  {CATEGORIES.find(c => c.value === category)?.icon} {CATEGORIES.find(c => c.value === category)?.label || category}
                 </button>
                 {showCategoryDropdown && (
                   <div className={styles.categoryDropdown}>
@@ -937,7 +937,7 @@ function QuickAddModal({ isOpen, onClose }) {
                         className={`${styles.categoryOption} ${category === cat.value ? styles.selected : ''}`}
                         onClick={() => { setCategory(cat.value); setShowCategoryDropdown(false) }}
                       >
-                        {cat.icon} {cat.value}
+                        {cat.icon} {cat.label}
                       </button>
                     ))}
                   </div>

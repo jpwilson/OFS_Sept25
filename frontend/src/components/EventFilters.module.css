@@ -754,14 +754,14 @@
   display: none;
 }
 
-/* Category chips - liquid glass style */
+/* Category chips - glass with colored borders */
 .categoryChip {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   background: transparent;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -773,12 +773,9 @@
 /* Only apply hover styles on devices with actual hover capability (mouse/trackpad) */
 @media (hover: hover) {
   .categoryChip:hover {
-    background: var(--glass-bg-hover);
-    border-color: var(--glass-border-hover);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-color: var(--chip-color, #667eea);
     transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -788,11 +785,9 @@
 }
 
 .categoryChip.selected {
-  background: var(--glass-bg-active);
-  border-color: var(--glass-border-active);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  box-shadow: var(--glass-shadow-active);
+  background: rgba(102, 126, 234, 0.15);
+  border-color: var(--chip-color, #667eea);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .allChip.selected {

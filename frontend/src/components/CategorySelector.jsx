@@ -11,14 +11,14 @@ function CategorySelector({ value, value2, onChange, onChange2 }) {
   const [customValue, setCustomValue] = useState('')
 
   const predefinedCategories = [
-    { value: 'Birthday', icon: '🎂', color: '#ff6b9d' },
-    { value: 'Anniversary', icon: '💝', color: '#c44569' },
-    { value: 'Vacation', icon: '✈️', color: '#4a90e2' },
-    { value: 'Family Gathering', icon: '👨‍👩‍👧‍👦', color: '#6c5ce7' },
-    { value: 'Holiday', icon: '🎄', color: '#00b894' },
-    { value: 'Project', icon: '🛠️', color: '#fdcb6e' },
-    { value: 'Daily Life', icon: '☕', color: '#74b9ff' },
-    { value: 'Milestone', icon: '🏆', color: '#fab1a0' }
+    { value: 'Birthday', label: 'Birthdays', icon: '🎂', color: '#ff6b9d' },
+    { value: 'Anniversary', label: 'Anniversaries', icon: '💝', color: '#c44569' },
+    { value: 'Vacation', label: 'Vacations', icon: '✈️', color: '#4a90e2' },
+    { value: 'Family Gathering', label: 'Family Gatherings', icon: '👨‍👩‍👧‍👦', color: '#6c5ce7' },
+    { value: 'Holiday', label: 'Holidays', icon: '🎄', color: '#00b894' },
+    { value: 'Project', label: 'Projects', icon: '🛠️', color: '#fdcb6e' },
+    { value: 'Daily Life', label: 'Daily Life', icon: '☕', color: '#74b9ff' },
+    { value: 'Milestone', label: 'Milestones', icon: '🏆', color: '#fab1a0' }
   ]
 
   // Check if a category is selected (in either slot)
@@ -119,7 +119,7 @@ function CategorySelector({ value, value2, onChange, onChange2 }) {
             }}
           >
             <span className={styles.categoryIcon}>{category.icon}</span>
-            <span className={styles.categoryLabel}>{category.value}</span>
+            <span className={styles.categoryLabel}>{category.label}</span>
           </button>
         ))}
 
