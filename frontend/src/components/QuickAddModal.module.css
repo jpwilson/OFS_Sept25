@@ -72,31 +72,38 @@
 /* Mode Toggle */
 .modeToggle {
   display: inline-flex;
-  background: #2a2a2a;
-  border-radius: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
   padding: 3px;
   gap: 2px;
+  box-shadow: var(--glass-shadow);
 }
 
 .modeButton {
   padding: 8px 20px;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid transparent;
+  border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   background: transparent;
   color: #888;
 }
 
 .modeButton:hover {
   color: #ccc;
+  background: var(--glass-bg-hover);
 }
 
 .activeMode {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(102, 126, 234, 0.85);
+  border-color: rgba(102, 126, 234, 0.5);
   color: white;
+  box-shadow: var(--glass-shadow-active);
 }
 
 .betaBadge {

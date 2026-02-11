@@ -11,20 +11,22 @@
 
 .filterToggle {
   padding: 6px 12px;
-  background: transparent;
-  border: 1px solid var(--border-light);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   color: var(--text-secondary);
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .filterToggle:hover {
-  background: var(--hover-bg);
-  border-color: var(--text-tertiary);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 .arrowGreen {
@@ -274,12 +276,14 @@
   flex-shrink: 0;
 }
 
-/* Shared dropdown button - bolder font, cleaner look */
+/* Shared dropdown button - liquid glass */
 .dropdownButton {
   padding: 8px 12px;
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
@@ -288,17 +292,18 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .dropdownButton:hover {
-  border-color: #667eea;
-  background: var(--hover-bg);
+  border-color: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
 }
 
 .dropdownButton.hasSelection {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  border-color: var(--glass-border-active);
+  background: var(--glass-bg-active);
+  box-shadow: var(--glass-shadow-active);
 }
 
 .dropdownArrow {
@@ -425,13 +430,19 @@
   font-weight: 600;
 }
 
-/* Order By toggle - slider style */
+/* Order By toggle - liquid glass style */
 .orderByToggle {
   display: flex;
-  border: 2px solid var(--border-light);
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
   overflow: hidden;
   flex-shrink: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-shadow);
+  padding: 3px;
+  gap: 2px;
 }
 
 .orderByButton {
@@ -440,23 +451,28 @@
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
+  border-radius: 18px;
+  border: 1px solid transparent;
 }
 
 .orderByButton:hover:not(.active) {
-  background: var(--hover-bg);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 .orderByButton.active {
-  background: #667eea;
+  background: rgba(102, 126, 234, 0.85);
   color: #fff;
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: var(--glass-shadow-active);
 }
 
 .orderByLeft {
-  border-right: 1px solid var(--border-light);
+  border-right: none;
 }
 
 .orderByRight {
@@ -472,26 +488,29 @@
 
 .filterButton {
   padding: 8px 12px;
-  border: 1px solid var(--border-light);
-  background: transparent;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-primary);
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .filterButton:hover {
-  background: var(--hover-bg);
-  border-color: #667eea;
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 .filterButton.active {
-  background: #667eea;
-  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.85);
+  border-color: rgba(102, 126, 234, 0.5);
   color: #fff;
+  box-shadow: var(--glass-shadow-active);
 }
 
 /* Hide filter wrapper - stays on same row */
@@ -735,17 +754,17 @@
   display: none;
 }
 
-/* Category chips - minimalist: transparent bg by default */
+/* Category chips - liquid glass style */
 .categoryChip {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   background: transparent;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   white-space: nowrap;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
@@ -754,8 +773,11 @@
 /* Only apply hover styles on devices with actual hover capability (mouse/trackpad) */
 @media (hover: hover) {
   .categoryChip:hover {
-    background: var(--hover-bg);
-    border-color: var(--chip-color, #667eea);
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     transform: translateY(-2px) scale(1.02);
   }
 }
@@ -766,14 +788,20 @@
 }
 
 .categoryChip.selected {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: #667eea;
+  background: var(--glass-bg-active);
+  border-color: var(--glass-border-active);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-shadow-active);
 }
 
 .allChip.selected {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
+  background: rgba(102, 126, 234, 0.85);
+  border-color: rgba(102, 126, 234, 0.5);
   color: white;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-shadow-active);
 }
 
 .chipIcon {

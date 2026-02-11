@@ -110,7 +110,7 @@ function Header() {
                 className={styles.createSplitOption}
                 onClick={() => setShowQuickAdd(true)}
               >
-                AI
+                AI Create
               </button>
             </div>
           </div>

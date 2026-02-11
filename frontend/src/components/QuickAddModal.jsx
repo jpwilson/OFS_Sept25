@@ -70,7 +70,7 @@ function QuickAddModal({ isOpen, onClose }) {
       setShowDiscardConfirm(false)
       setErrors([])
       setIsSubmitting(false)
-      setAiMode(false)
+      setAiMode(true)
       setIsTranscribing(false)
       setIsGenerating(false)
       setAiResult(null)
@@ -592,7 +592,7 @@ function QuickAddModal({ isOpen, onClose }) {
                 className={`${styles.modeButton} ${aiMode ? styles.activeMode : ''}`}
                 onClick={() => setAiMode(true)}
               >
-                AI Assist <span className={styles.betaBadge}>Beta</span>
+                AI Create <span className={styles.betaBadge}>Beta</span>
               </button>
               <button
                 className={`${styles.modeButton} ${!aiMode ? styles.activeMode : ''}`}

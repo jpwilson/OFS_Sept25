@@ -17,6 +17,17 @@
   --overlay-bg: rgba(0, 0, 0, 0.6);
   --input-bg: #1a1a1a;
   --hover-bg: #333;
+
+  /* Liquid Glass variables */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-hover: rgba(255, 255, 255, 0.1);
+  --glass-bg-active: rgba(102, 126, 234, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
+  --glass-border-active: rgba(102, 126, 234, 0.4);
+  --glass-blur: 16px;
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-shadow-active: 0 4px 20px rgba(102, 126, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Light theme - refined purple-tinted palette */
@@ -33,6 +44,17 @@
   --overlay-bg: rgba(250, 249, 252, 0.95);
   --input-bg: #ffffff;
   --hover-bg: #e8e5f0;
+
+  /* Liquid Glass - light theme */
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-bg-hover: rgba(255, 255, 255, 0.7);
+  --glass-bg-active: rgba(102, 126, 234, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border-hover: rgba(255, 255, 255, 0.8);
+  --glass-border-active: rgba(102, 126, 234, 0.35);
+  --glass-blur: 16px;
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --glass-shadow-active: 0 4px 20px rgba(102, 126, 234, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 body {

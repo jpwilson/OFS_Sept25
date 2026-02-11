@@ -1,10 +1,13 @@
 .container {
   display: flex;
-  background: var(--bg-tertiary);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-radius: 28px;
   padding: 4px;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--glass-border);
   gap: 2px;
+  box-shadow: var(--glass-shadow);
 }
 
 .button {
@@ -25,12 +28,17 @@
 
 .button:hover:not(.active) {
   color: var(--text-secondary);
-  background: var(--hover-bg);
+  background: var(--glass-bg-hover);
 }
 
 .button.active {
   color: #fff;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(102, 126, 234, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--glass-shadow-active);
+  border: 1px solid rgba(102, 126, 234, 0.5);
+  transition: all 0.3s ease;
 }
 
 .icon {
