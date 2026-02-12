@@ -10,6 +10,7 @@ import EditProfile from './pages/EditProfile'
 import CreateEvent from './pages/CreateEvent'
 import EditEvent from './pages/EditEvent'
 import Login from './pages/Login'
+import ResetPassword from './pages/ResetPassword'
 import Checkout from './pages/Checkout'
 import PricingPage from './pages/PricingPage'
 import Privacy from './pages/Privacy'
@@ -86,6 +87,7 @@ function App() {
             <Route path="/signup" element={<SignupInviteRedirect />} />
             <Route path="/signup/invited" element={<InvitedSignup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

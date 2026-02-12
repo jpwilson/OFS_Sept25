@@ -17,7 +17,12 @@ export function ToastProvider({ children }) {
   const showToast = (message, type = 'info', duration = 3000) => {
     const id = Date.now()
     const newToast = { id, message, type, duration }
-    setToasts(prev => [...prev, newToast])
+    setToasts(prev => {
+      // Deduplicate: skip if same message+type was added in the last second
+      const isDuplicate = prev.some(t => t.message === message && t.type === type && (id - t.id) < 1000)
+      if (isDuplicate) return prev
+      return [...prev, newToast]
+    })
 
     if (duration > 0) {
       setTimeout(() => {
