@@ -1,20 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#00ff00"/>
-  <g fill="#ffffff">
-    <!-- Three people icon representing family -->
-    <!-- Left person -->
-    <circle cx="30" cy="35" r="8"/>
-    <path d="M 22 45 Q 22 48 25 48 L 35 48 Q 38 48 38 45 L 38 43 Q 38 40 35 40 L 25 40 Q 22 40 22 43 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
 
-    <!-- Center person (slightly larger) -->
-    <circle cx="50" cy="32" r="9"/>
-    <path d="M 40 43 Q 40 46 44 46 L 56 46 Q 60 46 60 43 L 60 41 Q 60 38 56 38 L 44 38 Q 40 38 40 41 Z"/>
+  <!-- Full background - no transparency -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
 
-    <!-- Right person -->
-    <circle cx="70" cy="35" r="8"/>
-    <path d="M 62 45 Q 62 48 65 48 L 75 48 Q 78 48 78 45 L 78 43 Q 78 40 75 40 L 65 40 Q 62 40 62 43 Z"/>
+  <!-- Family group - friendly rounded people -->
+  <g fill="white" opacity="0.95">
+    <!-- Left person (smaller, child) -->
+    <circle cx="165" cy="175" r="34"/>
+    <rect x="131" y="218" width="68" height="50" rx="22" ry="22"/>
 
-    <!-- Heart at bottom -->
-    <path d="M 50 75 L 42 67 Q 38 63 38 58 Q 38 54 41 51 Q 44 48 48 48 Q 49 48 50 49 Q 51 48 52 48 Q 56 48 59 51 Q 62 54 62 58 Q 62 63 58 67 Z" fill="#ffffff"/>
+    <!-- Center person (taller, parent) -->
+    <circle cx="256" cy="155" r="42"/>
+    <rect x="214" y="206" width="84" height="58" rx="26" ry="26"/>
+
+    <!-- Right person (smaller, child) -->
+    <circle cx="347" cy="175" r="34"/>
+    <rect x="313" y="218" width="68" height="50" rx="22" ry="22"/>
   </g>
+
+  <!-- Heart - centered below family -->
+  <path d="M256 410 L220 374 C195 349 180 330 180 310 C180 294 193 280 210 280 C225 280 240 290 256 308 C272 290 287 280 302 280 C319 280 332 294 332 310 C332 330 317 349 292 374 Z" fill="white" opacity="0.9"/>
 </svg>
