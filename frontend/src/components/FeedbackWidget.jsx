@@ -239,17 +239,19 @@ function FeedbackWidget() {
               >
                 FAQ
               </button>
-              {!isInstalledPWA && (
-                <button
-                  className={styles.helpMenuItem}
-                  onClick={() => {
-                    setShowMenu(false)
+              <button
+                className={styles.helpMenuItem}
+                onClick={() => {
+                  setShowMenu(false)
+                  if (isInstalledPWA) {
+                    navigate('/faq')
+                  } else {
                     window.dispatchEvent(new Event('show-install-prompt'))
-                  }}
-                >
-                  Install App
-                </button>
-              )}
+                  }
+                }}
+              >
+                {isInstalledPWA ? 'Install App (FAQ)' : 'Install App'}
+              </button>
             </div>
           )}
         </div>

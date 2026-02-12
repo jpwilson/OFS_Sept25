@@ -196,17 +196,19 @@ function Header() {
               >
                 Send Feedback
               </button>
-              {!isInstalledPWA && (
-                <button
-                  className={styles.feedbackButtonMobile}
-                  onClick={() => {
-                    closeMobileMenu()
+              <button
+                className={styles.feedbackButtonMobile}
+                onClick={() => {
+                  closeMobileMenu()
+                  if (isInstalledPWA) {
+                    navigate('/faq')
+                  } else {
                     window.dispatchEvent(new Event('show-install-prompt'))
-                  }}
-                >
-                  Install App
-                </button>
-              )}
+                  }
+                }}
+              >
+                {isInstalledPWA ? 'Install App (FAQ)' : 'Install App'}
+              </button>
             </div>
           </nav>
         </div>
