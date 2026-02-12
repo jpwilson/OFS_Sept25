@@ -21,6 +21,10 @@ function FeedbackWidget() {
   const menuRef = useRef(null)
   const navigate = useNavigate()
 
+  // Check if running as installed PWA (hide "Install App" if so)
+  const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
     window.addEventListener('resize', handleResize)
@@ -235,6 +239,17 @@ function FeedbackWidget() {
               >
                 FAQ
               </button>
+              {!isInstalledPWA && (
+                <button
+                  className={styles.helpMenuItem}
+                  onClick={() => {
+                    setShowMenu(false)
+                    window.dispatchEvent(new Event('show-install-prompt'))
+                  }}
+                >
+                  Install App
+                </button>
+              )}
             </div>
           )}
         </div>

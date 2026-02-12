@@ -13,46 +13,51 @@ import styles from './InstallPrompt.module.css'
 function InstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState(null)
-  const [platform, setPlatform] = useState(null) // 'ios' | 'android' | 'desktop'
+  const [platform, setPlatform] = useState(null) // 'ios' | 'ios-not-safari' | 'android' | 'desktop'
   const [dismissed, setDismissed] = useState(false)
   const [installing, setInstalling] = useState(false)
 
+  // Detect platform once
+  function detectPlatform() {
+    const ua = navigator.userAgent || ''
+    const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua))
+    const isAndroid = /Android/.test(ua)
+
+    if (isIOS) {
+      const isNonSafariBrowser = /CriOS|FxiOS|OPiOS|EdgiOS/.test(ua)
+      return isNonSafariBrowser ? 'ios-not-safari' : 'ios'
+    } else if (isAndroid) {
+      return 'android'
+    }
+    return 'desktop'
+  }
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true
+  }
+
   useEffect(() => {
+    const detectedPlatform = detectPlatform()
+    setPlatform(detectedPlatform)
+
+    // If already installed as PWA, don't show auto-prompt
+    if (isStandalone()) return
+
     // Check if permanently dismissed by user
     const wasDismissed = localStorage.getItem('pwa-install-dismissed')
     if (wasDismissed) return
 
-    // Check if already installed as PWA
-    if (window.matchMedia('(display-mode: standalone)').matches) return
-    if (window.navigator.standalone === true) return // iOS standalone check
-
-    // Detect platform using multiple signals for reliability
-    const ua = navigator.userAgent || ''
-    const isIOS = /iPad|iPhone|iPod/.test(ua) ||
-      (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua)) // iPad with desktop UA
-    const isAndroid = /Android/.test(ua)
-
-    if (isIOS) {
-      // On iOS, PWA install only works from Safari
-      // Chrome/Firefox/Edge on iOS include CriOS/FxiOS/EdgiOS in UA
-      const isNonSafariBrowser = /CriOS|FxiOS|OPiOS|EdgiOS/.test(ua)
-      if (isNonSafariBrowser) {
-        setPlatform('ios-not-safari')
-      } else {
-        setPlatform('ios')
-      }
+    // Auto-show for iOS (no beforeinstallprompt event)
+    if (detectedPlatform === 'ios' || detectedPlatform === 'ios-not-safari') {
       setTimeout(() => setShowPrompt(true), 3000)
-    } else if (isAndroid) {
-      setPlatform('android')
-    } else {
-      setPlatform('desktop')
     }
 
     // Listen for the native install prompt (Android & Desktop Chrome)
     const handleBeforeInstall = (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
-      setPlatform(prev => prev || 'desktop')
       setTimeout(() => setShowPrompt(true), 2000)
     }
 
@@ -70,6 +75,17 @@ function InstallPrompt() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
       window.removeEventListener('appinstalled', handleInstalled)
     }
+  }, [])
+
+  // Listen for manual "show-install-prompt" event from help menus
+  useEffect(() => {
+    const handleManualShow = () => {
+      if (isStandalone()) return // already installed
+      setDismissed(false)
+      setShowPrompt(true)
+    }
+    window.addEventListener('show-install-prompt', handleManualShow)
+    return () => window.removeEventListener('show-install-prompt', handleManualShow)
   }, [])
 
   async function handleInstallClick() {

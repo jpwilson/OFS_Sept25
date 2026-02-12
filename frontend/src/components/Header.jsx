@@ -19,6 +19,10 @@ function Header() {
   const [isDismissed, setIsDismissed] = useState(false)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
 
+  // Check if running as installed PWA
+  const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+
   // Apply saved theme on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark'
@@ -192,6 +196,17 @@ function Header() {
               >
                 Send Feedback
               </button>
+              {!isInstalledPWA && (
+                <button
+                  className={styles.feedbackButtonMobile}
+                  onClick={() => {
+                    closeMobileMenu()
+                    window.dispatchEvent(new Event('show-install-prompt'))
+                  }}
+                >
+                  Install App
+                </button>
+              )}
             </div>
           </nav>
         </div>
