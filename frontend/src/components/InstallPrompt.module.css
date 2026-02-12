@@ -120,7 +120,7 @@
 
 @media (max-width: 480px) {
   .banner {
-    bottom: 70px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     width: calc(100% - 24px);
   }
 

@@ -18,8 +18,8 @@ function InstallPrompt() {
   const [installing, setInstalling] = useState(false)
 
   useEffect(() => {
-    // Check if already dismissed this session
-    const wasDismissed = sessionStorage.getItem('pwa-install-dismissed')
+    // Check if permanently dismissed by user
+    const wasDismissed = localStorage.getItem('pwa-install-dismissed')
     if (wasDismissed) return
 
     // Check if already installed as PWA
@@ -88,7 +88,7 @@ function InstallPrompt() {
   function handleDismiss() {
     setShowPrompt(false)
     setDismissed(true)
-    sessionStorage.setItem('pwa-install-dismissed', 'true')
+    localStorage.setItem('pwa-install-dismissed', 'true')
   }
 
   if (!showPrompt || dismissed) return null
