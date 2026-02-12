@@ -1157,7 +1157,7 @@ function EventDetail({ isShareMode = false }) {
         if (matchingImage && matchingImage.caption) {
           const captionDiv = doc.createElement('div')
           captionDiv.className = 'image-caption'
-          captionDiv.style.cssText = 'font-size: 0.85em; color: #aaa; font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
+          captionDiv.style.cssText = 'font-size: 0.85em; color: var(--text-tertiary); font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
           captionDiv.textContent = matchingImage.caption
           img.parentNode.insertBefore(captionDiv, img.nextSibling)
         }
@@ -1178,7 +1178,7 @@ function EventDetail({ isShareMode = false }) {
         if (matchingVideo && matchingVideo.caption) {
           const captionDiv = doc.createElement('div')
           captionDiv.className = 'video-caption'
-          captionDiv.style.cssText = 'font-size: 0.85em; color: #aaa; font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
+          captionDiv.style.cssText = 'font-size: 0.85em; color: var(--text-tertiary); font-weight: 500; text-align: center; margin-top: 2px; margin-bottom: 48px; line-height: 1.4;'
           captionDiv.textContent = matchingVideo.caption
           video.parentNode.insertBefore(captionDiv, video.nextSibling)
         }
