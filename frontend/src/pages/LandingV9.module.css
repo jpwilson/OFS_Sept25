@@ -178,14 +178,84 @@
   color: #6B7280;
 }
 
-/* Hero Photo Mosaic */
-.heroMosaic {
+/* Hero Visual (right side — event preview mockup) */
+.heroVisual {
   position: relative;
+}
+
+/* App Preview Mockup — mimics real EventDetail */
+.appPreview {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1F2937;
+  background: #1F2937;
+}
+
+.appHeroImage {
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.appHeroOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 28px 24px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+}
+
+.appEventTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.appEventMeta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.appEventContent {
+  padding: 24px 28px 28px;
+}
+
+.appEventText {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #9CA3AF;
+  margin: 0 0 20px 0;
+}
+
+.appEventPhotos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.appEventPhotos img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Photo Mosaic Section */
+.mosaicSection {
+  padding: 0 40px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .mosaicGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto auto;
   gap: 8px;
 }
@@ -193,11 +263,7 @@
 .mosaicItem {
   border-radius: 12px;
   overflow: hidden;
-  aspect-ratio: 1;
-}
-
-.mosaicItem:first-child {
-  aspect-ratio: auto;
+  aspect-ratio: 3/2;
 }
 
 .mosaicItem img {
@@ -984,7 +1050,7 @@
     padding: 80px 40px 60px;
   }
 
-  .heroMosaic {
+  .heroVisual {
     order: -1;
   }
 
@@ -1057,12 +1123,25 @@
     text-align: center;
   }
 
+  .mosaicSection {
+    padding: 0 20px 30px;
+  }
+
   .mosaicGrid {
     grid-template-columns: 1fr 1fr;
   }
 
-  .mosaicItem:first-child {
-    grid-row: span 1;
+  .appHeroImage {
+    height: 200px;
+  }
+
+  .appEventTitle {
+    font-size: 18px;
+  }
+
+  .appEventPhotos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
   }
 
   .contrastSection {

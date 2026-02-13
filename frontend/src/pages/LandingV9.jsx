@@ -75,26 +75,52 @@ function LandingV9() {
           </FadeIn>
         </div>
 
-        {/* Hero Photo Mosaic */}
-        <FadeIn className={styles.heroMosaic} delay={200}>
+        {/* Hero: Event Preview Mockup — looks like the real app */}
+        <FadeIn className={styles.heroVisual} delay={200}>
+          <div className={styles.appPreview}>
+            <div className={styles.appHeroImage} style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=1200&q=80)' }}>
+              <div className={styles.appHeroOverlay}>
+                <h3 className={styles.appEventTitle}>Thanksgiving at Grandma's</h3>
+                <p className={styles.appEventMeta}>Sarah Wilson &bull; November 2024 &bull; Austin, TX</p>
+              </div>
+            </div>
+            <div className={styles.appEventContent}>
+              <p className={styles.appEventText}>
+                The whole family made it this year — all four generations around one table. Grandma
+                made her famous pecan pie and the kids put on a talent show after dinner. Uncle Mike
+                brought his guitar and we sang until the stars came out...
+              </p>
+              <div className={styles.appEventPhotos}>
+                <img src="https://images.unsplash.com/photo-1612949059443-e706f4c0f41a?w=300&q=80" alt="Family cooking" />
+                <img src="https://images.unsplash.com/photo-1580061815194-5ffa5ac126f0?w=300&q=80" alt="Grandparents reading" />
+                <img src="https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=300&q=80" alt="Thanksgiving table" />
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* Photo Mosaic — warm family moments */}
+      <section className={styles.mosaicSection}>
+        <FadeIn>
           <div className={styles.mosaicGrid}>
-            <div className={styles.mosaicItem} style={{ gridRow: 'span 2' }}>
-              <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&q=80" alt="Family together" />
+            <div className={styles.mosaicItem}>
+              <img src="https://images.unsplash.com/photo-1498252538543-fc27aee78db2?w=600&q=80" alt="Father and son hiking" />
             </div>
             <div className={styles.mosaicItem}>
-              <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400&q=80" alt="Family dinner" />
+              <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=400&q=80" alt="Family video call" />
             </div>
             <div className={styles.mosaicItem}>
-              <img src="https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=400&q=80" alt="Kids playing" />
+              <img src="https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=400&q=80" alt="Kids playing outdoors" />
             </div>
             <div className={styles.mosaicItem}>
-              <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&q=80" alt="Hiking family" />
+              <img src="https://images.unsplash.com/photo-1591174588729-d0297f971b1e?w=400&q=80" alt="Family at beach" />
             </div>
             <div className={styles.mosaicItem}>
-              <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&q=80" alt="Birthday celebration" />
+              <img src="https://images.unsplash.com/photo-1505114643939-2b179ccc6430?w=400&q=80" alt="Birthday candles" />
             </div>
             <div className={styles.mosaicItem}>
-              <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=400&q=80" alt="Video call with family" />
+              <img src="https://images.unsplash.com/photo-1594172104574-3b829faf2e28?w=400&q=80" alt="Baby first steps" />
             </div>
           </div>
         </FadeIn>
@@ -155,38 +181,38 @@ function LandingV9() {
               <div className={styles.feedCard}>
                 <div className={styles.feedHeader}>
                   <div className={styles.feedAvatar}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Maya" alt="Maya" />
                   </div>
                   <div className={styles.feedInfo}>
-                    <div className={styles.feedName}>Sarah Wilson</div>
+                    <div className={styles.feedName}>Maya Rodriguez</div>
                     <div className={styles.feedDate}>2 days ago</div>
                   </div>
                 </div>
                 <div className={styles.feedImage}>
-                  <img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&q=80" alt="Tokyo" />
+                  <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&q=80" alt="Family hiking" />
                 </div>
-                <div className={styles.feedCardTitle}>Cherry Blossom Festival</div>
+                <div className={styles.feedCardTitle}>Weekend at the Lake House</div>
               </div>
               <div className={styles.feedCard}>
                 <div className={styles.feedHeader}>
                   <div className={styles.feedAvatar}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tom" alt="Tom" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Grandma" alt="Grandma" />
                   </div>
                   <div className={styles.feedInfo}>
-                    <div className={styles.feedName}>Tom Wilson</div>
+                    <div className={styles.feedName}>Grandma Elaine</div>
                     <div className={styles.feedDate}>5 days ago</div>
                   </div>
                 </div>
                 <div className={styles.feedImage}>
-                  <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Mountain" />
+                  <img src="https://images.unsplash.com/photo-1617127284458-88cb03b86916?w=800&q=80" alt="Grandparents with grandkids" />
                 </div>
-                <div className={styles.feedCardTitle}>Epic Hiking Weekend</div>
+                <div className={styles.feedCardTitle}>Baking Day with the Grandkids</div>
               </div>
             </div>
           </FadeIn>
         </div>
 
-        {/* Feature B: Rich Events */}
+        {/* Feature B: Rich Events — mockup looks like the real app */}
         <div className={`${styles.featureRow} ${styles.featureReverse}`}>
           <FadeIn className={styles.featureText}>
             <span className={styles.badge}>Rich Storytelling</span>
@@ -203,32 +229,22 @@ function LandingV9() {
             </ul>
           </FadeIn>
           <FadeIn className={styles.featureVisual} delay={150}>
-            <div className={styles.eventMockup}>
-              <div className={styles.eventHeaderLarge}>
-                <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80" alt="Wedding" />
-                <div className={styles.eventOverlay}>
-                  <h3>Sarah & Michael's Wedding Day</h3>
-                  <p>June 15, 2024 &bull; Napa Valley, California</p>
+            <div className={styles.appPreview}>
+              <div className={styles.appHeroImage} style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&q=80)' }}>
+                <div className={styles.appHeroOverlay}>
+                  <h3 className={styles.appEventTitle}>Emma's Quincea&ntilde;era</h3>
+                  <p className={styles.appEventMeta}>The Rodriguez Family &bull; March 2024</p>
                 </div>
               </div>
-              <div className={styles.eventBody}>
-                <p className={styles.eventStory}>
-                  A perfect sunny day surrounded by vineyards, family, and friends. The ceremony
-                  was beautiful, and the reception went late into the night...
+              <div className={styles.appEventContent}>
+                <p className={styles.appEventText}>
+                  Fifteen years of watching this incredible girl grow into a young woman. The whole
+                  family flew in from three different states to celebrate together...
                 </p>
-                <div className={styles.galleryGrid}>
-                  <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80" alt="Ceremony" />
-                  </div>
-                  <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&q=80" alt="Reception" />
-                  </div>
-                  <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="Dance" />
-                  </div>
-                  <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&q=80" alt="Sunset" />
-                  </div>
+                <div className={styles.appEventPhotos}>
+                  <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=300&q=80" alt="Celebration" />
+                  <img src="https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=300&q=80" alt="Family together" />
+                  <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&q=80" alt="Dinner table" />
                 </div>
               </div>
             </div>
@@ -255,7 +271,7 @@ function LandingV9() {
             <div className={styles.mapMockup}>
               <div className={styles.mapContainer}>
                 <img
-                  src="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?w=1200&q=80"
+                  src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=80"
                   alt="World Map"
                   className={styles.mapBackground}
                 />

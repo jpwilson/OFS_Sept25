@@ -43,6 +43,7 @@ function AdminDashboard() {
     { id: 6, name: 'Dark Premium', desc: 'Glassmorphism & glows' },
     { id: 7, name: 'Split Screen', desc: '50/50 text & visual layout' },
     { id: 8, name: 'Social Proof', desc: 'Community-focused design' },
+    { id: 9, name: 'Emotional Convert', desc: 'Heart-first anti-social-media pitch' },
   ]
 
   return (
@@ -147,7 +148,7 @@ function AdminDashboard() {
                 <span className={styles.projectIcon}>🎨</span>
                 <div>
                   <h4>Landing Page Redesign</h4>
-                  <p>A/B test 8 different landing page variations</p>
+                  <p>A/B test 9 different landing page variations</p>
                 </div>
               </div>
               <span className={`${styles.chevron} ${expandedProjects.landingRedesign ? styles.expanded : ''}`}>
@@ -190,15 +191,16 @@ function AdminDashboard() {
           </Link>
 
           {/* Landing Page Social Proof Project */}
-          <div className={styles.projectCard}>
-            <div className={styles.projectInfo} style={{ padding: '16px' }}>
+          <Link to="/admin/landing-9" className={styles.projectCardLink}>
+            <div className={styles.projectInfo}>
               <span className={styles.projectIcon}>📸</span>
               <div>
                 <h4>Landing Page Social Proof</h4>
-                <p>Curate high-quality Unsplash photography showcasing family moments. Create compelling demo events as social proof. Experiment with photo layouts, testimonial sections, and visual storytelling to convert landing page visitors.</p>
+                <p>Emotional, conversion-focused design with anti-social-media positioning</p>
               </div>
             </div>
-          </div>
+            <span className={styles.projectArrow}>→</span>
+          </Link>
         </div>
 
         {/* Completed Projects */}
