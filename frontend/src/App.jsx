@@ -49,6 +49,7 @@ import LandingV5 from './pages/LandingV5'
 import LandingV6 from './pages/LandingV6'
 import LandingV7 from './pages/LandingV7'
 import LandingV8 from './pages/LandingV8'
+import LandingV9 from './pages/LandingV9'
 
 // Redirect from old /signup?invite=TOKEN format to new /join/TOKEN format
 function SignupInviteRedirect() {
@@ -134,6 +135,7 @@ function App() {
               <Route path="/admin/landing-6" element={<SuperuserRoute><LandingV6 /></SuperuserRoute>} />
               <Route path="/admin/landing-7" element={<SuperuserRoute><LandingV7 /></SuperuserRoute>} />
               <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
+              <Route path="/admin/landing-9" element={<SuperuserRoute><LandingV9 /></SuperuserRoute>} />
             </Route>
           </Routes>
           <InstallPrompt />
