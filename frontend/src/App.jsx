@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './components/Toast'
 import { ConfirmProvider } from './components/ConfirmModal'
@@ -139,6 +140,7 @@ function App() {
             </Route>
           </Routes>
           <InstallPrompt />
+          <Analytics />
         </ConfirmProvider>
       </ToastProvider>
     </AuthProvider>
