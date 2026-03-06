@@ -54,6 +54,9 @@ class User(Base):
     is_invited_viewer = Column(Boolean, default=False)  # True if signed up via invitation
     invited_viewer_mode = Column(Boolean, default=False)  # True when in restricted mode (after trial)
 
+    # Demo account
+    is_demo_account = Column(Boolean, default=False)  # Investor demo account
+
     events = relationship("Event", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     likes = relationship("Like", back_populates="user")
@@ -125,6 +128,10 @@ class User(Base):
 
     def can_access_content(self):
         """Check if user can access protected content (event details, etc.)"""
+        # Demo accounts have full viewing access
+        if self.is_demo_account:
+            return True
+
         # Active paid subscription
         if self.has_active_subscription():
             return True

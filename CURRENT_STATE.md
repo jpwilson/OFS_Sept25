@@ -1,6 +1,6 @@
 # Our Family Socials - Current State Summary
 
-**Last Updated:** January 15, 2026
+**Last Updated:** February 3, 2026
 **Status:** Production - Live at ourfamilysocials.com
 **Purpose:** Private social network for families to share life events, photos, and memories
 
@@ -138,7 +138,47 @@ OFS_claude/
 
 ---
 
-## 🎯 Recent Major Work (November 2025 - January 2026)
+## 🎯 Recent Major Work (November 2025 - February 2026)
+
+### Database Security Hardening (February 3, 2026)
+**Purpose:** Secure database against direct PostgREST API access
+- Enabled Row Level Security (RLS) on all 26 public tables
+- Created `current_user_id()` helper function to map Supabase auth to integer user IDs
+- Added 50+ RLS policies for proper access control
+- Consolidated duplicate permissive policies on `events`, `content_blocks`, `event_locations`
+- Locked down `alembic_version` table (backend-only access)
+- Added 9 missing foreign key indexes for performance:
+  - `comment_reactions.user_id`, `event_tags.tagged_by_id`, `events.custom_group_id`
+  - `feedback.user_id`, `follows.invitation_id`, `invited_viewers.resulting_user_id`
+  - `media_comment_reactions.user_id`, `viewer_notification_logs.event_author_id`, `viewer_notification_logs.event_id`
+- Fixed mutable search paths on trigger functions
+- **Note:** Backend uses service role (bypasses RLS), so no code changes needed
+
+### Feed Card Redesign (February 3, 2026)
+**Purpose:** Image-only cards with glass hover overlay
+- Default: Image-only display, no visible text
+- Hover (desktop): Glass overlay slides up with title, author, date, location
+- Mobile: Tap to toggle text, tap again to hide (multiple cards can show text)
+- Text resets when switching views (feed/calendar/map/timeline)
+- Enhanced title typography with gradient text effect and layered shadows
+- 4 design variations available in admin preview (/admin/design)
+- **Key Files:** `frontend/src/components/FeedView.jsx`, `FeedView.module.css`
+
+### Admin Dashboard Enhancement (February 3, 2026)
+**Purpose:** Better admin tables and design preview tools
+- Users table: Added last_login, event_count, earliest/latest event columns
+- Events table: Added photo/video/reaction/comment counts, status filter
+- Sortable columns with click-to-sort functionality
+- Design Preview page with 4 feed card hover variations
+- Landing Page Redesign project (8 variations) accessible from dashboard
+- **Key Files:** `backend/app/api/admin.py`, `frontend/src/pages/AdminUsers.jsx`, `AdminEvents.jsx`, `AdminDesignPreview.jsx`
+
+### Comment Threading & Reactions (February 2026)
+**Purpose:** Nested comments with emoji reactions
+- Reply to comments (threaded/nested display)
+- Emoji reactions on comments (same 10 options as media)
+- Expand/collapse thread UI
+- **Key Files:** `frontend/src/pages/EventDetail.jsx`, `backend/app/api/comments.py`
 
 ### Media Reactions System (January 15, 2026)
 **Purpose:** Replace single heart like with 10 reaction options for images

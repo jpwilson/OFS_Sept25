@@ -4,7 +4,7 @@ from sqlalchemy import func, or_
 from typing import List, Optional
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.tag_profile import TagProfile
 from ..models.tag_profile_claim import TagProfileClaim
@@ -55,7 +55,7 @@ def get_tag_profile_relationships(db: Session, tag_profile_id: int) -> List[TagP
 @router.post("", response_model=TagProfileResponse)
 def create_tag_profile(
     profile: TagProfileCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Create a new tag profile for a non-user (pet, child, relative, etc.)"""
@@ -282,7 +282,7 @@ def get_tag_profile_events(
 def update_tag_profile(
     profile_id: int,
     profile_update: TagProfileUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Update a tag profile. Only the creator can update their profiles."""
@@ -330,7 +330,7 @@ def update_tag_profile(
 @router.delete("/{profile_id}")
 def delete_tag_profile(
     profile_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Delete a tag profile. Only the creator can delete their profiles."""
@@ -378,7 +378,7 @@ def get_relationships(
 def add_relationship(
     profile_id: int,
     relationship: TagProfileRelationshipCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Add a relationship between a tag profile and a user. Only the creator can do this."""
@@ -478,7 +478,7 @@ def add_relationship(
 def remove_relationship(
     profile_id: int,
     relationship_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Remove a relationship from a tag profile. Only the creator can do this."""
@@ -523,7 +523,7 @@ claims_router = APIRouter(prefix="/me", tags=["tag-profile-claims"])
 def create_claim_request(
     profile_id: int,
     claim_data: TagProfileClaimCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -676,7 +676,7 @@ def get_claims_by_me(
 @claims_router.post("/tag-profile-claims/{claim_id}/approve")
 def approve_claim(
     claim_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -753,7 +753,7 @@ def approve_claim(
 @claims_router.post("/tag-profile-claims/{claim_id}/reject")
 def reject_claim(
     claim_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Reject a claim request."""
@@ -792,7 +792,7 @@ def reject_claim(
 def request_relationship(
     profile_id: int,
     request_data: TagProfileRelationshipRequestCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -987,7 +987,7 @@ def get_relationship_requests_by_me(
 @claims_router.post("/tag-profile-relationship-requests/{request_id}/approve")
 def approve_relationship_request(
     request_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -1045,7 +1045,7 @@ def approve_relationship_request(
 @claims_router.post("/tag-profile-relationship-requests/{request_id}/reject")
 def reject_relationship_request(
     request_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Reject a relationship request."""

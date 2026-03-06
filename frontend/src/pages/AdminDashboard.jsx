@@ -8,9 +8,14 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedProjects, setExpandedProjects] = useState({ landingRedesign: false })
+  const [demoPassword, setDemoPassword] = useState('')
+  const [demoSaving, setDemoSaving] = useState(false)
+  const [demoMessage, setDemoMessage] = useState(null)
+  const [demoInfo, setDemoInfo] = useState(null)
 
   useEffect(() => {
     loadStats()
+    loadDemoInfo()
   }, [])
 
   async function loadStats() {
@@ -24,6 +29,32 @@ function AdminDashboard() {
       setError(`Failed to load statistics: ${err.message}`)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function loadDemoInfo() {
+    try {
+      const data = await apiService.getDemoAccountInfo()
+      setDemoInfo(data)
+    } catch (err) {
+      console.error('Failed to load demo info:', err)
+    }
+  }
+
+  async function handleDemoPasswordUpdate(e) {
+    e.preventDefault()
+    if (!demoPassword.trim()) return
+    setDemoSaving(true)
+    setDemoMessage(null)
+    try {
+      await apiService.updateDemoPassword(demoPassword)
+      setDemoMessage({ type: 'success', text: 'Demo password updated' })
+      setDemoPassword('')
+      loadDemoInfo()
+    } catch (err) {
+      setDemoMessage({ type: 'error', text: err.message || 'Failed to update' })
+    } finally {
+      setDemoSaving(false)
     }
   }
 
@@ -124,6 +155,65 @@ function AdminDashboard() {
             </div>
             <div className={styles.linkArrow}>→</div>
           </Link>
+        </div>
+      </section>
+
+      {/* Demo Account */}
+      <section className={styles.linksSection}>
+        <h2 className={styles.sectionTitle}>Demo Account</h2>
+        <div className={styles.linkCard} style={{ flexDirection: 'column', alignItems: 'stretch', gap: '12px', cursor: 'default' }}>
+          {demoInfo && (
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+              Username: <strong style={{ color: 'var(--text-primary)' }}>{demoInfo.username}</strong>
+              {demoInfo.updated_at && (
+                <span style={{ marginLeft: '16px' }}>
+                  Last updated: {new Date(demoInfo.updated_at).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          )}
+          <form onSubmit={handleDemoPasswordUpdate} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={demoPassword}
+              onChange={(e) => setDemoPassword(e.target.value)}
+              placeholder="New demo password"
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '14px',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={demoSaving || !demoPassword.trim()}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#667eea',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                opacity: demoSaving || !demoPassword.trim() ? 0.5 : 1,
+              }}
+            >
+              {demoSaving ? 'Saving...' : 'Update Password'}
+            </button>
+          </form>
+          {demoMessage && (
+            <div style={{
+              fontSize: '13px',
+              color: demoMessage.type === 'success' ? '#22c55e' : '#ef4444',
+            }}>
+              {demoMessage.text}
+            </div>
+          )}
         </div>
       </section>
 

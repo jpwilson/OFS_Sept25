@@ -65,6 +65,37 @@ class ApiService {
     console.error(`[${requestId}] API Error - ${endpoint}: ${status}`, error)
   }
 
+  async demoLogin(password) {
+    const response = await fetch(`${API_BASE}/auth/demo-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Demo login failed')
+    }
+    return await response.json()
+  }
+
+  async updateDemoPassword(password) {
+    const headers = await this.getAuthHeaders()
+    const response = await fetch(`${API_BASE}/admin/demo-password`, {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    })
+    if (!response.ok) throw new Error('Failed to update demo password')
+    return await response.json()
+  }
+
+  async getDemoAccountInfo() {
+    const headers = await this.getAuthHeaders()
+    const response = await fetch(`${API_BASE}/admin/demo-account`, { headers })
+    if (!response.ok) throw new Error('Failed to get demo account info')
+    return await response.json()
+  }
+
   async getEvents(orderBy = 'event_date') {
     try {
       const headers = await this.getAuthHeaders()

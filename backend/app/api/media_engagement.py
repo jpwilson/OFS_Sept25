@@ -5,7 +5,7 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.event_image import EventImage
 from ..models.media_like import MediaLike, REACTION_TYPES
@@ -175,7 +175,7 @@ def get_batch_media_likes(
 def like_media(
     media_id: int,
     like_data: MediaLikeCreate = MediaLikeCreate(),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Like a media item (image/video) with a reaction type"""
@@ -218,7 +218,7 @@ def like_media(
 @router.delete("/{media_id}/likes")
 def unlike_media(
     media_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Unlike a media item"""
@@ -292,7 +292,7 @@ def get_media_likes(
 def create_media_comment(
     media_id: int,
     comment_data: MediaCommentCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Add a comment to a media item"""
@@ -412,7 +412,7 @@ def get_media_comments(
 def delete_media_comment(
     media_id: int,
     comment_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Delete a comment (only author can delete)"""
@@ -440,7 +440,7 @@ def react_to_media_comment(
     media_id: int,
     comment_id: int,
     reaction: MediaCommentReactionCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Add or update a reaction on a media comment"""
@@ -486,7 +486,7 @@ def react_to_media_comment(
 def remove_media_comment_reaction(
     media_id: int,
     comment_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Remove user's reaction from a media comment"""

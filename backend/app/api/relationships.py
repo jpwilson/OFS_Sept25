@@ -4,7 +4,7 @@ from sqlalchemy import or_, and_
 from typing import List
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, require_not_demo
 from ..models.user import User
 from ..models.user_relationship import UserRelationship
 from ..models.follow import Follow
@@ -46,7 +46,7 @@ def check_mutual_follow(db: Session, user_id_1: int, user_id_2: int) -> bool:
 @router.post("/propose", response_model=RelationshipResponse)
 def propose_relationship(
     data: RelationshipPropose,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -368,7 +368,7 @@ def get_relationship_with_user(
 @router.post("/{relationship_id}/accept", response_model=RelationshipResponse)
 def accept_relationship(
     relationship_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Accept a pending relationship request."""
@@ -436,7 +436,7 @@ def accept_relationship(
 @router.post("/{relationship_id}/reject")
 def reject_relationship(
     relationship_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Reject a pending relationship request."""
@@ -479,7 +479,7 @@ def reject_relationship(
 @router.delete("/{relationship_id}")
 def delete_relationship(
     relationship_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Delete a relationship (either party can do this)."""

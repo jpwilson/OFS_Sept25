@@ -7,7 +7,7 @@ import QuickAddModal from './QuickAddModal'
 import styles from './Header.module.css'
 
 function Header() {
-  const { user, logout, isSuperuser } = useAuth()
+  const { user, logout, isSuperuser, isDemoAccount } = useAuth()
   const navigate = useNavigate()
   const [notificationCounts, setNotificationCounts] = useState({
     total: 0,
@@ -99,7 +99,7 @@ function Header() {
         {user && user.subscription_tier === 'free' && (
           <Link to="/billing" className={styles.premiumLink}>Go Premium</Link>
         )}
-        {user && (
+        {user && !isDemoAccount && (
           <div className={styles.createSplitButton}>
             <span className={styles.createPlusIcon}>+</span>
             <div className={styles.createSplitOptions}>
@@ -144,7 +144,7 @@ function Header() {
       {mobileMenuOpen && (
         <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu}>
           <nav className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
-            {user && (
+            {user && !isDemoAccount && (
               <div className={styles.mobileCreateRow}>
                 <button
                   className={styles.mobileCreateButton}

@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime
 import re
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
@@ -207,27 +207,38 @@ def get_events(
             Event.is_deleted == False
         )
 
-        # TEMPORARY: Exclude seed/demo data users from the feed
-        # To re-enable demo data, comment out or remove these lines
-        # Demo users: sarahw, tomw, emmaw (IDs 1, 2, 3 from supabase_seed.sql)
-        DEMO_USER_IDS = [1, 2, 3]
-        query = query.filter(~Event.author_id.in_(DEMO_USER_IDS))
-        # END TEMPORARY
+        is_demo = current_user and getattr(current_user, 'is_demo_account', False)
 
-        # Apply feed-level privacy filtering (shows all except private for logged-in users)
-        # Detail-level privacy is handled by can_view_event() in get_event endpoint
-        query = filter_events_for_feed(query, current_user, db)
+        if is_demo:
+            # Demo user sees ALL published events (feed looks populated)
+            # Only exclude private events
+            query = query.filter(Event.privacy_level != "private")
+        else:
+            # Normal users: exclude seed data users
+            DEMO_USER_IDS = [1, 2, 3]
+            query = query.filter(~Event.author_id.in_(DEMO_USER_IDS))
+
+            # Apply feed-level privacy filtering
+            # Detail-level privacy is handled by can_view_event() in get_event endpoint
+            query = filter_events_for_feed(query, current_user, db)
 
         # Apply category filter if provided
         if category:
             query = query.filter(Event.category == category)
 
-        # Apply pagination and ordering based on order_by parameter
-        if order_by == "upload_date":
-            # Order by when event was uploaded/created on the platform
+        # Apply pagination and ordering
+        if is_demo:
+            # Pin showcase events to top for demo users
+            from sqlalchemy import case as sql_case
+            pin_order = sql_case(
+                (Event.is_demo_showcase == True, 0),
+                else_=1
+            )
+            date_col = Event.created_at if order_by == "upload_date" else Event.start_date
+            events = query.order_by(pin_order, date_col.desc()).offset(skip).limit(limit).all()
+        elif order_by == "upload_date":
             events = query.order_by(Event.created_at.desc()).offset(skip).limit(limit).all()
         else:
-            # Default: order by event date (start_date - when event occurred)
             events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 
         print(f"[EVENTS] Found {len(events)} events")
@@ -294,7 +305,7 @@ def create_event(
     event_data: EventCreate,
     background_tasks: BackgroundTasks,
     is_published: bool = True,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     # Check if user has an active subscription (trial or paid)
@@ -637,7 +648,7 @@ def get_event(
 def update_event(
     event_identifier: str,
     event_data: EventUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     # Determine if identifier is an ID (all digits) or a slug
@@ -732,7 +743,7 @@ def update_event(
 def add_content_block(
     event_id: int,
     content_data: ContentBlockCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     event = db.query(Event).filter(Event.id == event_id).first()
@@ -757,7 +768,7 @@ def add_content_block(
 @router.delete("/{event_id}")
 def delete_event(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Soft delete - move event to trash"""
@@ -777,7 +788,7 @@ def delete_event(
 @router.post("/{event_id}/restore")
 def restore_event(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Restore event from trash"""
@@ -811,7 +822,7 @@ def restore_event(
 @router.post("/{event_id}/publish")
 def publish_event(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Publish a draft event (make it visible to followers)"""
@@ -852,7 +863,7 @@ def publish_event(
 @router.post("/{event_id}/unpublish")
 def unpublish_event(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Unpublish an event (move to drafts, hide from followers)"""
@@ -876,7 +887,7 @@ def unpublish_event(
 @router.delete("/{event_id}/permanent")
 def permanently_delete_event(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Permanently delete event from trash and cleanup associated images"""
@@ -933,7 +944,7 @@ def permanently_delete_event(
 @router.post("/{event_id}/like")
 def add_like(
     event_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     from ..models.like import Like

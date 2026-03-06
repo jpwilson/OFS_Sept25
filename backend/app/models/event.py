@@ -37,6 +37,9 @@ class Event(Base):
     share_view_count = Column(Integer, default=0)
     share_created_at = Column(DateTime, nullable=True)
 
+    # Demo showcase
+    is_demo_showcase = Column(Boolean, default=False)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

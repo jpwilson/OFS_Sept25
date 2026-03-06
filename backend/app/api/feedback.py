@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.feedback import Feedback
 import hashlib
@@ -59,9 +59,9 @@ async def submit_feedback(
     feedback: FeedbackCreate,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional)
+    current_user: User = Depends(require_not_demo)
 ):
-    """Submit user feedback. Works for both logged-in and anonymous users."""
+    """Submit user feedback. Requires authentication."""
 
     # Get client IP for rate limiting
     client_ip = request.client.host if request.client else "unknown"

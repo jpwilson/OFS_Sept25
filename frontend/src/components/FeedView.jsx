@@ -48,7 +48,7 @@ const isTouchDevice = () => {
 }
 
 export default function FeedView({ events = [], following = [], onUpgradePrompt }) {
-  const { user, canAccessContent } = useAuth()
+  const { user, canAccessContent, isDemoAccount, demoEventIds } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [cardSize, setCardSize] = useState('small')
@@ -164,12 +164,14 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
       <div className={`${styles.feed} ${styles[cardSize]}`}>
         {events.map(event => {
           const isActive = activeCards.has(event.id)
+          const isDemoPinned = isDemoAccount && demoEventIds.includes(event.id)
           return (
             <div
               key={event.id}
-              className={`${styles.eventCard} ${isActive ? styles.active : ''}`}
+              className={`${styles.eventCard} ${isActive ? styles.active : ''} ${isDemoPinned ? styles.demoPinned : ''}`}
               onClick={(e) => handleCardClick(event, e)}
             >
+              {isDemoPinned && <span className={styles.demoBadge}>FEATURED</span>}
               <div
                 className={styles.eventImage}
                 style={{ backgroundImage: `url(${getImageUrl(event.cover_image_url, 'small')})` }}

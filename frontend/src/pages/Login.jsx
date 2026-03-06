@@ -233,6 +233,12 @@ function Login() {
         <Link to="/" className={styles.backLink}>
           ← What's This About?
         </Link>
+
+        {isRegistering && (
+          <Link to="/demo-login" className={styles.backLink} style={{ marginTop: '12px', display: 'block' }}>
+            Investor Demo Login →
+          </Link>
+        )}
       </div>
     </div>
   )

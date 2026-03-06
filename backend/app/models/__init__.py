@@ -19,3 +19,7 @@ from .user_mute import UserMute
 from .comment_reaction import CommentReaction
 from .media_comment_reaction import MediaCommentReaction
 from .ai_usage_log import AIUsageLog
+from .custom_group import CustomGroup, CustomGroupMember
+from .tag_profile_relationship import TagProfileRelationship
+from .tag_profile_relationship_request import TagProfileRelationshipRequest
+from .feedback import Feedback

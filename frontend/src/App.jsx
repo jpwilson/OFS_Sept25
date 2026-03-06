@@ -11,6 +11,7 @@ import EditProfile from './pages/EditProfile'
 import CreateEvent from './pages/CreateEvent'
 import EditEvent from './pages/EditEvent'
 import Login from './pages/Login'
+import DemoLogin from './pages/DemoLogin'
 import ResetPassword from './pages/ResetPassword'
 import Checkout from './pages/Checkout'
 import PricingPage from './pages/PricingPage'
@@ -78,6 +79,14 @@ function SuperuserRoute({ children }) {
   return children
 }
 
+// Block write routes for demo accounts
+function DemoBlockRoute({ children }) {
+  const { user, isDemoAccount, loading } = useAuth()
+  if (loading) return null
+  if (user && isDemoAccount) return <Navigate to="/feed" replace />
+  return children
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -89,6 +98,7 @@ function App() {
             <Route path="/signup" element={<SignupInviteRedirect />} />
             <Route path="/signup/invited" element={<InvitedSignup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/demo-login" element={<DemoLogin />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -101,9 +111,9 @@ function App() {
               <Route path="/billing" element={<Billing />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/event/:id" element={<EventDetail />} />
-              <Route path="/event/:id/edit" element={<EditEvent />} />
+              <Route path="/event/:id/edit" element={<DemoBlockRoute><EditEvent /></DemoBlockRoute>} />
               <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/profile/:username/edit" element={<EditProfile />} />
+              <Route path="/profile/:username/edit" element={<DemoBlockRoute><EditProfile /></DemoBlockRoute>} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Preferences />} />
               <Route path="/relationships" element={<Relationships />} />
@@ -114,7 +124,7 @@ function App() {
               <Route path="/preferences" element={<Navigate to="/settings" replace />} />
               <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
               <Route path="/family-tree" element={<FamilyTree />} />
-              <Route path="/create" element={<CreateEvent />} />
+              <Route path="/create" element={<DemoBlockRoute><CreateEvent /></DemoBlockRoute>} />
               {/* Legacy routes - redirect to unified explorer with view param */}
               <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
               <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />

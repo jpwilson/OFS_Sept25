@@ -347,6 +347,23 @@ export function AuthProvider({ children }) {
   // Superuser access
   const isSuperuser = user?.is_superuser || false
 
+  // Demo account
+  const isDemoAccount = user?.is_demo_account || false
+  const demoEventIds = user?.demo_event_ids || []
+
+  const demoLogin = async (password) => {
+    try {
+      const apiService = (await import('../services/api.js')).default
+      const data = await apiService.demoLogin(password)
+      localStorage.setItem('token', data.access_token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
   const value = {
     user,
     session,
@@ -372,7 +389,10 @@ export function AuthProvider({ children }) {
     isSubscriptionCanceled,
     isTrialExpired,
     isExpired,
-    isSuperuser
+    isSuperuser,
+    isDemoAccount,
+    demoEventIds,
+    demoLogin
   }
 
   return (

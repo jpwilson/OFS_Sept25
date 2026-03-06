@@ -5,7 +5,7 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.event import Event
 from ..models.comment import Comment
@@ -45,7 +45,7 @@ def create_comment(
     event_id: int,
     comment: CommentCreate,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Create a new comment on an event"""
@@ -181,7 +181,7 @@ def get_comments(
 def delete_comment(
     event_id: int,
     comment_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Delete a comment (only by comment author or event author)"""
@@ -210,7 +210,7 @@ def react_to_comment(
     event_id: int,
     comment_id: int,
     reaction: ReactionCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Add or update a reaction on a comment"""
@@ -256,7 +256,7 @@ def react_to_comment(
 def remove_comment_reaction(
     event_id: int,
     comment_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Remove user's reaction from a comment"""

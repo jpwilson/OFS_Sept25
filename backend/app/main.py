@@ -40,6 +40,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Demo account write-blocking middleware (safety net)
+DEMO_WRITE_ALLOWLIST = {
+    "/api/v1/auth/demo-login",
+}
+
+@app.middleware("http")
+async def block_demo_writes(request: Request, call_next):
+    """Block all write operations for demo accounts as a safety net."""
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        path = request.url.path
+        if path not in DEMO_WRITE_ALLOWLIST:
+            # Check auth header for demo user
+            auth_header = request.headers.get("authorization", "")
+            if auth_header.startswith("Bearer "):
+                token = auth_header[7:]
+                try:
+                    from .core.security import decode_token
+                    payload = decode_token(token)
+                    if payload:
+                        user_id_str = payload.get("sub")
+                        if user_id_str:
+                            from .core.database import SessionLocal
+                            from .models.user import User as UserModel
+                            db = SessionLocal()
+                            try:
+                                user_id = int(user_id_str)
+                                user = db.query(UserModel).filter(UserModel.id == user_id).first()
+                                if user and getattr(user, 'is_demo_account', False):
+                                    from fastapi.responses import JSONResponse
+                                    return JSONResponse(
+                                        status_code=403,
+                                        content={"detail": "Demo accounts cannot perform this action. Sign up for your own account!"}
+                                    )
+                            except (ValueError, TypeError):
+                                pass  # Not a legacy token, let it through
+                            finally:
+                                db.close()
+                except Exception:
+                    pass  # Auth parsing failed, let normal auth handle it
+
+    return await call_next(request)
+
+
 # Request logging middleware with correlation IDs
 @app.middleware("http")
 async def log_requests(request: Request, call_next):

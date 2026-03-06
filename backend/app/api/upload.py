@@ -18,7 +18,7 @@ except ImportError:
     pass  # pillow-heif not installed, HEIC files won't be supported
 from ..core.config import settings
 from ..core.database import get_db
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, require_not_demo
 from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
@@ -283,7 +283,7 @@ async def upload_event_image(
     caption: Optional[str] = Form(None),
     order_index: int = Form(0),
     alt_text: Optional[str] = Form(None),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -362,7 +362,7 @@ async def upload_event_image(
 @router.post("/upload/event-image-record", response_model=EventImageResponse)
 async def create_event_image_record(
     data: EventImageRecordCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -427,7 +427,7 @@ async def create_event_image_record(
 @router.delete("/upload/event-image/{image_id}")
 async def delete_event_image(
     image_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -494,7 +494,7 @@ async def get_event_images(
 async def update_event_image_caption(
     image_id: int,
     update_data: EventImageUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -534,7 +534,7 @@ async def update_event_image_caption(
 @router.post("/upload/event-image-metadata", response_model=EventImageResponse)
 async def create_event_image_metadata(
     image_data: EventImageCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """
@@ -651,7 +651,7 @@ async def upload_event_video(
     order_index: int = Form(0),
     duration_seconds: Optional[int] = Form(None),
     thumbnail_url: Optional[str] = Form(None),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """

@@ -183,3 +183,15 @@ def get_current_superuser(
             detail="Superuser access required"
         )
     return current_user
+
+
+def require_not_demo(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """Block write operations for demo accounts."""
+    if getattr(current_user, 'is_demo_account', False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Demo accounts cannot perform this action. Sign up for your own account!"
+        )
+    return current_user

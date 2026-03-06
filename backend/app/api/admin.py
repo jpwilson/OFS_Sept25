@@ -29,6 +29,10 @@ class FeedbackUpdate(BaseModel):
     admin_reply: Optional[str] = None  # Reply visible to user
 
 
+class DemoPasswordUpdate(BaseModel):
+    password: str
+
+
 # ========================================
 # Dashboard Stats
 # ========================================
@@ -420,3 +424,50 @@ def update_feedback(
 
     db.commit()
     return {"message": "Feedback updated", "id": fb.id, "status": fb.status}
+
+
+# ========================================
+# Demo Account Management
+# ========================================
+
+@router.get("/demo-account")
+def get_demo_account_info(
+    current_user: User = Depends(get_current_superuser),
+    db: Session = Depends(get_db)
+):
+    """Get demo account info. Superuser only."""
+    demo_user = db.query(User).filter(User.is_demo_account == True).first()
+    if not demo_user:
+        return {"configured": False}
+    return {
+        "configured": True,
+        "username": demo_user.username,
+        "email": demo_user.email,
+        "updated_at": demo_user.updated_at.isoformat() if demo_user.updated_at else None
+    }
+
+
+@router.put("/demo-password")
+def update_demo_password(
+    data: DemoPasswordUpdate,
+    current_user: User = Depends(get_current_superuser),
+    db: Session = Depends(get_db)
+):
+    """Update the demo account password. Superuser only."""
+    from ..core.security import get_password_hash
+    from datetime import datetime
+
+    demo_user = db.query(User).filter(User.is_demo_account == True).first()
+    if not demo_user:
+        raise HTTPException(status_code=404, detail="Demo account not found")
+
+    if len(data.password) < 4:
+        raise HTTPException(status_code=400, detail="Password must be at least 4 characters")
+
+    demo_user.hashed_password = get_password_hash(data.password)
+    demo_user.updated_at = datetime.utcnow()
+    db.commit()
+
+    print(f"[ADMIN] Demo password changed by {current_user.username} at {datetime.utcnow().isoformat()}")
+
+    return {"message": "Demo password updated successfully"}

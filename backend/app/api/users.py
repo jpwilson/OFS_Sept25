@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from ..core.database import get_db
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, require_not_demo
 from ..models.user import User
 from ..models.follow import Follow
 from ..models.user_mute import UserMute
@@ -103,7 +103,9 @@ def get_current_user_profile(
         "follower_count": follower_count,
         "following_count": following_count,
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
-        "is_superuser": getattr(current_user, 'is_superuser', False) or False
+        "is_superuser": getattr(current_user, 'is_superuser', False) or False,
+        "is_demo_account": getattr(current_user, 'is_demo_account', False) or False,
+        **({"demo_event_ids": [e.id for e in db.query(Event.id).filter(Event.is_demo_showcase == True).all()]} if getattr(current_user, 'is_demo_account', False) else {})
     }
 
 @router.get("/search/users")
@@ -185,7 +187,7 @@ def get_user_profile(
 def follow_user(
     username: str,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Follow a user"""
@@ -246,7 +248,7 @@ def follow_user(
 @router.delete("/{username}/follow")
 def unfollow_user(
     username: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Unfollow a user"""
@@ -300,7 +302,7 @@ def get_following(
 def toggle_event_notifications(
     user_id: int,
     notify: bool,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Toggle event notifications for a specific user you follow"""
@@ -347,7 +349,7 @@ def get_followers(
 def toggle_close_family(
     user_id: int,
     close_family: bool,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Mark or unmark a follower as close family"""
@@ -545,7 +547,7 @@ def get_follow_requests(
 def accept_follow_request(
     request_id: int,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Accept a follow request"""
@@ -583,7 +585,7 @@ def accept_follow_request(
 @router.post("/me/follow-requests/{request_id}/reject")
 def reject_follow_request(
     request_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Reject a follow request"""
@@ -697,7 +699,7 @@ def get_notification_counts(
 @router.put("/me/profile")
 def update_profile(
     profile_data: ProfileUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Update current user's profile"""
@@ -762,7 +764,7 @@ def get_notification_preferences(
 @router.put("/me/notification-preferences")
 def update_notification_preferences(
     preferences: NotificationPreferencesUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Update current user's email notification preferences"""
@@ -930,7 +932,7 @@ def get_muted_users(
 @router.post("/{user_id}/mute")
 def mute_user(
     user_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Mute a user - their events won't appear in your feed"""
@@ -971,7 +973,7 @@ def mute_user(
 @router.delete("/{user_id}/mute")
 def unmute_user(
     user_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Unmute a user - their events will appear in your feed again"""

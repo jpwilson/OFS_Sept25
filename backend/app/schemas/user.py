@@ -26,6 +26,7 @@ class UserResponse(UserBase):
     trial_days_remaining: Optional[int] = None
     is_within_first_5_days: Optional[bool] = False
     can_access_content: Optional[bool] = True
+    is_demo_account: Optional[bool] = False
 
     class Config:
         from_attributes = True
@@ -52,6 +53,7 @@ class UserResponse(UserBase):
                 'trial_days_remaining': data.get_trial_days_remaining() if hasattr(data, 'get_trial_days_remaining') else None,
                 'is_within_first_5_days': data.is_within_first_5_days(),
                 'can_access_content': data.can_access_content(),
+                'is_demo_account': getattr(data, 'is_demo_account', False),
             }
         return data
 

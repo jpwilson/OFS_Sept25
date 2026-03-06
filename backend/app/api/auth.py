@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
@@ -13,6 +13,77 @@ from ..models.follow import Follow
 from sqlalchemy import func
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+# Demo login rate limiting (in-memory, resets on deploy)
+_demo_login_attempts: dict = {}  # {ip: [(timestamp, success), ...]}
+DEMO_MAX_ATTEMPTS = 5
+DEMO_WINDOW_SECONDS = 900  # 15 minutes
+
+
+class DemoLoginRequest(BaseModel):
+    password: str
+
+
+@router.post("/demo-login", response_model=Token)
+def demo_login(request_data: DemoLoginRequest, request: Request, db: Session = Depends(get_db)):
+    """Login to the demo account with a password. Rate limited to 5 attempts per 15 minutes."""
+    import time
+
+    # Rate limiting by IP
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+
+    # Clean old attempts
+    if client_ip in _demo_login_attempts:
+        _demo_login_attempts[client_ip] = [
+            t for t in _demo_login_attempts[client_ip]
+            if now - t < DEMO_WINDOW_SECONDS
+        ]
+    else:
+        _demo_login_attempts[client_ip] = []
+
+    # Check rate limit
+    failed_attempts = len(_demo_login_attempts.get(client_ip, []))
+    if failed_attempts >= DEMO_MAX_ATTEMPTS:
+        print(f"[DEMO-LOGIN] Rate limited IP: {client_ip}")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many attempts. Please try again in 15 minutes."
+        )
+
+    # Find demo account
+    demo_user = db.query(User).filter(
+        User.is_demo_account == True,
+        User.is_active == True
+    ).first()
+
+    if not demo_user or not demo_user.hashed_password:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Demo account not configured"
+        )
+
+    # Verify password
+    if not verify_password(request_data.password, demo_user.hashed_password):
+        _demo_login_attempts.setdefault(client_ip, []).append(now)
+        print(f"[DEMO-LOGIN] Failed attempt from {client_ip} ({failed_attempts + 1}/{DEMO_MAX_ATTEMPTS})")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password"
+        )
+
+    # Success — clear failed attempts for this IP
+    _demo_login_attempts.pop(client_ip, None)
+
+    access_token = create_access_token(data={"sub": str(demo_user.id)})
+    print(f"[DEMO-LOGIN] Successful login from {client_ip}")
+
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        user=UserResponse.model_validate(demo_user)
+    )
+
 
 @router.post("/register", response_model=Token)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
