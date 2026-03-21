@@ -18,6 +18,17 @@ function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
+  const [quickAddAIMode, setQuickAddAIMode] = useState(false)
+
+  // Listen for open-ai-create event from FeedbackWidget
+  useEffect(() => {
+    const handleOpenAI = () => {
+      setQuickAddAIMode(true)
+      setShowQuickAdd(true)
+    }
+    window.addEventListener('open-ai-create', handleOpenAI)
+    return () => window.removeEventListener('open-ai-create', handleOpenAI)
+  }, [])
 
   // Check if running as installed PWA
   const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches ||
@@ -216,7 +227,8 @@ function Header() {
 
       <QuickAddModal
         isOpen={showQuickAdd}
-        onClose={() => setShowQuickAdd(false)}
+        onClose={() => { setShowQuickAdd(false); setQuickAddAIMode(false) }}
+        initialAIMode={quickAddAIMode}
       />
     </header>
   )

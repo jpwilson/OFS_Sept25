@@ -24,7 +24,7 @@ const CATEGORIES = [
   { value: 'Custom', label: 'Custom', icon: '✨' }
 ]
 
-function QuickAddModal({ isOpen, onClose }) {
+function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
   const navigate = useNavigate()
   const { user, isSuperuser, isPaidSubscriber, isTrialActive } = useAuth()
   const { showToast } = useToast()
@@ -70,7 +70,7 @@ function QuickAddModal({ isOpen, onClose }) {
       setShowDiscardConfirm(false)
       setErrors([])
       setIsSubmitting(false)
-      setAiMode(true)
+      setAiMode(initialAIMode || true)
       setIsTranscribing(false)
       setIsGenerating(false)
       setAiResult(null)

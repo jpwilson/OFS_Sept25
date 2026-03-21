@@ -223,6 +223,12 @@ function FeedbackWidget() {
             <div className={styles.helpMenu}>
               <button
                 className={styles.helpMenuItem}
+                onClick={() => { setShowMenu(false); window.dispatchEvent(new Event('open-ai-create')) }}
+              >
+                AI Album Helper
+              </button>
+              <button
+                className={styles.helpMenuItem}
                 onClick={() => { setShowMenu(false); setIsOpen(true) }}
               >
                 Send Feedback
