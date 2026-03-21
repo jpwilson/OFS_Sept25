@@ -23,3 +23,4 @@ from .custom_group import CustomGroup, CustomGroupMember
 from .tag_profile_relationship import TagProfileRelationship
 from .tag_profile_relationship_request import TagProfileRelationshipRequest
 from .feedback import Feedback
+from .app_setting import AppSetting

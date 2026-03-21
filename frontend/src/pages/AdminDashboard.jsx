@@ -13,9 +13,15 @@ function AdminDashboard() {
   const [demoMessage, setDemoMessage] = useState(null)
   const [demoInfo, setDemoInfo] = useState(null)
 
+  // AI Model state
+  const [aiModelData, setAiModelData] = useState(null)
+  const [aiModelSaving, setAiModelSaving] = useState(false)
+  const [aiModelMessage, setAiModelMessage] = useState(null)
+
   useEffect(() => {
     loadStats()
     loadDemoInfo()
+    loadAIModel()
   }, [])
 
   async function loadStats() {
@@ -38,6 +44,29 @@ function AdminDashboard() {
       setDemoInfo(data)
     } catch (err) {
       console.error('Failed to load demo info:', err)
+    }
+  }
+
+  async function loadAIModel() {
+    try {
+      const data = await apiService.getAIModelSetting()
+      setAiModelData(data)
+    } catch (err) {
+      console.error('Failed to load AI model setting:', err)
+    }
+  }
+
+  async function handleAIModelChange(modelId) {
+    setAiModelSaving(true)
+    setAiModelMessage(null)
+    try {
+      const result = await apiService.updateAIModelSetting(modelId)
+      setAiModelMessage({ type: 'success', text: result.message })
+      setAiModelData(prev => ({ ...prev, current_model: modelId }))
+    } catch (err) {
+      setAiModelMessage({ type: 'error', text: err.message || 'Failed to update' })
+    } finally {
+      setAiModelSaving(false)
     }
   }
 
@@ -213,6 +242,63 @@ function AdminDashboard() {
             }}>
               {demoMessage.text}
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* AI Model Settings */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>AI Model</h2>
+        <div className={styles.card}>
+          {aiModelData ? (
+            <>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: '#aaa', fontSize: '13px' }}>
+                  Current AI model for story generation:
+                </label>
+                <select
+                  value={aiModelData.current_model}
+                  onChange={(e) => handleAIModelChange(e.target.value)}
+                  disabled={aiModelSaving}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: '#1a1a1a',
+                    border: '1px solid #444',
+                    borderRadius: '8px',
+                    color: '#ddd',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {aiModelData.available_models.map(model => (
+                    <option
+                      key={model.id}
+                      value={model.id}
+                      disabled={model.provider === 'openrouter' && !aiModelData.has_openrouter_key}
+                    >
+                      {model.name} ({model.provider}){model.provider === 'openrouter' && !aiModelData.has_openrouter_key ? ' - API key not set' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {!aiModelData.has_openrouter_key && (
+                <p style={{ fontSize: '12px', color: '#888', margin: '8px 0 0' }}>
+                  Set OPENROUTER_API_KEY in Vercel env vars to enable OpenRouter models.
+                </p>
+              )}
+              {aiModelMessage && (
+                <p style={{
+                  fontSize: '13px',
+                  marginTop: '8px',
+                  color: aiModelMessage.type === 'success' ? '#22c55e' : '#ef4444'
+                }}>
+                  {aiModelMessage.text}
+                </p>
+              )}
+            </>
+          ) : (
+            <p style={{ color: '#888' }}>Loading AI model settings...</p>
           )}
         </div>
       </section>

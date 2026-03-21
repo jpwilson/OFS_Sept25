@@ -2824,6 +2824,27 @@ class ApiService {
       throw error
     }
   }
+
+  async getAIModelSetting() {
+    const response = await fetch(`${API_BASE}/admin/settings/ai-model`, {
+      headers: await this.getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to get AI model setting')
+    return await response.json()
+  }
+
+  async updateAIModelSetting(modelId) {
+    const response = await fetch(`${API_BASE}/admin/settings/ai-model`, {
+      method: 'PUT',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify({ model_id: modelId })
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to update AI model')
+    }
+    return await response.json()
+  }
 }
 
 export default new ApiService()

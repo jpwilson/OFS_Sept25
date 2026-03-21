@@ -53,6 +53,7 @@ class Settings(BaseSettings):
     # AI Creator (for AI-assisted event creation)
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = ""
 
     class Config:
         env_file = ".env"

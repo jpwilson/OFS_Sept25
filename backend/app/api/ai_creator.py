@@ -13,6 +13,7 @@ from ..core.deps import get_current_user
 from ..core.database import get_db
 from ..models.user import User
 from ..models.ai_usage_log import AIUsageLog
+from ..models.app_setting import AppSetting
 
 logger = logging.getLogger("ofs")
 
@@ -108,6 +109,67 @@ def validate_user_text(text: str) -> str:
     return text.strip()[:5000]
 
 
+def get_ai_model_config(db: Session):
+    """Get configured AI model from app_settings. Returns (model_id, provider)."""
+    setting = db.query(AppSetting).filter(AppSetting.key == "ai_model").first()
+    model_key = setting.value if setting else "anthropic/claude-haiku-4-5-20251001"
+
+    if model_key.startswith("openrouter/"):
+        return model_key.replace("openrouter/", ""), "openrouter"
+    else:
+        return model_key.replace("anthropic/", ""), "anthropic"
+
+
+def call_ai_model(model_id: str, provider: str, system_prompt: str, content, max_tokens: int = 4096):
+    """Call the configured AI model (Anthropic or OpenRouter)."""
+    if provider == "openrouter":
+        if not settings.OPENROUTER_API_KEY:
+            raise HTTPException(status_code=500, detail="OpenRouter API key not configured")
+
+        import openai
+        client = openai.OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=settings.OPENROUTER_API_KEY,
+        )
+
+        # Convert Anthropic content format to OpenAI format
+        openai_content = []
+        for block in content:
+            if block["type"] == "text":
+                openai_content.append({"type": "text", "text": block["text"]})
+            elif block["type"] == "image":
+                openai_content.append({
+                    "type": "image_url",
+                    "image_url": {"url": block["source"]["url"]}
+                })
+
+        response = client.chat.completions.create(
+            model=model_id,
+            max_tokens=max_tokens,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": openai_content}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+
+    else:
+        # Anthropic (default)
+        if not settings.ANTHROPIC_API_KEY:
+            raise HTTPException(status_code=500, detail="Anthropic API key not configured")
+
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+        response = client.messages.create(
+            model=model_id,
+            max_tokens=max_tokens,
+            system=system_prompt,
+            messages=[{"role": "user", "content": content}]
+        )
+        return response.content[0].text.strip()
+
+
 # --- Schemas ---
 
 class PhotoData(BaseModel):
@@ -201,13 +263,8 @@ async def generate_questions(
     check_ai_access(current_user)
     check_rate_limit(current_user, "generate_questions", db)
 
-    if not settings.ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-
     try:
-        import anthropic
-
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        model_id, provider = get_ai_model_config(db)
 
         # Build photo info
         place_names = [p.place_name for p in request.photos if p.place_name]
@@ -243,14 +300,8 @@ Return ONLY valid JSON (no markdown, no code blocks):
             })
         content.append({"type": "text", "text": question_prompt})
 
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": content}]
-        )
+        response_text = call_ai_model(model_id, provider, SYSTEM_PROMPT, content, max_tokens=1024)
 
-        response_text = response.content[0].text.strip()
         if response_text.startswith("```"):
             lines = response_text.split("\n")
             json_lines = []
@@ -294,13 +345,8 @@ async def generate_story(
     check_ai_access(current_user)
     check_rate_limit(current_user, "generate_story", db)
 
-    if not settings.ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-
     try:
-        import anthropic
-
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        model_id, provider = get_ai_model_config(db)
 
         # Sort photos: those with timestamps first (chronologically), then those without
         photos_with_ts = []
@@ -395,18 +441,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
             "text": text_prompt
         })
 
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=4096,
-            system=SYSTEM_PROMPT,
-            messages=[{
-                "role": "user",
-                "content": content
-            }]
-        )
-
-        # Parse the response
-        response_text = response.content[0].text.strip()
+        response_text = call_ai_model(model_id, provider, SYSTEM_PROMPT, content, max_tokens=4096)
 
         # Try to extract JSON from the response (handle potential markdown wrapping)
         if response_text.startswith("```"):

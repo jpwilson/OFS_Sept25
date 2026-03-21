@@ -11,6 +11,8 @@ from ..models.feedback import Feedback
 from ..models.event_image import EventImage
 from ..models.comment import Comment
 from ..models.like import Like
+from ..models.app_setting import AppSetting
+from ..core.config import settings as app_settings
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -471,3 +473,68 @@ def update_demo_password(
     print(f"[ADMIN] Demo password changed by {current_user.username} at {datetime.utcnow().isoformat()}")
 
     return {"message": "Demo password updated successfully"}
+
+
+# ========================================
+# AI Model Settings
+# ========================================
+
+AI_MODELS = [
+    {"id": "anthropic/claude-haiku-4-5-20251001", "name": "Claude Haiku 4.5", "provider": "anthropic", "vision": True},
+    {"id": "anthropic/claude-sonnet-4-5-20250514", "name": "Claude Sonnet 4.5", "provider": "anthropic", "vision": True},
+    {"id": "openrouter/google/gemini-2.0-flash-001", "name": "Gemini 2.0 Flash", "provider": "openrouter", "vision": True},
+    {"id": "openrouter/google/gemini-2.5-flash-preview", "name": "Gemini 2.5 Flash", "provider": "openrouter", "vision": True},
+    {"id": "openrouter/meta-llama/llama-4-scout", "name": "Llama 4 Scout", "provider": "openrouter", "vision": True},
+    {"id": "openrouter/openai/gpt-4o-mini", "name": "GPT-4o Mini", "provider": "openrouter", "vision": True},
+    {"id": "openrouter/openai/gpt-4o", "name": "GPT-4o", "provider": "openrouter", "vision": True},
+]
+
+class AIModelUpdate(BaseModel):
+    model_id: str
+
+
+@router.get("/settings/ai-model")
+async def get_ai_model(
+    current_user: User = Depends(get_current_superuser),
+    db: Session = Depends(get_db)
+):
+    """Get current AI model setting."""
+    setting = db.query(AppSetting).filter(AppSetting.key == "ai_model").first()
+    current_model = setting.value if setting else "anthropic/claude-haiku-4-5-20251001"
+    has_openrouter = bool(app_settings.OPENROUTER_API_KEY)
+
+    return {
+        "current_model": current_model,
+        "available_models": AI_MODELS,
+        "has_openrouter_key": has_openrouter
+    }
+
+
+@router.put("/settings/ai-model")
+async def update_ai_model(
+    data: AIModelUpdate,
+    current_user: User = Depends(get_current_superuser),
+    db: Session = Depends(get_db)
+):
+    """Update AI model setting (superuser only)."""
+    # Validate model_id
+    valid_ids = [m["id"] for m in AI_MODELS]
+    if data.model_id not in valid_ids:
+        raise HTTPException(status_code=400, detail="Invalid model ID")
+
+    # Check OpenRouter key if selecting an OpenRouter model
+    model_info = next(m for m in AI_MODELS if m["id"] == data.model_id)
+    if model_info["provider"] == "openrouter" and not app_settings.OPENROUTER_API_KEY:
+        raise HTTPException(status_code=400, detail="OpenRouter API key not configured. Set OPENROUTER_API_KEY in environment.")
+
+    setting = db.query(AppSetting).filter(AppSetting.key == "ai_model").first()
+    if setting:
+        setting.value = data.model_id
+        setting.updated_by = current_user.id
+    else:
+        setting = AppSetting(key="ai_model", value=data.model_id, updated_by=current_user.id)
+        db.add(setting)
+
+    db.commit()
+
+    return {"message": f"AI model updated to {model_info['name']}", "current_model": data.model_id}
