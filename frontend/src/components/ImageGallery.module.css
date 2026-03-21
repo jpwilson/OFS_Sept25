@@ -836,29 +836,30 @@
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 
-  /* Persistent close button */
+  /* Persistent close button - positioned below status bar */
   .mobileCloseBtn {
     display: flex;
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: calc(env(safe-area-inset-top, 12px) + 8px);
+    right: 12px;
     z-index: 10002;
-    width: 44px;
-    height: 44px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     color: white;
-    font-size: 28px;
+    font-size: 24px;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     font-family: system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .mobileCloseBtn:active {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.9);
   }
 
   /* More visible engagement buttons */
@@ -887,5 +888,10 @@
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
+  }
+
+  /* Hide the library's built-in close button on mobile - we use our own */
+  :global(.yarl__button[aria-label="Close"]) {
+    display: none !important;
   }
 }

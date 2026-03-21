@@ -21,8 +21,14 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   transition: max-width 0.3s ease;
+}
+
+.modal::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .modalExpanded {
@@ -821,9 +827,15 @@
   padding: 12px;
   max-height: 300px;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   font-size: 13px;
   line-height: 1.5;
   color: #ccc;
+}
+
+.panelContent::-webkit-scrollbar {
+  display: none;
 }
 
 .panelContent h1 {
