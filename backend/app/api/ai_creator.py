@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import json
+import re
 import logging
 
 from ..core.config import settings
@@ -65,6 +66,46 @@ def log_usage(user: User, action_type: str, db: Session):
     entry = AIUsageLog(user_id=user.id, action_type=action_type)
     db.add(entry)
     db.commit()
+
+
+SYSTEM_PROMPT = """You are a family storyteller for "Our Family Socials", a private family social network.
+
+CONTENT GUIDELINES:
+- All content must be family-appropriate and suitable for all ages
+- Never include violent, sexual, discriminatory, or inappropriate content
+- Maintain a warm, positive, celebratory tone
+- If photos appear to show anything inappropriate, describe the scene neutrally and focus on the family context
+- Never speculate about private matters, health conditions, or personal conflicts
+- Do not invent names for people — use generic terms like "the family", "everyone", "the group" unless the user provides names
+
+PHOTO ANALYSIS:
+- Look carefully at each photo and describe what you actually see (people, settings, activities, expressions, clothing)
+- Note visual details: time of day, weather, indoor/outdoor, decorations, food, landscapes
+- Identify relationships from context clues (matching outfits, age differences, interactions)
+- If GPS/location data is provided, incorporate it naturally into the narrative
+- If you recognize a landmark or notable place, mention it
+
+WRITING STYLE:
+- Write as if the family member is sharing their story with loved ones
+- Be warm and conversational, not formal or generic
+- Include sensory details from the photos (colors, expressions, atmosphere)
+- Create a narrative arc when possible (beginning, highlights, ending)"""
+
+
+def sanitize_html(html: str) -> str:
+    """Remove potentially dangerous HTML from AI output."""
+    html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r'<iframe[^>]*>.*?</iframe>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r'\s+on\w+\s*=\s*"[^"]*"', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'\s+on\w+\s*=\s*\'[^\']*\'', '', html, flags=re.IGNORECASE)
+    return html
+
+
+def validate_user_text(text: str) -> str:
+    """Sanitize and cap user input."""
+    if not text:
+        return ""
+    return text.strip()[:5000]
 
 
 # --- Schemas ---
@@ -179,7 +220,8 @@ async def generate_story(
         if unique_places:
             places_text = f" from a trip visiting: {', '.join(unique_places)}"
 
-        user_text_section = f'The user described the event:\n"{request.user_text}"' if request.user_text.strip() else "No description provided - generate from photos only."
+        user_text = validate_user_text(request.user_text)
+        user_text_section = f'The user described the event:\n"{user_text}"' if user_text else "No description provided - generate from photos only."
 
         categories_list = ", ".join(ALLOWED_CATEGORIES)
 
@@ -237,6 +279,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
         response = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=4096,
+            system=SYSTEM_PROMPT,
             messages=[{
                 "role": "user",
                 "content": content
@@ -263,6 +306,10 @@ Return ONLY valid JSON (no markdown, no code blocks):
             response_text = "\n".join(json_lines)
 
         result = json.loads(response_text)
+
+        # Sanitize HTML output
+        if "story_html" in result:
+            result["story_html"] = sanitize_html(result["story_html"])
 
         # Validate category
         suggested_category = result.get("category", "Daily Life")
