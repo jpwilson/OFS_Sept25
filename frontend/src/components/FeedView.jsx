@@ -1,25 +1,9 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './FeedView.module.css'
 import { useAuth } from '../context/AuthContext'
 import ShortLocation from './ShortLocation'
 import { getImageUrl } from '../utils/cloudinaryUrl'
-
-// Helper to get clean excerpt text
-const getExcerpt = (event) => {
-  if (event.summary && event.summary.trim()) {
-    return event.summary
-  }
-
-  if (event.description) {
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = event.description
-    const plainText = tempDiv.textContent || tempDiv.innerText || ''
-    return plainText.substring(0, 150) + (plainText.length > 150 ? '...' : '')
-  }
-
-  return ''
-}
 
 // Helper to shorten title to max 4 words
 const getShortenedTitle = (title) => {
@@ -42,73 +26,13 @@ function formatDateRange(start, end) {
   return `${startMonth} - ${endDate.toLocaleDateString('en-US', options)}`
 }
 
-// Check if we're on mobile/touch device
-const isTouchDevice = () => {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0
-}
-
 export default function FeedView({ events = [], following = [], onUpgradePrompt }) {
   const { user, canAccessContent, isDemoAccount, demoEventIds } = useAuth()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const [cardSize, setCardSize] = useState('small')
-  const [activeCards, setActiveCards] = useState(new Set()) // Cards with visible text (for mobile)
-  const [isMobile, setIsMobile] = useState(false)
 
-  // Check if mobile on mount and resize
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(isTouchDevice() || window.innerWidth <= 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Reset active cards when view param changes (feed/calendar/map/timeline)
-  useEffect(() => {
-    setActiveCards(new Set())
-  }, [searchParams.get('view')])
-
-  // Handle card click
-  const handleCardClick = (event, e) => {
-    const eventPath = event.slug || event.id
-
-    if (isMobile) {
-      // On mobile: toggle text visibility
-      e.preventDefault()
-      setActiveCards(prev => {
-        const newSet = new Set(prev)
-        if (newSet.has(event.id)) {
-          newSet.delete(event.id)
-        } else {
-          newSet.add(event.id)
-        }
-        return newSet
-      })
-    } else {
-      // On desktop: navigate to event (check subscription access for expired users)
-      if (!user || canAccessContent) {
-        navigate(`/event/${eventPath}`)
-        return
-      }
-
-      // Authors can always view their own events
-      const isOwnEvent = event.author_id === user.id || event.author_username === user.username
-      const isFollowingAuthor = following.includes(event.author_username)
-      const isPublicEvent = event.privacy_level === 'public'
-
-      if (isOwnEvent || isFollowingAuthor || isPublicEvent) {
-        navigate(`/event/${eventPath}`)
-      } else if (onUpgradePrompt) {
-        onUpgradePrompt(event)
-      }
-    }
-  }
-
-  // Handle navigation when text is visible on mobile
-  const handleNavigate = (event, e) => {
-    e.stopPropagation()
+  // Handle card click - always navigate
+  const handleCardClick = (event) => {
     const eventPath = event.slug || event.id
 
     if (!user || canAccessContent) {
@@ -163,48 +87,53 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
 
       <div className={`${styles.feed} ${styles[cardSize]}`}>
         {events.map(event => {
-          const isActive = activeCards.has(event.id)
           const isDemoPinned = isDemoAccount && demoEventIds.includes(event.id)
           return (
             <div
               key={event.id}
-              className={`${styles.eventCard} ${isActive ? styles.active : ''} ${isDemoPinned ? styles.demoPinned : ''}`}
-              onClick={(e) => handleCardClick(event, e)}
+              className={`${styles.eventCard} ${isDemoPinned ? styles.demoPinned : ''}`}
             >
               {isDemoPinned && <span className={styles.demoBadge}>FEATURED</span>}
               <div
                 className={styles.eventImage}
                 style={{ backgroundImage: `url(${getImageUrl(event.cover_image_url, 'small')})` }}
+                onClick={() => handleCardClick(event)}
               >
-                {/* Glossy shine effect */}
                 <div className={styles.shine}></div>
+              </div>
 
-                <div className={styles.overlay}>
-                  <div className={styles.overlayContent}>
-                    <h2 className={styles.title}>{getShortenedTitle(event.title)}</h2>
-                    <div className={styles.meta}>
-                      <Link
-                        to={`/profile/${event.author_username}`}
-                        className={styles.authorLink}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {event.author_full_name || event.author_username}
-                      </Link>
-                      <span>·</span>
-                      <span>{formatDateRange(event.start_date, event.end_date)}</span>
-                      <span>·</span>
-                      <ShortLocation locationName={event.location_name} maxWords={3} />
-                    </div>
-                    <p className={styles.excerpt}>{getExcerpt(event)}</p>
-
-                    {/* View button on mobile when text is visible */}
-                    {isMobile && isActive && (
-                      <button
-                        className={styles.viewButton}
-                        onClick={(e) => handleNavigate(event, e)}
-                      >
-                        View Event →
-                      </button>
+              {/* Info below the image - always visible */}
+              <div className={styles.cardInfo}>
+                <div className={styles.cardInfoAvatar}>
+                  <Link
+                    to={`/profile/${event.author_username}`}
+                    className={styles.avatarLink}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {(event.author_full_name || event.author_username || '?').charAt(0).toUpperCase()}
+                  </Link>
+                </div>
+                <div className={styles.cardInfoText}>
+                  <h2
+                    className={styles.title}
+                    onClick={() => handleCardClick(event)}
+                  >
+                    {getShortenedTitle(event.title)}
+                  </h2>
+                  <Link
+                    to={`/profile/${event.author_username}`}
+                    className={styles.authorLink}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {event.author_full_name || event.author_username}
+                  </Link>
+                  <div className={styles.meta}>
+                    <span>{formatDateRange(event.start_date, event.end_date)}</span>
+                    {event.location_name && (
+                      <>
+                        <span>·</span>
+                        <ShortLocation locationName={event.location_name} maxWords={3} />
+                      </>
                     )}
                   </div>
                 </div>
