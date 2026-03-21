@@ -875,6 +875,197 @@
   font-size: 12px;
 }
 
+/* ===== Creation Mode Selector (3 modes) ===== */
+.creationModeSelector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.creationModeCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #aaa;
+}
+
+.creationModeCard:hover {
+  border-color: #667eea;
+  color: #ddd;
+}
+
+.creationModeActive {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+  color: #fff;
+}
+
+.creationModeIcon {
+  font-size: 20px;
+}
+
+.creationModeName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.creationModeDesc {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ===== Step Indicator ===== */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.step::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: #333;
+  margin-left: 4px;
+}
+
+.step:last-child::after {
+  display: none;
+}
+
+.stepDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #333;
+  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.stepActive .stepDot {
+  background: #667eea;
+  color: #fff;
+}
+
+.stepActive::after {
+  background: #667eea;
+}
+
+.stepLabel {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  display: none;
+}
+
+.stepActive .stepLabel {
+  color: #aaa;
+}
+
+/* ===== Interview Step ===== */
+.contextSummary {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.contextSummary strong {
+  color: #a5b4fc;
+}
+
+.interviewQuestions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.questionCard {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.questionText {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #e0e0e0;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.answerInput {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #ddd;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.answerInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.answerInput::placeholder {
+  color: #666;
+}
+
+.interviewActions {
+  display: flex;
+  gap: 10px;
+}
+
+.backButton {
+  padding: 12px 20px;
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: #888;
+  color: #ddd;
+}
+
 /* Mobile Responsive */
 @media (max-width: 600px) {
   .overlay {
@@ -919,6 +1110,34 @@
 
   .resultPanels {
     grid-template-columns: 1fr;
+  }
+
+  .creationModeSelector {
+    gap: 6px;
+  }
+
+  .creationModeCard {
+    padding: 10px 6px;
+  }
+
+  .creationModeIcon {
+    font-size: 16px;
+  }
+
+  .creationModeName {
+    font-size: 11px;
+  }
+
+  .creationModeDesc {
+    font-size: 10px;
+  }
+
+  .stepLabel {
+    display: none;
+  }
+
+  .interviewActions {
+    flex-direction: column;
   }
 }
 

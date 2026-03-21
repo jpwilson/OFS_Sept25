@@ -118,9 +118,15 @@ class PhotoData(BaseModel):
     timestamp: Optional[str] = None
 
 
+class InterviewAnswer(BaseModel):
+    question: str
+    answer: str
+
+
 class GenerateStoryRequest(BaseModel):
     photos: List[PhotoData]
     user_text: str = ""
+    interview_answers: Optional[List[InterviewAnswer]] = None
 
 
 class GenerateStoryResponse(BaseModel):
@@ -130,6 +136,16 @@ class GenerateStoryResponse(BaseModel):
     suggested_category: str
     location_name: Optional[str] = None
     original_text: str
+
+
+class GenerateQuestionsRequest(BaseModel):
+    photos: List[PhotoData]
+    user_text: str = ""
+
+
+class GenerateQuestionsResponse(BaseModel):
+    questions: List[str]
+    context_summary: str
 
 
 # --- Endpoints ---
@@ -173,6 +189,99 @@ async def transcribe_audio(
     except Exception as e:
         logger.error(f"Transcription failed: {e}")
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+
+
+@router.post("/generate-questions", response_model=GenerateQuestionsResponse)
+async def generate_questions(
+    request: GenerateQuestionsRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Generate follow-up questions about photos to enrich the story."""
+    check_ai_access(current_user)
+    check_rate_limit(current_user, "generate_questions", db)
+
+    if not settings.ANTHROPIC_API_KEY:
+        raise HTTPException(status_code=500, detail="Anthropic API key not configured")
+
+    try:
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+        # Build photo info
+        place_names = [p.place_name for p in request.photos if p.place_name]
+        unique_places = list(dict.fromkeys(place_names))
+        places_text = f" from: {', '.join(unique_places)}" if unique_places else ""
+
+        user_text = validate_user_text(request.user_text)
+        user_context = f'The user said: "{user_text}"' if user_text else "No description provided yet."
+
+        question_prompt = f"""Look at these {len(request.photos)} family photos{places_text}.
+
+{user_context}
+
+Generate 3-5 follow-up questions that would help you write a richer, more personal family story about this event. Focus on:
+- Who was there and their relationships
+- What made this moment special or memorable
+- Funny or unexpected moments
+- How people were feeling
+- Context that isn't visible in the photos
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{{
+  "questions": ["question 1", "question 2", ...],
+  "context_summary": "Brief summary of what you see in the photos so far"
+}}"""
+
+        # Build content with images
+        content = []
+        for p in request.photos:
+            content.append({
+                "type": "image",
+                "source": {"type": "url", "url": p.image_url}
+            })
+        content.append({"type": "text", "text": question_prompt})
+
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": content}]
+        )
+
+        response_text = response.content[0].text.strip()
+        if response_text.startswith("```"):
+            lines = response_text.split("\n")
+            json_lines = []
+            in_block = False
+            for line in lines:
+                if line.startswith("```") and not in_block:
+                    in_block = True
+                    continue
+                elif line.startswith("```") and in_block:
+                    break
+                elif in_block:
+                    json_lines.append(line)
+            response_text = "\n".join(json_lines)
+
+        result = json.loads(response_text)
+
+        log_usage(current_user, "generate_questions", db)
+
+        return GenerateQuestionsResponse(
+            questions=result.get("questions", []),
+            context_summary=result.get("context_summary", "")
+        )
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse questions response: {e}")
+        raise HTTPException(status_code=500, detail="AI generated invalid response. Please try again.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Question generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Question generation failed: {str(e)}")
 
 
 @router.post("/generate-story", response_model=GenerateStoryResponse)
@@ -223,6 +332,16 @@ async def generate_story(
         user_text = validate_user_text(request.user_text)
         user_text_section = f'The user described the event:\n"{user_text}"' if user_text else "No description provided - generate from photos only."
 
+        # Add interview answers if provided (3-shot mode)
+        interview_section = ""
+        if request.interview_answers:
+            qa_lines = []
+            for qa in request.interview_answers:
+                if qa.answer.strip():
+                    qa_lines.append(f"Q: {qa.question}\nA: {qa.answer}")
+            if qa_lines:
+                interview_section = f"\n\nThe user answered follow-up questions about this event:\n" + "\n\n".join(qa_lines)
+
         categories_list = ", ".join(ALLOWED_CATEGORIES)
 
         text_prompt = f"""You are creating a family event post for "Our Family Socials", a private family social network.
@@ -232,7 +351,7 @@ async def generate_story(
 Photos (sorted chronologically where timestamps available):
 {chr(10).join(photo_descriptions)}
 
-{user_text_section}
+{user_text_section}{interview_section}
 
 Instructions:
 - Generate a warm, personal family narrative

@@ -2777,15 +2777,17 @@ class ApiService {
     }
   }
 
-  async generateAIStory(photos, userText = '') {
+  async generateAIStory(photos, userText = '', interviewAnswers = null) {
     try {
+      const body = { photos, user_text: userText }
+      if (interviewAnswers) {
+        body.interview_answers = interviewAnswers
+      }
+
       const response = await fetch(`${API_BASE}/admin/ai/generate-story`, {
         method: 'POST',
         headers: await this.getAuthHeaders(),
-        body: JSON.stringify({
-          photos,
-          user_text: userText
-        })
+        body: JSON.stringify(body)
       })
 
       if (!response.ok) {
@@ -2796,6 +2798,29 @@ class ApiService {
       return await response.json()
     } catch (error) {
       console.error('Error generating AI story:', error)
+      throw error
+    }
+  }
+
+  async generateAIQuestions(photos, userText = '') {
+    try {
+      const response = await fetch(`${API_BASE}/admin/ai/generate-questions`, {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify({
+          photos,
+          user_text: userText
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to generate questions')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error generating AI questions:', error)
       throw error
     }
   }

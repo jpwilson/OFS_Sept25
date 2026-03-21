@@ -35,7 +35,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
   } = useVoiceRecorder()
 
   // Form state
-  const [media, setMedia] = useState([]) // Array of {file, url, uploading, type, previewUrl}
+  const [media, setMedia] = useState([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [showDescription, setShowDescription] = useState(false)
@@ -55,14 +55,22 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
 
   // AI mode state
   const [aiMode, setAiMode] = useState(true)
+  const [creationMode, setCreationMode] = useState('draft') // 'quick' | 'draft' | 'interview'
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [rawText, setRawText] = useState('')
   const [aiResult, setAiResult] = useState(null)
   const [descriptionChoice, setDescriptionChoice] = useState('enhanced')
   const [customHtml, setCustomHtml] = useState('')
-  const [photoExifData, setPhotoExifData] = useState({}) // {previewUrl: {latitude, longitude, timestamp}}
-  const [photoPlaceNames, setPhotoPlaceNames] = useState({}) // {cloudinaryUrl: placeName}
+  const [photoExifData, setPhotoExifData] = useState({})
+  const [photoPlaceNames, setPhotoPlaceNames] = useState({})
+
+  // Interview mode state (3-shot)
+  const [interviewQuestions, setInterviewQuestions] = useState([])
+  const [interviewAnswers, setInterviewAnswers] = useState([])
+  const [contextSummary, setContextSummary] = useState('')
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false)
+  const [interviewStep, setInterviewStep] = useState('input') // 'input' | 'questions' | 'review'
 
   // Reset form when modal opens, restore draft if available
   useEffect(() => {
@@ -71,6 +79,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       setErrors([])
       setIsSubmitting(false)
       setAiMode(initialAIMode || true)
+      setCreationMode('draft')
       setIsTranscribing(false)
       setIsGenerating(false)
       setAiResult(null)
@@ -78,6 +87,11 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       setCustomHtml('')
       setPhotoExifData({})
       setPhotoPlaceNames({})
+      setInterviewQuestions([])
+      setInterviewAnswers([])
+      setContextSummary('')
+      setIsGeneratingQuestions(false)
+      setInterviewStep('input')
       clearRecording()
 
       // Check for saved draft
@@ -91,14 +105,13 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         setLocation(draft.location || null)
         setCategory(draft.category || 'Daily Life')
         setRawText(draft.rawText || '')
-        // Restore uploaded media from draft
         if (draft.mediaUrls?.length > 0) {
           setMedia(draft.mediaUrls.map(m => ({
             file: null,
             url: m.url,
             uploading: false,
             type: m.type,
-            previewUrl: m.url // Use cloudinary URL as preview
+            previewUrl: m.url
           })))
         } else {
           setMedia([])
@@ -113,7 +126,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         setDate(new Date().toISOString().split('T')[0])
         setCategory('Daily Life')
         setRawText('')
-        // Only load last location when there's no draft
         loadLastLocation()
       }
     }
@@ -148,7 +160,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
     }
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-      console.log('[Draft] Saved:', { title, mediaCount: uploadedMedia.length, hasText: !!rawText.trim() })
     } catch (e) {
       console.error('[Draft] Failed to save:', e)
     }
@@ -159,7 +170,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       const raw = localStorage.getItem(DRAFT_KEY)
       if (!raw) return null
       const draft = JSON.parse(raw)
-      // Expire drafts older than 7 days
       if (draft.savedAt && (Date.now() - new Date(draft.savedAt).getTime()) > 7 * 24 * 60 * 60 * 1000) {
         localStorage.removeItem(DRAFT_KEY)
         return null
@@ -219,7 +229,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
     const fileArray = Array.from(files)
 
     for (const file of fileArray) {
-      // Validate file type
       const isImage = file.type.startsWith('image/')
       const isVideo = file.type.startsWith('video/')
 
@@ -228,14 +237,12 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         continue
       }
 
-      // Validate file size
       const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024
       if (file.size > maxSize) {
         showToast(`${isVideo ? 'Video' : 'Image'} must be smaller than ${isVideo ? '50' : '10'}MB`, 'error')
         continue
       }
 
-      // Create preview and add to state
       const previewUrl = URL.createObjectURL(file)
       const mediaItem = {
         file,
@@ -247,7 +254,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
 
       setMedia(prev => [...prev, mediaItem])
 
-      // Extract EXIF in AI mode for images
       if (aiMode && isImage) {
         extractGPSFromImage(file).then(exifData => {
           if (exifData) {
@@ -256,7 +262,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         })
       }
 
-      // Upload immediately
       try {
         let uploadedUrl
         if (isVideo) {
@@ -266,16 +271,13 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
           uploadedUrl = result.url
         }
 
-        // Update the media item with the uploaded URL
         setMedia(prev => prev.map(m =>
           m.previewUrl === previewUrl
             ? { ...m, url: uploadedUrl, uploading: false }
             : m
         ))
 
-        // In AI mode, reverse geocode if we have EXIF GPS data
         if (aiMode && isImage) {
-          // Use a small delay to allow EXIF extraction to complete
           setTimeout(() => {
             setPhotoExifData(current => {
               const exif = current[previewUrl]
@@ -289,7 +291,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       } catch (error) {
         console.error('Upload failed:', error)
         showToast('Failed to upload file', 'error')
-        // Remove failed upload
         setMedia(prev => prev.filter(m => m.previewUrl !== previewUrl))
         URL.revokeObjectURL(previewUrl)
       }
@@ -321,7 +322,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       if (item?.previewUrl) {
         URL.revokeObjectURL(item.previewUrl)
       }
-      // Clean up EXIF and place name data
       if (item?.url) {
         setPhotoPlaceNames(prev => {
           const next = { ...prev }
@@ -349,7 +349,22 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
 
   // --- AI Mode Functions ---
 
-  // Auto-transcribe when recording stops (audioBlob becomes available)
+  // Build photo data array for API calls
+  const buildPhotoData = () => {
+    const uploadedMedia = media.filter(m => m.url && !m.uploading && m.type === 'image')
+    return uploadedMedia.map(m => {
+      const exif = photoExifData[m.previewUrl] || {}
+      return {
+        image_url: m.url,
+        place_name: photoPlaceNames[m.url] || null,
+        latitude: exif.latitude || null,
+        longitude: exif.longitude || null,
+        timestamp: exif.timestamp || null
+      }
+    })
+  }
+
+  // Auto-transcribe when recording stops
   useEffect(() => {
     if (audioBlob && aiMode && !isTranscribing) {
       handleAutoTranscribe(audioBlob)
@@ -371,29 +386,51 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
     }
   }
 
-  const handleGenerateAI = async () => {
-    const uploadedMedia = media.filter(m => m.url && !m.uploading && m.type === 'image')
+  // Generate follow-up questions (interview mode)
+  const handleGenerateQuestions = async () => {
+    const photos = buildPhotoData()
 
-    if (uploadedMedia.length === 0 && !rawText.trim()) {
+    if (photos.length === 0 && !rawText.trim()) {
+      showToast('Please add photos or enter a description', 'error')
+      return
+    }
+
+    setIsGeneratingQuestions(true)
+    try {
+      const result = await apiService.generateAIQuestions(photos, rawText)
+      setInterviewQuestions(result.questions || [])
+      setInterviewAnswers(new Array(result.questions?.length || 0).fill(''))
+      setContextSummary(result.context_summary || '')
+      setInterviewStep('questions')
+      showToast('Questions ready! Tell us more about your event.', 'success')
+    } catch (error) {
+      showToast(error.message || 'Failed to generate questions', 'error')
+    } finally {
+      setIsGeneratingQuestions(false)
+    }
+  }
+
+  // Generate AI story
+  const handleGenerateAI = async () => {
+    const photos = buildPhotoData()
+
+    if (photos.length === 0 && !rawText.trim()) {
       showToast('Please add photos or enter a description', 'error')
       return
     }
 
     setIsGenerating(true)
     try {
-      // Build photo data with EXIF info and place names
-      const photos = uploadedMedia.map(m => {
-        const exif = photoExifData[m.previewUrl] || {}
-        return {
-          image_url: m.url,
-          place_name: photoPlaceNames[m.url] || null,
-          latitude: exif.latitude || null,
-          longitude: exif.longitude || null,
-          timestamp: exif.timestamp || null
-        }
-      })
+      // Build interview answers if in interview mode
+      let answers = null
+      if (creationMode === 'interview' && interviewQuestions.length > 0) {
+        answers = interviewQuestions.map((q, i) => ({
+          question: q,
+          answer: interviewAnswers[i] || ''
+        })).filter(qa => qa.answer.trim())
+      }
 
-      const result = await apiService.generateAIStory(photos, rawText)
+      const result = await apiService.generateAIStory(photos, rawText, answers)
       setAiResult(result)
 
       // Auto-fill fields from AI result
@@ -406,13 +443,30 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         setLocation({ location_name: result.location_name, latitude: null, longitude: null })
       }
       setDescriptionChoice('enhanced')
-      showToast('AI story generated!', 'success')
+
+      if (creationMode === 'quick') {
+        // Quick publish: auto-publish immediately after generation
+        showToast('Story generated! Publishing...', 'info')
+      } else {
+        // Draft/Interview: move to review
+        if (creationMode === 'interview') {
+          setInterviewStep('review')
+        }
+        showToast('AI story generated! Review before publishing.', 'success')
+      }
     } catch (error) {
       showToast(error.message || 'Failed to generate AI story', 'error')
     } finally {
       setIsGenerating(false)
     }
   }
+
+  // Auto-publish after generation for quick mode
+  useEffect(() => {
+    if (creationMode === 'quick' && aiResult && !isSubmitting) {
+      handlePublish()
+    }
+  }, [aiResult, creationMode])
 
   const getSelectedDescription = () => {
     if (!aiMode || !aiResult) {
@@ -440,7 +494,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
     }
 
     if (!aiMode) {
-      // Normal mode: require at least one image
       const uploadedMedia = media.filter(m => m.url && !m.uploading)
       if (uploadedMedia.length === 0) {
         newErrors.push('Please add at least one image')
@@ -451,7 +504,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         }
       }
     } else {
-      // AI mode: require photos or text
       const uploadedMedia = media.filter(m => m.url && !m.uploading)
       if (uploadedMedia.length === 0 && !rawText.trim() && !aiResult) {
         newErrors.push('Please add photos or enter a description')
@@ -472,8 +524,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
 
     try {
       const uploadedMedia = media.filter(m => m.url && !m.uploading)
-
-      // First image becomes cover
       const coverImage = uploadedMedia.find(m => m.type === 'image')
 
       let descriptionHtml
@@ -481,9 +531,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
       if (aiMode && aiResult) {
         descriptionHtml = getSelectedDescription()
 
-        // If using original text and it's plain text, wrap in HTML
         if (descriptionChoice === 'original' && descriptionHtml && !descriptionHtml.includes('<')) {
-          // Build plain text + images
           const mediaHtml = uploadedMedia.map(m => {
             if (m.type === 'video') {
               return `<p><video src="${m.url}" controls style="max-width: 100%;"></video></p>`
@@ -493,7 +541,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
           descriptionHtml = `<p>${descriptionHtml}</p>\n${mediaHtml}`
         }
       } else {
-        // Normal Quick Add mode
         descriptionHtml = description.trim()
         if (!descriptionHtml) {
           descriptionHtml = uploadedMedia.map(m => {
@@ -572,6 +619,13 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
   if (!isOpen) return null
 
   const uploadingCount = media.filter(m => m.uploading).length
+  const hasAIAccess = isSuperuser || isPaidSubscriber || isTrialActive
+
+  // Determine what buttons to show based on mode
+  const showGenerateButton = aiMode && creationMode !== 'interview'
+  const showInterviewButton = aiMode && creationMode === 'interview' && interviewStep === 'input'
+  const showGenerateAfterInterview = aiMode && creationMode === 'interview' && interviewStep === 'questions'
+  const showReviewSection = aiMode && aiResult && creationMode !== 'quick'
   const isPublishDisabled = isSubmitting || uploadingCount > 0 || (aiMode && !aiResult && !isGenerating)
 
   const formatDuration = (seconds) => {
@@ -580,13 +634,29 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
+  // Step indicator for AI mode
+  const getStepInfo = () => {
+    if (!aiMode) return null
+    if (creationMode === 'quick') {
+      return { current: aiResult ? 2 : 1, total: 2, labels: ['Add Content', 'Publish'] }
+    }
+    if (creationMode === 'draft') {
+      return { current: aiResult ? 2 : 1, total: 3, labels: ['Add Content', 'Review', 'Publish'] }
+    }
+    // interview
+    const stepMap = { input: 1, questions: 2, review: 3 }
+    return { current: stepMap[interviewStep], total: 4, labels: ['Add Content', 'Answer Questions', 'Review', 'Publish'] }
+  }
+
+  const stepInfo = getStepInfo()
+
   return (
     <div className={styles.overlay}>
       <div className={`${styles.modal} ${aiMode ? styles.modalExpanded : ''}`}>
         <div className={styles.header}>
           <button className={styles.closeButton} onClick={handleCloseAttempt}>×</button>
 
-          {(isSuperuser || isPaidSubscriber || isTrialActive) ? (
+          {hasAIAccess ? (
             <div className={styles.modeToggle}>
               <button
                 className={`${styles.modeButton} ${aiMode ? styles.activeMode : ''}`}
@@ -610,79 +680,123 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
         </div>
 
         <div className={styles.content}>
-          {/* Media Upload Section */}
-          <div className={styles.section}>
-            <label className={styles.label}>
-              Photos/Videos {!aiMode && <span className={styles.required}>*</span>}
-              {!aiMode && <span className={styles.requiredTooltip} title="Required">Required</span>}
-            </label>
-
-            <div
-              className={`${styles.dropzone} ${isDragging ? styles.dragging : ''}`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {media.length === 0 ? (
-                <div className={styles.dropzoneEmpty}>
-                  <span className={styles.dropzoneIcon}>📷</span>
-                  <p>Drop your photos here to start a quick memory</p>
-                  <span className={styles.dropzoneHint}>or click to browse</span>
-                </div>
-              ) : (
-                <div className={styles.mediaGrid}>
-                  {media.map((m, idx) => (
-                    <div key={m.previewUrl} className={styles.mediaItem}>
-                      {m.type === 'video' ? (
-                        <video src={m.previewUrl} className={styles.mediaThumbnail} />
-                      ) : (
-                        <img src={m.url || m.previewUrl} alt="" className={styles.mediaThumbnail} />
-                      )}
-                      {m.uploading && (
-                        <div className={styles.uploadingOverlay}>
-                          <div className={styles.spinner}></div>
-                        </div>
-                      )}
-                      {idx === 0 && m.type === 'image' && !m.uploading && (
-                        <span className={styles.coverBadge}>Cover</span>
-                      )}
-                      {aiMode && !m.uploading && m.url && photoPlaceNames[m.url] && (
-                        <span className={styles.placeBadge}>{photoPlaceNames[m.url]}</span>
-                      )}
-                      {!m.uploading && (
-                        <button
-                          className={styles.removeMedia}
-                          onClick={(e) => { e.stopPropagation(); removeMedia(m.previewUrl) }}
-                        >×</button>
-                      )}
-                    </div>
-                  ))}
-                  <div className={styles.addMoreMedia}>
-                    <span>+</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              onChange={(e) => handleFileSelect(e.target.files)}
-              style={{ display: 'none' }}
-            />
-            <span className={styles.hint}>
-              {aiMode ? '(GPS data from photos will be used for location. First image becomes cover)' : '(First image becomes cover)'}
-            </span>
-          </div>
-
-          {/* AI Mode: Voice & Text Input */}
+          {/* AI Mode Selector - 3 creation modes */}
           {aiMode && (
+            <div className={styles.creationModeSelector}>
+              <button
+                className={`${styles.creationModeCard} ${creationMode === 'quick' ? styles.creationModeActive : ''}`}
+                onClick={() => { setCreationMode('quick'); setInterviewStep('input'); setAiResult(null) }}
+              >
+                <span className={styles.creationModeIcon}>&#9889;</span>
+                <span className={styles.creationModeName}>Quick Publish</span>
+                <span className={styles.creationModeDesc}>1-shot</span>
+              </button>
+              <button
+                className={`${styles.creationModeCard} ${creationMode === 'draft' ? styles.creationModeActive : ''}`}
+                onClick={() => { setCreationMode('draft'); setInterviewStep('input'); setAiResult(null) }}
+              >
+                <span className={styles.creationModeIcon}>&#9998;</span>
+                <span className={styles.creationModeName}>AI Draft</span>
+                <span className={styles.creationModeDesc}>Review first</span>
+              </button>
+              <button
+                className={`${styles.creationModeCard} ${creationMode === 'interview' ? styles.creationModeActive : ''}`}
+                onClick={() => { setCreationMode('interview'); setInterviewStep('input'); setAiResult(null) }}
+              >
+                <span className={styles.creationModeIcon}>&#128172;</span>
+                <span className={styles.creationModeName}>AI Interview</span>
+                <span className={styles.creationModeDesc}>Richest stories</span>
+              </button>
+            </div>
+          )}
+
+          {/* Step Indicator */}
+          {aiMode && stepInfo && (
+            <div className={styles.stepIndicator}>
+              {stepInfo.labels.map((label, i) => (
+                <div key={i} className={`${styles.step} ${i + 1 <= stepInfo.current ? styles.stepActive : ''}`}>
+                  <div className={styles.stepDot}>{i + 1}</div>
+                  <span className={styles.stepLabel}>{label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Media Upload Section - always shown in input step */}
+          {(!aiMode || interviewStep === 'input' || creationMode !== 'interview') && (
+            <div className={styles.section}>
+              <label className={styles.label}>
+                Photos/Videos {!aiMode && <span className={styles.required}>*</span>}
+                {!aiMode && <span className={styles.requiredTooltip} title="Required">Required</span>}
+              </label>
+
+              <div
+                className={`${styles.dropzone} ${isDragging ? styles.dragging : ''}`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {media.length === 0 ? (
+                  <div className={styles.dropzoneEmpty}>
+                    <span className={styles.dropzoneIcon}>📷</span>
+                    <p>Drop your photos here to start a quick memory</p>
+                    <span className={styles.dropzoneHint}>or click to browse</span>
+                  </div>
+                ) : (
+                  <div className={styles.mediaGrid}>
+                    {media.map((m, idx) => (
+                      <div key={m.previewUrl} className={styles.mediaItem}>
+                        {m.type === 'video' ? (
+                          <video src={m.previewUrl} className={styles.mediaThumbnail} />
+                        ) : (
+                          <img src={m.url || m.previewUrl} alt="" className={styles.mediaThumbnail} />
+                        )}
+                        {m.uploading && (
+                          <div className={styles.uploadingOverlay}>
+                            <div className={styles.spinner}></div>
+                          </div>
+                        )}
+                        {idx === 0 && m.type === 'image' && !m.uploading && (
+                          <span className={styles.coverBadge}>Cover</span>
+                        )}
+                        {aiMode && !m.uploading && m.url && photoPlaceNames[m.url] && (
+                          <span className={styles.placeBadge}>{photoPlaceNames[m.url]}</span>
+                        )}
+                        {!m.uploading && (
+                          <button
+                            className={styles.removeMedia}
+                            onClick={(e) => { e.stopPropagation(); removeMedia(m.previewUrl) }}
+                          >×</button>
+                        )}
+                      </div>
+                    ))}
+                    <div className={styles.addMoreMedia}>
+                      <span>+</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={(e) => handleFileSelect(e.target.files)}
+                style={{ display: 'none' }}
+              />
+              <span className={styles.hint}>
+                {aiMode ? '(GPS data from photos will be used for location. First image becomes cover)' : '(First image becomes cover)'}
+              </span>
+            </div>
+          )}
+
+          {/* AI Mode: Voice & Text Input - shown in input step */}
+          {aiMode && (interviewStep === 'input' || creationMode !== 'interview') && (
             <div className={styles.section}>
               <label className={styles.label}>Describe Your Event</label>
 
-              {/* Voice Recorder - simplified tap-to-talk */}
+              {/* Voice Recorder */}
               <div className={styles.voiceSection}>
                 {!isRecording && !isTranscribing && (
                   <button
@@ -725,7 +839,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
                 rows={3}
               />
 
-              {/* Clear / Do Over button */}
               {rawText.trim() && (
                 <button
                   type="button"
@@ -736,27 +849,104 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
                 </button>
               )}
 
-              {/* Generate Button */}
-              <button
-                type="button"
-                className={styles.generateButton}
-                onClick={handleGenerateAI}
-                disabled={isGenerating || uploadingCount > 0}
-              >
-                {isGenerating ? (
-                  <>
-                    <span className={styles.spinner}></span>
-                    Generating story...
-                  </>
-                ) : (
-                  '✨ Generate with AI'
-                )}
-              </button>
+              {/* Action button depends on mode */}
+              {showGenerateButton && (
+                <button
+                  type="button"
+                  className={styles.generateButton}
+                  onClick={handleGenerateAI}
+                  disabled={isGenerating || uploadingCount > 0}
+                >
+                  {isGenerating ? (
+                    <>
+                      <span className={styles.spinner}></span>
+                      {creationMode === 'quick' ? 'Generating & publishing...' : 'Generating story...'}
+                    </>
+                  ) : (
+                    creationMode === 'quick' ? '⚡ Generate & Publish' : '✨ Generate with AI'
+                  )}
+                </button>
+              )}
+
+              {showInterviewButton && (
+                <button
+                  type="button"
+                  className={styles.generateButton}
+                  onClick={handleGenerateQuestions}
+                  disabled={isGeneratingQuestions || uploadingCount > 0}
+                >
+                  {isGeneratingQuestions ? (
+                    <>
+                      <span className={styles.spinner}></span>
+                      Analyzing your photos...
+                    </>
+                  ) : (
+                    '💬 Get Follow-up Questions'
+                  )}
+                </button>
+              )}
             </div>
           )}
 
-          {/* AI Result Preview */}
-          {aiMode && aiResult && (
+          {/* Interview Step: Questions & Answers */}
+          {aiMode && creationMode === 'interview' && interviewStep === 'questions' && (
+            <div className={styles.section}>
+              <label className={styles.label}>Tell Us More</label>
+
+              {contextSummary && (
+                <div className={styles.contextSummary}>
+                  <strong>What we see so far:</strong> {contextSummary}
+                </div>
+              )}
+
+              <div className={styles.interviewQuestions}>
+                {interviewQuestions.map((question, i) => (
+                  <div key={i} className={styles.questionCard}>
+                    <p className={styles.questionText}>{question}</p>
+                    <textarea
+                      className={styles.answerInput}
+                      value={interviewAnswers[i] || ''}
+                      onChange={(e) => {
+                        const newAnswers = [...interviewAnswers]
+                        newAnswers[i] = e.target.value
+                        setInterviewAnswers(newAnswers)
+                      }}
+                      placeholder="Your answer... (optional)"
+                      rows={2}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.interviewActions}>
+                <button
+                  type="button"
+                  className={styles.backButton}
+                  onClick={() => setInterviewStep('input')}
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  className={styles.generateButton}
+                  onClick={handleGenerateAI}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <span className={styles.spinner}></span>
+                      Generating story...
+                    </>
+                  ) : (
+                    '✨ Generate Story'
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* AI Result Preview - shown in draft and interview modes */}
+          {showReviewSection && (
             <div className={styles.section}>
               <label className={styles.label}>AI Result</label>
 
@@ -876,7 +1066,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
 
           {/* Optional Fields Row */}
           <div className={styles.optionalRow}>
-            {/* Date */}
             <div className={styles.optionalField}>
               <input
                 type="date"
@@ -887,7 +1076,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
               <span className={styles.optionalFieldLabel}>optional</span>
             </div>
 
-            {/* Location */}
             <div className={styles.optionalField}>
               <div className={styles.locationWrapper}>
                 <button
@@ -918,7 +1106,6 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
               <span className={styles.optionalFieldLabel}>optional</span>
             </div>
 
-            {/* Category */}
             <div className={styles.optionalField}>
               <div className={styles.categoryWrapper}>
                 <button
@@ -959,7 +1146,11 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
           {/* Footer Hint */}
           <div className={styles.footerHint}>
             {aiMode
-              ? '✨ AI will analyze your photos and text to create a structured story with headings'
+              ? creationMode === 'quick'
+                ? '⚡ Quick Publish: AI generates and publishes in one step'
+                : creationMode === 'interview'
+                  ? '💬 AI Interview: Answer follow-up questions for a richer, more personal story'
+                  : '✨ AI will analyze your photos and text to create a structured story with headings'
               : '💡 You can always add a description, tag people, and more by editing later'
             }
           </div>
@@ -974,14 +1165,16 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
           >
             Cancel
           </button>
-          <button
-            type="button"
-            className={styles.publishButton}
-            onClick={handlePublish}
-            disabled={isPublishDisabled}
-          >
-            {isSubmitting ? 'Publishing...' : uploadingCount > 0 ? `Uploading (${uploadingCount})...` : 'Publish'}
-          </button>
+          {creationMode !== 'quick' && (
+            <button
+              type="button"
+              className={styles.publishButton}
+              onClick={handlePublish}
+              disabled={isPublishDisabled}
+            >
+              {isSubmitting ? 'Publishing...' : uploadingCount > 0 ? `Uploading (${uploadingCount})...` : 'Publish'}
+            </button>
+          )}
         </div>
 
         {/* Discard Confirmation Dialog */}
