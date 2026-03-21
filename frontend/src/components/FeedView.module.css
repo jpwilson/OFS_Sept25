@@ -211,6 +211,13 @@
   display: flex;
   gap: 12px;
   padding: 12px 4px 4px;
+  transition: opacity 0.2s ease;
+}
+
+/* Hide below-card info when overlay is showing */
+.eventCard:hover .cardInfo,
+.eventCard.focused .cardInfo {
+  opacity: 0;
 }
 
 .cardInfoAvatar {
@@ -240,9 +247,8 @@
   min-width: 0;
 }
 
-/* Title sizes bumped 15% */
 .title {
-  font-size: 18.4px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-primary, #f0f0f0);
   margin: 0 0 4px 0;
@@ -258,14 +264,12 @@
   color: var(--text-secondary, #ccc);
 }
 
-/* Large card title sizing (+15%) */
 .feed.large .title {
-  font-size: 20.7px;
+  font-size: 23px;
 }
 
-/* Small card title sizing (+15%) */
 .feed.small .title {
-  font-size: 16.1px;
+  font-size: 18px;
 }
 
 .authorLink {
@@ -354,7 +358,7 @@
     padding: 10px 2px 4px;
   }
 
-  /* Disable hover overlay on mobile - only show on focus (tap) */
+  /* Disable hover effects on mobile */
   .eventCard:hover .hoverOverlay {
     opacity: 0;
     transform: translateY(10px);
@@ -365,10 +369,18 @@
     z-index: auto;
   }
 
+  .eventCard:hover .cardInfo {
+    opacity: 1;
+  }
+
   /* Only show overlay when focused (tapped) */
   .eventCard.focused .hoverOverlay {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  .eventCard.focused .cardInfo {
+    opacity: 0;
   }
 
   .eventCard.focused {

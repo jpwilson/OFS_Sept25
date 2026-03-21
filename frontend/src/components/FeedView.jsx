@@ -176,7 +176,7 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
                 </div>
               </div>
 
-              {/* Info below the image - always visible */}
+              {/* Info below the image - hidden on hover/focus */}
               <div className={styles.cardInfo}>
                 <div className={styles.cardInfoAvatar}>
                   <Link
@@ -189,9 +189,7 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
                   </Link>
                 </div>
                 <div className={styles.cardInfoText}>
-                  <h2
-                    className={styles.title}
-                  >
+                  <h2 className={styles.title}>
                     {getShortenedTitle(event.title)}
                   </h2>
                   <Link
