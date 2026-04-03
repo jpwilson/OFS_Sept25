@@ -377,6 +377,18 @@ function AdminDashboard() {
             </div>
             <span className={styles.projectArrow}>→</span>
           </Link>
+
+          {/* Cloudinary → Cloudflare Migration */}
+          <Link to="/admin/cloudflare-test" className={styles.projectCardLink}>
+            <div className={styles.projectInfo}>
+              <span className={styles.projectIcon}>☁️</span>
+              <div>
+                <h4>Cloudinary → Cloudflare Migration</h4>
+                <p>Cost comparison + browser-side HEIC & video trim proof-of-concept</p>
+              </div>
+            </div>
+            <span className={styles.projectArrow}>→</span>
+          </Link>
         </div>
 
         {/* Completed Projects */}

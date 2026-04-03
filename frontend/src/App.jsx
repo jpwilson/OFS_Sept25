@@ -37,6 +37,7 @@ import FamilyTree from './pages/FamilyTree'
 import Layout from './components/Layout'
 import InstallPrompt from './components/InstallPrompt'
 // Admin pages
+import CloudflareTest from './pages/CloudflareTest'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
 import AdminEvents from './pages/AdminEvents'
@@ -137,6 +138,7 @@ function App() {
               <Route path="/admin/events" element={<SuperuserRoute><AdminEvents /></SuperuserRoute>} />
               <Route path="/admin/feedback" element={<SuperuserRoute><AdminFeedback /></SuperuserRoute>} />
               <Route path="/admin/design" element={<SuperuserRoute><AdminDesignPreview /></SuperuserRoute>} />
+              <Route path="/admin/cloudflare-test" element={<SuperuserRoute><CloudflareTest /></SuperuserRoute>} />
               {/* Landing page variations - superuser only */}
               <Route path="/admin/landing-1" element={<SuperuserRoute><LandingV1 /></SuperuserRoute>} />
               <Route path="/admin/landing-2" element={<SuperuserRoute><LandingV2 /></SuperuserRoute>} />
