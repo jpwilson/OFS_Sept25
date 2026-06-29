@@ -314,41 +314,22 @@ class ApiService {
     return fileName.endsWith('.heic') || fileName.endsWith('.heif')
   }
 
-  // Upload HEIC file directly to Cloudinary (supports HEIC natively, auto-converts)
+  // Convert a HEIC/HEIF file to a JPEG File in the browser (iPhone photos).
+  // Cloudflare cannot ingest HEIC, so we convert client-side before upload.
+  async convertHeicToJpeg(file) {
+    const { default: heic2any } = await import('heic2any')
+    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 })
+    const jpegBlob = Array.isArray(blob) ? blob[0] : blob
+    const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
+    return new File([jpegBlob], newName, { type: 'image/jpeg', lastModified: Date.now() })
+  }
+
+  // Upload a HEIC file: convert to JPEG client-side, then store on R2 via the
+  // backend /upload endpoint (same path as all other images).
   async uploadHeicFile(file, eventId) {
-    console.log(`Uploading HEIC file to Cloudinary: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`)
-
-    // Import Cloudinary config
-    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
-
-    // Upload directly to Cloudinary as an image
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', CLOUDINARY_CONFIG.imageUploadPreset)
-    formData.append('folder', 'ofs/images')
-
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
-
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('Cloudinary upload error:', error)
-      throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
-    }
-
-    const result = await response.json()
-    console.log('HEIC uploaded to Cloudinary:', result.secure_url)
-
-    // Apply transformations via URL (max 1200px, auto quality, JPEG format)
-    // Cloudinary auto-converts HEIC to displayable format
-    // Note: 1200px is sufficient for web viewing and reduces storage/bandwidth
-    const imageUrl = result.secure_url.replace('/upload/', '/upload/c_limit,w_1200,h_1200,q_auto,f_jpg/')
-
-    console.log('Optimized image URL:', imageUrl)
+    console.log(`Converting HEIC to JPEG client-side: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`)
+    const jpegFile = await this.convertHeicToJpeg(file)
+    const imageUrl = await this.uploadImageToR2(jpegFile)
 
     // Return in the same format as uploadEventImage expects
     return {
@@ -460,7 +441,54 @@ class ApiService {
     }
   }
 
+  // Upload a video (or compressed blob) directly to R2 via a presigned PUT URL,
+  // bypassing the Vercel 4.5MB request-body limit.
+  async uploadVideoToR2(blob, filename = 'video.mp4', onProgress = null) {
+    const ext = (filename.split('.').pop() || 'mp4').toLowerCase()
+    const contentType = blob.type || 'video/mp4'
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token || localStorage.getItem('token')
+
+    const presignRes = await fetch(`${API_BASE}/upload/r2-presign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify({ filename: `video.${ext}`, content_type: contentType })
+    })
+    if (!presignRes.ok) {
+      const error = await presignRes.json().catch(() => ({}))
+      throw new Error(error.detail || 'Failed to get upload URL')
+    }
+    const { upload_url, public_url } = await presignRes.json()
+
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('PUT', upload_url)
+      xhr.setRequestHeader('Content-Type', contentType)
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100))
+      }
+      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300)
+        ? resolve()
+        : reject(new Error(`Upload failed with status ${xhr.status}`))
+      xhr.onerror = () => reject(new Error('Network error during upload'))
+      xhr.send(blob)
+    })
+
+    return public_url
+  }
+
   async uploadVideo(file, onProgress) {
+    // R2 path (when configured): presigned PUT, no Supabase 50MB cap
+    if (import.meta.env.VITE_R2_PUBLIC_DOMAIN) {
+      const url = await this.uploadVideoToR2(file, file.name || 'video.mp4', onProgress)
+      const fileExt = (file.name?.split('.').pop() || 'mp4')
+      return { url, filename: file.name, file_size: file.size, format: fileExt }
+    }
+
     try {
       // Check file size - Supabase default limit is 50MB per file
       // even on Pro tier unless bucket is configured otherwise
@@ -541,12 +569,14 @@ class ApiService {
     }
   }
 
-  // Upload image to Cloudinary (used for all image types)
-  async uploadImageToCloudinary(file, timeoutMs = 60000) {
+  // Upload image to Cloudflare R2 via the backend /upload endpoint.
+  // The backend resizes (full/medium/thumbnail) and returns their public URLs;
+  // we store the full-resolution URL and resize on delivery via getImageUrl().
+  async uploadImageToR2(file, timeoutMs = 60000) {
     const isMobile = window.innerWidth <= 480
     const actualTimeout = isMobile ? 90000 : timeoutMs
 
-    console.log('[UPLOAD DEBUG] Starting Cloudinary upload:', {
+    console.log('[UPLOAD DEBUG] Starting R2 upload:', {
       fileName: file.name,
       fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
       fileType: file.type,
@@ -555,41 +585,35 @@ class ApiService {
       timestamp: new Date().toISOString()
     })
 
-    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
-    console.log('[UPLOAD DEBUG] Cloudinary config loaded')
-
     const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', CLOUDINARY_CONFIG.imageUploadPreset)
-    formData.append('folder', 'ofs/images')
+    formData.append('file', file, file.name || 'image.jpg')
 
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
-    console.log('[UPLOAD DEBUG] Sending to Cloudinary...', uploadUrl)
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token || localStorage.getItem('token')
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), actualTimeout)
 
     try {
       const startTime = Date.now()
-      const response = await fetch(uploadUrl, {
+      const response = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
+        headers: { ...(token && { 'Authorization': `Bearer ${token}` }) },
         body: formData,
         signal: controller.signal
       })
       clearTimeout(timeoutId)
-      console.log('[UPLOAD DEBUG] Cloudinary responded in', Date.now() - startTime, 'ms, status:', response.status)
+      console.log('[UPLOAD DEBUG] Backend responded in', Date.now() - startTime, 'ms, status:', response.status)
 
       if (!response.ok) {
-        const error = await response.json()
-        console.error('[UPLOAD DEBUG] Cloudinary error:', error)
-        throw new Error(error.error?.message || 'Failed to upload image to Cloudinary')
+        const error = await response.json().catch(() => ({}))
+        console.error('[UPLOAD DEBUG] Upload error:', error)
+        throw new Error(error.detail || 'Failed to upload image')
       }
 
       const result = await response.json()
-      console.log('[UPLOAD DEBUG] Upload successful, URL:', result.secure_url?.substring(0, 50) + '...')
-      // Apply transformations via URL (max 1200px, auto quality, auto format)
-      // Note: 1200px is sufficient for web viewing and reduces storage/bandwidth
-      return result.secure_url.replace('/upload/', '/upload/c_limit,w_1200,h_1200,q_auto,f_auto/')
+      // Store the full-resolution URL; delivery resizes via getImageUrl()
+      return result.urls?.full || result.url
     } catch (error) {
       clearTimeout(timeoutId)
       if (error.name === 'AbortError') {
@@ -637,18 +661,18 @@ class ApiService {
     // Retry loop for upload
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`[UPLOAD DEBUG] Cloudinary upload attempt ${attempt}/${maxRetries}`)
+        console.log(`[UPLOAD DEBUG] R2 upload attempt ${attempt}/${maxRetries}`)
 
-        // Upload to Cloudinary with timeout
+        // Upload to R2 (via backend) with timeout
         const uploadTimeout = isMobile ? 90000 : 60000 // 90s mobile, 60s desktop
         const imageUrl = await Promise.race([
-          this.uploadImageToCloudinary(file),
+          this.uploadImageToR2(file),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Upload timed out')), uploadTimeout)
           )
         ])
 
-        console.log('[UPLOAD DEBUG] Cloudinary upload complete')
+        console.log('[UPLOAD DEBUG] R2 upload complete')
 
         // Save record to database via backend (includes GPS data)
         const { data: { session } } = await supabase.auth.getSession()

@@ -1,108 +1,157 @@
 /**
- * Cloudinary URL Transformation Utility
+ * Image URL Transformation Utility
  *
- * This module provides helpers to request different image sizes from Cloudinary.
- * Instead of loading full-resolution images everywhere, we request appropriate sizes:
+ * Requests appropriately-sized images at delivery time instead of always
+ * loading full resolution:
  *
  * - micro (100px): Gallery grid thumbnails, feed cards - loads instantly
  * - small (400px): Lightbox thumbnail strip - quick load
  * - medium (1200px): Lightbox main view - full quality for viewing
  * - original: Download/zoom - rarely needed
  *
- * WHY: An event with 100 images at 1200px each = ~50MB to load
- *      Same event with 100px thumbnails = ~300KB to load
- *      Users scroll quickly - don't waste bandwidth on images they don't view
- *
- * HOW: Cloudinary transforms images on-the-fly via URL parameters.
- *      First request generates the size, subsequent requests are cached.
+ * Primary backend is now Cloudflare R2 + Cloudflare Image Resizing
+ * (`/cdn-cgi/image/...`), which also serves auto WebP/AVIF (`format=auto`).
+ * Legacy Cloudinary URLs are still transformed (the old way) during the
+ * migration window so existing content keeps rendering. Supabase/other URLs
+ * are returned unchanged.
  */
+
+// R2 public host. Either a Cloudflare custom domain (media.ourfamilysocials.com)
+// or the free pub-<hash>.r2.dev development URL.
+const R2_DOMAIN = import.meta.env.VITE_R2_PUBLIC_DOMAIN || ''
+
+// On-the-fly /cdn-cgi/image transforms only work behind a Cloudflare zone
+// (a custom domain), NOT on r2.dev. When on r2.dev we serve the pre-generated
+// fixed sizes (full/medium/thumbnails) instead — same UX, just no auto-WebP.
+const R2_USE_TRANSFORMS = R2_DOMAIN && !R2_DOMAIN.includes('r2.dev')
+
+// Cloudflare /cdn-cgi/image option strings per size (custom-domain path)
+const R2_SIZES = {
+  micro: 'width=100,height=100,fit=cover,quality=70,format=auto',
+  small: 'width=400,fit=scale-down,quality=75,format=auto',
+  medium: 'width=1200,fit=scale-down,quality=82,format=auto',
+  original: null,
+}
+
+// Map a requested size to one of the 3 pre-generated R2 objects (r2.dev path)
+const R2_SIZE_FOLDER = {
+  micro: 'thumbnails',
+  small: 'thumbnails',
+  medium: 'medium',
+  original: 'full',
+}
+
+function r2Deliver(url, size) {
+  return R2_USE_TRANSFORMS ? r2Transform(url, size) : r2PickSize(url, size)
+}
 
 /**
- * Transform a Cloudinary URL to a specific size
- * @param {string} originalUrl - Original Cloudinary image URL
- * @param {'micro'|'small'|'medium'|'original'} size - Desired size
- * @returns {string} Transformed URL
+ * Custom-domain path: build a Cloudflare image-resizing URL.
+ * https://media.../full/uuid.jpg -> https://media.../cdn-cgi/image/<opts>/full/uuid.jpg
  */
-export function getImageUrl(originalUrl, size = 'medium') {
-  // Return as-is if not a Cloudinary URL
-  if (!originalUrl?.includes('cloudinary')) {
-    return originalUrl
-  }
+function r2Transform(url, size) {
+  const opts = R2_SIZES[size]
+  if (!opts) return url // 'original'
+  if (url.includes('/cdn-cgi/image/')) return url // don't double-transform
+  const path = url.split(`${R2_DOMAIN}/`)[1]
+  if (!path) return url
+  return `https://${R2_DOMAIN}/cdn-cgi/image/${opts}/${path}`
+}
 
-  // Already has a transformation? Don't double-transform
-  // Check if URL has transformation params after /upload/
+/**
+ * r2.dev path: swap to the matching pre-generated size object.
+ * https://pub-x.r2.dev/full/uuid.jpg -> https://pub-x.r2.dev/thumbnails/uuid.jpg
+ */
+function r2PickSize(url, size) {
+  const folder = R2_SIZE_FOLDER[size] || 'medium'
+  return url.replace(/\/(full|medium|thumbnails)\//, `/${folder}/`)
+}
+
+/** Legacy Cloudinary on-the-fly transform (kept until backfill is complete). */
+function legacyCloudinaryTransform(originalUrl, size) {
   const uploadIndex = originalUrl.indexOf('/upload/')
   if (uploadIndex !== -1) {
     const afterUpload = originalUrl.substring(uploadIndex + 8)
-    // If there's already a transformation (contains comma before the version/public_id)
     if (afterUpload.match(/^[a-z].*?,/i) && !afterUpload.startsWith('v')) {
-      // URL already has transformations, return as-is for 'original'
-      // or replace existing transformations
-      if (size === 'original') {
-        return originalUrl
-      }
+      if (size === 'original') return originalUrl
     }
   }
 
   const transforms = {
-    // Grid thumbnails: 100px square, low quality, fast
-    // Use c_fill to ensure consistent square aspect ratio
     micro: 'w_100,h_100,c_fill,q_auto:low,f_auto',
-
-    // Lightbox thumbnail strip: 400px, maintain aspect
     small: 'w_400,c_limit,q_auto:low,f_auto',
-
-    // Lightbox main view: 1200px (full stored size)
     medium: 'w_1200,c_limit,q_auto:good,f_auto',
-
-    // Original - no transformation
-    original: ''
+    original: '',
   }
 
   const transform = transforms[size]
-
-  // No transform needed for original
-  if (!transform) {
-    return originalUrl
-  }
-
-  // Insert transform after /upload/
+  if (!transform) return originalUrl
   return originalUrl.replace('/upload/', `/upload/${transform}/`)
 }
 
 /**
- * Get video thumbnail URL from Cloudinary
- * @param {string} videoUrl - Original video URL
- * @param {'micro'|'small'|'medium'} size - Thumbnail size
- * @returns {string} Thumbnail image URL
+ * Transform an image URL to a specific size.
+ * @param {string} originalUrl - Original image URL (R2, Cloudinary, or Supabase)
+ * @param {'micro'|'small'|'medium'|'original'} size - Desired size
+ * @returns {string} Transformed URL
  */
-export function getVideoThumbnailUrl(videoUrl, size = 'small') {
-  if (!videoUrl?.includes('cloudinary')) {
-    return videoUrl
+export function getImageUrl(originalUrl, size = 'medium') {
+  if (!originalUrl) return originalUrl
+
+  // Cloudflare R2 (primary path)
+  if (R2_DOMAIN && originalUrl.includes(R2_DOMAIN)) {
+    return r2Deliver(originalUrl, size)
   }
 
-  const transforms = {
-    micro: 'w_100,h_100,c_fill,q_auto:low',
-    small: 'w_400,c_limit,q_auto:low',
-    medium: 'w_800,c_limit,q_auto:good'
+  // Legacy Cloudinary (until backfill is done)
+  if (originalUrl.includes('res.cloudinary.com')) {
+    return legacyCloudinaryTransform(originalUrl, size)
   }
 
-  const transform = transforms[size] || transforms.small
-
-  // For videos, we need to:
-  // 1. Change /video/upload/ to /video/upload/{transform}/
-  // 2. Add so_1 to grab frame at 1 second
-  // 3. Change extension to .jpg
-  let thumbnailUrl = videoUrl
-    .replace('/video/upload/', `/video/upload/so_1,${transform}/`)
-    .replace(/\.[^.]+$/, '.jpg')
-
-  return thumbnailUrl
+  // Supabase / other URLs: return unchanged
+  return originalUrl
 }
 
 /**
- * Preload an image at a specific size
- * Useful for preloading adjacent images in lightbox
+ * Get a video's thumbnail URL.
+ *
+ * R2 videos store a real thumbnail image separately (video_thumbnail_url),
+ * which is just an image — transform it like any image. Legacy Cloudinary
+ * videos derive a frame from the video URL via the `so_1` transform.
+ *
+ * @param {string} thumbOrVideoUrl - For R2: the stored thumbnail image URL.
+ *                                   For Cloudinary: the video URL.
+ * @param {'micro'|'small'|'medium'} size - Thumbnail size
+ * @returns {string} Thumbnail image URL
+ */
+export function getVideoThumbnailUrl(thumbOrVideoUrl, size = 'small') {
+  if (!thumbOrVideoUrl) return thumbOrVideoUrl
+
+  // R2 / Supabase: callers should pass a thumbnail *image* URL. If we were
+  // handed an actual video file (no separate thumbnail), return it unchanged —
+  // never run an image transform on an .mp4.
+  if (!thumbOrVideoUrl.includes('res.cloudinary.com')) {
+    if (/\.(mp4|mov|webm|avi)(\?|$)/i.test(thumbOrVideoUrl) || thumbOrVideoUrl.includes('/videos/')) {
+      return thumbOrVideoUrl
+    }
+    return getImageUrl(thumbOrVideoUrl, size)
+  }
+
+  // Legacy Cloudinary: derive a frame from the video
+  const transforms = {
+    micro: 'w_100,h_100,c_fill,q_auto:low',
+    small: 'w_400,c_limit,q_auto:low',
+    medium: 'w_800,c_limit,q_auto:good',
+  }
+  const transform = transforms[size] || transforms.small
+
+  return thumbOrVideoUrl
+    .replace('/video/upload/', `/video/upload/so_1,${transform}/`)
+    .replace(/\.[^.]+$/, '.jpg')
+}
+
+/**
+ * Preload an image at a specific size (e.g. adjacent lightbox images).
  * @param {string} url - Original URL
  * @param {'micro'|'small'|'medium'} size - Size to preload
  */
@@ -113,7 +162,7 @@ export function preloadImage(url, size = 'medium') {
 }
 
 /**
- * Preload multiple images (e.g., for lightbox navigation)
+ * Preload multiple images.
  * @param {string[]} urls - Array of original URLs
  * @param {'micro'|'small'|'medium'} size - Size to preload
  */

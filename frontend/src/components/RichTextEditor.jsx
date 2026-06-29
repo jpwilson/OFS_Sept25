@@ -465,6 +465,42 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       )
     }
 
+    // Cloudflare R2 path (when provisioned): compress/trim in-browser via
+    // ffmpeg.wasm, then upload the MP4 directly to R2 via presigned PUT.
+    if (import.meta.env.VITE_R2_PUBLIC_DOMAIN) {
+      try {
+        updateTask(taskId, { status: 'compressing', progress: 0 })
+        const { compressVideo } = await import('../utils/videoCompression')
+        const blob = await compressVideo(file, {
+          startTime: trimParams?.startTime,
+          endTime: trimParams?.endTime,
+          onProgress: (p) => updateTask(taskId, { status: 'compressing', progress: p }),
+        })
+
+        updateTask(taskId, { status: 'uploading', progress: 0 })
+        const videoUrl = await apiService.uploadVideoToR2(blob, 'clip.mp4',
+          (p) => updateTask(taskId, { progress: p }))
+
+        updateTask(taskId, { status: 'complete', progress: 100, videoUrl })
+
+        const currentEditor = editorRef.current
+        if (currentEditor && !currentEditor.isDestroyed) {
+          currentEditor.chain().focus().insertContent([
+            { type: 'video', attrs: { src: videoUrl } },
+            { type: 'paragraph' },
+          ]).run()
+          showToast('Video uploaded successfully!', 'success')
+        } else {
+          showToast('Video uploaded but editor unavailable. Please try again.', 'error')
+        }
+      } catch (error) {
+        console.error('Video upload (R2) failed:', error)
+        updateTask(taskId, { status: 'failed', error: error.message })
+        showToast(`Failed to upload video: ${error.message}`, 'error')
+      }
+      return
+    }
+
     try {
       // Upload directly to Cloudinary using unsigned upload
       const formData = new FormData()

@@ -64,6 +64,21 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
+            // Cloudflare R2 media (images + videos) served via custom domain
+            urlPattern: /^https:\/\/media\.ourfamilysocials\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'r2-media',
+              expiration: {
+                maxEntries: 300,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
             urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
             handler: 'CacheFirst',
             options: {

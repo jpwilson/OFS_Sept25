@@ -684,10 +684,11 @@ function ImageGallery({
       : img.src || img.urls?.thumbnail || img.url || img
 
     // Use micro size for grid thumbnails (100px - ~3KB each)
-    // For videos, use the video thumbnail helper
-    return isVideo
-      ? getVideoThumbnailUrl(rawUrl, 'micro')
-      : getImageUrl(rawUrl, 'micro')
+    // For videos: prefer a stored thumbnail image (R2); else derive a frame (Cloudinary)
+    if (isVideo) {
+      return img.thumbnail ? getImageUrl(img.thumbnail, 'micro') : getVideoThumbnailUrl(rawUrl, 'micro')
+    }
+    return getImageUrl(rawUrl, 'micro')
   }
 
   // Helper to get small thumbnail for lightbox strip (small = 400px)
@@ -696,9 +697,10 @@ function ImageGallery({
     const rawUrl = typeof img === 'string' ? img
       : img.src || img.urls?.thumbnail || img.url || img
 
-    return isVideo
-      ? getVideoThumbnailUrl(rawUrl, 'small')
-      : getImageUrl(rawUrl, 'small')
+    if (isVideo) {
+      return img.thumbnail ? getImageUrl(img.thumbnail, 'small') : getVideoThumbnailUrl(rawUrl, 'small')
+    }
+    return getImageUrl(rawUrl, 'small')
   }
 
   // Check if any images have captions

@@ -23,6 +23,12 @@ from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
 from ..schemas.event_image import EventImageCreate, EventImageResponse, EventImageUpdate
+from ..utils.r2_client import (
+    r2_configured,
+    r2_put,
+    r2_delete,
+    r2_presign_put,
+)
 
 try:
     from supabase import create_client, Client
@@ -70,6 +76,25 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 # Image sizes
 THUMBNAIL_SIZE = (300, 300)
 MEDIUM_SIZE = (1200, 1200)
+
+
+def storage_put(storage_path: str, data: bytes, content_type: str, *, bucket: str) -> str:
+    """Upload bytes to R2 when configured, otherwise Supabase Storage.
+
+    Returns the public URL. The object key / storage_path is identical in both
+    backends so existing folder conventions (full/ medium/ thumbnails/) are
+    preserved and delete logic keeps working.
+    """
+    if r2_configured():
+        return r2_put(storage_path, data, content_type)
+
+    supabase_client = get_supabase_client()
+    supabase_client.storage.from_(bucket).upload(
+        path=storage_path,
+        file=data,
+        file_options={"content-type": content_type},
+    )
+    return supabase_client.storage.from_(bucket).get_public_url(storage_path)
 
 
 def get_decimal_from_dms(dms, ref):
@@ -196,10 +221,9 @@ def resize_image(image: Image.Image, max_size: tuple, quality: int = 85) -> byte
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """
-    Upload an image file to Supabase Storage and return URLs for different sizes
+    Upload an image file to R2 (or Supabase Storage fallback) and return URLs
+    for different sizes.
     """
-    supabase_client = get_supabase_client()
-
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in ALLOWED_EXTENSIONS:
@@ -246,16 +270,10 @@ async def upload_file(file: UploadFile = File(...)):
 
         urls = {}
         for size_name, (image_bytes, storage_path) in sizes.items():
-            # Upload to Supabase Storage
-            result = supabase_client.storage.from_(settings.SUPABASE_BUCKET).upload(
-                path=storage_path,
-                file=image_bytes,
-                file_options={"content-type": "image/jpeg"}
+            # Upload to R2 (zero egress) when configured, else Supabase Storage
+            urls[size_name] = storage_put(
+                storage_path, image_bytes, "image/jpeg", bucket=settings.SUPABASE_BUCKET
             )
-
-            # Get public URL
-            url_result = supabase_client.storage.from_(settings.SUPABASE_BUCKET).get_public_url(storage_path)
-            urls[size_name] = url_result
 
     except Exception as e:
         raise HTTPException(
@@ -446,24 +464,31 @@ async def delete_event_image(
             detail="You don't have permission to delete this image"
         )
 
-    # Delete from Supabase Storage
+    # Delete the underlying object(s) from storage (R2 or Supabase)
+    image_url = event_image.image_url or ""
+    is_r2 = bool(settings.R2_PUBLIC_DOMAIN) and settings.R2_PUBLIC_DOMAIN in image_url
     try:
-        supabase_client = get_supabase_client()
-
-        # Extract storage path from URL
-        # URL format: https://xxx.supabase.co/storage/v1/object/public/bucket-name/full/uuid.jpg
-        image_url = event_image.image_url
         if "/full/" in image_url:
-            # Delete all sizes (full, medium, thumbnail)
-            base_path = image_url.split("/full/")[-1]
-            sizes = ["full", "medium", "thumbnails"]
+            # Image: delete all three sizes (full, medium, thumbnail)
+            base_path = image_url.split("/full/")[-1].split("?")[0]
+            if is_r2:
+                r2_delete([f"full/{base_path}", f"medium/{base_path}", f"thumbnails/{base_path}"])
+            else:
+                supabase_client = get_supabase_client()
+                for size in ["full", "medium", "thumbnails"]:
+                    try:
+                        supabase_client.storage.from_(settings.SUPABASE_BUCKET).remove([f"{size}/{base_path}"])
+                    except Exception as e:
+                        print(f"Warning: Failed to delete {size} version: {e}")
 
-            for size in sizes:
-                storage_path = f"{size}/{base_path}"
-                try:
-                    supabase_client.storage.from_(settings.SUPABASE_BUCKET).remove([storage_path])
-                except Exception as e:
-                    print(f"Warning: Failed to delete {size} version: {e}")
+        # Also clean up the R2 video object + its thumbnail when present
+        if is_r2 and event_image.media_type == "video":
+            keys = [image_url.split(f"{settings.R2_PUBLIC_DOMAIN}/")[-1].split("?")[0]]
+            thumb = event_image.video_thumbnail_url or ""
+            if "/full/" in thumb and settings.R2_PUBLIC_DOMAIN in thumb:
+                tbase = thumb.split("/full/")[-1].split("?")[0]
+                keys += [f"full/{tbase}", f"medium/{tbase}", f"thumbnails/{tbase}"]
+            r2_delete(keys)
     except Exception as e:
         print(f"Warning: Failed to delete from storage: {e}")
         # Continue with database deletion even if storage deletion fails
@@ -586,14 +611,45 @@ async def create_event_image_metadata(
     return event_image
 
 
+class PresignRequest(BaseModel):
+    filename: str
+    content_type: Optional[str] = None
+
+
+@router.post("/upload/r2-presign")
+async def create_r2_presign(
+    body: PresignRequest,
+    current_user: User = Depends(require_not_demo),
+):
+    """
+    Return a presigned PUT URL so the browser can upload a (client-compressed)
+    video directly to R2, bypassing the Vercel ~4.5MB request-body limit.
+    The caller then records the returned public_url via /upload/event-image-metadata.
+    """
+    if not r2_configured():
+        raise HTTPException(status_code=503, detail="R2 storage is not configured")
+
+    file_ext = os.path.splitext(body.filename)[1].lower()
+    if file_ext not in settings.ALLOWED_VIDEO_FORMATS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"'{file_ext}' is not a supported video format. Allowed formats: MP4, MOV, AVI, WebM",
+        )
+
+    content_type = body.content_type or f"video/{file_ext[1:]}"
+    key = f"videos/{uuid.uuid4()}{file_ext}"
+    return r2_presign_put(key, content_type)
+
+
 @router.post("/upload/video")
 async def upload_video(file: UploadFile = File(...)):
     """
-    Upload a video file to Supabase Storage and return the URL
+    Upload a video file to R2 (or Supabase Storage fallback) and return the URL.
     Accepts: .mp4, .mov, .avi, .webm
-    """
-    supabase_client = get_supabase_client()
 
+    Note: files larger than ~4.5MB cannot pass through the Vercel request body
+    limit — use POST /upload/r2-presign and PUT directly to R2 for those.
+    """
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in settings.ALLOWED_VIDEO_FORMATS:
@@ -615,18 +671,16 @@ async def upload_video(file: UploadFile = File(...)):
 
     # Generate unique filename (preserve extension)
     unique_id = str(uuid.uuid4())
-    video_filename = f"{unique_id}{file_ext}"
+    # On R2 keep videos under a videos/ prefix; Supabase uses a separate bucket
+    video_key = f"videos/{unique_id}{file_ext}" if r2_configured() else f"{unique_id}{file_ext}"
 
     try:
-        # Upload to Supabase Storage (videos bucket)
-        result = supabase_client.storage.from_(settings.SUPABASE_VIDEO_BUCKET).upload(
-            path=video_filename,
-            file=contents,
-            file_options={"content-type": f"video/{file_ext[1:]}"}  # e.g., video/mp4
+        video_url = storage_put(
+            video_key,
+            contents,
+            f"video/{file_ext[1:]}",  # e.g., video/mp4
+            bucket=settings.SUPABASE_VIDEO_BUCKET,
         )
-
-        # Get public URL
-        video_url = supabase_client.storage.from_(settings.SUPABASE_VIDEO_BUCKET).get_public_url(video_filename)
 
     except Exception as e:
         raise HTTPException(
@@ -636,7 +690,7 @@ async def upload_video(file: UploadFile = File(...)):
 
     # Return video URL and metadata
     return {
-        "filename": video_filename,
+        "filename": video_key,
         "url": video_url,
         "file_size": len(contents),
         "format": file_ext[1:]  # Remove leading dot

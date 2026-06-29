@@ -1043,10 +1043,10 @@ function EventDetail({ isShareMode = false }) {
     const videos = []
     const videoUrls = new Set()
 
-    const addVideo = (src, caption = null, id = null, duration = null) => {
+    const addVideo = (src, caption = null, id = null, duration = null, thumbnail = null) => {
       if (!videoUrls.has(src)) {
         videoUrls.add(src)
-        videos.push({ src, caption, id, duration, type: 'video' })
+        videos.push({ src, caption, id, duration, type: 'video', thumbnail })
       }
     }
 
@@ -1054,7 +1054,7 @@ function EventDetail({ isShareMode = false }) {
     if (eventImages && eventImages.length > 0) {
       eventImages.forEach(img => {
         if (img.media_type === 'video') {
-          addVideo(img.image_url, img.caption, img.id, img.duration_seconds)
+          addVideo(img.image_url, img.caption, img.id, img.duration_seconds, img.video_thumbnail_url)
         }
       })
     }

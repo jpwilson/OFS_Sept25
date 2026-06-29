@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str = ""  # Set in Vercel environment variables
     CLOUDINARY_API_SECRET: str = ""  # Set in Vercel environment variables
 
+    # Cloudflare R2 (object storage, zero egress) — replacement for Cloudinary.
+    # When R2_ACCESS_KEY_ID is set, uploads/deletes route to R2; otherwise they
+    # fall back to Supabase Storage. Set all of these in Vercel environment variables.
+    R2_ACCOUNT_ID: str = ""
+    R2_ACCESS_KEY_ID: str = ""
+    R2_SECRET_ACCESS_KEY: str = ""
+    R2_BUCKET: str = "ofs-media"
+    R2_PUBLIC_DOMAIN: str = ""  # e.g. media.ourfamilysocials.com (no scheme, no trailing slash)
+    R2_ENDPOINT: str = ""       # optional override; derived from R2_ACCOUNT_ID when empty
+
     # Supabase Auth (for authentication)
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_JWT_SECRET: str = ""

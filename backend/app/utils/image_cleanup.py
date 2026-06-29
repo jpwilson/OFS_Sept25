@@ -9,6 +9,7 @@ from html.parser import HTMLParser
 from typing import Set, List
 from supabase import create_client, Client
 from ..core.config import settings
+from .r2_client import r2_configured, r2_delete
 
 
 def get_supabase_client() -> Client:
@@ -71,6 +72,13 @@ def extract_filename_from_url(url: str) -> str | None:
     if match:
         return match.group(1)
 
+    # Match pattern: Cloudflare R2 custom domain
+    # https://media.ourfamilysocials.com/{size}/{filename}
+    if settings.R2_PUBLIC_DOMAIN and settings.R2_PUBLIC_DOMAIN in url:
+        match = re.search(r'/(?:thumbnails|medium|full)/([^/\?#]+)', url)
+        if match:
+            return match.group(1)
+
     return None
 
 
@@ -95,6 +103,13 @@ def extract_video_filename_from_url(url: str) -> str | None:
     match = re.search(r'/storage/v1/object/public/event-videos/([^/\?#]+)', url)
     if match:
         return match.group(1)
+
+    # Match pattern: Cloudflare R2 custom domain
+    # https://media.ourfamilysocials.com/videos/{filename}
+    if settings.R2_PUBLIC_DOMAIN and settings.R2_PUBLIC_DOMAIN in url:
+        match = re.search(r'/videos/([^/\?#]+)', url)
+        if match:
+            return match.group(1)
 
     return None
 
@@ -318,18 +333,26 @@ def delete_image_files(filename: str) -> dict:
         'errors': []
     }
 
-    try:
-        supabase = get_supabase_client()
-    except Exception as e:
-        result['errors'].append(f"Failed to connect to Supabase: {str(e)}")
-        return result
-
-    # Storage paths in Supabase
     storage_paths = [
         f"thumbnails/{filename}",
         f"medium/{filename}",
         f"full/{filename}"
     ]
+
+    # R2: delete all three sizes in one call
+    if r2_configured():
+        try:
+            r2_delete(storage_paths)
+            result['deleted'].extend(storage_paths)
+        except Exception as e:
+            result['errors'].append(f"R2 delete failed for {filename}: {str(e)}")
+        return result
+
+    try:
+        supabase = get_supabase_client()
+    except Exception as e:
+        result['errors'].append(f"Failed to connect to Supabase: {str(e)}")
+        return result
 
     for storage_path in storage_paths:
         try:
@@ -367,6 +390,16 @@ def delete_video_files(filename: str) -> dict:
         'not_found': [],
         'errors': []
     }
+
+    # R2: video lives at videos/{filename}; its thumbnail is a normal image
+    # referenced via video_thumbnail_url and cleaned through the image path.
+    if r2_configured():
+        try:
+            r2_delete([f"videos/{filename}"])
+            result['deleted'].append(f"videos/{filename}")
+        except Exception as e:
+            result['errors'].append(f"R2 delete failed for {filename}: {str(e)}")
+        return result
 
     try:
         supabase = get_supabase_client()
