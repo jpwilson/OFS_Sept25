@@ -127,9 +127,17 @@ function FeedbackWidget() {
   }
 
   const uploadAttachment = async (file) => {
-    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
     const isVideo = file.type.startsWith('video/')
 
+    // Cloudflare R2 path (when configured)
+    if (import.meta.env.VITE_R2_PUBLIC_DOMAIN) {
+      return isVideo
+        ? apiService.uploadVideoToR2(file, file.name || 'feedback.mp4')
+        : apiService.uploadImageToR2(file)
+    }
+
+    // Legacy Cloudinary fallback
+    const { CLOUDINARY_CONFIG } = await import('../config/cloudinary.js')
     const formData = new FormData()
     formData.append('file', file)
     formData.append('upload_preset', isVideo ? CLOUDINARY_CONFIG.videoUploadPreset : CLOUDINARY_CONFIG.imageUploadPreset)
