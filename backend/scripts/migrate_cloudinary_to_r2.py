@@ -150,23 +150,28 @@ def new_scalar_url(url, dry_run):
 
 
 def rewrite_html(html, dry_run, stats):
-    """Replace every Cloudinary URL in an HTML body with its R2 equivalent."""
+    """Replace every Cloudinary URL in an HTML body with its R2 equivalent.
+    Individual asset failures are logged and skipped (URL left as-is)."""
     urls = set(CLOUDINARY_RE.findall(html or ''))
     for url in urls:
         stats['html'] += 1
-        if is_video_url(url):
-            new = r2_video_url(migrate_video(url, dry_run))
-        else:
-            new = r2_bounded_url(migrate_image(url, dry_run))
-        if not dry_run:
-            html = html.replace(url, new)
+        try:
+            if is_video_url(url):
+                new = r2_video_url(migrate_video(url, dry_run))
+            else:
+                new = r2_bounded_url(migrate_image(url, dry_run))
+            if not dry_run:
+                html = html.replace(url, new)
+        except Exception as e:
+            stats['errors'] += 1
+            print(f"  ! skip html url {url[:70]}... ({e})")
     return html
 
 
 # ---- per-table passes ----
 
 def run(db, only_table, limit, dry_run):
-    stats = {'scalar': 0, 'html': 0, 'video': 0}
+    stats = {'scalar': 0, 'html': 0, 'video': 0, 'errors': 0}
     budget = [limit] if limit else [None]
 
     def take():
@@ -196,11 +201,14 @@ def run(db, only_table, limit, dry_run):
                     stats['scalar'] += 1
                     if is_video_url(val):
                         stats['video'] += 1
-                    if not dry_run:
-                        setattr(row, col, new_scalar_url(val, dry_run))
-                        changed = True
-                    else:
-                        new_scalar_url(val, dry_run)  # dry: just count/peek
+                    try:
+                        new = new_scalar_url(val, dry_run)
+                        if not dry_run:
+                            setattr(row, col, new)
+                            changed = True
+                    except Exception as e:
+                        stats['errors'] += 1
+                        print(f"  ! skip {tname}.{col} id={getattr(row,'id','?')} ({e})")
             if changed and not dry_run:
                 db.commit()
 
@@ -243,7 +251,7 @@ def main():
         db.close()
 
     mode = 'DRY RUN' if args.dry_run else 'MIGRATED'
-    print(f"\n[{mode}] scalar columns: {stats['scalar']} | html URLs: {stats['html']} | videos: {stats['video']}")
+    print(f"\n[{mode}] scalar columns: {stats['scalar']} | html URLs: {stats['html']} | videos: {stats['video']} | errors: {stats['errors']}")
     print(f"Asset map: {len(asset_map)} unique assets ({MAP_PATH})")
     if args.dry_run:
         print("Re-run without --dry-run to perform the migration.")
