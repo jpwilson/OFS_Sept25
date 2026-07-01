@@ -33,7 +33,7 @@ function FamilyNode({ data }) {
 
       <div className={styles.nodeContent}>
         {avatar ? (
-          <img src={avatar} alt="" className={styles.avatar} />
+          <img src={avatar} alt={name || 'Profile photo'} className={styles.avatar} />
         ) : (
           <div className={styles.avatarPlaceholder}>
             {name?.[0]?.toUpperCase() || '?'}

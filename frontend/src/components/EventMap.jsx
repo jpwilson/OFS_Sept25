@@ -171,7 +171,7 @@ function EventMap({ locations, onLocationClick, eventCoverImage }) {
                 <div className={styles.popupCard}>
                   {popupImage && (
                     <div className={styles.popupImage}>
-                      <img src={popupImage} alt="" />
+                      <img src={popupImage} alt="Event location" />
                     </div>
                   )}
                   <div className={styles.popupContent}>

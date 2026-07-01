@@ -136,6 +136,7 @@ function EngagementToolbar({
                 className={`${styles.reactionOption} ${stats?.user_reaction === type ? styles.selected : ''}`}
                 onClick={() => handleReactionClick(type)}
                 title={label}
+                aria-label={label}
               >
                 {emoji}
               </button>
@@ -257,6 +258,8 @@ function CommentsPanel({
                       className={styles.commentReactionOption}
                       onClick={() => onCommentReaction(comment.id, type)}
                       title={label}
+                      aria-label={label}
+                aria-label={label}
                     >
                       {emoji}
                     </button>
@@ -329,7 +332,7 @@ function CommentsPanel({
       <div className={styles.commentsPanel}>
         <div className={styles.commentsHeader}>
           <span>Comments</span>
-          <button className={styles.closeComments} onClick={onClose}>✕</button>
+          <button className={styles.closeComments} onClick={onClose} aria-label="Close comments">✕</button>
         </div>
 
         <div className={styles.commentsList}>

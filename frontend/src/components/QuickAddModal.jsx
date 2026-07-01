@@ -536,7 +536,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
             if (m.type === 'video') {
               return `<p><video src="${m.url}" controls style="max-width: 100%;"></video></p>`
             }
-            return `<p><img src="${m.url}" alt="" style="max-width: 100%;" /></p>`
+            return `<p><img src="${m.url}" alt="Event photo" style="max-width: 100%;" /></p>`
           }).join('\n')
           descriptionHtml = `<p>${descriptionHtml}</p>\n${mediaHtml}`
         }
@@ -547,14 +547,14 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
             if (m.type === 'video') {
               return `<p><video src="${m.url}" controls style="max-width: 100%;"></video></p>`
             }
-            return `<p><img src="${m.url}" alt="" style="max-width: 100%;" /></p>`
+            return `<p><img src="${m.url}" alt="Event photo" style="max-width: 100%;" /></p>`
           }).join('\n')
         } else {
           const mediaHtml = uploadedMedia.map(m => {
             if (m.type === 'video') {
               return `<p><video src="${m.url}" controls style="max-width: 100%;"></video></p>`
             }
-            return `<p><img src="${m.url}" alt="" style="max-width: 100%;" /></p>`
+            return `<p><img src="${m.url}" alt="Event photo" style="max-width: 100%;" /></p>`
           }).join('\n')
           descriptionHtml = `<p>${descriptionHtml}</p>\n${mediaHtml}`
         }
@@ -750,7 +750,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
                         {m.type === 'video' ? (
                           <video src={m.previewUrl} className={styles.mediaThumbnail} />
                         ) : (
-                          <img src={m.url || m.previewUrl} alt="" className={styles.mediaThumbnail} />
+                          <img src={m.url || m.previewUrl} alt="Media preview" className={styles.mediaThumbnail} />
                         )}
                         {m.uploading && (
                           <div className={styles.uploadingOverlay}>

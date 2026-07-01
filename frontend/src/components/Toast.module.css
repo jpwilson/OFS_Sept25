@@ -22,8 +22,8 @@
 
 .toastContainer {
   position: fixed;
-  top: 80px;
-  right: 20px;
+  top: calc(80px + env(safe-area-inset-top, 0px));
+  right: max(20px, env(safe-area-inset-right, 0px));
   z-index: 1000;
   pointer-events: none;
 }
