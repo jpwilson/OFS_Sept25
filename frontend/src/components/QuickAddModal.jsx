@@ -1172,7 +1172,15 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
               onClick={handlePublish}
               disabled={isPublishDisabled}
             >
-              {isSubmitting ? 'Publishing...' : uploadingCount > 0 ? `Uploading (${uploadingCount})...` : 'Publish'}
+              {isSubmitting
+                ? 'Publishing…'
+                : isGenerating
+                ? 'Generating…'
+                : uploadingCount > 0
+                ? `Uploading (${uploadingCount})…`
+                : (aiMode && !aiResult)
+                ? 'Generate story first'
+                : 'Publish'}
             </button>
           )}
         </div>

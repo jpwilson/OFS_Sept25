@@ -129,7 +129,7 @@ export default function Notifications() {
   // --- Follow Handlers ---
 
   async function handleAcceptFollow(requestId) {
-    setProcessingFollow(requestId)
+    setProcessingFollow(`accept-${requestId}`)
     try {
       await apiService.acceptFollowRequest(requestId)
       setFollowRequestsToYou(prev => prev.filter(r => r.request_id !== requestId))
@@ -142,7 +142,7 @@ export default function Notifications() {
   }
 
   async function handleRejectFollow(requestId) {
-    setProcessingFollow(requestId)
+    setProcessingFollow(`reject-${requestId}`)
     try {
       await apiService.rejectFollowRequest(requestId)
       setFollowRequestsToYou(prev => prev.filter(r => r.request_id !== requestId))
@@ -392,16 +392,16 @@ export default function Notifications() {
                             <button
                               className={styles.acceptButton}
                               onClick={() => handleAcceptFollow(request.request_id)}
-                              disabled={processingFollow === request.request_id}
+                              disabled={processingFollow === `accept-${request.request_id}` || processingFollow === `reject-${request.request_id}`}
                             >
-                              Accept
+                              {processingFollow === `accept-${request.request_id}` ? 'Accepting…' : 'Accept'}
                             </button>
                             <button
                               className={styles.rejectButton}
                               onClick={() => handleRejectFollow(request.request_id)}
-                              disabled={processingFollow === request.request_id}
+                              disabled={processingFollow === `accept-${request.request_id}` || processingFollow === `reject-${request.request_id}`}
                             >
-                              Reject
+                              {processingFollow === `reject-${request.request_id}` ? 'Rejecting…' : 'Reject'}
                             </button>
                           </div>
                         </div>

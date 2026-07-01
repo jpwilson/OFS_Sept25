@@ -70,6 +70,11 @@
   box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
 }
 
+.mapButton:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(45, 212, 191, 0.3);
+}
+
 .galleryButton {
   width: calc(100% - 40px);
   margin: 0 20px 12px 20px;
@@ -91,6 +96,11 @@
 .galleryButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.galleryButton:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
 }
 
 
