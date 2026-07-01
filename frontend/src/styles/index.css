@@ -21,6 +21,7 @@
   /* Accent colors */
   --accent: #667eea;
   --accent-hover: #5568d3;
+  --accent-purple: #a855f7; /* calendar/brand purple accent */
 
   /* Liquid Glass variables */
   --glass-bg: rgba(255, 255, 255, 0.06);

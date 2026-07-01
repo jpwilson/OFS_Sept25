@@ -2801,6 +2801,27 @@ class ApiService {
     }
   }
 
+  // Turn raw backend/model error strings into friendly, user-safe messages.
+  // Never surface raw API JSON (e.g. "Error code: 400 - {'type':'error'...}") to users.
+  friendlyAIError(detail) {
+    const raw = typeof detail === 'string' ? detail : JSON.stringify(detail || '')
+    const lower = raw.toLowerCase()
+    if (lower.includes('credit') || lower.includes('billing') || lower.includes('quota') || lower.includes('insufficient')) {
+      return 'AI is temporarily unavailable. Please try again shortly.'
+    }
+    if (lower.includes('rate') || lower.includes('429') || lower.includes('overloaded')) {
+      return 'The AI is busy right now — please try again in a moment.'
+    }
+    if (lower.includes('timeout') || lower.includes('timed out')) {
+      return 'That took too long. Try again, or with fewer photos.'
+    }
+    // Don't leak raw API JSON / status dumps
+    if (!raw || raw.includes('{') || raw.includes('Error code') || raw.length > 140) {
+      return 'Something went wrong generating your story. Please try again.'
+    }
+    return raw
+  }
+
   async generateAIStory(photos, userText = '', interviewAnswers = null) {
     try {
       const body = { photos, user_text: userText }
@@ -2815,8 +2836,9 @@ class ApiService {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to generate AI story')
+        const error = await response.json().catch(() => ({}))
+        console.error('AI story error detail:', error.detail)
+        throw new Error(this.friendlyAIError(error.detail))
       }
 
       return await response.json()
@@ -2838,8 +2860,9 @@ class ApiService {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to generate questions')
+        const error = await response.json().catch(() => ({}))
+        console.error('AI questions error detail:', error.detail)
+        throw new Error(this.friendlyAIError(error.detail))
       }
 
       return await response.json()

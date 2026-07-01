@@ -33,6 +33,7 @@ function EventDetail({ isShareMode = false }) {
   const [replyContent, setReplyContent] = useState('')
   const [showReactionPicker, setShowReactionPicker] = useState(null) // Comment ID for reaction picker
   const [likeStats, setLikeStats] = useState({ like_count: 0, is_liked: false, recent_likes: [] })
+  const [likeLoading, setLikeLoading] = useState(false)
   const [showAllLikes, setShowAllLikes] = useState(false)
   const [allLikes, setAllLikes] = useState([])
   const [sections, setSections] = useState([])
@@ -833,18 +834,34 @@ function EventDetail({ isShareMode = false }) {
       return
     }
 
+    if (likeLoading) return
+
+    const wasLiked = likeStats.is_liked
+    // Optimistic update — flip immediately so the heart responds instantly
+    setLikeStats(prev => ({
+      ...prev,
+      is_liked: !wasLiked,
+      like_count: Math.max(0, prev.like_count + (wasLiked ? -1 : 1)),
+    }))
+    setLikeLoading(true)
     try {
-      if (likeStats.is_liked) {
+      if (wasLiked) {
         await apiService.unlikeEvent(event.id)
-        showToast('Unliked event', 'success')
       } else {
         await apiService.likeEvent(event.id)
-        showToast('Liked event', 'success')
       }
-      loadLikes(event.id)
+      loadLikes(event.id) // reconcile with server truth (recent_likes, exact count)
     } catch (error) {
       console.error('Error toggling like:', error)
+      // Revert the optimistic change
+      setLikeStats(prev => ({
+        ...prev,
+        is_liked: wasLiked,
+        like_count: Math.max(0, prev.like_count + (wasLiked ? 1 : -1)),
+      }))
       showToast('Failed to update like', 'error')
+    } finally {
+      setLikeLoading(false)
     }
   }
 
@@ -1620,7 +1637,7 @@ function EventDetail({ isShareMode = false }) {
           <button
             className={`${styles.likeButton} ${likeStats.is_liked ? styles.liked : ''} ${isShareMode ? styles.disabled : ''}`}
             onClick={isShareMode ? undefined : handleLikeToggle}
-            disabled={!user || isShareMode}
+            disabled={!user || isShareMode || likeLoading}
             title={isShareMode ? 'Sign up to like events' : ''}
           >
             <span className={styles.heartIcon}>{likeStats.is_liked ? '♥' : '♡'}</span>

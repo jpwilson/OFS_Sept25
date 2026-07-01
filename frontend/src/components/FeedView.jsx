@@ -105,7 +105,9 @@ export default function FeedView({ events = [], following = [], onUpgradePrompt 
   if (events.length === 0) {
     return (
       <div className={styles.noEvents}>
-        <p>No events to display.</p>
+        <p className={styles.emptyTitle}>No events yet</p>
+        <p className={styles.emptyHint}>This is where your family's moments will live. Create your first event to get started.</p>
+        <Link to="/create" className={styles.emptyBtn}>Create your first event</Link>
       </div>
     )
   }

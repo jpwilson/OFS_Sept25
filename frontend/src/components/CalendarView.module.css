@@ -27,8 +27,8 @@
 }
 
 .monthNavButton:hover {
-  background: #a855f7;
-  border-color: #a855f7;
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
   color: #fff;
 }
 
@@ -43,9 +43,9 @@
 .todayButton {
   margin-left: auto;
   padding: 8px 20px;
-  border: 1px solid #a855f7;
+  border: 1px solid var(--accent-purple);
   background: transparent;
-  color: #a855f7;
+  color: var(--accent-purple);
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
@@ -54,7 +54,7 @@
 }
 
 .todayButton:hover {
-  background: #a855f7;
+  background: var(--accent-purple);
   color: #fff;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .calendarDay.today .dayNumber {
-  background: #a855f7;
+  background: var(--accent-purple);
   color: #fff;
   border-radius: 50%;
   width: 28px;
@@ -136,7 +136,7 @@
 
 .moreEvents {
   font-size: 11px;
-  color: #a855f7;
+  color: var(--accent-purple);
   font-weight: 600;
   padding: 2px 6px;
   background: rgba(168, 85, 247, 0.2);
@@ -198,7 +198,7 @@
 }
 
 .closePopup:hover {
-  background: #a855f7;
+  background: var(--accent-purple);
   color: #fff;
 }
 
