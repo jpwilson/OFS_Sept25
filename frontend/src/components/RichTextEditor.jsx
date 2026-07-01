@@ -13,12 +13,12 @@ import LocationPicker from './LocationPicker'
 import VideoTrimmer from './VideoTrimmer'
 import ProgressRibbon from './ProgressRibbon'
 import { getVideoMetadata } from '../utils/videoCompression'
-import { CLOUDINARY_CONFIG, getCloudinaryVideoUrl, getCloudinaryThumbnail } from '../config/cloudinary'
 import { processImageForUpload, isImageFile } from '../utils/imageProcessor'
 
 // Upload limits per event
 const MAX_IMAGES_PER_EVENT = 300
 const MAX_VIDEOS_PER_EVENT = 50
+const MAX_VIDEO_UPLOAD_SIZE = 100 * 1024 * 1024 // 100MB
 
 function RichTextEditor({ content, onChange, placeholder = "Tell your story...", eventStartDate, eventEndDate, onGPSExtracted, gpsExtractionEnabled = false, onVideoTasksChange, eventId = null }) {
   const [isDragging, setIsDragging] = useState(false)
@@ -425,7 +425,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     }
 
     // Check file size limit (100MB for Cloudinary free tier unsigned uploads)
-    const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
+    const MAX_SIZE = MAX_VIDEO_UPLOAD_SIZE
     if (file.size > MAX_SIZE) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
       const limitMB = (MAX_SIZE / (1024 * 1024)).toFixed(0)
@@ -465,142 +465,36 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
       )
     }
 
-    // Cloudflare R2 path (when provisioned): compress/trim in-browser via
-    // ffmpeg.wasm, then upload the MP4 directly to R2 via presigned PUT.
-    if (import.meta.env.VITE_R2_PUBLIC_DOMAIN) {
-      try {
-        updateTask(taskId, { status: 'compressing', progress: 0 })
-        const { compressVideo } = await import('../utils/videoCompression')
-        const blob = await compressVideo(file, {
-          startTime: trimParams?.startTime,
-          endTime: trimParams?.endTime,
-          onProgress: (p) => updateTask(taskId, { status: 'compressing', progress: p }),
-        })
-
-        updateTask(taskId, { status: 'uploading', progress: 0 })
-        const videoUrl = await apiService.uploadVideoToR2(blob, 'clip.mp4',
-          (p) => updateTask(taskId, { progress: p }))
-
-        updateTask(taskId, { status: 'complete', progress: 100, videoUrl })
-
-        const currentEditor = editorRef.current
-        if (currentEditor && !currentEditor.isDestroyed) {
-          currentEditor.chain().focus().insertContent([
-            { type: 'video', attrs: { src: videoUrl } },
-            { type: 'paragraph' },
-          ]).run()
-          showToast('Video uploaded successfully!', 'success')
-        } else {
-          showToast('Video uploaded but editor unavailable. Please try again.', 'error')
-        }
-      } catch (error) {
-        console.error('Video upload (R2) failed:', error)
-        updateTask(taskId, { status: 'failed', error: error.message })
-        showToast(`Failed to upload video: ${error.message}`, 'error')
-      }
-      return
-    }
-
+    // Compress/trim in-browser via ffmpeg.wasm, then upload the MP4 directly
+    // to R2 via a presigned PUT.
     try {
-      // Upload directly to Cloudinary using unsigned upload
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset)
-      formData.append('folder', CLOUDINARY_CONFIG.folder)
-      formData.append('resource_type', 'video')
+      updateTask(taskId, { status: 'compressing', progress: 0 })
+      const { compressVideo } = await import('../utils/videoCompression')
+      const blob = await compressVideo(file, {
+        startTime: trimParams?.startTime,
+        endTime: trimParams?.endTime,
+        onProgress: (p) => updateTask(taskId, { status: 'compressing', progress: p }),
+      })
 
-      // Add eager transformation for video trimming if trim parameters are provided
-      if (trimParams) {
-        const { startTime, endTime } = trimParams
-        // Cloudinary eager transformation for trimming
-        // Format: start_offset (so) and end_offset (eo) in seconds
-        const transformation = `so_${startTime},eo_${endTime}`
+      updateTask(taskId, { status: 'uploading', progress: 0 })
+      const videoUrl = await apiService.uploadVideoToR2(blob, 'clip.mp4',
+        (p) => updateTask(taskId, { progress: p }))
 
-        // Duration-based quality: shorter videos get higher resolution
-        // ≤30s: 720p (1280x720), 1Mbps - good quality for short clips
-        // >30s: 480p (854x480), 800kbps - reduces bandwidth for longer videos
-        const durationSeconds = endTime - startTime
-        const isShortVideo = durationSeconds <= 30
+      updateTask(taskId, { status: 'complete', progress: 100, videoUrl })
 
-        const videoQuality = isShortVideo
-          ? 'w_1280,h_720,c_limit,br_1m'   // 720p for short videos
-          : 'w_854,h_480,c_limit,br_800k'  // 480p for longer videos
-
-        const eagerTransform = `${transformation},q_auto:low,${videoQuality},fps_30,vc_h264,f_auto`
-
-        formData.append('eager', eagerTransform)
-        formData.append('eager_async', 'false') // Wait for transformation to complete
+      const currentEditor = editorRef.current
+      if (currentEditor && !currentEditor.isDestroyed) {
+        currentEditor.chain().focus().insertContent([
+          { type: 'video', attrs: { src: videoUrl } },
+          { type: 'paragraph' },
+        ]).run()
+        showToast('Video uploaded successfully!', 'success')
+      } else {
+        showToast('Video uploaded but editor unavailable. Please try again.', 'error')
       }
-
-      // Create XMLHttpRequest for progress tracking
-      const xhr = new XMLHttpRequest()
-
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100)
-          updateTask(taskId, { progress })
-        }
-      })
-
-      xhr.addEventListener('load', () => {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText)
-          const { public_id, eager } = response
-
-          // If eager transformation was applied (trimming), use the trimmed version
-          // Otherwise, generate optimized video URL
-          let videoUrl
-          if (eager && eager.length > 0 && eager[0].secure_url) {
-            // Use the trimmed + compressed version from eager transformation
-            videoUrl = eager[0].secure_url
-          } else {
-            // Generate optimized video URL with auto quality and format
-            videoUrl = getCloudinaryVideoUrl(public_id)
-          }
-
-          // Generate thumbnail URL (frame at 1 second)
-          const thumbnailUrl = getCloudinaryThumbnail(public_id)
-
-          updateTask(taskId, {
-            status: 'complete',
-            progress: 100,
-            videoUrl,
-            thumbnailUrl,
-          })
-
-          // Insert video into editor with trailing paragraph for cursor position
-          // Use editorRef to get current editor (avoids stale closure in async callback)
-          const currentEditor = editorRef.current
-          if (currentEditor && !currentEditor.isDestroyed) {
-            currentEditor.chain().focus().insertContent([
-              { type: 'video', attrs: { src: videoUrl } },
-              { type: 'paragraph' }
-            ]).run()
-            showToast('Video uploaded successfully!', 'success')
-          } else {
-            console.error('Editor not available when trying to insert video')
-            showToast('Video uploaded but editor unavailable. Please try again.', 'error')
-          }
-        } else {
-          throw new Error(`Upload failed with status ${xhr.status}`)
-        }
-      })
-
-      xhr.addEventListener('error', () => {
-        throw new Error('Network error during upload')
-      })
-
-      // Upload to Cloudinary
-      const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/video/upload`
-      xhr.open('POST', uploadUrl)
-      xhr.send(formData)
-
     } catch (error) {
       console.error('Video upload failed:', error)
-      updateTask(taskId, {
-        status: 'failed',
-        error: error.message,
-      })
+      updateTask(taskId, { status: 'failed', error: error.message })
       showToast(`Failed to upload video: ${error.message}`, 'error')
     }
   }, [editor, showToast, videoTasks, countMedia])
@@ -642,7 +536,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
         return
       }
 
-      const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
+      const MAX_SIZE = MAX_VIDEO_UPLOAD_SIZE
 
       for (const file of files) {
         // Check file type
@@ -800,7 +694,7 @@ function RichTextEditor({ content, onChange, placeholder = "Tell your story...",
     if (videoFiles.length > 0) {
       for (const file of videoFiles) {
         // Check file size limit (100MB for Cloudinary free tier)
-        const MAX_SIZE = CLOUDINARY_CONFIG.maxFileSize
+        const MAX_SIZE = MAX_VIDEO_UPLOAD_SIZE
         if (file.size > MAX_SIZE) {
           const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
           showToast(`Video "${file.name}" is ${sizeMB}MB but limit is 100MB. Please use a smaller video or trim it.`, 'error')

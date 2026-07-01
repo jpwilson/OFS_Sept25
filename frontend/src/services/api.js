@@ -402,9 +402,9 @@ class ApiService {
 
   async uploadImage(file) {
     try {
-      // HEIC/HEIF files: upload directly to Cloudinary (browser can't process them)
+      // HEIC/HEIF files: convert to JPEG in-browser, then upload to R2
       if (this.isHeicFile(file)) {
-        console.log('HEIC detected in uploadImage, routing to Cloudinary')
+        console.log('HEIC detected in uploadImage, converting + routing to R2')
         const result = await this.uploadHeicFile(file, null)
         return { url: result.image_url }
       }

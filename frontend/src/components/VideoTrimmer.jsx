@@ -92,7 +92,7 @@ function VideoTrimmer({ isOpen, onClose, videoFile, onTrimComplete }) {
         </div>
 
         <div className={styles.message}>
-          Videos must be max 60 seconds. Please trim to 60 seconds or less. Cloudinary will process the trimming automatically.
+          Videos must be max 60 seconds. Please trim to 60 seconds or less.
         </div>
 
         <div className={styles.content}>

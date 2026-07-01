@@ -67,45 +67,18 @@ function r2PickSize(url, size) {
   return url.replace(/\/(full|medium|thumbnails)\//, `/${folder}/`)
 }
 
-/** Legacy Cloudinary on-the-fly transform (kept until backfill is complete). */
-function legacyCloudinaryTransform(originalUrl, size) {
-  const uploadIndex = originalUrl.indexOf('/upload/')
-  if (uploadIndex !== -1) {
-    const afterUpload = originalUrl.substring(uploadIndex + 8)
-    if (afterUpload.match(/^[a-z].*?,/i) && !afterUpload.startsWith('v')) {
-      if (size === 'original') return originalUrl
-    }
-  }
-
-  const transforms = {
-    micro: 'w_100,h_100,c_fill,q_auto:low,f_auto',
-    small: 'w_400,c_limit,q_auto:low,f_auto',
-    medium: 'w_1200,c_limit,q_auto:good,f_auto',
-    original: '',
-  }
-
-  const transform = transforms[size]
-  if (!transform) return originalUrl
-  return originalUrl.replace('/upload/', `/upload/${transform}/`)
-}
-
 /**
  * Transform an image URL to a specific size.
- * @param {string} originalUrl - Original image URL (R2, Cloudinary, or Supabase)
+ * @param {string} originalUrl - Original image URL (R2 or Supabase)
  * @param {'micro'|'small'|'medium'|'original'} size - Desired size
  * @returns {string} Transformed URL
  */
 export function getImageUrl(originalUrl, size = 'medium') {
   if (!originalUrl) return originalUrl
 
-  // Cloudflare R2 (primary path)
+  // Cloudflare R2
   if (R2_DOMAIN && originalUrl.includes(R2_DOMAIN)) {
     return r2Deliver(originalUrl, size)
-  }
-
-  // Legacy Cloudinary (until backfill is done)
-  if (originalUrl.includes('res.cloudinary.com')) {
-    return legacyCloudinaryTransform(originalUrl, size)
   }
 
   // Supabase / other URLs: return unchanged
@@ -113,41 +86,23 @@ export function getImageUrl(originalUrl, size = 'medium') {
 }
 
 /**
- * Get a video's thumbnail URL.
+ * Get a video's thumbnail URL. R2 videos store a real thumbnail image
+ * separately (video_thumbnail_url) — transform it like any image.
  *
- * R2 videos store a real thumbnail image separately (video_thumbnail_url),
- * which is just an image — transform it like any image. Legacy Cloudinary
- * videos derive a frame from the video URL via the `so_1` transform.
- *
- * @param {string} thumbOrVideoUrl - For R2: the stored thumbnail image URL.
- *                                   For Cloudinary: the video URL.
+ * @param {string} thumbOrVideoUrl - The stored thumbnail image URL.
  * @param {'micro'|'small'|'medium'} size - Thumbnail size
  * @returns {string} Thumbnail image URL
  */
 export function getVideoThumbnailUrl(thumbOrVideoUrl, size = 'small') {
   if (!thumbOrVideoUrl) return thumbOrVideoUrl
 
-  // R2 / Supabase: callers should pass a thumbnail *image* URL. If we were
-  // handed an actual video file (no separate thumbnail), return it unchanged —
-  // never run an image transform on an .mp4.
-  if (!thumbOrVideoUrl.includes('res.cloudinary.com')) {
-    if (/\.(mp4|mov|webm|avi)(\?|$)/i.test(thumbOrVideoUrl) || thumbOrVideoUrl.includes('/videos/')) {
-      return thumbOrVideoUrl
-    }
-    return getImageUrl(thumbOrVideoUrl, size)
+  // Callers should pass a thumbnail *image* URL. If we were handed an actual
+  // video file (no separate thumbnail), return it unchanged — never run an
+  // image transform on an .mp4.
+  if (/\.(mp4|mov|webm|avi)(\?|$)/i.test(thumbOrVideoUrl) || thumbOrVideoUrl.includes('/videos/')) {
+    return thumbOrVideoUrl
   }
-
-  // Legacy Cloudinary: derive a frame from the video
-  const transforms = {
-    micro: 'w_100,h_100,c_fill,q_auto:low',
-    small: 'w_400,c_limit,q_auto:low',
-    medium: 'w_800,c_limit,q_auto:good',
-  }
-  const transform = transforms[size] || transforms.small
-
-  return thumbOrVideoUrl
-    .replace('/video/upload/', `/video/upload/so_1,${transform}/`)
-    .replace(/\.[^.]+$/, '.jpg')
+  return getImageUrl(thumbOrVideoUrl, size)
 }
 
 /**
