@@ -47,9 +47,9 @@ def sync_event_images(event_id: int, html_content: str, db: Session):
     """
     from ..utils.image_cleanup import (
         extract_filename_from_url,
-        extract_cloudinary_public_id,
+        extract_video_filename_from_url,
         delete_image_files,
-        delete_cloudinary_video
+        delete_video_files,
     )
 
     media_urls = extract_media_urls(html_content)
@@ -71,17 +71,15 @@ def sync_event_images(event_id: int, html_content: str, db: Session):
             # Delete from cloud storage first
             try:
                 if existing.media_type == 'video':
-                    # Check if Cloudinary video
-                    public_id = extract_cloudinary_public_id(existing.image_url)
-                    if public_id:
-                        result = delete_cloudinary_video(public_id)
-                        print(f"Deleted Cloudinary video {public_id}: {result}")
+                    filename = extract_video_filename_from_url(existing.image_url)
+                    if filename:
+                        result = delete_video_files(filename)
+                        print(f"Deleted video {filename}: {result}")
                 else:
-                    # Image - delete from Supabase
                     filename = extract_filename_from_url(existing.image_url)
                     if filename:
                         result = delete_image_files(filename)
-                        print(f"Deleted Supabase image {filename}: {result}")
+                        print(f"Deleted image {filename}: {result}")
             except Exception as e:
                 # Log but don't block database cleanup
                 print(f"Warning: Failed to delete cloud file for {existing.image_url}: {e}")

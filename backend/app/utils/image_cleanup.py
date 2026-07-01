@@ -1,9 +1,8 @@
 """
-Utility functions for cleaning up image files from Supabase Storage and videos from Cloudinary
+Utility functions for cleaning up media files from R2 / Supabase Storage
 """
 import os
 import re
-import requests
 from pathlib import Path
 from html.parser import HTMLParser
 from typing import Set, List
@@ -114,92 +113,6 @@ def extract_video_filename_from_url(url: str) -> str | None:
     return None
 
 
-def extract_cloudinary_public_id(url: str) -> str | None:
-    """
-    Extract Cloudinary public ID from video URL
-
-    Examples:
-        https://res.cloudinary.com/dejjei389/video/upload/q_auto,f_auto/ofs/videos/abc123 -> ofs/videos/abc123
-        https://res.cloudinary.com/dejjei389/video/upload/ofs/videos/xyz789.mp4 -> ofs/videos/xyz789
-
-    Args:
-        url: Cloudinary video URL
-
-    Returns:
-        Public ID (e.g., 'ofs/videos/abc123') or None if not a Cloudinary URL
-    """
-    if not url:
-        return None
-
-    # Match pattern: https://res.cloudinary.com/{cloud_name}/video/upload/{transformations}/{public_id}
-    # Public ID may or may not include file extension
-    match = re.search(r'cloudinary\.com/[^/]+/video/upload/(?:[^/]+/)*(.+?)(?:\.\w+)?(?:\?|$)', url)
-    if match:
-        public_id = match.group(1)
-        # Remove any remaining query parameters or fragments
-        public_id = re.sub(r'[?#].*$', '', public_id)
-        return public_id
-
-    return None
-
-
-def delete_cloudinary_video(public_id: str) -> dict:
-    """
-    Delete a video from Cloudinary using Admin API
-
-    Note: Requires CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET in settings
-
-    Args:
-        public_id: Cloudinary public ID (e.g., 'ofs/videos/abc123')
-
-    Returns:
-        Dict with deletion result: {
-            'deleted': bool,
-            'public_id': str,
-            'error': str | None
-        }
-    """
-    result = {
-        'deleted': False,
-        'public_id': public_id,
-        'error': None
-    }
-
-    # Check if Cloudinary credentials are configured
-    cloudinary_cloud_name = getattr(settings, 'CLOUDINARY_CLOUD_NAME', None)
-    cloudinary_api_key = getattr(settings, 'CLOUDINARY_API_KEY', None)
-    cloudinary_api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', None)
-
-    if not all([cloudinary_cloud_name, cloudinary_api_key, cloudinary_api_secret]):
-        result['error'] = 'Cloudinary credentials not configured'
-        print(f"Warning: Cannot delete Cloudinary video {public_id} - credentials not set")
-        return result
-
-    try:
-        # Use Cloudinary Admin API to delete video
-        # https://cloudinary.com/documentation/admin_api#delete_resources
-        url = f"https://api.cloudinary.com/v1_1/{cloudinary_cloud_name}/resources/video/upload"
-
-        response = requests.delete(
-            url,
-            params={'public_ids': public_id},
-            auth=(cloudinary_api_key, cloudinary_api_secret)
-        )
-
-        if response.status_code == 200:
-            result['deleted'] = True
-            print(f"Successfully deleted Cloudinary video: {public_id}")
-        else:
-            result['error'] = f"Cloudinary API error: {response.status_code} - {response.text}"
-            print(f"Failed to delete Cloudinary video {public_id}: {result['error']}")
-
-    except Exception as e:
-        result['error'] = str(e)
-        print(f"Exception deleting Cloudinary video {public_id}: {e}")
-
-    return result
-
-
 def extract_image_filenames_from_html(html_content: str) -> Set[str]:
     """
     Extract all image filenames from HTML content
@@ -256,35 +169,6 @@ def extract_video_filenames_from_html(html_content: str) -> Set[str]:
             filenames.add(filename)
 
     return filenames
-
-
-def extract_cloudinary_public_ids_from_html(html_content: str) -> Set[str]:
-    """
-    Extract all Cloudinary public IDs from HTML content
-
-    Args:
-        html_content: HTML string containing <video> tags with Cloudinary URLs
-
-    Returns:
-        Set of public IDs (e.g., {'ofs/videos/abc123', 'ofs/videos/xyz789'})
-    """
-    if not html_content:
-        return set()
-
-    parser = MediaExtractor()
-    try:
-        parser.feed(html_content)
-    except Exception as e:
-        print(f"Error parsing HTML for Cloudinary videos: {e}")
-        return set()
-
-    public_ids = set()
-    for url in parser.video_urls:
-        public_id = extract_cloudinary_public_id(url)
-        if public_id:
-            public_ids.add(public_id)
-
-    return public_ids
 
 
 def get_all_event_image_filenames(event) -> Set[str]:
@@ -435,7 +319,7 @@ def delete_video_files(filename: str) -> dict:
 
 def cleanup_event_images(event) -> dict:
     """
-    Delete all images and videos associated with an event (from both Supabase and Cloudinary)
+    Delete all images and videos associated with an event from cloud storage
 
     Args:
         event: Event model instance
@@ -443,8 +327,7 @@ def cleanup_event_images(event) -> dict:
     Returns:
         Dict with cleanup summary: {
             'image_filenames_found': 3,
-            'supabase_video_filenames_found': 1,
-            'cloudinary_videos_found': 2,
+            'video_filenames_found': 1,
             'files_deleted': 9,
             'files_not_found': 0,
             'errors': [],
@@ -468,35 +351,21 @@ def cleanup_event_images(event) -> dict:
     except Exception as e:
         print(f"Error extracting Supabase video filenames: {e}")
 
-    # Get Cloudinary public IDs from HTML (new Cloudinary videos)
-    cloudinary_public_ids = set()
-    try:
-        if event.description:
-            cloudinary_public_ids = extract_cloudinary_public_ids_from_html(event.description)
-    except Exception as e:
-        print(f"Error extracting Cloudinary public IDs: {e}")
-
     # Also get videos from images table (if available)
     try:
         if hasattr(event, 'images'):
             for event_image in event.images:
                 if hasattr(event_image, 'media_type') and event_image.media_type == 'video':
                     if event_image.image_url:  # Videos stored in image_url field
-                        # Check if it's a Supabase or Cloudinary URL
                         filename = extract_video_filename_from_url(event_image.image_url)
                         if filename:
                             supabase_video_filenames.add(filename)
-
-                        public_id = extract_cloudinary_public_id(event_image.image_url)
-                        if public_id:
-                            cloudinary_public_ids.add(public_id)
     except Exception as e:
         print(f"Error extracting videos from event_images table: {e}")
 
     summary = {
         'image_filenames_found': len(image_filenames),
-        'supabase_video_filenames_found': len(supabase_video_filenames),
-        'cloudinary_videos_found': len(cloudinary_public_ids),
+        'video_filenames_found': len(supabase_video_filenames),
         'files_deleted': 0,
         'files_not_found': 0,
         'errors': [],
@@ -534,23 +403,6 @@ def cleanup_event_images(event) -> dict:
         except Exception as e:
             print(f"Error deleting Supabase video {filename}: {e}")
             summary['errors'].append(f"Failed to delete Supabase video {filename}: {e}")
-
-    # Delete Cloudinary videos (new)
-    for public_id in cloudinary_public_ids:
-        try:
-            result = delete_cloudinary_video(public_id)
-            if result['deleted']:
-                summary['files_deleted'] += 1
-            elif result['error']:
-                summary['errors'].append(result['error'])
-            summary['details'].append({
-                'type': 'cloudinary_video',
-                'public_id': public_id,
-                'result': result
-            })
-        except Exception as e:
-            print(f"Error deleting Cloudinary video {public_id}: {e}")
-            summary['errors'].append(f"Failed to delete Cloudinary video {public_id}: {e}")
 
     print(f"Cleanup complete for event {event.id}: {summary['files_deleted']} deleted, {len(summary['errors'])} errors")
     return summary

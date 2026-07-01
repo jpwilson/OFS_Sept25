@@ -40,7 +40,7 @@ except ImportError:
 router = APIRouter(tags=["upload"])
 
 
-# Schema for Cloudinary image record creation
+# Schema for recording an already-uploaded image URL
 class EventImageRecordCreate(BaseModel):
     event_id: int
     image_url: str
@@ -384,8 +384,8 @@ async def create_event_image_record(
     db: Session = Depends(get_db)
 ):
     """
-    Save a Cloudinary image URL + GPS data to the database.
-    This endpoint is for images already uploaded to Cloudinary from the frontend.
+    Save an already-uploaded image URL + GPS data to the database.
+    This endpoint is for images already uploaded to R2 from the frontend.
     No file processing - just database record creation.
     """
     # Verify event exists and user has permission

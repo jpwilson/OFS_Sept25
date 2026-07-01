@@ -19,7 +19,7 @@ class Feedback(Base):
     screen_size = Column(String(50), nullable=True)  # e.g., "375x812"
     is_mobile = Column(Boolean, default=False)
 
-    # Optional attachment (Cloudinary URL)
+    # Optional attachment (R2 URL)
     attachment_url = Column(String(500), nullable=True)
 
     # Status tracking

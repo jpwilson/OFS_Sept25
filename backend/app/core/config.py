@@ -22,16 +22,11 @@ class Settings(BaseSettings):
 
     # Video settings
     SUPABASE_VIDEO_BUCKET: str = "event-videos"
-    MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB (Cloudinary free tier unsigned upload limit)
+    MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB
     MAX_VIDEO_DURATION: int = 120  # 2 minutes in seconds
     ALLOWED_VIDEO_FORMATS: list = [".mp4", ".mov", ".avi", ".webm"]
 
-    # Cloudinary (for video uploads and optimization)
-    CLOUDINARY_CLOUD_NAME: str = "dejjei389"
-    CLOUDINARY_API_KEY: str = ""  # Set in Vercel environment variables
-    CLOUDINARY_API_SECRET: str = ""  # Set in Vercel environment variables
-
-    # Cloudflare R2 (object storage, zero egress) — replacement for Cloudinary.
+    # Cloudflare R2 (object storage, zero egress) — media storage.
     # When R2_ACCESS_KEY_ID is set, uploads/deletes route to R2; otherwise they
     # fall back to Supabase Storage. Set all of these in Vercel environment variables.
     R2_ACCOUNT_ID: str = ""
