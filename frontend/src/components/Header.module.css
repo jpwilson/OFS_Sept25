@@ -313,7 +313,7 @@
 }
 
 .createSplitButton:hover .createSplitOptions {
-  max-width: 250px;
+  max-width: 360px; /* fits Create · AI Create · Smart Import */
   opacity: 1;
 }
 

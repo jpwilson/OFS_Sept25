@@ -2822,6 +2822,21 @@ class ApiService {
     return raw
   }
 
+  // Cluster a batch of photo metadata into candidate albums (Smart Import).
+  // Deterministic backend math — no AI tokens, doesn't count against daily limit.
+  async clusterPhotos(photos) {
+    const response = await fetch(`${API_BASE}/admin/ai/cluster-photos`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify({ photos })
+    })
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw new Error(typeof error.detail === 'string' ? error.detail : 'Could not analyze these photos')
+    }
+    return await response.json()
+  }
+
   async generateAIStory(photos, userText = '', interviewAnswers = null) {
     try {
       const body = { photos, user_text: userText }

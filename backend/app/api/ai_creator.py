@@ -210,7 +210,46 @@ class GenerateQuestionsResponse(BaseModel):
     context_summary: str
 
 
+class ClusterPhotoMeta(BaseModel):
+    id: int
+    timestamp: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    width: Optional[int] = 0
+    height: Optional[int] = 0
+    has_camera_exif: bool = True
+
+
+class ClusterPhotosRequest(BaseModel):
+    photos: List[ClusterPhotoMeta]
+
+
 # --- Endpoints ---
+
+@router.post("/cluster-photos")
+async def cluster_photos_endpoint(
+    request: ClusterPhotosRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Cluster a batch of photo metadata (timestamps + GPS, no images) into
+    candidate albums for Smart Import.
+
+    Deterministic — no AI tokens are spent, so this does NOT count against the
+    daily AI limit. Payload for 300 photos is ~30KB of metadata.
+    """
+    check_ai_access(current_user)
+
+    if len(request.photos) > 500:
+        raise HTTPException(status_code=400, detail="Too many photos (max 500 per import)")
+
+    from ..utils.photo_clustering import cluster_photos
+    try:
+        return cluster_photos([p.model_dump() for p in request.photos])
+    except Exception as e:
+        logger.error(f"Photo clustering failed: {e}")
+        raise HTTPException(status_code=500, detail="Could not analyze these photos. Please try again.")
+
 
 @router.post("/transcribe")
 async def transcribe_audio(

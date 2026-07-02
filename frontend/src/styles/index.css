@@ -22,6 +22,11 @@
   --accent: #667eea;
   --accent-hover: #5568d3;
   --accent-purple: #a855f7; /* calendar/brand purple accent */
+  --ai-accent: #9d8bf0; /* AI-draft affordances (Smart Import) */
+
+  /* Spring motion tokens (linear() where supported, cubic-bezier fallback) */
+  --spring-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Liquid Glass variables */
   --glass-bg: rgba(255, 255, 255, 0.06);
@@ -51,6 +56,7 @@
   --hover-bg: #e8e5f0;
   --accent: #667eea;
   --accent-hover: #5568d3;
+  --ai-accent: #6a55d6; /* darker for light-mode contrast */
 
   /* Liquid Glass - light theme */
   --glass-bg: rgba(255, 255, 255, 0.45);

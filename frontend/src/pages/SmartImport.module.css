@@ -1,0 +1,670 @@
+/* Smart Import — liquid-glass, photo-forward, spring motion */
+
+.page {
+  min-height: calc(100vh - 70px);
+  padding: 24px 20px 120px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.primaryBtn {
+  padding: 13px 26px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.35s var(--spring-bouncy), box-shadow 0.25s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.primaryBtn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+.secondaryBtn {
+  padding: 12px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.35s var(--spring-bouncy), background 0.2s ease;
+}
+
+.secondaryBtn:hover {
+  background: var(--glass-bg-hover);
+}
+
+.secondaryBtn:active {
+  transform: scale(0.97);
+}
+
+.ghostBtn {
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.ghostBtn:hover {
+  color: var(--text-primary);
+}
+
+.errorText {
+  color: #e66;
+  font-size: 14px;
+  margin-top: 14px;
+}
+
+/* ---------- Act 1: drop zone ---------- */
+
+.dropZone {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--glass-border);
+  border-radius: 24px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.4s var(--spring-gentle);
+}
+
+.dropZone:hover,
+.dragOver {
+  border-color: var(--accent);
+  background: var(--glass-bg-hover);
+}
+
+.dragOver {
+  transform: scale(1.01);
+}
+
+.dropInner {
+  text-align: center;
+  max-width: 560px;
+  padding: 40px 24px;
+}
+
+.dropIcon {
+  font-size: 44px;
+  margin-bottom: 16px;
+}
+
+.dropTitle {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text-primary);
+  text-wrap: balance;
+  margin: 0 0 14px;
+}
+
+.dropSub {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 0 26px;
+}
+
+.dropHint {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- centered stages (scan / upload / write) ---------- */
+
+.centerStage {
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.stageTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 18px 0 0;
+  text-wrap: balance;
+}
+
+.stageSub {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.scanWall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 4px;
+  width: min(560px, 90vw);
+  max-height: 260px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.scanThumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  opacity: 1;
+  transition: opacity 0.5s var(--spring-gentle);
+}
+
+@starting-style {
+  .scanThumb {
+    opacity: 0;
+  }
+}
+
+.scanThumbGlass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+/* ---------- Act 2: cluster cards ---------- */
+
+.clustersStage {
+  padding-top: 16px;
+}
+
+.clustersTitle {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-wrap: balance;
+  margin: 0 0 6px;
+}
+
+.clustersSub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 28px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.albumCard {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-secondary);
+  text-align: left;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s var(--spring-gentle),
+    transform 0.5s var(--spring-bouncy),
+    box-shadow 0.25s ease;
+  transition-delay: calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms), 0s;
+}
+
+@starting-style {
+  .albumCard {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+}
+
+.albumCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition-delay: 0s;
+}
+
+.albumCard:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.lowConfidence {
+  border-style: dashed;
+  border-color: var(--border-light);
+}
+
+.cardMosaic {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2px;
+  aspect-ratio: 16 / 10;
+}
+
+.cardCover img,
+.glassFill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardCover {
+  overflow: hidden;
+}
+
+.glassFill {
+  background: var(--glass-bg);
+}
+
+.cardSide {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  overflow: hidden;
+}
+
+.cardSide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Eased multi-stop scrim (no hard gradient edge) */
+.cardScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    hsl(0 0% 0% / 0.66) 0%,
+    hsl(0 0% 0% / 0.58) 12%,
+    hsl(0 0% 0% / 0.44) 26%,
+    hsl(0 0% 0% / 0.28) 42%,
+    hsl(0 0% 0% / 0.12) 58%,
+    hsl(0 0% 0% / 0.03) 74%,
+    transparent 100%
+  );
+}
+
+.cardText {
+  position: absolute;
+  left: 16px;
+  right: 44px;
+  bottom: 13px;
+  pointer-events: none;
+}
+
+.cardText h3 {
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0 0 3px;
+  text-wrap: balance;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.evidence {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dismissBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.albumCard:hover .dismissBtn,
+.albumCard:focus-within .dismissBtn {
+  opacity: 1;
+}
+
+.dismissBtn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.unsortedNote {
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Act 3: upload progress ---------- */
+
+.progressRing {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.progressRing em {
+  font-style: normal;
+  font-size: 15px;
+  color: var(--text-tertiary);
+}
+
+.progressTrack {
+  width: min(420px, 80vw);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.4s var(--spring-gentle);
+}
+
+/* ---------- Act 4: writing shimmer ---------- */
+
+.writingShimmer {
+  width: min(520px, 88vw);
+  padding: 26px;
+  border-radius: 18px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.shimmerLine {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(
+    100deg,
+    var(--glass-bg) 40%,
+    var(--glass-bg-hover) 50%,
+    var(--glass-bg) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmerLine {
+    animation: none;
+  }
+}
+
+/* ---------- Act 5: review ---------- */
+
+.reviewStage {
+  padding-top: 10px;
+}
+
+.draftBanner {
+  position: sticky;
+  top: 74px;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.draftBadge {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--ai-accent);
+  color: var(--ai-accent);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: var(--glass-shadow);
+}
+
+.titleInput {
+  width: 100%;
+  font-size: clamp(26px, 4.5vw, 38px);
+  font-weight: 800;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 0;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.titleInput:focus {
+  border-bottom-color: var(--accent);
+}
+
+.storyMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 22px;
+}
+
+.categoryPill {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.metaText {
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+}
+
+.storyPreview {
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 16.5px;
+  padding-bottom: 40px;
+}
+
+.storyPreview :global(h1) {
+  font-size: 26px;
+  margin: 34px 0 12px;
+  text-wrap: balance;
+}
+
+.storyPreview :global(h2) {
+  font-size: 20px;
+  margin: 26px 0 10px;
+}
+
+.storyPreview :global(img) {
+  max-width: 100%;
+  border-radius: 14px;
+  margin: 14px 0;
+  display: block;
+}
+
+.storyPreview :global(p) {
+  margin: 12px 0;
+  text-wrap: pretty;
+}
+
+.errorCard {
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--glass-bg);
+  border: 1px solid rgba(230, 102, 102, 0.5);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.errorCard p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.reviewBar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: min(860px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  z-index: 20;
+}
+
+.hintInput {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+
+.hintInput:focus {
+  border-color: var(--ai-accent);
+}
+
+.reviewActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---------- premium gate ---------- */
+
+.gateCard {
+  max-width: 480px;
+  margin: 12vh auto 0;
+  text-align: center;
+  padding: 40px 32px;
+  border-radius: 22px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.gateCard h1 {
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.gateCard p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.gateNote {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 20px;
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width: 640px) {
+  .page {
+    padding: 14px 12px 140px;
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reviewActions {
+    justify-content: space-between;
+  }
+
+  .dismissBtn {
+    opacity: 1; /* no hover on touch */
+  }
+}

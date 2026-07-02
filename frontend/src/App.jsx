@@ -9,6 +9,7 @@ import EventDetail from './pages/EventDetail'
 import Profile from './pages/Profile'
 import EditProfile from './pages/EditProfile'
 import CreateEvent from './pages/CreateEvent'
+import SmartImport from './pages/SmartImport'
 import EditEvent from './pages/EditEvent'
 import Login from './pages/Login'
 import DemoLogin from './pages/DemoLogin'
@@ -126,6 +127,7 @@ function App() {
               <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
               <Route path="/family-tree" element={<FamilyTree />} />
               <Route path="/create" element={<DemoBlockRoute><CreateEvent /></DemoBlockRoute>} />
+              <Route path="/import" element={<DemoBlockRoute><SmartImport /></DemoBlockRoute>} />
               {/* Legacy routes - redirect to unified explorer with view param */}
               <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
               <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />

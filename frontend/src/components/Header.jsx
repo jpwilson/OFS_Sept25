@@ -127,6 +127,13 @@ function Header() {
               >
                 AI Create
               </button>
+              <span className={styles.createSplitDivider} />
+              <button
+                className={styles.createSplitOption}
+                onClick={() => navigate('/import')}
+              >
+                Smart Import
+              </button>
             </div>
           </div>
         )}
@@ -168,6 +175,12 @@ function Header() {
                   onClick={() => { setShowQuickAdd(true); closeMobileMenu() }}
                 >
                   AI Create
+                </button>
+                <button
+                  className={styles.mobileAIButton}
+                  onClick={() => { closeMobileMenu(); navigate('/import') }}
+                >
+                  Smart Import
                 </button>
               </div>
             )}
