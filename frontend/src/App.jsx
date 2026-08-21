@@ -14,7 +14,6 @@ import EditEvent from './pages/EditEvent'
 import Login from './pages/Login'
 import DemoLogin from './pages/DemoLogin'
 import ResetPassword from './pages/ResetPassword'
-import Checkout from './pages/Checkout'
 import PricingPage from './pages/PricingPage'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
@@ -102,7 +101,7 @@ function App() {
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/demo-login" element={<DemoLogin />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/checkout" element={<Navigate to="/pricing" replace />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
