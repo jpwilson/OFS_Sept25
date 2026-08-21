@@ -103,6 +103,8 @@ def create_checkout_session(
         current_user.stripe_customer_id = customer_id
         db.commit()
 
+    success_sep = '&' if '?' in request.success_url else '?'
+
     # Build checkout session parameters
     checkout_params = {
         'customer': customer_id,
@@ -110,7 +112,7 @@ def create_checkout_session(
             'price': price_id,
             'quantity': 1
         }],
-        'success_url': request.success_url + '?session_id={CHECKOUT_SESSION_ID}',
+        'success_url': request.success_url + success_sep + 'session_id={CHECKOUT_SESSION_ID}',
         'cancel_url': request.cancel_url,
         'metadata': {
             'user_id': str(current_user.id),
