@@ -110,7 +110,7 @@ def create_checkout_session(
             'price': price_id,
             'quantity': 1
         }],
-        'success_url': request.success_url + '?session_id={CHECKOUT_SESSION_ID}',
+        'success_url': request.success_url + ('&' if '?' in request.success_url else '?') + 'session_id={CHECKOUT_SESSION_ID}',
         'cancel_url': request.cancel_url,
         'metadata': {
             'user_id': str(current_user.id),
