@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import posthog from 'posthog-js'
 
 const AuthContext = createContext()
 
@@ -237,6 +238,15 @@ export function AuthProvider({ children }) {
 
         const profile = await profileResponse.json()
         setUser(profile)
+        
+        // Track signup event (only use user ID, no PII)
+        if (posthog.__loaded) {
+          posthog.capture('sign_up', {
+            user_id: profile.id,
+            method: 'email',
+          })
+        }
+        
         return {
           success: true,
           message: 'Account created successfully!'
@@ -261,6 +271,11 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
+    // Reset PostHog user identity
+    if (posthog.__loaded) {
+      posthog.reset()
+    }
+    
     // Sign out from Supabase
     await supabase.auth.signOut()
 

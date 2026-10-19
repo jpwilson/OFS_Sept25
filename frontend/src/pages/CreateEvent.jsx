@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import posthog from 'posthog-js'
 import apiService from '../services/api'
 import RichTextEditor from '../components/RichTextEditor'
 import LocationSelectionModal from '../components/LocationSelectionModal'
@@ -140,6 +141,13 @@ function CreateEvent() {
         cover_image_url: result.url
       }))
       showToast('Image uploaded successfully!', 'success')
+      
+      // Track photo upload event (event-level, not every upload)
+      if (posthog.__loaded) {
+        posthog.capture('upload_photo', {
+          user_id: user?.id,
+        })
+      }
     } catch (error) {
       console.error('Error uploading image:', error)
       showToast('Failed to upload image. Please try again.', 'error')
@@ -207,6 +215,14 @@ function CreateEvent() {
           profile_id: tag.type === 'profile' ? tag.id : null
         }))
         await apiService.addEventTags(event.id, tagsToAdd)
+      }
+
+      // Track event creation (only if published, not drafts)
+      if (isPublished && posthog.__loaded) {
+        posthog.capture('create_family', {
+          user_id: user?.id,
+          category: formData.category,
+        })
       }
 
       showToast(isPublished ? 'Event published successfully!' : 'Draft saved successfully!', 'success')

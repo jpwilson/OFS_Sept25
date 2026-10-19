@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import confetti from 'canvas-confetti'
+import posthog from 'posthog-js'
 import api from '../services/api'
 import styles from './Billing.module.css'
 
@@ -50,6 +51,13 @@ export default function Billing() {
   // Celebration confetti on successful subscription - must be before any conditional returns
   useEffect(() => {
     if (isSuccess && user) {
+      // Track purchase success event (only use user ID)
+      if (posthog.__loaded) {
+        posthog.capture('purchase_success', {
+          user_id: user.id,
+        })
+      }
+      
       // Fire confetti from both sides
       const duration = 3000
       const end = Date.now() + duration
@@ -184,6 +192,14 @@ export default function Billing() {
       }
 
       const data = await response.json()
+
+      // Track checkout start event (only use user ID and billing period)
+      if (posthog.__loaded) {
+        posthog.capture('start_checkout', {
+          user_id: user?.id,
+          billing_period: selectedPrice,
+        })
+      }
 
       // Redirect to Stripe Checkout
       window.location.href = data.checkout_url
