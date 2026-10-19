@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from './Toast'
+import posthog from 'posthog-js'
 import apiService from '../services/api'
 import styles from './InviteFamilyModal.module.css'
 
@@ -83,6 +84,15 @@ Looking forward to sharing our memories together!
         message || null
       )
       showToast(`Invitation sent to ${email}!`, 'success')
+      
+      // Track invite member event
+      if (posthog.__loaded) {
+        posthog.capture('invite_member', {
+          user_id: user?.id,
+          method: 'email',
+        })
+      }
+      
       setEmail('')
       setName('')
       setMessage('')
