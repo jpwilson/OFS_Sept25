@@ -259,7 +259,6 @@ function CommentsPanel({
                       onClick={() => onCommentReaction(comment.id, type)}
                       title={label}
                       aria-label={label}
-                aria-label={label}
                     >
                       {emoji}
                     </button>

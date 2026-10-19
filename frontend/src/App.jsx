@@ -1,8 +1,10 @@
-import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
+import { Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { PostHogProvider, usePostHog } from './context/PostHogContext'
 import { ToastProvider } from './components/Toast'
 import { ConfirmProvider } from './components/ConfirmModal'
+import { useEffect } from 'react'
 import Landing from './pages/Landing'
 import Feed from './pages/Feed'
 import EventDetail from './pages/EventDetail'
@@ -76,6 +78,28 @@ function RootRedirect() {
   return user ? <Navigate to="/feed" replace /> : <Landing />
 }
 
+// Component to track page views on route changes
+function PostHogPageTracker() {
+  const location = useLocation()
+  const { trackPageView } = usePostHog()
+  const { user } = useAuth()
+
+  useEffect(() => {
+    // Track page view whenever the route changes
+    trackPageView(location.pathname + location.search)
+  }, [location, trackPageView])
+
+  // Identify user when they log in (only use numeric ID)
+  useEffect(() => {
+    if (user?.id) {
+      const { identifyUser } = usePostHog()
+      identifyUser(user.id)
+    }
+  }, [user?.id])
+
+  return null
+}
+
 // Guard for superuser-only routes
 function SuperuserRoute({ children }) {
   const { user, isSuperuser, loading } = useAuth()
@@ -94,77 +118,80 @@ function DemoBlockRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <ConfirmProvider>
-          <Routes>
-            <Route path="/" element={<RootRedirect />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignupInviteRedirect />} />
-            <Route path="/signup/invited" element={<InvitedSignup />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/demo-login" element={<DemoLogin />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/checkout" element={<Navigate to="/pricing" replace />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/share/:token" element={<EventDetail isShareMode={true} />} />
-            <Route path="/join/:token" element={<InviteLanding />} />
-            <Route element={<Layout />}>
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/feed" element={<Feed />} />
-              <Route path="/event/:id" element={<EventDetail />} />
-              <Route path="/event/:id/edit" element={<DemoBlockRoute><EditEvent /></DemoBlockRoute>} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/profile/:username/edit" element={<DemoBlockRoute><EditProfile /></DemoBlockRoute>} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/settings" element={<Preferences />} />
-              <Route path="/relationships" element={<Relationships />} />
-              <Route path="/tags" element={<Tags />} />
-              <Route path="/my-feedback" element={<MyFeedback />} />
-              {/* Backwards compatibility redirects */}
-              <Route path="/settings/notifications" element={<Navigate to="/notifications" replace />} />
-              <Route path="/preferences" element={<Navigate to="/settings" replace />} />
-              <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
-              <Route path="/family-tree" element={<FamilyTree />} />
-              <Route path="/create" element={<DemoBlockRoute><CreateEvent /></DemoBlockRoute>} />
-              <Route path="/import" element={<DemoBlockRoute><SmartImport /></DemoBlockRoute>} />
-              {/* Legacy routes - redirect to unified explorer with view param */}
-              <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
-              <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />
-              <Route path="/groups" element={<Groups />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/compare/facebook-groups" element={<ComparePrivateGroups />} />
-              <Route path="/compare/tinybeans" element={<CompareTinybeans />} />
-              <Route path="/compare/how-to-share-photos-privately" element={<HowToSharePhotos />} />
-              {/* Admin routes - superuser only */}
-              <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
-              <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
-              <Route path="/admin/events" element={<SuperuserRoute><AdminEvents /></SuperuserRoute>} />
-              <Route path="/admin/feedback" element={<SuperuserRoute><AdminFeedback /></SuperuserRoute>} />
-              <Route path="/admin/design" element={<SuperuserRoute><AdminDesignPreview /></SuperuserRoute>} />
-              <Route path="/admin/cloudflare-test" element={<SuperuserRoute><CloudflareTest /></SuperuserRoute>} />
-              {/* Landing page variations - superuser only */}
-              <Route path="/admin/landing-1" element={<SuperuserRoute><LandingV1 /></SuperuserRoute>} />
-              <Route path="/admin/landing-2" element={<SuperuserRoute><LandingV2 /></SuperuserRoute>} />
-              <Route path="/admin/landing-3" element={<SuperuserRoute><LandingV3 /></SuperuserRoute>} />
-              <Route path="/admin/landing-4" element={<SuperuserRoute><LandingV4 /></SuperuserRoute>} />
-              <Route path="/admin/landing-5" element={<SuperuserRoute><LandingV5 /></SuperuserRoute>} />
-              <Route path="/admin/landing-6" element={<SuperuserRoute><LandingV6 /></SuperuserRoute>} />
-              <Route path="/admin/landing-7" element={<SuperuserRoute><LandingV7 /></SuperuserRoute>} />
-              <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
-              <Route path="/admin/landing-9" element={<SuperuserRoute><LandingV9 /></SuperuserRoute>} />
-            </Route>
-          </Routes>
-          <InstallPrompt />
-          <Analytics />
-        </ConfirmProvider>
-      </ToastProvider>
-    </AuthProvider>
+    <PostHogProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <ConfirmProvider>
+            <PostHogPageTracker />
+            <Routes>
+              <Route path="/" element={<RootRedirect />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignupInviteRedirect />} />
+              <Route path="/signup/invited" element={<InvitedSignup />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/demo-login" element={<DemoLogin />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/checkout" element={<Navigate to="/pricing" replace />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/share/:token" element={<EventDetail isShareMode={true} />} />
+              <Route path="/join/:token" element={<InviteLanding />} />
+              <Route element={<Layout />}>
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/event/:id" element={<EventDetail />} />
+                <Route path="/event/:id/edit" element={<DemoBlockRoute><EditEvent /></DemoBlockRoute>} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/profile/:username/edit" element={<DemoBlockRoute><EditProfile /></DemoBlockRoute>} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/settings" element={<Preferences />} />
+                <Route path="/relationships" element={<Relationships />} />
+                <Route path="/tags" element={<Tags />} />
+                <Route path="/my-feedback" element={<MyFeedback />} />
+                {/* Backwards compatibility redirects */}
+                <Route path="/settings/notifications" element={<Navigate to="/notifications" replace />} />
+                <Route path="/preferences" element={<Navigate to="/settings" replace />} />
+                <Route path="/tag-profile/:profileId" element={<TagProfilePage />} />
+                <Route path="/family-tree" element={<FamilyTree />} />
+                <Route path="/create" element={<DemoBlockRoute><CreateEvent /></DemoBlockRoute>} />
+                <Route path="/import" element={<DemoBlockRoute><SmartImport /></DemoBlockRoute>} />
+                {/* Legacy routes - redirect to unified explorer with view param */}
+                <Route path="/map" element={<Navigate to="/feed?view=map" replace />} />
+                <Route path="/timeline" element={<Navigate to="/feed?view=timeline" replace />} />
+                <Route path="/groups" element={<Groups />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/compare/facebook-groups" element={<ComparePrivateGroups />} />
+                <Route path="/compare/tinybeans" element={<CompareTinybeans />} />
+                <Route path="/compare/how-to-share-photos-privately" element={<HowToSharePhotos />} />
+                {/* Admin routes - superuser only */}
+                <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
+                <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
+                <Route path="/admin/events" element={<SuperuserRoute><AdminEvents /></SuperuserRoute>} />
+                <Route path="/admin/feedback" element={<SuperuserRoute><AdminFeedback /></SuperuserRoute>} />
+                <Route path="/admin/design" element={<SuperuserRoute><AdminDesignPreview /></SuperuserRoute>} />
+                <Route path="/admin/cloudflare-test" element={<SuperuserRoute><CloudflareTest /></SuperuserRoute>} />
+                {/* Landing page variations - superuser only */}
+                <Route path="/admin/landing-1" element={<SuperuserRoute><LandingV1 /></SuperuserRoute>} />
+                <Route path="/admin/landing-2" element={<SuperuserRoute><LandingV2 /></SuperuserRoute>} />
+                <Route path="/admin/landing-3" element={<SuperuserRoute><LandingV3 /></SuperuserRoute>} />
+                <Route path="/admin/landing-4" element={<SuperuserRoute><LandingV4 /></SuperuserRoute>} />
+                <Route path="/admin/landing-5" element={<SuperuserRoute><LandingV5 /></SuperuserRoute>} />
+                <Route path="/admin/landing-6" element={<SuperuserRoute><LandingV6 /></SuperuserRoute>} />
+                <Route path="/admin/landing-7" element={<SuperuserRoute><LandingV7 /></SuperuserRoute>} />
+                <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
+                <Route path="/admin/landing-9" element={<SuperuserRoute><LandingV9 /></SuperuserRoute>} />
+              </Route>
+            </Routes>
+            <InstallPrompt />
+            <Analytics />
+          </ConfirmProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </PostHogProvider>
   )
 }
 
