@@ -135,6 +135,29 @@ export default function FAQ() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+
+    // Add FAQPage structured data for AI/search engines
+    const script = document.createElement('script')
+    script.type = 'application/ld+json'
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.flatMap(category =>
+        category.questions.map(item => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.a
+          }
+        }))
+      )
+    })
+    document.head.appendChild(script)
+
+    return () => {
+      document.head.removeChild(script)
+    }
   }, [])
 
   function toggleItem(categoryIndex, questionIndex) {

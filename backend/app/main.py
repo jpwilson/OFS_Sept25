@@ -9,7 +9,7 @@ import uuid
 
 from .core.config import settings
 from .core.database import engine, Base
-from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin, ai_creator
+from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin, ai_creator, ai_public
 
 # Configure logging for Vercel (stdout capture)
 logging.basicConfig(
@@ -135,6 +135,7 @@ app.include_router(relationships.router, prefix=settings.API_V1_STR, tags=["rela
 app.include_router(feedback.router, prefix=settings.API_V1_STR, tags=["feedback"])
 app.include_router(admin.router, prefix=settings.API_V1_STR, tags=["admin"])
 app.include_router(ai_creator.router, prefix=settings.API_V1_STR, tags=["ai-creator"])
+app.include_router(ai_public.router, prefix=settings.API_V1_STR, tags=["ai-public"])
 
 # Mount static files for serving uploaded images (only if directory exists)
 # In production (Vercel), files will be served from Supabase Storage instead

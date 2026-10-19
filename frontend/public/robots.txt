@@ -17,19 +17,67 @@ Allow: /
 Allow: /pricing
 Allow: /faq
 Allow: /blog
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
 
 # Sitemap
 Sitemap: https://ourfamilysocials.com/sitemap.xml
 
-# AI Crawlers - allow indexing of public pages for discovery
+# AI Crawlers - explicitly allow indexing of public pages for AI discovery
 User-agent: GPTBot
 Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /feed
+Disallow: /profile
+Disallow: /create
+Disallow: /event/*
+
+User-agent: Claude-Web
+Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
 Disallow: /admin
 Disallow: /feed
 Disallow: /profile
 
-User-agent: Claude-Web
+User-agent: ClaudeBot
 Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /feed
+Disallow: /profile
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /feed
+Disallow: /profile
+
+User-agent: Google-Extended
+Allow: /
+Allow: /pricing
+Allow: /faq
+Allow: /about
+Allow: /compare/*
+Allow: /llms.txt
 Disallow: /admin
 Disallow: /feed
 Disallow: /profile
