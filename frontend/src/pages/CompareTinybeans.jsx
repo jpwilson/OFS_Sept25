@@ -149,7 +149,7 @@ export default function CompareTinybeans() {
               <div className={styles.vs}>
                 <div className={styles.vsColumn}>
                   <strong>Tinybeans</strong>
-                  <p>Free with limited features, premium plans start around $4.99/month</p>
+                  <p>Free with limited features, premium plans available (check their site for current pricing)</p>
                 </div>
                 <div className={styles.vsColumn}>
                   <strong>Our Family Socials</strong>

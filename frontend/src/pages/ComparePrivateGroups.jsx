@@ -50,7 +50,7 @@ export default function ComparePrivateGroups() {
               <div className={styles.vs}>
                 <div className={styles.vsColumn}>
                   <strong>Private Facebook Group</strong>
-                  <p>Algorithmic feed hides posts, even in groups. You might miss important family updates</p>
+                  <p>Facebook's algorithm may affect what you see in your feed. Posts may not always appear chronologically</p>
                 </div>
                 <div className={styles.vsColumn}>
                   <strong>Our Family Socials</strong>
@@ -64,7 +64,7 @@ export default function ComparePrivateGroups() {
               <div className={styles.vs}>
                 <div className={styles.vsColumn}>
                   <strong>Private Facebook Group</strong>
-                  <p>Ads appear in your feed, even in private groups. Your family photos appear next to ads</p>
+                  <p>Ads may appear in Facebook's interface. Family content exists alongside Facebook's ad-supported platform</p>
                 </div>
                 <div className={styles.vsColumn}>
                   <strong>Our Family Socials</strong>
