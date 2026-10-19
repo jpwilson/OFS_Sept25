@@ -33,6 +33,10 @@ import Tags from './pages/Tags'
 import MyFeedback from './pages/MyFeedback'
 import FAQ from './pages/FAQ'
 import Blog from './pages/Blog'
+import About from './pages/About'
+import ComparePrivateGroups from './pages/ComparePrivateGroups'
+import CompareTinybeans from './pages/CompareTinybeans'
+import HowToSharePhotos from './pages/HowToSharePhotos'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -159,6 +163,10 @@ function App() {
                 <Route path="/groups" element={<Groups />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/compare/facebook-groups" element={<ComparePrivateGroups />} />
+                <Route path="/compare/tinybeans" element={<CompareTinybeans />} />
+                <Route path="/compare/how-to-share-photos-privately" element={<HowToSharePhotos />} />
                 {/* Admin routes - superuser only */}
                 <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
                 <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
