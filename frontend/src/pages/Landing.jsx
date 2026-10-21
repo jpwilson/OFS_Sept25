@@ -1,13 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
+import Blocks from '../components/ContentBlocks'
+import { HOME_SHARED_BLOCKS, pageByPath } from '../content/marketing.js'
+import { useSeoHead } from '../content/useSeoHead.js'
+import compareStyles from './Compare.module.css'
 import styles from './Landing.module.css'
+
+const HOME = pageByPath('/')
 
 function Landing() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [billingPeriod, setBillingPeriod] = useState('annual') // 'monthly' or 'annual'
+
+  // Home metadata on client-side navigations (the prerendered index.html
+  // already carries it for the first response). See content/useSeoHead.js.
+  useSeoHead(HOME)
 
   useEffect(() => {
     if (user) {
@@ -84,7 +94,7 @@ function Landing() {
             <Link to="/login?signup=true" className={styles.primaryBtn}>Start for free</Link>
             <a href="#features" className={styles.secondaryBtn}>See how it works →</a>
           </div>
-          <p className={styles.heroNote}>Free forever • 5 events included • No credit card</p>
+          <p className={styles.heroNote}>Free to view forever • 5 events during your 30-day trial • No credit card</p>
         </div>
 
         {/* Hero Screenshot */}
@@ -300,13 +310,13 @@ function Landing() {
         <div className={styles.sectionContent}>
           <h2 className={styles.sectionTitle}>Your memories are yours</h2>
           <p className={styles.sectionSubtitle}>
-            No ads. No data selling. No algorithms. Just a private space for your family.
+            No ads. No data selling. No algorithms. A family-sized space instead of a public one.
           </p>
           <div className={styles.privacyGrid}>
             <div className={styles.privacyCard}>
               <div className={styles.privacyIcon}>🔒</div>
-              <h3>Private by default</h3>
-              <p>Every event is private. Share only with family you approve.</p>
+              <h3>You choose the audience</h3>
+              <p>A new event goes to the followers you approved. Narrow it to close family, a custom group or just you — or make it public on purpose.</p>
             </div>
             <div className={styles.privacyCard}>
               <div className={styles.privacyIcon}>🚫</div>
@@ -461,7 +471,7 @@ function Landing() {
         <div className={styles.pricingContent}>
           <h2 className={styles.sectionTitle}>Simple, transparent pricing</h2>
           <p className={styles.sectionSubtitle}>
-            Start for free. Upgrade when you need more. Only published events count towards your limit—drafts and deleted events are free!
+            Start for free. Upgrade when you need more. During your 30-day trial you can publish up to 5 events; only published events count, so drafts and deleted events are free.
           </p>
 
           {/* Billing Toggle */}
@@ -492,12 +502,12 @@ function Landing() {
                 <p className={styles.pricingDesc}>Perfect for family viewers</p>
               </div>
               <ul className={styles.pricingFeatures}>
-                <li><strong>View-only</strong> — cannot create events</li>
-                <li>View all shared events</li>
+                <li><strong>View-only once your trial ends</strong> — creating needs an active trial or subscription</li>
+                <li>View the events you have access to</li>
                 <li>Like and comment</li>
                 <li>Follow family members</li>
                 <li>Interactive maps & timeline</li>
-                <li>30-day Pro trial included</li>
+                <li>30-day Pro trial included, with up to 5 published events</li>
               </ul>
               <Link to="/login" className={styles.pricingButton}>
                 Get started free
@@ -566,6 +576,17 @@ function Landing() {
         </div>
       </section>
 
+      {/* Shared home sections - the same text that scripts/prerender.mjs writes
+          into the static index.html, rendered from HOME_SHARED_BLOCKS so the
+          mounted page keeps everything a crawler was shown. */}
+      <section className={styles.detailSection}>
+        <div className={compareStyles.content}>
+          <div className={compareStyles.section}>
+            <Blocks blocks={HOME_SHARED_BLOCKS} />
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className={styles.finalCta}>
         <div className={styles.ctaContent}>
@@ -574,7 +595,7 @@ function Landing() {
             Join families keeping their memories alive, together
           </p>
           <Link to="/login" className={styles.ctaButton}>Get started for free</Link>
-          <p className={styles.ctaNote}>Free forever • 5 events • No credit card required</p>
+          <p className={styles.ctaNote}>Free to view forever • 5 events during your trial • No credit card required</p>
         </div>
       </section>
 

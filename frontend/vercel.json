@@ -4,50 +4,41 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/features",
-      "destination": "/features.html"
-    },
-    {
-      "source": "/pricing",
-      "destination": "/pricing.html"
-    },
-    {
-      "source": "/faq",
-      "destination": "/faq.html"
-    },
-    {
-      "source": "/about",
-      "destination": "/about.html"
-    },
-    {
-      "source": "/alternatives",
-      "destination": "/alternatives.html"
-    },
-    {
-      "source": "/compare/facebook-groups",
-      "destination": "/compare/facebook-groups.html"
-    },
-    {
-      "source": "/compare/tinybeans",
-      "destination": "/compare/tinybeans.html"
-    },
-    {
-      "source": "/compare/familyalbum",
-      "destination": "/compare/familyalbum.html"
-    },
-    {
-      "source": "/compare/private-instagram",
-      "destination": "/compare/private-instagram.html"
-    },
-    {
-      "source": "/compare/how-to-share-photos-privately",
-      "destination": "/compare/how-to-share-photos-privately.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/login", "destination": "/" },
+    { "source": "/signup", "destination": "/" },
+    { "source": "/signup/invited", "destination": "/" },
+    { "source": "/auth/callback", "destination": "/" },
+    { "source": "/demo-login", "destination": "/" },
+    { "source": "/reset-password", "destination": "/" },
+    { "source": "/checkout", "destination": "/" },
+    { "source": "/privacy", "destination": "/" },
+    { "source": "/terms", "destination": "/" },
+    { "source": "/contact", "destination": "/" },
+    { "source": "/blog", "destination": "/" },
+    { "source": "/billing", "destination": "/" },
+    { "source": "/feed", "destination": "/" },
+    { "source": "/notifications", "destination": "/" },
+    { "source": "/settings", "destination": "/" },
+    { "source": "/settings/notifications", "destination": "/" },
+    { "source": "/preferences", "destination": "/" },
+    { "source": "/relationships", "destination": "/" },
+    { "source": "/tags", "destination": "/" },
+    { "source": "/my-feedback", "destination": "/" },
+    { "source": "/family-tree", "destination": "/" },
+    { "source": "/create", "destination": "/" },
+    { "source": "/import", "destination": "/" },
+    { "source": "/map", "destination": "/" },
+    { "source": "/timeline", "destination": "/" },
+    { "source": "/groups", "destination": "/" },
+    { "source": "/event/:id", "destination": "/" },
+    { "source": "/event/:id/edit", "destination": "/" },
+    { "source": "/profile/:username", "destination": "/" },
+    { "source": "/profile/:username/edit", "destination": "/" },
+    { "source": "/share/:token", "destination": "/" },
+    { "source": "/join/:token", "destination": "/" },
+    { "source": "/tag-profile/:profileId", "destination": "/" },
+    { "source": "/admin", "destination": "/" },
+    { "source": "/admin/:path*", "destination": "/" }
   ],
   "headers": [
     {

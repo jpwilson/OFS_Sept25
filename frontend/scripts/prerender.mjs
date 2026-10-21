@@ -6,16 +6,20 @@
 // public page into dist/, with the full text already in the markup plus the
 // per-page title, description, canonical, Open Graph tags and JSON-LD.
 //
-// Same HTML for humans and bots: React mounts into #root and replaces the
-// prerendered markup with the identical content rendered by
-// src/components/MarketingPage.jsx (or the existing page component).
+// Same text for humans and bots: React mounts into #root and replaces the
+// prerendered markup. The new pages re-render these very blocks through
+// src/components/MarketingPage.jsx, and the home page re-renders the shared
+// sections (marketing.js HOME_SHARED_BLOCKS) inside src/pages/Landing.jsx, so
+// nothing a crawler was shown disappears once JavaScript runs. Landing.jsx adds
+// its own illustrated sections on top of that.
 //
-// Routing is handled by vercel.json: /faq -> /faq.html, everything else falls
-// through to /index.html so the SPA keeps working for app routes.
+// Routing is handled by vercel.json: cleanUrls serves /faq from faq.html, the
+// real React routes are rewritten to /, and anything else gets dist/404.html
+// with a real HTTP 404 instead of a soft-404 copy of the home page.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PAGES } from '../src/content/marketing.js'
+import { NOT_FOUND_PAGE, PAGES } from '../src/content/marketing.js'
 import { buildHead, renderBody, countWords } from '../src/content/renderStatic.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -55,7 +59,10 @@ const outputPathFor = (path) =>
 
 const report = []
 
-for (const page of PAGES) {
+// NOT_FOUND_PAGE is written to dist/404.html, which Vercel serves with an HTTP
+// 404 for any address that is neither a static file nor a rewritten React
+// route. It carries robots: noindex and stays out of the sitemap.
+for (const page of [...PAGES, NOT_FOUND_PAGE]) {
   const body = renderBody(page)
   const html = baseHtml
     .replace(SEO_BLOCK, buildHead(page))

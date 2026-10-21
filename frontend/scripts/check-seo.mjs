@@ -66,7 +66,7 @@ for (const page of PAGES) {
   if (!html.includes('name="twitter:card"')) fail(page.path, 'missing twitter:card')
 
   // JSON-LD parses, and mentions the page URL
-  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
   if (!blocks.length) fail(page.path, 'no JSON-LD')
   let types = []
   for (const [, raw] of blocks) {

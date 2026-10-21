@@ -1,25 +1,21 @@
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useSeoHead, pageDescriptor } from '../content/useSeoHead.js'
 import styles from './Compare.module.css'
 
-// Vercel's SPA catch-all means an unknown path still returns 200 with
-// index.html. Rendering a real "not found" page with robots=noindex is the
-// cheapest way to stop those soft-404s being indexed. Googlebot renders
-// JavaScript, so it sees the noindex; non-rendering crawlers only ever see the
-// prerendered pages, which are all real.
+const NOT_FOUND = pageDescriptor({
+  path: '/404',
+  title: 'Page not found - Our Family Socials',
+  description:
+    'That link does not point anywhere on Our Family Socials. Try the home page, features, pricing or the FAQ.'
+})
+
+// Unknown paths are no longer rewritten to the SPA: vercel.json only rewrites
+// real React routes, so an address that matches nothing gets dist/404.html with
+// an HTTP 404 (scripts/prerender.mjs writes it from this page's copy). This
+// component is what a client-side navigation to a bad path renders, and it
+// carries the same noindex.
 export default function NotFound() {
-  useEffect(() => {
-    const meta = document.createElement('meta')
-    meta.name = 'robots'
-    meta.content = 'noindex, follow'
-    document.head.appendChild(meta)
-    const previousTitle = document.title
-    document.title = 'Page not found - Our Family Socials'
-    return () => {
-      document.head.removeChild(meta)
-      document.title = previousTitle
-    }
-  }, [])
+  useSeoHead(NOT_FOUND, { noindex: true })
 
   return (
     <div className={styles.container}>

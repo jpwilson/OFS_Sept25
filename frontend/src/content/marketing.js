@@ -20,6 +20,67 @@ export const LAST_UPDATED_ISO = '2026-10-21'
 const PRICE_NOTE =
   'Free plan $0/forever, Pro $9/month billed annually ($108/year) or $12/month billed monthly, and a one-time Lifetime plan at $294. Every new account gets a 30-day free trial of Pro, no credit card required.'
 
+// The three notes below describe what the product actually enforces, so the
+// marketing copy, the FAQ, the JSON-LD and the llms files cannot promise more
+// than the code delivers. Sources: PrivacySelector.jsx and CreateEvent.jsx (the
+// audience options and their default), backend/app/utils/privacy.py
+// (can_view_event, filter_events_for_feed), backend/app/api/events.py
+// (create_event limits) and backend/app/models/user.py (can_view_event).
+const AUDIENCE_NOTE =
+  'You choose an audience for every event you create: **Followers** (the default), **Close Family**, a **custom group**, **Private** (only you) or **Public**. Public events can be opened by anyone who has the link, including people without an account, so choose a narrower audience for anything you want kept inside the family.'
+
+const FEED_NOTE =
+  'One thing worth knowing: signed-in members can see an event in the shared feed unless you set it to Private, and opening the event page itself is then gated by the audience you chose. People who are not signed in only ever see events set to Public.'
+
+const PLAN_RULES =
+  'Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.'
+
+const EXPIRED_VIEWING =
+  'After the trial you can still browse the feed, and you can still open your own events, any event set to Public, and events from the people you follow. Opening anything else needs an active trial or subscription.'
+
+// The home page sections that are rendered twice: once into static HTML by
+// scripts/prerender.mjs (what crawlers and AI engines read) and once by
+// src/pages/Landing.jsx after React mounts (what a visitor reads). Keeping them
+// in one array is what stops the two versions of the home page drifting apart.
+export const HOME_SHARED_BLOCKS = [
+    { h2: 'Who can see an event' },
+    { p: AUDIENCE_NOTE },
+    { p: FEED_NOTE },
+    { h2: 'What you can do' },
+    {
+      ul: [
+        '**Follow family members** - see what your family is up to in a chronological feed, with no algorithm hiding posts. Never miss a birthday party, graduation, vacation or Sunday dinner.',
+        '**Rich event pages** - photo galleries with lightbox viewing, rich text for the full story, comments and likes from family, and every detail that makes a trip worth remembering.',
+        '**Interactive maps and timeline** - see every trip on an interactive world map, follow multi-location journey maps, and browse a timeline organised by year. Filter by person, place or date.',
+        '**GPS extraction from photos** - Our Family Socials reads the location data already stored in your photos and suggests the places you visited.',
+        '**Video support** - add video clips alongside photos, with a built-in trimmer.',
+        '**AI Create (beta)** - upload a batch of photos and AI groups them, asks a few questions and drafts the story for you to edit. Available on a paid plan or during the free trial.',
+        '**Family trees** - a visual family tree built from relationships both people have confirmed.',
+        '**Tag profiles** - tag children, older relatives or pets who do not have an account yet; they can claim the profile later.',
+        '**Audience controls** - choose who sees each event, from Public down to a custom group such as "close family only" or Private, just for you.'
+      ]
+    },
+    { h2: 'How it works' },
+    {
+      ol: [
+        '**Create an account** at ourfamilysocials.com. Every new account starts with a 30-day Pro trial, no credit card required, and you can publish up to 5 events during it.',
+        '**Follow your family.** Send follow requests or email invitations. Once someone accepts, you see each other\'s events.',
+        '**Share life events.** Build an event page with photos, a story, dates and locations, then choose its audience.',
+        '**Stay connected.** Browse the feed, the map or the timeline, and comment and like just like a normal social network - only among family rather than in public.'
+      ]
+    },
+    { h2: 'Common questions' },
+    {
+      faq: [
+        flatFaqs.find((f) => f.q === 'What is Our Family Socials?'),
+        flatFaqs.find((f) => f.q === 'Is it really free?'),
+        flatFaqs.find((f) => f.q === 'Who can see my events?'),
+        flatFaqs.find((f) => f.q === 'Can I share an event with someone who doesn\'t have an account?')
+      ]
+    },
+    { p: 'Read all the answers on the [FAQ page](/faq).' },
+]
+
 const home = {
   path: '/',
   title: 'Our Family Socials - Private Family Social Network',
@@ -35,60 +96,27 @@ const home = {
         'From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. Follow the relatives you care about, see their events in the order they happened, and stop finding out about a graduation three weeks after the fact.'
     },
     { h2: 'Your memories are yours' },
-    { p: 'No ads. No data selling. No algorithms. Just a private space for your family.' },
+    { p: 'No ads. No data selling. No algorithms. A family-sized space instead of a public one.' },
     {
       ul: [
-        '**Private by default** - every event is private. Share only with family you approve.',
+        '**Not public by default** - a new event goes to the followers you have approved, not to the open internet, and you can narrow or widen that audience for every event.',
         '**No ads, ever** - we will never sell your data or show ads. Your memories are not a product.',
         '**Built for families** - made by a family, for families.'
       ]
     },
-    { h2: 'What you can do' },
-    {
-      ul: [
-        '**Follow family members** - see what your family is up to in a chronological feed, with no algorithm hiding posts. Never miss a birthday party, graduation, vacation or Sunday dinner.',
-        '**Rich event pages** - photo galleries with lightbox viewing, rich text for the full story, comments and likes from family, and every detail that makes a trip worth remembering.',
-        '**Interactive maps and timeline** - see every trip on an interactive world map, follow multi-location journey maps, and browse a timeline organised by year. Filter by person, place or date.',
-        '**GPS extraction from photos** - Our Family Socials reads the location data already stored in your photos and suggests the places you visited.',
-        '**Video support** - add video clips alongside photos, with a built-in trimmer.',
-        '**AI Create (beta)** - upload a batch of photos and AI groups them, asks a few questions and drafts the story for you to edit. Available on a paid plan or during the free trial.',
-        '**Family trees** - a visual family tree built from relationships both people have confirmed.',
-        '**Tag profiles** - tag children, older relatives or pets who do not have an account yet; they can claim the profile later.',
-        '**Privacy controls** - choose who sees each event, from everyone who follows you down to a custom group such as "close family only".'
-      ]
-    },
-    { h2: 'How it works' },
-    {
-      ol: [
-        '**Create an account** at ourfamilysocials.com. Every new account starts with a 30-day Pro trial and no credit card is required.',
-        '**Follow your family.** Send follow requests or email invitations. Once someone accepts, you see each other\'s events.',
-        '**Share life events.** Build an event page with photos, a story, dates and locations, then choose exactly who can see it.',
-        '**Stay connected.** Browse the feed, the map or the timeline, and comment and like just like a normal social network - only private.'
-      ]
-    },
+    ...HOME_SHARED_BLOCKS,
     { h2: 'Simple, transparent pricing' },
-    {
-      p:
-        'Start for free. Upgrade when you need more. Only published events count towards your limit - drafts and deleted events are free.'
-    },
+    { p: 'Start for free. Upgrade when you need more.' },
+    { p: PLAN_RULES },
     {
       ul: [
-        '**Free to View - $0/forever.** View all shared events, like and comment, follow family members, interactive maps and timeline, and a 30-day Pro trial included.',
+        '**Free to View - $0/forever.** View the events you have access to, like and comment, follow family members, interactive maps and timeline, and a 30-day Pro trial with up to 5 published events.',
         '**Pro - $9/month billed annually ($108/year), or $12/month billed monthly.** Create unlimited events, photo and video uploads, journey mapping, GPS extraction from photos, privacy controls and a rich text editor.',
         '**Lifetime - $294 once.** Everything in Pro, no recurring fees, all future updates, priority support and early access to features.'
       ]
     },
     { p: '**30-day free trial on all accounts.** Subscribe within 5 days for an extra month free.' },
-    { h2: 'Common questions' },
-    {
-      faq: [
-        flatFaqs.find((f) => f.q === 'What is Our Family Socials?'),
-        flatFaqs.find((f) => f.q === 'Is it really free?'),
-        flatFaqs.find((f) => f.q === 'Who can see my events?'),
-        flatFaqs.find((f) => f.q === 'Can I share an event with someone who doesn\'t have an account?')
-      ]
-    },
-    { p: 'Read all the answers on the [FAQ page](/faq).' },
+    { p: EXPIRED_VIEWING },
     { h2: 'Learn more' },
     {
       ul: [
@@ -121,7 +149,7 @@ const features = {
     { h2: 'A private, chronological family feed' },
     {
       p:
-        'Follow the family members and close friends you care about. Their events appear in a feed ordered by time, not by an engagement algorithm, so a quiet post about a grandparent\'s birthday is just as visible as a three-week holiday. Following is request-based: nobody sees your events until you approve them.'
+        'Follow the family members and close friends you care about. Their events appear in a feed ordered by time, not by an engagement algorithm, so a quiet post about a grandparent\'s birthday is just as visible as a three-week holiday. Following is request-based: every follow request is yours to accept or decline.'
     },
     {
       ul: [
@@ -171,15 +199,18 @@ const features = {
       p:
         'You can record how people are actually related - sister, dad, cousin - and both people have to confirm the relationship before it counts. Confirmed relationships build an interactive family tree. For relatives who are not on the platform (young children, older relatives, even pets) you can create a tag profile, tag them in events, and let them claim the profile if they join later.'
     },
-    { h2: 'Privacy controls' },
+    { h2: 'Audience and privacy controls' },
+    { p: AUDIENCE_NOTE },
     {
       ul: [
-        'Every event is private until you share it',
-        'Share with everyone who follows you, or with a custom group such as "close family only"',
+        'Five audience settings per event: Followers (the default), Close Family, a custom group, Private, or Public',
+        'Public events are readable by anyone with the link, signed in or not - they are the one setting that is not family-only',
         'Private share links let someone view one specific event without an account, and nothing else',
+        'Follow requests are approved by you, and verified relationships need both people to confirm',
         'No advertising anywhere in the product, and no selling of your data'
       ]
     },
+    { p: FEED_NOTE },
     { h2: 'Works on the device you already have' },
     {
       p:
@@ -192,6 +223,7 @@ const features = {
     },
     { h2: 'What it costs' },
     { p: PRICE_NOTE },
+    { p: PLAN_RULES },
     { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'See pricing', href: '/pricing' }] },
     { p: 'See also: [FAQ](/faq), [about Our Family Socials](/about) and [private family sharing alternatives](/alternatives).' }
   ]
@@ -204,19 +236,20 @@ const pricing = {
     'Our Family Socials pricing: free to view forever, Pro at $9/month billed annually or $12/month, and Lifetime at $294 once. 30-day free trial on all plans.',
   h1: 'Simple, transparent pricing',
   lede:
-    'Our Family Socials is free to view forever, and paid only when you want to create unlimited events. Start for free, upgrade when you need more. Only published events count towards your limit - drafts and deleted events are free.',
+    'Our Family Socials is free to view forever, and paid when you want to create events beyond the 5 you can publish during your trial. Start for free, upgrade when you need more.',
   breadcrumb: 'Pricing',
   blocks: [
+    { p: PLAN_RULES },
     { h2: 'Free to View - $0/forever' },
     { p: 'Perfect for family viewers.' },
     {
       ul: [
-        '**View-only** - cannot create events',
-        'View all shared events',
+        '**View-only once your trial ends** - creating an event needs an active trial or subscription',
+        'View the events you have access to',
         'Like and comment',
         'Follow family members',
         'Interactive maps & timeline',
-        '30-day Pro trial included'
+        '30-day Pro trial included, with up to 5 published events'
       ]
     },
     { h2: 'Pro - $9/month billed annually, or $12/month billed monthly' },
@@ -249,11 +282,11 @@ const pricing = {
       faq: [
         {
           q: 'How does the free trial work?',
-          a: 'Sign up and get full access to all features for 30 days. No credit card required. If you subscribe within the first 5 days, you get an extra month free (60 days total).'
+          a: 'Sign up and get Pro features for 30 days, with no credit card required. You can publish up to 5 events during the trial. If you subscribe within the first 5 days, you get an extra month free (60 days total).'
         },
         {
           q: 'What happens when my trial ends?',
-          a: 'You can still browse the feed and see what your family is up to, but you\'ll need to subscribe to view event details and create new events.'
+          a: EXPIRED_VIEWING + ' You cannot create new events until you subscribe.'
         },
         {
           q: 'Can I cancel anytime?',
@@ -277,7 +310,7 @@ const about = {
     'Our Family Socials is a private, ad-free social network built for families to share life events, photos and memories. Read why it exists and who it is for.',
   h1: 'About Our Family Socials',
   lede:
-    'Our Family Socials is a private, ad-free social network designed specifically for families to share life events, photos and memories together. Unlike public social media platforms, everything is private by default, and there are no algorithms deciding what you see.',
+    'Our Family Socials is a private, ad-free social network designed specifically for families to share life events, photos and memories together. Unlike public social media platforms, a new event goes to the family you have approved rather than to the open internet, and there are no algorithms deciding what you see.',
   breadcrumb: 'About',
   blocks: [
     { h2: 'Why it exists' },
@@ -288,7 +321,7 @@ const about = {
     { h2: 'Why we are different' },
     {
       ul: [
-        '**Private by default** - every event is private unless you explicitly share it. You control exactly who can see each memory, from everyone you follow to custom groups like "close family only".',
+        '**You choose the audience** - a new event goes to the followers you have approved, and you can set any event to Close Family, a custom group such as "close family only", Private (just you) or Public (anyone with the link).',
         '**No ads, ever** - we will never sell your data or show you ads. Your family memories are not a product to be monetised.',
         '**Rich event pages** - photo galleries, detailed stories, multiple locations and GPS-tagged journey maps.',
         '**Interactive maps and timeline** - see your family\'s adventures on an interactive world map, and watch years of memories unfold chronologically.',
@@ -299,9 +332,9 @@ const about = {
     { h2: 'How it works' },
     {
       ol: [
-        '**Create an account** - sign up for free at ourfamilysocials.com. You get a 30-day Pro trial automatically.',
+        '**Create an account** - sign up for free at ourfamilysocials.com. You get a 30-day Pro trial automatically, with up to 5 published events during it.',
         '**Follow your family** - send follow requests to family members. Once they accept, you see each other\'s events.',
-        '**Share life events** - create event pages with photos, stories, locations and dates. Choose who can see each event.',
+        '**Share life events** - create event pages with photos, stories, locations and dates. Choose the audience for each event.',
         '**Stay connected** - view your family\'s events in the feed, on the map or in the timeline. Comment, like and engage.'
       ]
     },
@@ -317,7 +350,7 @@ const about = {
     },
     { h2: 'Pricing' },
     { p: PRICE_NOTE },
-    { p: 'Only published events count toward your limit - drafts and deleted events are free.' },
+    { p: PLAN_RULES },
     { cta: [{ text: 'Sign up free', href: '/login?signup=true', primary: true }, { text: 'View pricing details', href: '/pricing' }] },
     { p: 'See also: [features](/features), the [FAQ](/faq) and [how we compare to the alternatives](/alternatives).' }
   ]
@@ -592,7 +625,7 @@ const comparePrivateInstagram = {
           {
             h: 'What "private" means',
             a: 'Only approved followers see your posts, but the account still sits on Meta\'s advertising platform and is governed by its terms.',
-            b: 'Private by default on a separate, subscription-funded platform, with no advertising in the product and no data selling.'
+            b: 'Per-event audience settings - Followers by default, down to Private or up to Public - on a separate, subscription-funded platform, with no advertising in the product and no data selling.'
           },
           {
             h: 'Feed order',
@@ -692,7 +725,7 @@ const howToSharePhotos = {
     { h2: 'Option 4: a private family social network' },
     {
       p:
-        'A private family social network such as **Our Family Socials** gives you the social part - a feed, comments, likes, following - without the public part. Each memory becomes an event page with a story, a gallery, dates and locations; relatives follow each other; and nothing is visible to anyone you have not approved.'
+        'A private family social network such as **Our Family Socials** gives you the social part - a feed, comments, likes, following - without the public part. Each memory becomes an event page with a story, a gallery, dates and locations; relatives follow each other; and each event carries an audience setting, from your approved followers down to just you, or Public if you want a link anyone can open.'
     },
     {
       ul: [
@@ -829,6 +862,34 @@ export const PAGES = [
 ]
 
 export const pageByPath = (path) => PAGES.find((p) => p.path === path)
+
+// Prerendered to dist/404.html (Vercel serves it with a real HTTP 404 for any
+// address that matches neither a static file nor a rewritten React route).
+// Deliberately not in PAGES: it must stay out of the sitemap, llms.txt and the
+// SEO checks, and it carries robots: noindex.
+export const NOT_FOUND_PAGE = {
+  path: '/404',
+  noindex: true,
+  title: 'Page not found - Our Family Socials',
+  description:
+    'That link does not point anywhere on Our Family Socials. Try the home page, features, pricing or the FAQ.',
+  h1: 'Page not found',
+  lede:
+    'That link does not point anywhere on Our Family Socials. It may have moved, or the address may have a typo in it.',
+  blocks: [
+    { h2: 'Try one of these' },
+    {
+      ul: [
+        '[Home](/) - what Our Family Socials is',
+        '[Features](/features) - everything it does',
+        '[Pricing](/pricing) - the free plan, Pro and Lifetime',
+        '[FAQ](/faq) - privacy, events, billing and sharing',
+        '[Private family sharing apps compared](/alternatives)',
+        '[Contact us](/contact)'
+      ]
+    }
+  ]
+}
 
 // Note: /privacy, /terms, /contact and /blog are public React routes but are
 // deliberately NOT in the sitemap, because they are not prerendered and so

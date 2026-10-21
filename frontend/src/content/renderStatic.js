@@ -162,7 +162,7 @@ const SOFTWARE_APPLICATION = {
     'A private, ad-free social network for families to share life events, photos and stories, with interactive journey maps, a chronological feed and family trees.',
   publisher: { '@id': `${SITE_ORIGIN}/#organization` },
   featureList: [
-    'Private event pages with photo galleries and rich text stories',
+    'Event pages with photo galleries, rich text stories and a per-event audience setting',
     'Chronological family feed with follow requests',
     'Interactive world map and multi-stop journey maps',
     'GPS location extraction from photo metadata',
@@ -179,7 +179,8 @@ const SOFTWARE_APPLICATION = {
       name: 'Free to View',
       price: '0',
       priceCurrency: 'USD',
-      description: 'View shared events, like and comment, follow family members, maps and timeline.',
+      description:
+        'View the events you have access to, like and comment, follow family members, maps and timeline. Includes a 30-day Pro trial with up to 5 published events; creating events after that needs a paid plan.',
       url: `${SITE_ORIGIN}/pricing`
     },
     {
@@ -277,6 +278,7 @@ export function buildHead(page) {
   const desc = escapeHtml(page.description)
   return [
     `<title>${title}</title>`,
+    ...(page.noindex ? ['<meta name="robots" content="noindex, follow" />'] : []),
     `<meta name="description" content="${desc}" />`,
     `<link rel="canonical" href="${url}" />`,
     `<meta property="og:type" content="${page.path === '/' ? 'website' : 'article'}" />`,
@@ -293,6 +295,6 @@ export function buildHead(page) {
     `<meta name="twitter:title" content="${title}" />`,
     `<meta name="twitter:description" content="${desc}" />`,
     `<meta name="twitter:image" content="${OG_IMAGE}" />`,
-    `<script type="application/ld+json">${JSON.stringify(buildJsonLd(page))}</script>`
+    `<script type="application/ld+json" data-seo="page">${JSON.stringify(buildJsonLd(page))}</script>`
   ].join('\n    ')
 }

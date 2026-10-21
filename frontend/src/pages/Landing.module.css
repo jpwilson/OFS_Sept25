@@ -1435,3 +1435,11 @@
   text-align: center;
   cursor: pointer;
 }
+
+/* Shared home sections (HOME_SHARED_BLOCKS) - the same text the prerendered
+   static index.html carries, so the mounted page keeps it. */
+.detailSection {
+  padding: 4rem 1.5rem;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}

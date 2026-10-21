@@ -15,10 +15,14 @@ Never miss your family's greatest adventures. Our Family Socials is a private, a
 From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. Follow the relatives you care about, see their events in the order they happened, and stop finding out about a graduation three weeks after the fact.
 
 ## Your memories are yours
-No ads. No data selling. No algorithms. Just a private space for your family.
-- Private by default - every event is private. Share only with family you approve.
+No ads. No data selling. No algorithms. A family-sized space instead of a public one.
+- Not public by default - a new event goes to the followers you have approved, not to the open internet, and you can narrow or widen that audience for every event.
 - No ads, ever - we will never sell your data or show ads. Your memories are not a product.
 - Built for families - made by a family, for families.
+
+## Who can see an event
+You choose an audience for every event you create: Followers (the default), Close Family, a custom group, Private (only you) or Public. Public events can be opened by anyone who has the link, including people without an account, so choose a narrower audience for anything you want kept inside the family.
+One thing worth knowing: signed-in members can see an event in the shared feed unless you set it to Private, and opening the event page itself is then gated by the audience you chose. People who are not signed in only ever see events set to Public.
 
 ## What you can do
 - Follow family members - see what your family is up to in a chronological feed, with no algorithm hiding posts. Never miss a birthday party, graduation, vacation or Sunday dinner.
@@ -29,34 +33,36 @@ No ads. No data selling. No algorithms. Just a private space for your family.
 - AI Create (beta) - upload a batch of photos and AI groups them, asks a few questions and drafts the story for you to edit. Available on a paid plan or during the free trial.
 - Family trees - a visual family tree built from relationships both people have confirmed.
 - Tag profiles - tag children, older relatives or pets who do not have an account yet; they can claim the profile later.
-- Privacy controls - choose who sees each event, from everyone who follows you down to a custom group such as "close family only".
+- Audience controls - choose who sees each event, from Public down to a custom group such as "close family only" or Private, just for you.
 
 ## How it works
-1. Create an account at ourfamilysocials.com. Every new account starts with a 30-day Pro trial and no credit card is required.
+1. Create an account at ourfamilysocials.com. Every new account starts with a 30-day Pro trial, no credit card required, and you can publish up to 5 events during it.
 2. Follow your family. Send follow requests or email invitations. Once someone accepts, you see each other's events.
-3. Share life events. Build an event page with photos, a story, dates and locations, then choose exactly who can see it.
-4. Stay connected. Browse the feed, the map or the timeline, and comment and like just like a normal social network - only private.
-
-## Simple, transparent pricing
-Start for free. Upgrade when you need more. Only published events count towards your limit - drafts and deleted events are free.
-- Free to View - $0/forever. View all shared events, like and comment, follow family members, interactive maps and timeline, and a 30-day Pro trial included.
-- Pro - $9/month billed annually ($108/year), or $12/month billed monthly. Create unlimited events, photo and video uploads, journey mapping, GPS extraction from photos, privacy controls and a rich text editor.
-- Lifetime - $294 once. Everything in Pro, no recurring fees, all future updates, priority support and early access to features.
-30-day free trial on all accounts. Subscribe within 5 days for an extra month free.
+3. Share life events. Build an event page with photos, a story, dates and locations, then choose its audience.
+4. Stay connected. Browse the feed, the map or the timeline, and comment and like just like a normal social network - only among family rather than in public.
 
 ## Common questions
 Q: What is Our Family Socials?
-A: Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, everything is private by default and there are no ads or algorithms.
+A: Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, a new event goes to the family you have approved rather than to the open internet, and there are no ads or algorithms.
 
 Q: Is it really free?
-A: Yes! The free plan is free forever and includes unlimited viewing of shared events, following family members, commenting, and liking. You can also create up to 5 events. For unlimited event creation and premium features, you can upgrade to Pro.
+A: Viewing is free forever: the free plan includes viewing the events you have access to, following family members, commenting and liking. Creating events needs an active trial or subscription. Every new account gets a 30-day Pro trial during which you can publish up to 5 events; after that you need Pro or Lifetime to publish, and those plans remove the 5-event limit.
 
 Q: Who can see my events?
-A: Only people you've approved as followers can see your events. When someone wants to follow you, you'll receive a request that you can accept or decline. You have full control over your audience.
+A: You choose an audience for every event: Followers (the default), Close Family, a custom group, Private (only you) or Public. Follow requests are yours to accept or decline. Two things are worth knowing: an event set to Public can be opened by anyone who has the link, including people without an account; and any event that is not set to Private can appear in the shared feed to signed-in members, although opening the event page itself is still gated by the audience you chose.
 
 Q: Can I share an event with someone who doesn't have an account?
 A: Yes! Each event can be shared via a private link. Recipients can view that specific event without needing an account, but they won't see your other events or be able to follow you.
 Read all the answers on the FAQ page.
+
+## Simple, transparent pricing
+Start for free. Upgrade when you need more.
+Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.
+- Free to View - $0/forever. View the events you have access to, like and comment, follow family members, interactive maps and timeline, and a 30-day Pro trial with up to 5 published events.
+- Pro - $9/month billed annually ($108/year), or $12/month billed monthly. Create unlimited events, photo and video uploads, journey mapping, GPS extraction from photos, privacy controls and a rich text editor.
+- Lifetime - $294 once. Everything in Pro, no recurring fees, all future updates, priority support and early access to features.
+30-day free trial on all accounts. Subscribe within 5 days for an extra month free.
+After the trial you can still browse the feed, and you can still open your own events, any event set to Public, and events from the people you follow. Opening anything else needs an active trial or subscription.
 
 ## Learn more
 - Features - everything Our Family Socials does, in one list.
@@ -81,7 +87,7 @@ URL: https://www.ourfamilysocials.com/features
 Our Family Socials is a private family social network, and these are the features it ships with today. Everything below is live in the product; anything still being built is marked as such.
 
 ## A private, chronological family feed
-Follow the family members and close friends you care about. Their events appear in a feed ordered by time, not by an engagement algorithm, so a quiet post about a grandparent's birthday is just as visible as a three-week holiday. Following is request-based: nobody sees your events until you approve them.
+Follow the family members and close friends you care about. Their events appear in a feed ordered by time, not by an engagement algorithm, so a quiet post about a grandparent's birthday is just as visible as a three-week holiday. Following is request-based: every follow request is yours to accept or decline.
 - Chronological feed with no algorithmic ranking
 - Follow requests you accept or decline
 - Likes and comments from the people you have approved
@@ -111,11 +117,14 @@ AI Create helps with the part most people never get round to: writing the story.
 ## Family trees and relationships
 You can record how people are actually related - sister, dad, cousin - and both people have to confirm the relationship before it counts. Confirmed relationships build an interactive family tree. For relatives who are not on the platform (young children, older relatives, even pets) you can create a tag profile, tag them in events, and let them claim the profile if they join later.
 
-## Privacy controls
-- Every event is private until you share it
-- Share with everyone who follows you, or with a custom group such as "close family only"
+## Audience and privacy controls
+You choose an audience for every event you create: Followers (the default), Close Family, a custom group, Private (only you) or Public. Public events can be opened by anyone who has the link, including people without an account, so choose a narrower audience for anything you want kept inside the family.
+- Five audience settings per event: Followers (the default), Close Family, a custom group, Private, or Public
+- Public events are readable by anyone with the link, signed in or not - they are the one setting that is not family-only
 - Private share links let someone view one specific event without an account, and nothing else
+- Follow requests are approved by you, and verified relationships need both people to confirm
 - No advertising anywhere in the product, and no selling of your data
+One thing worth knowing: signed-in members can see an event in the shared feed unless you set it to Private, and opening the event page itself is then gated by the audience you chose. People who are not signed in only ever see events set to Public.
 
 ## Works on the device you already have
 Our Family Socials is a progressive web app. It runs in the browser on phones, tablets and computers, and on most phones you can add it to your home screen so it opens like a native app. There is no App Store or Google Play download to wait for.
@@ -125,6 +134,7 @@ Printed photo books from an event are advertised on the home page as coming soon
 
 ## What it costs
 Free plan $0/forever, Pro $9/month billed annually ($108/year) or $12/month billed monthly, and a one-time Lifetime plan at $294. Every new account gets a 30-day free trial of Pro, no credit card required.
+Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.
 -> Start your free trial: https://www.ourfamilysocials.com/login
 -> See pricing: https://www.ourfamilysocials.com/pricing
 See also: FAQ, about Our Family Socials and private family sharing alternatives.
@@ -135,16 +145,17 @@ See also: FAQ, about Our Family Socials and private family sharing alternatives.
 # Simple, transparent pricing
 URL: https://www.ourfamilysocials.com/pricing
 
-Our Family Socials is free to view forever, and paid only when you want to create unlimited events. Start for free, upgrade when you need more. Only published events count towards your limit - drafts and deleted events are free.
+Our Family Socials is free to view forever, and paid when you want to create events beyond the 5 you can publish during your trial. Start for free, upgrade when you need more.
+Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.
 
 ## Free to View - $0/forever
 Perfect for family viewers.
-- View-only - cannot create events
-- View all shared events
+- View-only once your trial ends - creating an event needs an active trial or subscription
+- View the events you have access to
 - Like and comment
 - Follow family members
 - Interactive maps & timeline
-- 30-day Pro trial included
+- 30-day Pro trial included, with up to 5 published events
 
 ## Pro - $9/month billed annually, or $12/month billed monthly
 Most popular. Billed annually at $108/year, or monthly at $12/month.
@@ -167,10 +178,10 @@ Pay once, use forever.
 
 ## Pricing questions
 Q: How does the free trial work?
-A: Sign up and get full access to all features for 30 days. No credit card required. If you subscribe within the first 5 days, you get an extra month free (60 days total).
+A: Sign up and get Pro features for 30 days, with no credit card required. You can publish up to 5 events during the trial. If you subscribe within the first 5 days, you get an extra month free (60 days total).
 
 Q: What happens when my trial ends?
-A: You can still browse the feed and see what your family is up to, but you'll need to subscribe to view event details and create new events.
+A: After the trial you can still browse the feed, and you can still open your own events, any event set to Public, and events from the people you follow. Opening anything else needs an active trial or subscription. You cannot create new events until you subscribe.
 
 Q: Can I cancel anytime?
 A: Yes! Cancel your subscription anytime with no questions asked. You'll keep access until the end of your billing period.
@@ -190,13 +201,13 @@ Frequently asked questions about Our Family Socials, a private social network fo
 
 ## Getting Started
 Q: What is Our Family Socials?
-A: Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, everything is private by default and there are no ads or algorithms.
+A: Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, a new event goes to the family you have approved rather than to the open internet, and there are no ads or algorithms.
 
 Q: Who is Our Family Socials for?
 A: It is built for families who want a private place for their memories: parents sharing milestones with grandparents, extended families staying in touch across different countries, and anyone who documents trips and celebrations but does not want to post them on public social media.
 
 Q: Is it really free?
-A: Yes! The free plan is free forever and includes unlimited viewing of shared events, following family members, commenting, and liking. You can also create up to 5 events. For unlimited event creation and premium features, you can upgrade to Pro.
+A: Viewing is free forever: the free plan includes viewing the events you have access to, following family members, commenting and liking. Creating events needs an active trial or subscription. Every new account gets a 30-day Pro trial during which you can publish up to 5 events; after that you need Pro or Lifetime to publish, and those plans remove the 5-event limit.
 
 Q: How much does Pro cost?
 A: Pro is $9 per month when billed annually ($108 per year) or $12 per month billed monthly. There is also a one-time Lifetime plan at $294. Every new account starts with a 30-day free trial of Pro, and no credit card is required to start the trial.
@@ -215,7 +226,7 @@ Q: What is an "event"?
 A: An event is a collection of photos, stories, and details about something that happened - like a vacation, birthday party, graduation, or Sunday dinner. Think of it as a rich, detailed post that tells the full story of a moment.
 
 Q: How many photos can I add to an event?
-A: Pro users can add unlimited photos to each event. Free users can create up to 5 events total. We support high-resolution images and will preserve your original photo quality.
+A: There is no per-event photo limit on a paid plan or an active trial. Photos are resized before upload - down to 1500 pixels on the longest side and re-encoded as JPEG at 85% quality - and then stored in several sizes for fast loading, so what we keep is a high-quality copy rather than your untouched original file. Keep your originals on your own device or backup. Individual uploads are limited to 10MB, and HEIC photos from iPhones are converted server-side.
 
 Q: Can I add locations to my events?
 A: Yes! You can add multiple locations to each event, perfect for road trips and multi-destination adventures. We can also automatically extract GPS data from your photos to suggest locations.
@@ -224,7 +235,7 @@ Q: Can I add videos as well as photos?
 A: Yes. Pro accounts can upload photos and video clips to an event, and there is a built-in trimmer so you can shorten a clip before uploading it.
 
 Q: What's the difference between Published, Drafts, and Trash?
-A: Published events are visible to your followers. Drafts are works-in-progress that only you can see. Trash holds deleted events for 30 days before permanent deletion - you can restore them anytime.
+A: Published events are visible to the audience you chose for them. Drafts are works-in-progress that only you can see. Trash holds deleted events for 30 days before permanent deletion - you can restore them anytime.
 
 Q: Do drafts count toward my event limit?
 A: No! Only published events count toward your limit. You can have unlimited drafts and deleted events.
@@ -234,10 +245,13 @@ A: Yes. AI Create is a beta feature available to accounts on a paid plan or an a
 
 ## Privacy & Sharing
 Q: Who can see my events?
-A: Only people you've approved as followers can see your events. When someone wants to follow you, you'll receive a request that you can accept or decline. You have full control over your audience.
+A: You choose an audience for every event: Followers (the default), Close Family, a custom group, Private (only you) or Public. Follow requests are yours to accept or decline. Two things are worth knowing: an event set to Public can be opened by anyone who has the link, including people without an account; and any event that is not set to Private can appear in the shared feed to signed-in members, although opening the event page itself is still gated by the audience you chose.
 
 Q: Can I share an event with someone who doesn't have an account?
 A: Yes! Each event can be shared via a private link. Recipients can view that specific event without needing an account, but they won't see your other events or be able to follow you.
+
+Q: Can I make an event public?
+A: Yes. Public is one of the five audience settings, and a public event can be opened by anyone who has the link, with or without an account. Our robots.txt asks search engines and AI crawlers not to index event pages, but a public event is not family-only - pick Followers, Close Family, a custom group or Private if that matters.
 
 Q: Is my data safe?
 A: Yes. We take privacy seriously. We never sell your data, show ads, or use algorithms to manipulate what you see. Your photos and stories are yours, and we're just here to help you preserve and share them with family.
@@ -270,7 +284,7 @@ A: The timeline view shows events organized chronologically, grouped by year. It
 
 ## Subscription & Billing
 Q: What's included in the free trial?
-A: Every new account gets a 30-day free trial of Pro features. During the trial, you can create unlimited events and access all premium features. After the trial, you'll revert to the free plan unless you subscribe.
+A: Every new account gets a 30-day free trial of Pro features, including photo and video uploads, journey mapping, GPS extraction and AI Create. You can publish up to 5 events during the trial. After the trial you revert to the free plan unless you subscribe, which means you can still browse and comment but cannot create new events.
 
 Q: How do I upgrade to Pro?
 A: Go to Settings > Membership from your profile page. You can choose monthly ($12/mo) or annual ($9/mo billed yearly) billing. We also offer a one-time Lifetime option.
@@ -282,7 +296,7 @@ Q: Can I cancel anytime?
 A: Yes! You can cancel your subscription anytime. You'll keep Pro access until the end of your billing period. Your events and data are never deleted when you cancel.
 
 Q: What happens to my events if I downgrade?
-A: Your existing events stay exactly as they are. You just won't be able to create new events beyond the 5-event free limit. Drafts and previously published events remain accessible.
+A: Your existing events stay exactly as they are, and you can always open your own events. You will not be able to create new events without an active subscription, and other people cannot open your events while your subscription is inactive, so resubscribing restores them.
 -> Start your free trial: https://www.ourfamilysocials.com/login
 -> Contact us: https://www.ourfamilysocials.com/contact
 See also: features, pricing and about Our Family Socials.
@@ -293,13 +307,13 @@ See also: features, pricing and about Our Family Socials.
 # About Our Family Socials
 URL: https://www.ourfamilysocials.com/about
 
-Our Family Socials is a private, ad-free social network designed specifically for families to share life events, photos and memories together. Unlike public social media platforms, everything is private by default, and there are no algorithms deciding what you see.
+Our Family Socials is a private, ad-free social network designed specifically for families to share life events, photos and memories together. Unlike public social media platforms, a new event goes to the family you have approved rather than to the open internet, and there are no algorithms deciding what you see.
 
 ## Why it exists
 We built this platform because existing social networks were not designed for families. They are cluttered with ads, algorithms hide your posts, and your family photos end up mixed with everything else in an endless scroll. Our Family Socials gives families a dedicated space to preserve memories the way they deserve.
 
 ## Why we are different
-- Private by default - every event is private unless you explicitly share it. You control exactly who can see each memory, from everyone you follow to custom groups like "close family only".
+- You choose the audience - a new event goes to the followers you have approved, and you can set any event to Close Family, a custom group such as "close family only", Private (just you) or Public (anyone with the link).
 - No ads, ever - we will never sell your data or show you ads. Your family memories are not a product to be monetised.
 - Rich event pages - photo galleries, detailed stories, multiple locations and GPS-tagged journey maps.
 - Interactive maps and timeline - see your family's adventures on an interactive world map, and watch years of memories unfold chronologically.
@@ -307,9 +321,9 @@ We built this platform because existing social networks were not designed for fa
 - Built for families - made by a family, for families. We use this app ourselves to stay connected with our own loved ones.
 
 ## How it works
-1. Create an account - sign up for free at ourfamilysocials.com. You get a 30-day Pro trial automatically.
+1. Create an account - sign up for free at ourfamilysocials.com. You get a 30-day Pro trial automatically, with up to 5 published events during it.
 2. Follow your family - send follow requests to family members. Once they accept, you see each other's events.
-3. Share life events - create event pages with photos, stories, locations and dates. Choose who can see each event.
+3. Share life events - create event pages with photos, stories, locations and dates. Choose the audience for each event.
 4. Stay connected - view your family's events in the feed, on the map or in the timeline. Comment, like and engage.
 
 ## Who it is for
@@ -321,7 +335,7 @@ We built this platform because existing social networks were not designed for fa
 
 ## Pricing
 Free plan $0/forever, Pro $9/month billed annually ($108/year) or $12/month billed monthly, and a one-time Lifetime plan at $294. Every new account gets a 30-day free trial of Pro, no credit card required.
-Only published events count toward your limit - drafts and deleted events are free.
+Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.
 -> Sign up free: https://www.ourfamilysocials.com/login
 -> View pricing details: https://www.ourfamilysocials.com/pricing
 See also: features, the FAQ and how we compare to the alternatives.
@@ -536,7 +550,7 @@ A private Instagram account is free, instant, and already installed on everyone'
 ## Key differences
 - What "private" means
   - Private Instagram account: Only approved followers see your posts, but the account still sits on Meta's advertising platform and is governed by its terms.
-  - Our Family Socials: Private by default on a separate, subscription-funded platform, with no advertising in the product and no data selling.
+  - Our Family Socials: Per-event audience settings - Followers by default, down to Private or up to Public - on a separate, subscription-funded platform, with no advertising in the product and no data selling.
 - Feed order
   - Private Instagram account: Algorithmically ranked and mixed with suggested content, so a family post can be missed.
   - Our Family Socials: Chronological, and only from the family members you follow.
@@ -595,7 +609,7 @@ Apps like FamilyAlbum and Tinybeans are built for exactly this: a private, invit
 - Weak at: growing with the family. They are centred on a child rather than on holidays, reunions and the rest of the family's life. See our FamilyAlbum comparison and Tinybeans comparison.
 
 ## Option 4: a private family social network
-A private family social network such as Our Family Socials gives you the social part - a feed, comments, likes, following - without the public part. Each memory becomes an event page with a story, a gallery, dates and locations; relatives follow each other; and nothing is visible to anyone you have not approved.
+A private family social network such as Our Family Socials gives you the social part - a feed, comments, likes, following - without the public part. Each memory becomes an event page with a story, a gallery, dates and locations; relatives follow each other; and each event carries an audience setting, from your approved followers down to just you, or Public if you want a link anyone can open.
 - Good for: an ongoing, organised family record across all ages, with maps, a timeline and real context around the photos.
 - Weak at: being free. Viewing is free forever, but creating unlimited events needs a paid plan, and relatives do need to create an account (or open a single-event private link).
 

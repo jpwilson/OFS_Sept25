@@ -7,7 +7,7 @@ export const faqCategories = [
     questions: [
       {
         q: 'What is Our Family Socials?',
-        a: 'Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, everything is private by default and there are no ads or algorithms.'
+        a: 'Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, a new event goes to the family you have approved rather than to the open internet, and there are no ads or algorithms.'
       },
       {
         q: 'Who is Our Family Socials for?',
@@ -15,7 +15,7 @@ export const faqCategories = [
       },
       {
         q: 'Is it really free?',
-        a: 'Yes! The free plan is free forever and includes unlimited viewing of shared events, following family members, commenting, and liking. You can also create up to 5 events. For unlimited event creation and premium features, you can upgrade to Pro.'
+        a: 'Viewing is free forever: the free plan includes viewing the events you have access to, following family members, commenting and liking. Creating events needs an active trial or subscription. Every new account gets a 30-day Pro trial during which you can publish up to 5 events; after that you need Pro or Lifetime to publish, and those plans remove the 5-event limit.'
       },
       {
         q: 'How much does Pro cost?',
@@ -44,7 +44,7 @@ export const faqCategories = [
       },
       {
         q: 'How many photos can I add to an event?',
-        a: 'Pro users can add unlimited photos to each event. Free users can create up to 5 events total. We support high-resolution images and will preserve your original photo quality.'
+        a: 'There is no per-event photo limit on a paid plan or an active trial. Photos are resized before upload - down to 1500 pixels on the longest side and re-encoded as JPEG at 85% quality - and then stored in several sizes for fast loading, so what we keep is a high-quality copy rather than your untouched original file. Keep your originals on your own device or backup. Individual uploads are limited to 10MB, and HEIC photos from iPhones are converted server-side.'
       },
       {
         q: 'Can I add locations to my events?',
@@ -56,7 +56,7 @@ export const faqCategories = [
       },
       {
         q: 'What\'s the difference between Published, Drafts, and Trash?',
-        a: 'Published events are visible to your followers. Drafts are works-in-progress that only you can see. Trash holds deleted events for 30 days before permanent deletion - you can restore them anytime.'
+        a: 'Published events are visible to the audience you chose for them. Drafts are works-in-progress that only you can see. Trash holds deleted events for 30 days before permanent deletion - you can restore them anytime.'
       },
       {
         q: 'Do drafts count toward my event limit?',
@@ -73,11 +73,15 @@ export const faqCategories = [
     questions: [
       {
         q: 'Who can see my events?',
-        a: 'Only people you\'ve approved as followers can see your events. When someone wants to follow you, you\'ll receive a request that you can accept or decline. You have full control over your audience.'
+        a: 'You choose an audience for every event: Followers (the default), Close Family, a custom group, Private (only you) or Public. Follow requests are yours to accept or decline. Two things are worth knowing: an event set to Public can be opened by anyone who has the link, including people without an account; and any event that is not set to Private can appear in the shared feed to signed-in members, although opening the event page itself is still gated by the audience you chose.'
       },
       {
         q: 'Can I share an event with someone who doesn\'t have an account?',
         a: 'Yes! Each event can be shared via a private link. Recipients can view that specific event without needing an account, but they won\'t see your other events or be able to follow you.'
+      },
+      {
+        q: 'Can I make an event public?',
+        a: 'Yes. Public is one of the five audience settings, and a public event can be opened by anyone who has the link, with or without an account. Our robots.txt asks search engines and AI crawlers not to index event pages, but a public event is not family-only - pick Followers, Close Family, a custom group or Private if that matters.'
       },
       {
         q: 'Is my data safe?',
@@ -132,7 +136,7 @@ export const faqCategories = [
     questions: [
       {
         q: 'What\'s included in the free trial?',
-        a: 'Every new account gets a 30-day free trial of Pro features. During the trial, you can create unlimited events and access all premium features. After the trial, you\'ll revert to the free plan unless you subscribe.'
+        a: 'Every new account gets a 30-day free trial of Pro features, including photo and video uploads, journey mapping, GPS extraction and AI Create. You can publish up to 5 events during the trial. After the trial you revert to the free plan unless you subscribe, which means you can still browse and comment but cannot create new events.'
       },
       {
         q: 'How do I upgrade to Pro?',
@@ -148,7 +152,7 @@ export const faqCategories = [
       },
       {
         q: 'What happens to my events if I downgrade?',
-        a: 'Your existing events stay exactly as they are. You just won\'t be able to create new events beyond the 5-event free limit. Drafts and previously published events remain accessible.'
+        a: 'Your existing events stay exactly as they are, and you can always open your own events. You will not be able to create new events without an active subscription, and other people cannot open your events while your subscription is inactive, so resubscribing restores them.'
       }
     ]
   }

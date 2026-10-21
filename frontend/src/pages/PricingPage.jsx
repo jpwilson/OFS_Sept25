@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react'
+import { pageByPath } from '../content/marketing.js'
+import { useSeoHead } from '../content/useSeoHead.js'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './PricingPage.module.css'
 
+const PRICING_PAGE = pageByPath('/pricing')
+
 function PricingPage() {
+  // /pricing is prerendered, so a client-side navigation needs the same
+  // title, description, canonical and JSON-LD graph written back.
+  useSeoHead(PRICING_PAGE)
   const { user } = useAuth()
   const navigate = useNavigate()
   const [billingPeriod, setBillingPeriod] = useState('annual')
@@ -72,12 +79,12 @@ function PricingPage() {
               <p className={styles.pricingDesc}>Perfect for family viewers</p>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><strong>View-only</strong> — cannot create events</li>
-              <li>View all shared events</li>
+              <li><strong>View-only once your trial ends</strong> — creating an event needs an active trial or subscription</li>
+              <li>View the events you have access to</li>
               <li>Like and comment</li>
               <li>Follow family members</li>
               <li>Interactive maps & timeline</li>
-              <li>30-day Pro trial included</li>
+              <li>30-day Pro trial included, with up to 5 published events</li>
             </ul>
             {user && isFreeTier ? (
               <span className={styles.currentPlan}>Current Plan</span>
@@ -161,16 +168,18 @@ function PricingPage() {
             <div className={styles.faqItem}>
               <h3>How does the free trial work?</h3>
               <p>
-                Sign up and get full access to all features for 30 days. No credit card required.
-                If you subscribe within the first 5 days, you get an extra month free (60 days total).
+                Sign up and get Pro features for 30 days, with no credit card required. You can
+                publish up to 5 events during the trial. If you subscribe within the first 5 days,
+                you get an extra month free (60 days total).
               </p>
             </div>
 
             <div className={styles.faqItem}>
               <h3>What happens when my trial ends?</h3>
               <p>
-                You can still browse the feed and see what your family is up to, but you'll need
-                to subscribe to view event details and create new events.
+                You can still browse the feed, and you can still open your own events, any event
+                set to Public, and events from the people you follow. Opening anything else, and
+                creating new events, needs an active subscription.
               </p>
             </div>
 

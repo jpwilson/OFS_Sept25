@@ -1,39 +1,24 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './FAQ.module.css'
 import { faqCategories as faqs } from '../content/faqData.js'
+import { pageByPath } from '../content/marketing.js'
+import { useSeoHead } from '../content/useSeoHead.js'
+
+const FAQ_PAGE = pageByPath('/faq')
 
 export default function FAQ() {
   const { user } = useAuth()
-  const navigate = useNavigate()
   const [expandedItems, setExpandedItems] = useState({})
+
+  // Title, description, canonical and the FAQPage graph all come from the one
+  // head manager, so navigating away from /faq does not leave the FAQ
+  // structured data attached to another page. See content/useSeoHead.js.
+  useSeoHead(FAQ_PAGE)
 
   useEffect(() => {
     window.scrollTo(0, 0)
-
-    // Add FAQPage structured data for AI/search engines
-    const script = document.createElement('script')
-    script.type = 'application/ld+json'
-    script.text = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: faqs.flatMap(category =>
-        category.questions.map(item => ({
-          '@type': 'Question',
-          name: item.q,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.a
-          }
-        }))
-      )
-    })
-    document.head.appendChild(script)
-
-    return () => {
-      document.head.removeChild(script)
-    }
   }, [])
 
   function toggleItem(categoryIndex, questionIndex) {
