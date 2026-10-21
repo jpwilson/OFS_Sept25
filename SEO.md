@@ -131,7 +131,20 @@ Deliberately **absent**:
 `offers` mirror the prices published on `/pricing` exactly ($0 free, $108/year,
 $12/month, $294 lifetime).
 
-### 6. Performance
+### 6. Soft 404s and the service worker
+
+- Vercel's SPA catch-all means an unknown path still returns 200 with
+  `index.html`. `src/pages/NotFound.jsx` is wired to `<Route path="*">` so those
+  paths render a real "page not found" screen and add
+  `<meta name="robots" content="noindex, follow">`. Googlebot renders
+  JavaScript, so it sees the noindex; non-rendering crawlers only ever reach the
+  11 prerendered pages, which are all real.
+- `vite.config.js` sets `workbox.navigateFallbackDenylist` for the marketing
+  routes. Without it an installed PWA's service worker would answer `/faq` and
+  `/pricing` from the cached `index.html`, so those pages would show the home
+  page's `<title>` and meta description to returning visitors.
+
+### 7. Performance
 
 - Hero image on the landing page is `fetchpriority="high"`; the other 18 images
   are `loading="lazy" decoding="async"`.
