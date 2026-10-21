@@ -81,12 +81,27 @@ data can never drift apart.
 - `buildCommand: "npm run build"` — pins the build so the prerender always runs,
   overriding whatever the Vercel dashboard has set. **This is the fix for the
   "prerender never ran in production" problem; do not remove it.**
-- `cleanUrls: true` + an explicit rewrite per marketing route, so `/faq` serves
-  `faq.html`.
-- A final `/(.*) -> /index.html` catch-all, so every app route (`/feed`,
-  `/event/:id`, `/profile/:username`, `/admin/*`, …) keeps working exactly as
-  before. Vercel applies rewrites *after* the filesystem check, so real files
-  such as `/robots.txt` and `/llms.txt` are served directly.
+- `cleanUrls: true`, which is what serves `/faq` from `faq.html`. No rewrite is
+  needed for the prerendered pages: Vercel checks the filesystem **before** the
+  rewrites, so the static files (and `/robots.txt`, `/llms.txt`, …) win on their
+  own. With `cleanUrls` on, a rewrite *destination* must not carry `.html`
+  either, so the old `/faq -> /faq.html` and `/(.*) -> /index.html` entries were
+  both redundant and wrong.
+- One rewrite per **real** React route, all with destination `/`: the flat
+  routes (`/login`, `/feed`, `/settings`, `/pricing`-style app pages, …), the
+  parameterised ones (`/event/:id`, `/event/:id/edit`, `/profile/:username`,
+  `/share/:token`, `/join/:token`, `/tag-profile/:profileId`) and `/admin` plus
+  `/admin/:path*`. The list mirrors `src/App.jsx`; if you add a route there, add
+  it here too or it will 404 on a direct load.
+- **No catch-all.** An address that matches neither a static file nor a route
+  gets `dist/404.html` with a real HTTP 404 (see "Soft 404s" below) instead of a
+  200 copy of the home page.
+- `scripts/serve-dist.mjs` parses this same file and applies the same order
+  (filesystem + cleanUrls → rewrites → 404), so the local server behaves like
+  production. `node scripts/serve-dist.mjs 4173` then
+  `curl -o /dev/null -w '%{http_code}\n' localhost:4173/event/123 localhost:4173/no-such-page`
+  should print `200` then `404`. Re-check direct loads of `/feed`, `/login` and
+  `/event/123` on a Vercel preview before merging.
 - `headers` pinning `text/plain` on the `.txt` files and `application/xml` on
   the sitemap.
 
@@ -133,12 +148,13 @@ $12/month, $294 lifetime).
 
 ### 6. Soft 404s and the service worker
 
-- Vercel's SPA catch-all means an unknown path still returns 200 with
-  `index.html`. `src/pages/NotFound.jsx` is wired to `<Route path="*">` so those
-  paths render a real "page not found" screen and add
-  `<meta name="robots" content="noindex, follow">`. Googlebot renders
-  JavaScript, so it sees the noindex; non-rendering crawlers only ever reach the
-  11 prerendered pages, which are all real.
+- There is no SPA catch-all any more, so an unknown path is a real HTTP 404.
+  `scripts/prerender.mjs` writes `dist/404.html` from `NOT_FOUND_PAGE` in
+  `src/content/marketing.js`; it carries `robots: noindex, follow` and is kept
+  out of `PAGES`, so it never reaches the sitemap, `llms.txt` or the SEO checks.
+  `src/pages/NotFound.jsx` is still wired to `<Route path="*">` for client-side
+  navigations to a bad path, and sets the same `noindex` through the shared head
+  manager.
 - `vite.config.js` sets `workbox.navigateFallbackDenylist` for the marketing
   routes. Without it an installed PWA's service worker would answer `/faq` and
   `/pricing` from the cached `index.html`, so those pages would show the home
@@ -246,8 +262,9 @@ curl -s http://localhost:4173/faq | grep -c '<h1>'
 2. Create the React route component (4 lines — copy
    `frontend/src/pages/Features.jsx`) and register it in `src/App.jsx` inside
    the `<Layout>` route group.
-3. Add a rewrite for it in `frontend/vercel.json`, **above** the `/(.*)`
-   catch-all.
+3. Nothing to add in `frontend/vercel.json` — `cleanUrls` serves the
+   prerendered file from the filesystem. (You only touch `vercel.json` when you
+   add a route that is *not* prerendered, i.e. a new app route.)
 4. Link to it from `src/components/Footer.jsx` and the landing footer in
    `src/pages/Landing.jsx`.
 5. `npm run build && npm run seo:check`.

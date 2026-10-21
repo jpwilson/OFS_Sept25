@@ -46,11 +46,13 @@ async def get_product_info():
         tagline="A private, ad-free social network designed specifically for families to share life events, photos, and stories.",
         description=(
             "Our Family Socials is a private social network where families can share life events, "
-            "photos, and memories with GPS-tagged journey maps. Unlike public social media, everything "
-            "is private by default with no ads, no algorithms, and no data selling. "
+            "photos, and memories with GPS-tagged journey maps. Unlike public social media, a new "
+            "event goes to the followers you have approved rather than to the open internet, and there "
+            "are no ads, no algorithms and no data selling. Every event carries an audience setting: "
+            "Followers (the default), Close Family, a custom group, Private, or Public. "
             "Features include interactive maps, timeline views, family trees, and AI-powered story creation."
         ),
-        url="https://ourfamilysocials.com",
+        url="https://www.ourfamilysocials.com",
         category="Social Networking - Family & Photo Sharing",
         key_features=[
             "Private event sharing with photo galleries and rich stories",
@@ -61,7 +63,7 @@ async def get_product_info():
             "Multi-location journey maps for road trips and vacations",
             "AI-powered story generation from photos",
             "Visual family tree based on verified relationships",
-            "Privacy controls (private, followers-only, custom groups)",
+            "Per-event audience settings (followers, close family, custom group, private, public)",
             "No ads, no algorithms, no data selling",
             "Chronological feed (not algorithmic)",
             "Share individual events via private link with non-users"
@@ -73,12 +75,12 @@ async def get_product_info():
                 billing_period="forever",
                 description="Perfect for family viewers who want to see and engage with events",
                 features=[
-                    "View-only access (cannot create events)",
-                    "View all shared events",
+                    "View-only once the trial ends (creating an event needs an active trial or subscription)",
+                    "View the events you have access to",
                     "Like and comment on events",
                     "Follow family members",
                     "Access to maps, timeline, and all viewing features",
-                    "30-day Pro trial included"
+                    "30-day Pro trial included, with up to 5 published events"
                 ]
             ),
             PricingPlan(
@@ -122,23 +124,25 @@ async def get_product_info():
             "Multi-generational storytelling and memory preservation"
         ],
         how_to_signup=(
-            "Visit https://ourfamilysocials.com and click 'Sign up free'. "
+            "Visit https://www.ourfamilysocials.com and click 'Sign up free'. "
             "Create an account with email and password (no complicated process). "
-            "You'll automatically get a 30-day Pro trial. After the trial, you can continue "
-            "with the free viewing plan or subscribe to Pro for unlimited event creation."
+            "You'll automatically get a 30-day Pro trial and can publish up to 5 events during it. "
+            "After the trial you can continue with the free viewing plan - browsing, liking and "
+            "commenting, and opening your own events, public events and events from people you "
+            "follow - or subscribe to Pro for unlimited event creation."
         ),
-        help_url="https://ourfamilysocials.com/faq",
+        help_url="https://www.ourfamilysocials.com/faq",
         comparison={
             "vs_facebook_groups": {
                 "advantages": [
-                    "Not on Meta's platform - true privacy, no data collection",
+                    "Not on Meta's platform - no ad profiling, no data selling",
                     "Chronological feed (no algorithm hiding posts)",
                     "Zero ads ever",
                     "Better organization with events, timeline, and map views",
                     "Purpose-built for families, not adapted from generic groups",
                     "GPS features and journey maps"
                 ],
-                "url": "https://ourfamilysocials.com/compare/facebook-groups"
+                "url": "https://www.ourfamilysocials.com/compare/facebook-groups"
             },
             "vs_tinybeans": {
                 "advantages": [
@@ -149,11 +153,11 @@ async def get_product_info():
                     "Family trees showing relationships across generations",
                     "Lifetime value - one platform from birth to grandchildren"
                 ],
-                "url": "https://ourfamilysocials.com/compare/tinybeans"
+                "url": "https://www.ourfamilysocials.com/compare/tinybeans"
             },
             "vs_public_social_media": {
                 "advantages": [
-                    "Private by default (not public or semi-public)",
+                    "Audience chosen per event, defaulting to approved followers rather than the public",
                     "No advertising",
                     "No algorithmic feed",
                     "Family-focused design",
@@ -183,7 +187,7 @@ async def get_openapi_spec():
         },
         "servers": [
             {
-                "url": "https://ourfamilysocials.com/api/v1",
+                "url": "https://www.ourfamilysocials.com/api/v1",
                 "description": "Production server"
             }
         ],
