@@ -9,12 +9,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PAGES, LAST_UPDATED_ISO } from '../src/content/marketing.js'
 import { renderText } from '../src/content/renderStatic.js'
-import { SITE_ORIGIN, SITE_NAME, absUrl } from '../src/content/site.js'
+import { SITE_ORIGIN, SITE_NAME, absUrl, INDEXNOW_KEY } from '../src/content/site.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PUBLIC = join(__dirname, '../public')
-
-export const INDEXNOW_KEY = '8e5db8617ace1a3455a41ec1662533fd'
 
 // Crawlers to allow explicitly. Search/answer-engine fetchers and
 // training crawlers are both allowed: being in the model's knowledge and in

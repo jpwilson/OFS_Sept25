@@ -55,9 +55,10 @@ export default function FAQ() {
           <Link to={user ? `/profile/${user.username}` : '/'} className={styles.backLink}>
             ← Back
           </Link>
-          <h1 className={styles.title}>Help Center</h1>
+          <h1 className={styles.title}>Our Family Socials FAQ</h1>
           <p className={styles.subtitle}>
-            Frequently asked questions about Our Family Socials
+            Frequently asked questions about Our Family Socials, a private social network for
+            families. If your question is not answered here, email support@ourfamilysocials.com.
           </p>
         </div>
 

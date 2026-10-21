@@ -9,10 +9,10 @@ https://www.ourfamilysocials.com, in the same wording as the HTML pages.
 # Our Family Socials: a private family social network
 URL: https://www.ourfamilysocials.com/
 
-Our Family Socials is a private, ad-free social network for families who want to share life events, photos and stories with each other instead of posting them publicly. Create rich event pages for trips, birthdays and milestones, follow the family members you care about, and see every adventure on an interactive map and timeline.
+Never miss your family's greatest adventures. Our Family Socials is a private, ad-free social network for families to share life events, photos and stories with each other instead of posting them publicly. See where they have been, relive the moments, and stay connected across any distance.
 
-## Never miss your family's greatest adventures
-From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. See where they have been, relive the moments, and stay connected across any distance.
+## Stay connected across any distance
+From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. Follow the relatives you care about, see their events in the order they happened, and stop finding out about a graduation three weeks after the fact.
 
 ## Your memories are yours
 No ads. No data selling. No algorithms. Just a private space for your family.

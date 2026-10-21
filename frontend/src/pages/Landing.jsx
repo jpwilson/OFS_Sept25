@@ -28,7 +28,7 @@ function Landing() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.navContent}>
-          <h1 className={styles.logo}>Our Family Socials</h1>
+          <div className={styles.logo}>Our Family Socials</div>
 
           {/* Desktop Menu */}
           <div className={styles.navMenu}>
@@ -74,12 +74,11 @@ function Landing() {
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>
-            Never miss your family's<br />
-            <span className={styles.heroGradient}>greatest adventures</span>
+            Our Family Socials:<br />
+            <span className={styles.heroGradient}>a private family social network</span>
           </h1>
           <p className={styles.heroSubtitle}>
-            From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing.
-            See where they've been, relive the moments, and stay connected across any distance.
+            Never miss your family's greatest adventures. Our Family Socials is a private, ad-free social network for families to share life events, photos and stories with each other instead of posting them publicly. See where they have been, relive the moments, and stay connected across any distance.
           </p>
           <div className={styles.heroButtons}>
             <Link to="/login?signup=true" className={styles.primaryBtn}>Start for free</Link>
@@ -93,7 +92,7 @@ function Landing() {
           <div className={styles.screenshotWindow}>
             {/* Real event page demo */}
             <div className={styles.eventHeader}>
-              <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80" alt="European Adventure" />
+              <img fetchpriority="high" decoding="async" src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80" alt="European Adventure" />
               <div className={styles.eventHeaderOverlay}>
                 <h3>European Adventure - Paris & Rome</h3>
                 <p>Sarah Wilson • August 2024 • 21 days</p>
@@ -104,13 +103,13 @@ function Landing() {
               <div className={styles.eventMeta}>Paris, France → Rome, Italy</div>
               <div className={styles.eventPhotos}>
                 <div className={styles.photo}>
-                  <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=400&q=80" alt="Eiffel Tower" />
+                  <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=400&q=80" alt="Eiffel Tower" />
                 </div>
                 <div className={styles.photo}>
-                  <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&q=80" alt="Colosseum" />
+                  <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&q=80" alt="Colosseum" />
                 </div>
                 <div className={styles.photo}>
-                  <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80" alt="Paris Street" />
+                  <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80" alt="Paris Street" />
                 </div>
               </div>
             </div>
@@ -143,7 +142,7 @@ function Landing() {
               <div className={styles.feedCard}>
                 <div className={styles.feedHeader}>
                   <div className={styles.feedAvatar}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" />
+                    <img loading="lazy" decoding="async" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" />
                   </div>
                   <div className={styles.feedInfo}>
                     <div className={styles.feedName}>Sarah Wilson</div>
@@ -151,14 +150,14 @@ function Landing() {
                   </div>
                 </div>
                 <div className={styles.feedImage}>
-                  <img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&q=80" alt="Tokyo" />
+                  <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&q=80" alt="Tokyo" />
                 </div>
                 <div className={styles.feedTitle}>Cherry Blossom Festival 🌸</div>
               </div>
               <div className={styles.feedCard}>
                 <div className={styles.feedHeader}>
                   <div className={styles.feedAvatar}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tom" alt="Tom" />
+                    <img loading="lazy" decoding="async" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tom" alt="Tom" />
                   </div>
                   <div className={styles.feedInfo}>
                     <div className={styles.feedName}>Tom Wilson</div>
@@ -166,7 +165,7 @@ function Landing() {
                   </div>
                 </div>
                 <div className={styles.feedImage}>
-                  <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Mountain" />
+                  <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Mountain" />
                 </div>
                 <div className={styles.feedTitle}>Epic Hiking Weekend ⛰️</div>
               </div>
@@ -181,7 +180,7 @@ function Landing() {
           <div className={styles.featureVisual}>
             <div className={styles.eventMockup}>
               <div className={styles.eventHeaderLarge}>
-                <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80" alt="Wedding" />
+                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80" alt="Wedding" />
                 <div className={styles.eventHeaderOverlay}>
                   <h3>Sarah & Michael's Wedding Day</h3>
                   <p>June 15, 2024 • Napa Valley, California</p>
@@ -193,16 +192,16 @@ function Landing() {
                 </div>
                 <div className={styles.galleryGrid}>
                   <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80" alt="Ceremony" />
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80" alt="Ceremony" />
                   </div>
                   <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&q=80" alt="Reception" />
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&q=80" alt="Reception" />
                   </div>
                   <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="Dance" />
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="Dance" />
                   </div>
                   <div className={styles.galleryImg}>
-                    <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&q=80" alt="Sunset" />
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&q=80" alt="Sunset" />
                   </div>
                 </div>
               </div>
@@ -252,7 +251,7 @@ function Landing() {
             <div className={styles.mapMockup}>
               <div className={styles.mapContainer}>
                 {/* Map background image - physical map with pins */}
-                <img
+                <img loading="lazy" decoding="async"
                   src="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?w=1200&q=80"
                   alt="World Map with Pins"
                   className={styles.mapBackground}
@@ -330,7 +329,7 @@ function Landing() {
             <div className={styles.profileMockup}>
               <div className={styles.profileCard}>
                 <div className={styles.profileAvatar}>
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" alt="Emily" />
+                  <img loading="lazy" decoding="async" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" alt="Emily" />
                 </div>
                 <h3 className={styles.profileName}>Emily Wilson</h3>
                 <p className={styles.profileUsername}>@emilywilson</p>
@@ -412,9 +411,9 @@ function Landing() {
                   <label>Photos</label>
                   <div className={styles.photoUploadMock}>
                     <div className={styles.uploadedPhotos}>
-                      <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80" alt="Road" />
-                      <img src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=200&q=80" alt="Beach" />
-                      <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&q=80" alt="Mountain" />
+                      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80" alt="Road" />
+                      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=200&q=80" alt="Beach" />
+                      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&q=80" alt="Mountain" />
                       <div className={styles.morePhotos}>+12</div>
                     </div>
                   </div>
@@ -447,8 +446,8 @@ function Landing() {
           </div>
           <div className={styles.photoBookVisual}>
             <div className={styles.bookMockup}>
-              <img
-                src="/images/photobooks.png"
+              <img loading="lazy" decoding="async"
+                src="/images/photobooks.png" width="1344" height="768"
                 alt="Vacation Photo Album"
                 className={styles.photoBookImage}
               />

@@ -27,12 +27,12 @@ const home = {
     'Our Family Socials is a private, ad-free social network where families share life events, photos, journey maps and stories. Free to view, Pro from $9/month.',
   h1: "Our Family Socials: a private family social network",
   lede:
-    'Our Family Socials is a private, ad-free social network for families who want to share life events, photos and stories with each other instead of posting them publicly. Create rich event pages for trips, birthdays and milestones, follow the family members you care about, and see every adventure on an interactive map and timeline.',
+    "Never miss your family's greatest adventures. Our Family Socials is a private, ad-free social network for families to share life events, photos and stories with each other instead of posting them publicly. See where they have been, relive the moments, and stay connected across any distance.",
   blocks: [
-    { h2: "Never miss your family's greatest adventures" },
+    { h2: 'Stay connected across any distance' },
     {
       p:
-        'From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. See where they have been, relive the moments, and stay connected across any distance.'
+        'From weekend getaways to once-in-a-lifetime trips, keep up with what your family is doing. Follow the relatives you care about, see their events in the order they happened, and stop finding out about a graduation three weeks after the fact.'
     },
     { h2: 'Your memories are yours' },
     { p: 'No ads. No data selling. No algorithms. Just a private space for your family.' },
