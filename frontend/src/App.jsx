@@ -37,6 +37,11 @@ import About from './pages/About'
 import ComparePrivateGroups from './pages/ComparePrivateGroups'
 import CompareTinybeans from './pages/CompareTinybeans'
 import HowToSharePhotos from './pages/HowToSharePhotos'
+import CompareFamilyAlbum from './pages/CompareFamilyAlbum'
+import ComparePrivateInstagram from './pages/ComparePrivateInstagram'
+import Features from './pages/Features'
+import Alternatives from './pages/Alternatives'
+import NotFound from './pages/NotFound'
 import InvitedSignup from './pages/InvitedSignup'
 import TagProfilePage from './pages/TagProfilePage'
 import FamilyTree from './pages/FamilyTree'
@@ -167,6 +172,10 @@ function App() {
                 <Route path="/compare/facebook-groups" element={<ComparePrivateGroups />} />
                 <Route path="/compare/tinybeans" element={<CompareTinybeans />} />
                 <Route path="/compare/how-to-share-photos-privately" element={<HowToSharePhotos />} />
+                <Route path="/compare/familyalbum" element={<CompareFamilyAlbum />} />
+                <Route path="/compare/private-instagram" element={<ComparePrivateInstagram />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/alternatives" element={<Alternatives />} />
                 {/* Admin routes - superuser only */}
                 <Route path="/admin" element={<SuperuserRoute><AdminDashboard /></SuperuserRoute>} />
                 <Route path="/admin/users" element={<SuperuserRoute><AdminUsers /></SuperuserRoute>} />
@@ -184,6 +193,7 @@ function App() {
                 <Route path="/admin/landing-7" element={<SuperuserRoute><LandingV7 /></SuperuserRoute>} />
                 <Route path="/admin/landing-8" element={<SuperuserRoute><LandingV8 /></SuperuserRoute>} />
                 <Route path="/admin/landing-9" element={<SuperuserRoute><LandingV9 /></SuperuserRoute>} />
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
             <InstallPrompt />
