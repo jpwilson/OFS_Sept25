@@ -34,6 +34,8 @@ function Landing() {
           <div className={styles.navMenu}>
             <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); }}>Features</a>
             <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a>
+            <Link to="/faq">FAQ</Link>
+            <Link to="/alternatives">Compare</Link>
           </div>
 
           <div className={styles.navActions}>
@@ -59,6 +61,8 @@ function Landing() {
             <div className={styles.mobileMenu} onClick={(e) => e.stopPropagation()}>
               <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); }}>Features</a>
               <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a>
+              <Link to="/faq" onClick={() => setMobileMenuOpen(false)}>FAQ</Link>
+              <Link to="/alternatives" onClick={() => setMobileMenuOpen(false)}>Compare</Link>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log in</Link>
               <Link to="/login?signup=true" onClick={() => setMobileMenuOpen(false)}>Sign up free</Link>
             </div>
@@ -591,6 +595,20 @@ function Landing() {
               <li><a href="#create-event" onClick={(e) => { e.preventDefault(); scrollToSection('create-event'); }}>Create Event</a></li>
               <li><a href="#your-profile" onClick={(e) => { e.preventDefault(); scrollToSection('your-profile'); }}>Your Profile</a></li>
               <li><a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a></li>
+            </ul>
+          </div>
+
+          <div className={styles.footerSection}>
+            <h3>Learn</h3>
+            <ul className={styles.footerLinks}>
+              <li><Link to="/features">Features</Link></li>
+              <li><Link to="/alternatives">Private family sharing apps</Link></li>
+              <li><Link to="/compare/facebook-groups">vs Facebook groups</Link></li>
+              <li><Link to="/compare/tinybeans">vs Tinybeans</Link></li>
+              <li><Link to="/compare/familyalbum">vs FamilyAlbum</Link></li>
+              <li><Link to="/compare/private-instagram">vs private Instagram</Link></li>
+              <li><Link to="/compare/how-to-share-photos-privately">Share kids' photos privately</Link></li>
+              <li><Link to="/about">About</Link></li>
             </ul>
           </div>
 

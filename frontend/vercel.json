@@ -1,8 +1,90 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
+    {
+      "source": "/features",
+      "destination": "/features.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/alternatives",
+      "destination": "/alternatives.html"
+    },
+    {
+      "source": "/compare/facebook-groups",
+      "destination": "/compare/facebook-groups.html"
+    },
+    {
+      "source": "/compare/tinybeans",
+      "destination": "/compare/tinybeans.html"
+    },
+    {
+      "source": "/compare/familyalbum",
+      "destination": "/compare/familyalbum.html"
+    },
+    {
+      "source": "/compare/private-instagram",
+      "destination": "/compare/private-instagram.html"
+    },
+    {
+      "source": "/compare/how-to-share-photos-privately",
+      "destination": "/compare/how-to-share-photos-privately.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/llms.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/llms-full.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
     }
   ]
 }
