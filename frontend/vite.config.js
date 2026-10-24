@@ -61,6 +61,15 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // The public marketing pages are prerendered to real HTML files
+        // (scripts/prerender.mjs). Without this denylist the service worker's
+        // navigateFallback would hand back index.html for /faq, /pricing and the
+        // comparison pages, so an installed PWA would show the home page's
+        // <title> and meta description instead of the page's own.
+        navigateFallbackDenylist: [
+          /^\/(features|pricing|faq|about|alternatives)$/,
+          /^\/compare\//
+        ],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB (increased from default 2 MB)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [

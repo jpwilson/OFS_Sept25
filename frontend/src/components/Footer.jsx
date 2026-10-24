@@ -36,6 +36,20 @@ function Footer() {
         </div>
 
         <div className={styles.section}>
+          <h3>Learn</h3>
+          <ul className={styles.links}>
+            <li><Link to="/features">Features</Link></li>
+            <li><Link to="/alternatives">Private family sharing apps</Link></li>
+            <li><Link to="/compare/facebook-groups">vs Facebook groups</Link></li>
+            <li><Link to="/compare/tinybeans">vs Tinybeans</Link></li>
+            <li><Link to="/compare/familyalbum">vs FamilyAlbum</Link></li>
+            <li><Link to="/compare/private-instagram">vs private Instagram</Link></li>
+            <li><Link to="/compare/how-to-share-photos-privately">Share kids' photos privately</Link></li>
+            <li><Link to="/about">About</Link></li>
+          </ul>
+        </div>
+
+        <div className={styles.section}>
           <h3>Support</h3>
           <ul className={styles.links}>
             <li><Link to="/faq">Help Center</Link></li>
