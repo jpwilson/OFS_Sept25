@@ -54,16 +54,14 @@ def build_tag_response(tag: EventTag, db: Session) -> EventTagResponse:
 @router.get("/{event_id}/tags", response_model=List[EventTagResponse])
 def get_event_tags(
     event_id: int,
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get all tags for an event. Only accepted tags are returned for non-owners."""
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Event not found"
-        )
+    """Get all tags for an event. Only accepted tags are returned for non-owners.
+    Only returned to viewers who are allowed to see the event."""
+    from ..utils.privacy import get_viewable_event_or_404
+    event = get_viewable_event_or_404(event_id, current_user, db, share_token)
 
     # Filter by status - owners see all, others see only accepted
     query = db.query(EventTag).filter(EventTag.event_id == event_id)

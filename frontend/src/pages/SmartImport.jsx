@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { extractImportMetadata } from '../utils/exifExtractor'
 import { useToast } from '../components/Toast'
 import styles from './SmartImport.module.css'
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 
 /**
  * Smart Import — drop a batch of photos, we find the stories.
@@ -566,7 +567,7 @@ export default function SmartImport() {
               </div>
               <div
                 className={styles.storyPreview}
-                dangerouslySetInnerHTML={{ __html: aiResult.story_html }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(aiResult.story_html) }}
               />
             </>
           )}

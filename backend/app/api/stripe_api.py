@@ -146,10 +146,8 @@ def create_checkout_session(
     checkout_params['allow_promotion_codes'] = True
 
     # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
-    print(f"[DEBUG] Creating checkout session for user {current_user.id} ({current_user.email})")
+    print(f"[DEBUG] Creating checkout session for user {current_user.id}")
     print(f"[DEBUG] Price type: {request.price_id}, Price ID: {price_id}")
-    print(f"[DEBUG] Customer ID: {customer_id}")
-    print(f"[DEBUG] Checkout params: {checkout_params}")
 
     try:
         checkout_session = stripe.checkout.Session.create(**checkout_params)
@@ -208,20 +206,19 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get('stripe-signature')
 
-    # Verify webhook signature if secret is configured
-    if settings.STRIPE_WEBHOOK_SECRET:
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-            )
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid payload")
-        except stripe.error.SignatureVerificationError:
-            raise HTTPException(status_code=400, detail="Invalid signature")
-    else:
-        # For testing without webhook secret
-        import json
-        event = json.loads(payload)
+    # Always verify the webhook signature. Without a secret anyone could post
+    # a fake "checkout completed" event and grant themselves a paid plan.
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        print("Stripe webhook rejected: STRIPE_WEBHOOK_SECRET is not configured")
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
 
     event_type = event.get('type') if isinstance(event, dict) else event.type
     data = event.get('data', {}).get('object', {}) if isinstance(event, dict) else event.data.object
@@ -292,7 +289,7 @@ async def handle_checkout_completed(session, db: Session):
     # For subscriptions, the subscription.created/updated events will handle the rest
 
     db.commit()
-    print(f"Checkout completed for user {user.id} ({user.email})")
+    print(f"Checkout completed for user {user.id}")
 
     # Send subscription confirmation email
     try:
@@ -301,7 +298,7 @@ async def handle_checkout_completed(session, db: Session):
             username=user.display_name or user.username,
             plan_type=price_type or 'monthly'
         )
-        print(f"Subscription confirmation email sent to {user.email}")
+        print(f"Subscription confirmation email sent to user {user.id}")
     except Exception as e:
         print(f"Failed to send subscription confirmation email: {e}")
 
@@ -466,7 +463,7 @@ async def handle_payment_succeeded(invoice, db: Session):
                 date=invoice_date,
                 invoice_url=invoice_url
             )
-            print(f"Payment receipt email sent to {user.email}")
+            print(f"Payment receipt email sent to user {user.id}")
         except Exception as e:
             print(f"Failed to send payment receipt email: {e}")
 
@@ -482,7 +479,7 @@ async def handle_payment_failed(invoice, db: Session):
 
     # Don't immediately revoke access - Stripe will retry
     # Just log it for now
-    print(f"Payment failed for user {user.id} ({user.email})")
+    print(f"Payment failed for user {user.id}")
 
 
 @router.get("/subscription-status")

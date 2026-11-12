@@ -16,6 +16,7 @@ import styles from './EventDetail.module.css'
 import apiService from '../services/api'
 import { mockEventDetails } from '../data/mockEvents'
 import { extractLocationImageMappings } from '../utils/locationExtractor'
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 
 function EventDetail({ isShareMode = false }) {
   const { id, token } = useParams()
@@ -402,7 +403,7 @@ function EventDetail({ isShareMode = false }) {
 
   async function loadTags(eventId) {
     try {
-      const tags = await apiService.getEventTags(eventId)
+      const tags = await apiService.getEventTags(eventId, isShareMode ? token : null)
       setEventTags(tags || [])
     } catch (error) {
       console.error('Error loading event tags:', error)
@@ -514,7 +515,7 @@ function EventDetail({ isShareMode = false }) {
 
       // Load comments and tags for shared event
       try {
-        const commentsData = await apiService.getComments(data.event.id)
+        const commentsData = await apiService.getComments(data.event.id, token)
         setComments(commentsData || [])
       } catch (e) {
         console.log('Could not load comments for shared event')
@@ -625,7 +626,7 @@ function EventDetail({ isShareMode = false }) {
   }
 
   async function loadComments(eventId) {
-    const data = await apiService.getComments(eventId)
+    const data = await apiService.getComments(eventId, isShareMode ? token : null)
     setComments(data)
   }
 
@@ -910,7 +911,7 @@ function EventDetail({ isShareMode = false }) {
 
   async function handleShowAllLikes() {
     if (!showAllLikes) {
-      const data = await apiService.getAllLikes(event.id)
+      const data = await apiService.getAllLikes(event.id, isShareMode ? token : null)
       setAllLikes(data)
     }
     setShowAllLikes(!showAllLikes)
@@ -1585,7 +1586,7 @@ function EventDetail({ isShareMode = false }) {
         {(!event.content_blocks || event.content_blocks.length === 0) && (
           <div
             className={styles.richContent}
-            dangerouslySetInnerHTML={{ __html: parsedContent.html || event.description }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(parsedContent.html || event.description) }}
           />
         )}
       </div>

@@ -97,6 +97,54 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     return False
 
 
+def can_view_event_or_share(
+    event: Event,
+    viewer: Optional[User],
+    db: Session,
+    share_token: Optional[str] = None
+) -> bool:
+    """
+    can_view_event(), plus access through a valid share link token for that
+    event (the same rules as GET /share/{token}). Non-authors never see drafts
+    or trashed events.
+    """
+    if viewer and event.author_id == viewer.id:
+        return True
+
+    if not event.is_published or event.is_deleted:
+        return False
+
+    if can_view_event(event, viewer, db):
+        return True
+
+    if share_token and event.share_enabled and event.share_token:
+        from datetime import datetime
+        import secrets
+        if event.share_expires_at and event.share_expires_at < datetime.utcnow():
+            return False
+        return secrets.compare_digest(str(event.share_token), str(share_token))
+
+    return False
+
+
+def get_viewable_event_or_404(
+    event_id: int,
+    viewer: Optional[User],
+    db: Session,
+    share_token: Optional[str] = None
+) -> Event:
+    """
+    Load an event and make sure the viewer may see it. Returns 404 (not 403)
+    when they may not, so event IDs cannot be probed for existence.
+    """
+    from fastapi import HTTPException
+
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event or not can_view_event_or_share(event, viewer, db, share_token):
+        raise HTTPException(status_code=404, detail="Event not found")
+    return event
+
+
 def is_user_subscription_active(user: User) -> bool:
     """
     Check if a user has an active subscription (trial or paid).

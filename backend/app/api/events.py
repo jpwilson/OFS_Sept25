@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime
 import re
 from ..core.database import get_db
-from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo, get_current_superuser
 from ..models.user import User
 from ..models.event import Event
 from ..models.content_block import ContentBlock
@@ -50,6 +50,7 @@ def sync_event_images(event_id: int, html_content: str, db: Session):
         extract_video_filename_from_url,
         delete_image_files,
         delete_video_files,
+        is_media_referenced_elsewhere,
     )
 
     media_urls = extract_media_urls(html_content)
@@ -70,14 +71,16 @@ def sync_event_images(event_id: int, html_content: str, db: Session):
         if normalized_existing not in html_urls_normalized:
             # Delete from cloud storage first
             try:
+                # Only delete files nothing outside this event still uses:
+                # media URLs in event HTML are client-supplied.
                 if existing.media_type == 'video':
                     filename = extract_video_filename_from_url(existing.image_url)
-                    if filename:
+                    if filename and not is_media_referenced_elsewhere(db, filename, event_id):
                         result = delete_video_files(filename)
                         print(f"Deleted video {filename}: {result}")
                 else:
                     filename = extract_filename_from_url(existing.image_url)
-                    if filename:
+                    if filename and not is_media_referenced_elsewhere(db, filename, event_id):
                         result = delete_image_files(filename)
                         print(f"Deleted image {filename}: {result}")
             except Exception as e:
@@ -451,7 +454,7 @@ def create_event(
                         event_url=event_url,
                         cover_image_url=event.cover_image_url
                     )
-                    print(f"📧 Queued new event notification for {follower.email}")
+                    print(f"📧 Queued new event notification for user {follower.id}")
         except Exception as e:
             print(f"⚠️ Failed to queue follower notifications: {e}")
             # Don't fail event creation if notifications fail
@@ -973,9 +976,10 @@ def add_like(
 
 @router.post("/admin/sync-event-images")
 def sync_all_event_images(
+    current_user: User = Depends(get_current_superuser),
     db: Session = Depends(get_db)
 ):
-    """One-time migration to sync event_images for all existing events"""
+    """One-time migration to sync event_images for all existing events (superusers only)"""
     events = db.query(Event).filter(Event.description.isnot(None)).all()
     synced_count = 0
     images_added = 0

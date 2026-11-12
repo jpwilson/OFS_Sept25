@@ -7,6 +7,7 @@ import { extractGPSFromImage } from '../utils/exifExtractor'
 import apiService from '../services/api'
 import LocationAutocomplete from './LocationAutocomplete'
 import styles from './QuickAddModal.module.css'
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 
 const CATEGORIES = [
   { value: 'Daily Life', label: 'Daily Life', icon: '📷' },
@@ -985,7 +986,7 @@ function QuickAddModal({ isOpen, onClose, initialAIMode = false }) {
                   </div>
                   <div
                     className={styles.panelContent}
-                    dangerouslySetInnerHTML={{ __html: aiResult.story_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(aiResult.story_html) }}
                   />
                 </div>
               </div>

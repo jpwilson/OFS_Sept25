@@ -154,16 +154,3 @@ def health_check():
         "cors_origins": settings.CORS_ORIGINS,
         "timestamp": "2025-12-01"
     }
-
-@app.get("/debug/env")
-def debug_env():
-    """Debug endpoint to check environment variables"""
-    return {
-        "supabase_url_set": bool(settings.SUPABASE_URL),
-        "supabase_url_length": len(settings.SUPABASE_URL),
-        "supabase_url_preview": settings.SUPABASE_URL[:30] + "..." if len(settings.SUPABASE_URL) > 30 else settings.SUPABASE_URL,
-        "supabase_key_set": bool(settings.SUPABASE_KEY),
-        "supabase_key_length": len(settings.SUPABASE_KEY),
-        "supabase_bucket": settings.SUPABASE_BUCKET,
-        "database_url_preview": settings.DATABASE_URL[:50] + "..." if len(settings.DATABASE_URL) > 50 else settings.DATABASE_URL
-    }

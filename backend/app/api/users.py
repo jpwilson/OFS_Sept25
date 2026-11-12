@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from ..core.database import get_db
-from ..core.deps import get_current_user, require_not_demo
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.follow import Follow
 from ..models.user_mute import UserMute
@@ -850,11 +850,13 @@ def get_user_events(
     username: str,
     db: Session = Depends(get_db),
     skip: int = 0,
-    limit: int = 100
+    limit: int = 100,
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Get a user's published events by username"""
+    """Get a user's published events by username (only those the viewer may see)"""
     from ..models.event import Event
     from ..schemas.event import EventResponse
+    from ..utils.privacy import filter_events_by_privacy
     from sqlalchemy.orm import selectinload
 
     # Get the user
@@ -862,14 +864,17 @@ def get_user_events(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Get their published events, ordered by start_date (most recent first)
-    events = db.query(Event).options(
+    # Get their published events, ordered by start_date (most recent first),
+    # limited to the events this viewer is allowed to see
+    query = db.query(Event).options(
         selectinload(Event.author)
     ).filter(
         Event.author_id == user.id,
         Event.is_published == True,
         Event.is_deleted == False
-    ).order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
+    )
+    query = filter_events_by_privacy(query, current_user, db)
+    events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 
     # Build response
     response = []
@@ -891,6 +896,7 @@ def get_user_events(
             "author_full_name": event.author.full_name,
             "view_count": event.view_count,
             "is_published": event.is_published,
+            "privacy_level": event.privacy_level or "public",
             "created_at": event.created_at,
             "updated_at": event.updated_at,
             "like_count": 0,

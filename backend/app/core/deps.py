@@ -84,7 +84,7 @@ def get_current_user(
                 user = db.query(User).filter(User.auth_user_id == auth_user_id).first()
 
                 if user:
-                    print(f"🟢 User found! ID: {user.id}, Username: {user.username}, Email: {user.email}")
+                    print(f"🟢 User found! ID: {user.id}")
                     if user.is_active:
                         print(f"🟢 User is active, returning user")
                         _update_last_login(user, db)
@@ -97,11 +97,6 @@ def get_current_user(
                         )
                 else:
                     print(f"🔴 User NOT found with auth_user_id: {auth_user_id}")
-                    # Let's also check what users exist in the database
-                    all_users_with_auth = db.query(User).filter(User.auth_user_id != None).all()
-                    print(f"🔵 Total users with auth_user_id in database: {len(all_users_with_auth)}")
-                    for u in all_users_with_auth[:10]:  # Print first 10 users with auth_user_id
-                        print(f"  - User ID: {u.id}, Username: {u.username}, Email: {u.email}, auth_user_id: {u.auth_user_id}")
 
                     # Supabase token valid but user not found in our DB
                     raise HTTPException(
@@ -147,6 +142,11 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found"
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is inactive"
         )
     _update_last_login(user, db)
     return user

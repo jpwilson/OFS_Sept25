@@ -11,7 +11,8 @@ from ..models.event import Event
 from ..models.event_location import EventLocation
 from ..models.user import User
 from ..schemas.event_location import EventLocationCreate, EventLocationUpdate, EventLocation as EventLocationSchema
-from ..core.deps import get_current_user
+from ..core.deps import get_current_user, get_current_user_optional
+from typing import Optional
 
 router = APIRouter()
 
@@ -51,12 +52,14 @@ def create_event_location(
 @router.get("/events/{event_id}/locations", response_model=List[EventLocationSchema])
 def get_event_locations(
     event_id: int,
-    db: Session = Depends(get_db)
+    share_token: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Get all locations for an event, ordered by order_index and timestamp"""
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+    """Get all locations for an event, ordered by order_index and timestamp.
+    Only returned to viewers who are allowed to see the event."""
+    from ..utils.privacy import get_viewable_event_or_404
+    get_viewable_event_or_404(event_id, current_user, db, share_token)
 
     locations = db.query(EventLocation).filter(
         EventLocation.event_id == event_id

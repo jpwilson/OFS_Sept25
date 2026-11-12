@@ -124,10 +124,15 @@ def create_comment(
 @router.get("/{event_id}/comments", response_model=List[CommentResponse])
 def get_comments(
     event_id: int,
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get all comments for an event with reaction data"""
+    """Get all comments for an event with reaction data.
+    Only returned to viewers who are allowed to see the event."""
+    from ..utils.privacy import get_viewable_event_or_404
+    get_viewable_event_or_404(event_id, current_user, db, share_token)
+
     comments = db.query(Comment).filter(Comment.event_id == event_id).order_by(Comment.created_at.asc()).all()
 
     # Get reaction counts for all comments in one query
