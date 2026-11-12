@@ -21,6 +21,7 @@
     "@tiptap/starter-kit": "^3.8.0",
     "@vercel/analytics": "^1.6.1",
     "canvas-confetti": "^1.9.4",
+    "dompurify": "^3.4.17",
     "exifreader": "^4.33.1",
     "family-chart": "^0.9.0",
     "heic2any": "^0.0.4",

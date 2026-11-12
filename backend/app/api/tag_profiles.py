@@ -254,9 +254,8 @@ def get_tag_profile_events(
         Event.is_deleted == False
     )
 
-    # Apply privacy filter if we have a viewer
-    if current_user:
-        query = filter_events_by_privacy(query, current_user, db)
+    # Apply privacy filter (anonymous viewers only get public events)
+    query = filter_events_by_privacy(query, current_user, db)
 
     events = query.order_by(Event.start_date.desc()).offset(skip).limit(limit).all()
 

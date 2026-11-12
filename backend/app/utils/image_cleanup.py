@@ -22,6 +22,49 @@ def get_supabase_client() -> Client:
     )
 
 
+def is_media_referenced_elsewhere(db, filename: str, event_id: int) -> bool:
+    """
+    True if a stored media file is still used anywhere outside the given event
+    (another event's HTML, cover or media records, a profile avatar/banner or a
+    tag-profile photo).
+
+    Media URLs in an event are client-supplied, so an event can point at a file
+    that belongs to someone else. Cleanup must only delete files that nothing
+    else uses. Filenames are random UUIDs, so a substring match is precise; on
+    any doubt (or error) this returns True, which keeps the file.
+    """
+    if not filename:
+        return False
+    try:
+        from sqlalchemy import or_
+        from ..models.event import Event
+        from ..models.event_image import EventImage
+        from ..models.user import User
+        from ..models.tag_profile import TagProfile
+
+        pattern = f"%{filename}%"
+        if db.query(EventImage.id).filter(
+            EventImage.event_id != event_id,
+            or_(EventImage.image_url.like(pattern), EventImage.video_thumbnail_url.like(pattern))
+        ).first():
+            return True
+        if db.query(Event.id).filter(
+            Event.id != event_id,
+            or_(Event.description.like(pattern), Event.cover_image_url.like(pattern))
+        ).first():
+            return True
+        if db.query(User.id).filter(
+            or_(User.avatar_url.like(pattern), User.banner_url.like(pattern))
+        ).first():
+            return True
+        if db.query(TagProfile.id).filter(TagProfile.photo_url.like(pattern)).first():
+            return True
+        return False
+    except Exception as e:
+        print(f"Warning: reference check failed for {filename}, keeping file: {e}")
+        return True
+
+
 class MediaExtractor(HTMLParser):
     """Parse HTML to extract image and video URLs"""
 
@@ -336,6 +379,9 @@ def cleanup_event_images(event) -> dict:
     """
     print(f"Starting cleanup for event {event.id}")
 
+    from sqlalchemy.orm import object_session
+    db = object_session(event)
+
     # Get image filenames (from Supabase) - wrapped in try/except
     try:
         image_filenames = get_all_event_image_filenames(event)
@@ -363,11 +409,21 @@ def cleanup_event_images(event) -> dict:
     except Exception as e:
         print(f"Error extracting videos from event_images table: {e}")
 
+    # Never delete files that are still used outside this event (see
+    # is_media_referenced_elsewhere). Without a session, keep everything.
+    skipped_shared = 0
+    for names in (image_filenames, supabase_video_filenames):
+        for filename in list(names):
+            if db is None or is_media_referenced_elsewhere(db, filename, event.id):
+                names.discard(filename)
+                skipped_shared += 1
+
     summary = {
         'image_filenames_found': len(image_filenames),
         'video_filenames_found': len(supabase_video_filenames),
         'files_deleted': 0,
         'files_not_found': 0,
+        'files_kept_shared': skipped_shared,
         'errors': [],
         'details': []
     }

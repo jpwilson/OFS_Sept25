@@ -18,7 +18,7 @@ except ImportError:
     pass  # pillow-heif not installed, HEIC files won't be supported
 from ..core.config import settings
 from ..core.database import get_db
-from ..core.deps import get_current_user, require_not_demo
+from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
@@ -219,10 +219,21 @@ def resize_image(image: Image.Image, max_size: tuple, quality: int = 85) -> byte
 
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file_endpoint(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_not_demo),
+):
     """
     Upload an image file to R2 (or Supabase Storage fallback) and return URLs
-    for different sizes.
+    for different sizes. Requires a signed-in user.
+    """
+    return await upload_file(file)
+
+
+async def upload_file(file: UploadFile):
+    """
+    Process an image and store it in R2 (or Supabase Storage fallback).
+    Internal helper: callers must authenticate the user first.
     """
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
@@ -467,6 +478,19 @@ async def delete_event_image(
     # Delete the underlying object(s) from storage (R2 or Supabase)
     image_url = event_image.image_url or ""
     is_r2 = bool(settings.R2_PUBLIC_DOMAIN) and settings.R2_PUBLIC_DOMAIN in image_url
+
+    # The URL on this record is client-supplied. Never delete a stored file
+    # that another event, profile or record still uses (it may belong to
+    # someone else) - only drop this record.
+    from ..utils.image_cleanup import is_media_referenced_elsewhere
+    media_key = image_url.split("?")[0].rstrip("/").split("/")[-1]
+    thumb_key = (event_image.video_thumbnail_url or "").split("?")[0].rstrip("/").split("/")[-1]
+    if (media_key and is_media_referenced_elsewhere(db, media_key, event_image.event_id)) or \
+            (thumb_key and is_media_referenced_elsewhere(db, thumb_key, event_image.event_id)):
+        db.delete(event_image)
+        db.commit()
+        return {"message": "Image deleted successfully"}
+
     try:
         if "/full/" in image_url:
             # Image: delete all three sizes (full, medium, thumbnail)
@@ -503,11 +527,17 @@ async def delete_event_image(
 @router.get("/upload/event-images/{event_id}", response_model=list[EventImageResponse])
 async def get_event_images(
     event_id: int,
+    share_token: Optional[str] = None,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
-    Get all images for an event, ordered by order_index
+    Get all images for an event, ordered by order_index.
+    Only returned to viewers who are allowed to see the event.
     """
+    from ..utils.privacy import get_viewable_event_or_404
+    get_viewable_event_or_404(event_id, current_user, db, share_token)
+
     images = db.query(EventImage).filter(
         EventImage.event_id == event_id
     ).order_by(EventImage.order_index).all()
@@ -637,12 +667,24 @@ async def create_r2_presign(
         )
 
     content_type = body.content_type or f"video/{file_ext[1:]}"
+    # Only video content types: the object is served publicly from the media
+    # domain with this Content-Type, so never allow e.g. text/html.
+    if not content_type.lower().startswith("video/"):
+        raise HTTPException(status_code=400, detail="Only video uploads are allowed")
     key = f"videos/{uuid.uuid4()}{file_ext}"
     return r2_presign_put(key, content_type)
 
 
 @router.post("/upload/video")
-async def upload_video(file: UploadFile = File(...)):
+async def upload_video_endpoint(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_not_demo),
+):
+    """Upload a video file. Requires a signed-in user."""
+    return await upload_video(file)
+
+
+async def upload_video(file: UploadFile):
     """
     Upload a video file to R2 (or Supabase Storage fallback) and return the URL.
     Accepts: .mp4, .mov, .avi, .webm

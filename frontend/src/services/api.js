@@ -745,7 +745,9 @@ class ApiService {
 
   async getEventImages(eventId) {
     try {
-      const response = await fetch(`${API_BASE}/upload/event-images/${eventId}`)
+      const response = await fetch(`${API_BASE}/upload/event-images/${eventId}`, {
+        headers: await this.getAuthHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch event images')
       return await response.json()
     } catch (error) {
@@ -1082,9 +1084,12 @@ class ApiService {
   }
 
   // Comments
-  async getComments(eventId) {
+  async getComments(eventId, shareToken = null) {
     try {
-      const response = await fetch(`${API_BASE}/events/${eventId}/comments`)
+      const qs = shareToken ? `?share_token=${encodeURIComponent(shareToken)}` : ''
+      const response = await fetch(`${API_BASE}/events/${eventId}/comments${qs}`, {
+        headers: await this.getAuthHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch comments')
       return await response.json()
     } catch (error) {
@@ -1204,9 +1209,12 @@ class ApiService {
     }
   }
 
-  async getAllLikes(eventId) {
+  async getAllLikes(eventId, shareToken = null) {
     try {
-      const response = await fetch(`${API_BASE}/events/${eventId}/likes/all`)
+      const qs = shareToken ? `?share_token=${encodeURIComponent(shareToken)}` : ''
+      const response = await fetch(`${API_BASE}/events/${eventId}/likes/all${qs}`, {
+        headers: await this.getAuthHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch all likes')
       return await response.json()
     } catch (error) {
@@ -1218,7 +1226,9 @@ class ApiService {
   // Location methods
   async getEventLocations(eventId) {
     try {
-      const response = await fetch(`${API_BASE}/events/${eventId}/locations`)
+      const response = await fetch(`${API_BASE}/events/${eventId}/locations`, {
+        headers: await this.getAuthHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch locations')
       return await response.json()
     } catch (error) {
@@ -1986,9 +1996,10 @@ class ApiService {
   // EVENT TAGS (tagging users/profiles in events)
   // ========================================
 
-  async getEventTags(eventId) {
+  async getEventTags(eventId, shareToken = null) {
     try {
-      const response = await fetch(`${API_BASE}/events/${eventId}/tags`, {
+      const qs = shareToken ? `?share_token=${encodeURIComponent(shareToken)}` : ''
+      const response = await fetch(`${API_BASE}/events/${eventId}/tags${qs}`, {
         headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to fetch event tags')

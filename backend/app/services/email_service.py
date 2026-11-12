@@ -1,3 +1,4 @@
+import html as _html
 import resend
 from typing import Optional
 from ..core.config import settings
@@ -6,6 +7,13 @@ from ..core.config import settings
 resend.api_key = settings.RESEND_API_KEY
 
 FROM_EMAIL = "Our Family Socials <notifications@ourfamilysocials.com>"
+
+
+def _esc(value):
+    """HTML-escape user-supplied text before it goes into an email template."""
+    if value is None:
+        return None
+    return _html.escape(str(value), quote=True)
 
 
 def send_email(
@@ -42,6 +50,11 @@ def send_event_share_email(
     personal_message: Optional[str] = None
 ) -> dict:
     """Send an event share invitation email"""
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    from_name = _esc(from_name)
+    event_title = _esc(event_title)
+    personal_message = _esc(personal_message)
 
     message_html = ""
     if personal_message:
@@ -103,13 +116,16 @@ def send_event_share_email(
 
     return send_email(
         to=to_email,
-        subject=f"{from_name} shared \"{event_title}\" with you",
+        subject=f"{_html.unescape(from_name)} shared \"{_html.unescape(event_title)}\" with you",
         html=html
     )
 
 
 def send_welcome_email(to_email: str, username: str) -> dict:
     """Send welcome email to new users"""
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
 
     html = f"""
     <!DOCTYPE html>
@@ -183,6 +199,9 @@ def send_trial_reminder_email(
     days_remaining: int
 ) -> dict:
     """Send trial expiration reminder"""
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
 
     urgency_text = ""
     if days_remaining <= 3:
@@ -267,6 +286,10 @@ def send_new_follower_email(
 ) -> dict:
     """Notify user of new follower"""
 
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
+    follower_name = _esc(follower_name)
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -306,7 +329,7 @@ def send_new_follower_email(
 
     return send_email(
         to=to_email,
-        subject=f"{follower_name} is now following you",
+        subject=f"{_html.unescape(follower_name)} is now following you",
         html=html
     )
 
@@ -324,6 +347,12 @@ def send_new_comment_email(
     # Truncate comment preview if too long
     if len(comment_preview) > 150:
         comment_preview = comment_preview[:147] + "..."
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    event_author_name = _esc(event_author_name)
+    commenter_name = _esc(commenter_name)
+    event_title = _esc(event_title)
+    comment_preview = _esc(comment_preview)
 
     html = f"""
     <!DOCTYPE html>
@@ -374,7 +403,7 @@ def send_new_comment_email(
 
     return send_email(
         to=to_email,
-        subject=f"{commenter_name} commented on \"{event_title}\"",
+        subject=f"{_html.unescape(commenter_name)} commented on \"{_html.unescape(event_title)}\"",
         html=html
     )
 
@@ -385,6 +414,10 @@ def send_follow_request_email(
     requester_name: str
 ) -> dict:
     """Notify user of new follow request"""
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
+    requester_name = _esc(requester_name)
 
     html = f"""
     <!DOCTYPE html>
@@ -425,7 +458,7 @@ def send_follow_request_email(
 
     return send_email(
         to=to_email,
-        subject=f"{requester_name} wants to follow you",
+        subject=f"{_html.unescape(requester_name)} wants to follow you",
         html=html
     )
 
@@ -439,6 +472,12 @@ def send_new_event_notification_email(
     cover_image_url: Optional[str] = None
 ) -> dict:
     """Notify follower when someone they follow posts a new event"""
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    follower_username = _esc(follower_username)
+    author_name = _esc(author_name)
+    event_title = _esc(event_title)
+    cover_image_url = _esc(cover_image_url)
 
     image_html = ""
     if cover_image_url:
@@ -495,7 +534,7 @@ def send_new_event_notification_email(
 
     return send_email(
         to=to_email,
-        subject=f"{author_name} shared \"{event_title}\"",
+        subject=f"{_html.unescape(author_name)} shared \"{_html.unescape(event_title)}\"",
         html=html
     )
 
@@ -511,6 +550,11 @@ def send_viewer_invitation_email(
     Send invitation email to non-user.
     Includes signup link with invite token.
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    inviter_name = _esc(inviter_name)
+    invited_name = _esc(invited_name)
+    personal_message = _esc(personal_message)
     signup_url = f"https://www.ourfamilysocials.com/join/{invite_token}"
 
     message_html = ""
@@ -583,7 +627,7 @@ def send_viewer_invitation_email(
 
     return send_email(
         to=to_email,
-        subject=f"{inviter_name} invited you to see their family moments",
+        subject=f"{_html.unescape(inviter_name)} invited you to see their family moments",
         html=html
     )
 
@@ -600,6 +644,12 @@ def send_invited_viewer_new_event_email(
     Notify invited viewer when their inviter posts a new event.
     Rate-limited to 1 per day per author (handled by caller).
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    viewer_name = _esc(viewer_name)
+    author_name = _esc(author_name)
+    event_title = _esc(event_title)
+    cover_image_url = _esc(cover_image_url)
     image_html = ""
     if cover_image_url:
         image_html = f"""
@@ -655,7 +705,7 @@ def send_invited_viewer_new_event_email(
 
     return send_email(
         to=to_email,
-        subject=f"{author_name} shared \"{event_title}\"",
+        subject=f"{_html.unescape(author_name)} shared \"{_html.unescape(event_title)}\"",
         html=html
     )
 
@@ -670,6 +720,11 @@ def send_subscription_expired_to_follower_email(
     Notify a follower that someone they follow is no longer a paying member.
     Their events are now hidden.
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    follower_name = _esc(follower_name)
+    expired_user_name = _esc(expired_user_name)
+    expired_user_username = _esc(expired_user_username)
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -725,7 +780,7 @@ def send_subscription_expired_to_follower_email(
 
     return send_email(
         to=to_email,
-        subject=f"{expired_user_name} is no longer an active member",
+        subject=f"{_html.unescape(expired_user_name)} is no longer an active member",
         html=html
     )
 
@@ -740,6 +795,9 @@ def send_trial_ending_invited_viewer_email(
     Special trial reminder for invited viewers.
     Explains what they'll still have access to after trial ends.
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
     inviters_text = ", ".join(inviter_names) if inviter_names else "your inviter"
 
     urgency_text = ""
@@ -838,6 +896,9 @@ def send_subscription_confirmed_email(
     Send confirmation email when user subscribes.
     Uses percentage-based messaging to build purchase confidence.
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
 
     # Plan-specific messaging
     if plan_type == 'annual':
@@ -952,6 +1013,9 @@ def send_billing_history_email(
     Send billing history/spending summary email.
     """
 
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
+
     # Build payments table rows
     payments_html = ""
     total_spent = 0
@@ -1056,6 +1120,10 @@ def send_payment_receipt_email(
     Send payment receipt for a single transaction.
     Only sent if user has opted in to payment receipts.
     """
+
+    # Escape user-supplied text for the HTML body (subject stays plain text)
+    username = _esc(username)
+    description = _esc(description)
 
     invoice_button = ""
     if invoice_url:

@@ -85,46 +85,34 @@ def demo_login(request_data: DemoLoginRequest, request: Request, db: Session = D
     )
 
 
-@router.post("/register", response_model=Token)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(
-        (User.email == user_data.email) | (User.username == user_data.username)
-    ).first()
+# Legacy login rate limiting (in-memory, per IP, same limits as demo login)
+_legacy_login_failures: dict = {}  # {ip: [timestamp, ...]}
 
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email or username already registered"
-        )
-
-    user = User(
-        email=user_data.email,
-        username=user_data.username,
-        full_name=user_data.full_name,
-        hashed_password=get_password_hash(user_data.password)
-    )
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    access_token = create_access_token(data={"sub": str(user.id)})
-
-    return Token(
-        access_token=access_token,
-        token_type="bearer",
-        user=UserResponse.model_validate(user)
-    )
 
 @router.post("/login", response_model=Token)
-def login(credentials: UserLogin, db: Session = Depends(get_db)):
+def login(credentials: UserLogin, request: Request, db: Session = Depends(get_db)):
+    import time
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    recent = [t for t in _legacy_login_failures.get(client_ip, []) if now - t < DEMO_WINDOW_SECONDS]
+    _legacy_login_failures[client_ip] = recent
+    if len(recent) >= DEMO_MAX_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many attempts. Please try again in 15 minutes."
+        )
+
     user = db.query(User).filter(User.email == credentials.email).first()
 
-    if not user or not verify_password(credentials.password, user.hashed_password):
+    if not user or not user.hashed_password or not verify_password(credentials.password, user.hashed_password):
+        _legacy_login_failures.setdefault(client_ip, []).append(now)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
         )
+
+    _legacy_login_failures.pop(client_ip, None)
 
     if not user.is_active:
         raise HTTPException(
@@ -180,7 +168,6 @@ def create_supabase_profile(
         email = payload.get("email")
 
         print(f"🔵 Token valid! Auth user ID: {auth_user_id_str}")
-        print(f"🔵 Email: {email}")
 
         if not auth_user_id_str or not email:
             print("🔴 Missing sub or email in token")
@@ -369,7 +356,7 @@ def create_supabase_profile(
                 to_email=email,
                 username=profile_data.username
             )
-            print(f"🟢 Welcome email queued for {email}")
+            print("🟢 Welcome email queued")
         except Exception as e:
             print(f"🟡 Failed to queue welcome email: {e}")
             # Don't fail profile creation if email fails
