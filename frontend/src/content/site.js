@@ -11,7 +11,7 @@ export const SUPPORT_EMAIL = 'support@ourfamilysocials.com'
 export const OG_IMAGE = `${SITE_ORIGIN}/og-share.jpg`
 export const OG_IMAGE_WIDTH = 1200
 export const OG_IMAGE_HEIGHT = 630
-export const OG_IMAGE_ALT = 'Our Family Socials: a private family album with photos, a journey map and stories'
+export const OG_IMAGE_ALT = 'Our Family Socials: an open family photo album with holiday photos from the beach, mountains and road trips'
 
 // Published prices, taken from the /pricing page (src/pages/PricingPage.jsx).
 export const PRICING = {
