@@ -1,7 +1,7 @@
 // Renders marketing page data to static HTML, JSON-LD and plain text.
 // Used at build time by scripts/prerender.mjs and scripts/generate-seo-files.mjs.
 import { escapeHtml, inlineToHtml, inlineToText } from './inline.js'
-import { SITE_NAME, SITE_ORIGIN, OG_IMAGE, absUrl } from './site.js'
+import { SITE_NAME, SITE_ORIGIN, OG_IMAGE, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, OG_IMAGE_ALT, absUrl } from './site.js'
 
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -132,7 +132,7 @@ const ORGANIZATION = {
   '@id': `${SITE_ORIGIN}/#organization`,
   name: SITE_NAME,
   url: `${SITE_ORIGIN}/`,
-  logo: { '@type': 'ImageObject', url: OG_IMAGE, width: 512, height: 512 },
+  logo: { '@type': 'ImageObject', url: `${SITE_ORIGIN}/icons/icon-512x512.png`, width: 512, height: 512 },
   email: 'support@ourfamilysocials.com',
   description:
     'Our Family Socials is a private, ad-free social network for families to share life events, photos and memories.'
@@ -286,8 +286,9 @@ export function buildHead(page) {
     `<meta property="og:title" content="${title}" />`,
     `<meta property="og:description" content="${desc}" />`,
     `<meta property="og:image" content="${OG_IMAGE}" />`,
-    `<meta property="og:image:width" content="512" />`,
-    `<meta property="og:image:height" content="512" />`,
+    `<meta property="og:image:width" content="${OG_IMAGE_WIDTH}" />`,
+    `<meta property="og:image:height" content="${OG_IMAGE_HEIGHT}" />`,
+    `<meta property="og:image:alt" content="${escapeHtml(OG_IMAGE_ALT)}" />`,
     `<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}" />`,
     `<meta property="og:locale" content="en_US" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
@@ -295,6 +296,7 @@ export function buildHead(page) {
     `<meta name="twitter:title" content="${title}" />`,
     `<meta name="twitter:description" content="${desc}" />`,
     `<meta name="twitter:image" content="${OG_IMAGE}" />`,
+    `<meta name="twitter:image:alt" content="${escapeHtml(OG_IMAGE_ALT)}" />`,
     `<script type="application/ld+json" data-seo="page">${JSON.stringify(buildJsonLd(page))}</script>`
   ].join('\n    ')
 }

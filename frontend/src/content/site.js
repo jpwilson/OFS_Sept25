@@ -8,7 +8,10 @@ export const SITE_ORIGIN = 'https://www.ourfamilysocials.com'
 export const SITE_NAME = 'Our Family Socials'
 export const SITE_TAGLINE = 'Private family social network'
 export const SUPPORT_EMAIL = 'support@ourfamilysocials.com'
-export const OG_IMAGE = `${SITE_ORIGIN}/icons/icon-512x512.png`
+export const OG_IMAGE = `${SITE_ORIGIN}/og-share.jpg`
+export const OG_IMAGE_WIDTH = 1200
+export const OG_IMAGE_HEIGHT = 630
+export const OG_IMAGE_ALT = 'Our Family Socials: a private family album with photos, a journey map and stories'
 
 // Published prices, taken from the /pricing page (src/pages/PricingPage.jsx).
 export const PRICING = {
