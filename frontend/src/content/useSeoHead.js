@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { pageByPath } from './marketing.js'
 import { buildJsonLd } from './renderStatic.js'
-import { absUrl, OG_IMAGE, SITE_NAME } from './site.js'
+import { absUrl, OG_IMAGE, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, OG_IMAGE_ALT, SITE_NAME } from './site.js'
 
 // One route-aware head manager for every public page.
 //
@@ -43,6 +43,9 @@ export function applySeoHead(page, { noindex = false } = {}) {
     'og:title': page.title,
     'og:description': page.description,
     'og:image': OG_IMAGE,
+    'og:image:width': String(OG_IMAGE_WIDTH),
+    'og:image:height': String(OG_IMAGE_HEIGHT),
+    'og:image:alt': OG_IMAGE_ALT,
     'og:site_name': SITE_NAME
   }
   Object.entries(og).forEach(([property, content]) =>
@@ -54,7 +57,8 @@ export function applySeoHead(page, { noindex = false } = {}) {
     'twitter:url': url,
     'twitter:title': page.title,
     'twitter:description': page.description,
-    'twitter:image': OG_IMAGE
+    'twitter:image': OG_IMAGE,
+    'twitter:image:alt': OG_IMAGE_ALT
   }
   Object.entries(twitter).forEach(([name, content]) =>
     upsert(`meta[name="${name}"]`, 'meta', { name, content })
