@@ -12,7 +12,7 @@ function Privacy() {
 
       <div className={styles.content}>
         <h1>Privacy Policy</h1>
-        <p className={styles.lastUpdated}>Last Updated: January 2025</p>
+        <p className={styles.lastUpdated}>Last Updated: November 2026</p>
 
         <section>
           <h2>1. Information We Collect</h2>
@@ -58,7 +58,21 @@ function Privacy() {
         </section>
 
         <section>
-          <h2>6. Your Rights</h2>
+          <h2>6. Analytics and Privacy</h2>
+          <p>We use PostHog for privacy-first analytics to understand how our service is used and to improve your experience. Our analytics implementation is designed with your privacy as the top priority:</p>
+          <ul>
+            <li><strong>No Personal Information:</strong> We do not track names, emails, photos, or any family member details</li>
+            <li><strong>No Session Recording:</strong> We do not record your screen or capture what you type</li>
+            <li><strong>Anonymous Identifiers:</strong> Users are identified only by internal numeric IDs</li>
+            <li><strong>Minimal Data:</strong> We only track page views, navigation patterns, and key actions like signups and subscriptions</li>
+            <li><strong>Bot Filtering:</strong> Automated traffic is separated from real user analytics</li>
+            <li><strong>Respect Do Not Track:</strong> We honor your browser's Do Not Track setting</li>
+          </ul>
+          <p>Analytics data helps us understand which features are most valuable, identify technical issues, and measure the effectiveness of improvements. All data is aggregated and used solely to improve our service.</p>
+        </section>
+
+        <section>
+          <h2>7. Your Rights</h2>
           <p>You have the right to:</p>
           <ul>
             <li>Access your personal information</li>
@@ -70,22 +84,22 @@ function Privacy() {
         </section>
 
         <section>
-          <h2>7. Children's Privacy</h2>
+          <h2>8. Children's Privacy</h2>
           <p>Our service is not intended for children under 13. We do not knowingly collect personal information from children under 13. If you are a parent and believe your child has provided us with personal information, please contact us.</p>
         </section>
 
         <section>
-          <h2>8. Data Retention</h2>
+          <h2>9. Data Retention</h2>
           <p>We retain your information for as long as your account is active or as needed to provide you services. You may delete your account at any time through your account settings.</p>
         </section>
 
         <section>
-          <h2>9. Changes to This Policy</h2>
+          <h2>10. Changes to This Policy</h2>
           <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.</p>
         </section>
 
         <section>
-          <h2>10. Contact Us</h2>
+          <h2>11. Contact Us</h2>
           <p>If you have questions about this Privacy Policy, please contact us at:</p>
           <p>Email: privacy@ourfamilysocials.com</p>
         </section>

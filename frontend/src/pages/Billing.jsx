@@ -51,9 +51,9 @@ export default function Billing() {
   // Celebration confetti on successful subscription - must be before any conditional returns
   useEffect(() => {
     if (isSuccess && user) {
-      // Track purchase success event (only use user ID)
+      // Track checkout completion event (only use user ID)
       if (posthog.__loaded) {
-        posthog.capture('purchase_success', {
+        posthog.capture('checkout_completed', {
           user_id: user.id,
         })
       }
@@ -195,7 +195,7 @@ export default function Billing() {
 
       // Track checkout start event (only use user ID and billing period)
       if (posthog.__loaded) {
-        posthog.capture('start_checkout', {
+        posthog.capture('checkout_started', {
           user_id: user?.id,
           billing_period: selectedPrice,
         })
