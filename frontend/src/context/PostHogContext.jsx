@@ -10,7 +10,8 @@ export function usePostHog() {
 export function PostHogProvider({ children }) {
   useEffect(() => {
     // Read PostHog configuration from environment variables
-    const posthogKey = import.meta.env.VITE_POSTHOG_KEY
+    // Fallback to shared Bookmarker project key (public client key, safe to commit)
+    const posthogKey = import.meta.env.VITE_POSTHOG_KEY || 'phc_o34s8vv6TWjzDemdh39CAW8d4R52qFzVt2RZCnQEEKqx'
     const posthogHost = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com'
 
     // Only initialize PostHog if the key is provided
@@ -34,6 +35,7 @@ export function PostHogProvider({ children }) {
         
         // Autocapture settings - disabled for privacy
         autocapture: false,
+        capture_elementschain: false, // Don't capture element chains
         
         // Performance tracking
         capture_performance: true,
@@ -49,9 +51,15 @@ export function PostHogProvider({ children }) {
           '$screen_width',
         ],
         
+        // Bot filtering
+        advanced_disable_decide: false, // Allow PostHog to identify bots
+        
         loaded: (posthog) => {
+          // Register super property to distinguish app
+          posthog.register({ app: 'ofs' })
+          
           if (import.meta.env.DEV) {
-            console.log('PostHog analytics initialized')
+            console.log('PostHog analytics initialized for Our Family Socials')
           }
         },
       })
