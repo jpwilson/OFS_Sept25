@@ -241,7 +241,7 @@ export function AuthProvider({ children }) {
         
         // Track signup event (only use user ID, no PII)
         if (posthog.__loaded) {
-          posthog.capture('sign_up', {
+          posthog.capture('signed_up', {
             user_id: profile.id,
             method: 'email',
           })
