@@ -1,47 +1,672 @@
+/* ---------------------------------------------------------------- frames */
 .jm {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  min-width: 0;
+}
+/* desktop, beside the story: fills the height its parent gives it */
+.panel {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: min(560px, 72vh);
+}
+/* phone, inside a full-screen sheet */
+.sheet {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+.strip {
+  display: block;
+  background: var(--a-paper);
+}
+.poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-paper);
+  overflow: hidden;
+}
+.sheet .poster {
+  border: 0;
+  border-radius: 0;
+  bottom: 200px;
+}
+.poster > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- the live map */
+.live {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  outline: none;
+}
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent;
+}
+.livePanel .stage {
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  /* the panel is anywhere from 400 to 760px wide beside the story */
+  container: jstage / inline-size;
+}
+@container jstage (min-width: 540px) {
+  .dock {
+    --stop-photo: 136px;
+    max-width: 580px;
+    padding: 16px;
+    gap: 14px;
+  }
+  .dock :global([data-ui='stop-card']) {
+    gap: 12px;
+  }
+  .day {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+@container jstage (min-width: 680px) {
+  .dock {
+    --stop-photo: 152px;
+    max-width: 620px;
+  }
+}
+.liveSheet .stage {
+  min-height: 180px;
+}
+.node {
+  position: absolute;
+  inset: 0;
+  /* its own stacking context: a raised marker never climbs over the dock or a title card */
+  z-index: 0;
+}
+/* MapLibre's own .maplibregl-map sets position: relative; two classes keep the host sized */
+.node .host {
+  position: absolute;
+  inset: 0;
+}
+.node :global(.maplibregl-canvas) {
+  outline: none;
+}
+.node :global(.maplibregl-canvas:focus-visible) {
+  outline: 2px solid var(--a-ink);
+  outline-offset: -4px;
+}
+/* The panel uses cooperative gestures, so a wheel over it scrolls the story and one finger
+   scrolls the page. On touch MapLibre's hint ("use two fingers") is useful; with a mouse it
+   would flash over the map every time the reader scrolls past, so it is not shown: the
+   zoom buttons are right there. */
+.node :global(.maplibregl-cooperative-gesture-screen) {
+  background: rgba(244, 247, 251, 0.82);
+  color: var(--a-ink);
+  font: 700 17px/1.3 var(--a-font-ui);
+  padding: 24px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .node :global(.maplibregl-cooperative-gesture-screen) {
+    display: none;
+  }
+}
+.loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: var(--a-keyline);
+  border-radius: 999px;
+  background: var(--a-white);
+  font: 650 14px/1 var(--a-font-ui);
+  pointer-events: none;
+}
+
+/* ---- day chips */
+.top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 68px;
+  z-index: 2;
+  pointer-events: none;
 }
 .days {
-  list-style: none;
   display: flex;
   gap: 6px;
+  max-width: 100%;
+  padding: 2px 4px 6px 2px;
   overflow-x: auto;
   scrollbar-width: none;
+  pointer-events: auto;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+}
+.days::-webkit-scrollbar {
+  display: none;
 }
 .day {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 32px;
+  flex: none;
+  min-height: 36px;
   padding: 0 12px;
   border: var(--a-keyline);
   border-radius: 999px;
   background: var(--a-white);
-  font-weight: 650;
-  font-size: 13px;
+  color: var(--a-ink);
+  font: 650 13.5px/1 var(--a-font-ui);
   white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--a-dur) var(--a-ease), color var(--a-dur) var(--a-ease);
 }
-.dot {
-  width: 10px;
-  height: 10px;
+.day::after {
+  content: '';
+  position: absolute;
+  inset: -4px -1px;
+}
+.day[aria-pressed='true'] {
+  background: var(--a-ink);
+  color: var(--a-white);
+}
+@media (hover: hover) {
+  .day[aria-pressed='false']:hover {
+    background: var(--a-azure-tint);
+  }
+}
+.dayDot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  flex: none;
   border-radius: 50%;
+  background: var(--day);
   box-shadow: 0 0 0 1.5px var(--a-ink);
 }
-.frame {
+.day[aria-pressed='true'] .dayDot {
+  box-shadow: 0 0 0 1.5px var(--a-white);
+}
+
+/* ---- tools */
+.tools {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.threeD {
+  font: 800 14px/1 var(--a-font-ui);
+  letter-spacing: 0.02em;
+}
+@media (max-width: 899px) {
+  .zoom {
+    display: none;
+  }
+}
+.follow {
+  position: absolute;
+  top: 60px;
+  left: 14px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px 0 10px;
+  border: var(--a-keyline);
+  border-radius: 999px;
+  background: var(--a-azure);
+  color: var(--a-ink);
+  font: 700 14px/1 var(--a-font-ui);
+  box-shadow: var(--a-shadow-sm);
+  cursor: pointer;
+  animation: pop 260ms var(--a-ease-pop) both;
+}
+
+/* ---- the day's title card (playback) */
+.dayCard {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: calc(100% - 48px);
+  padding: 16px 22px 18px;
+  border: var(--a-keyline);
+  border-radius: 16px;
+  background: var(--a-white);
+  box-shadow: var(--a-shadow);
+  text-align: center;
+  transform: translate(-50%, -50%) rotate(-1.5deg);
+  animation: dayIn 420ms var(--a-ease-pop) both;
+  pointer-events: none;
+}
+.dayCardLabel {
+  padding: 4px 10px;
+  border: 2px solid var(--a-ink);
+  border-radius: 999px;
+  background: var(--day);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dayCardDate {
+  font: 800 clamp(24px, 3.2vw, 34px) / 1.02 var(--a-font-ui);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.dayCardStops {
+  font: 550 14.5px/1.3 var(--a-font-ui);
+  color: var(--a-mute);
+  text-wrap: balance;
+}
+@keyframes dayIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%) rotate(2deg) scale(0.86);
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* ---- the dock (panel): the active stop and what you can do */
+.dock {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 520px;
+  padding: 14px;
+  border: var(--a-keyline);
+  border-radius: 16px;
+  background: var(--a-white);
+  box-shadow: var(--a-shadow-sm);
+}
+.attrib {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 5px;
+  z-index: 2;
+  display: flex;
+  pointer-events: none;
+}
+/* the panel prints its attribution under the map, where nothing can cover it */
+.attribLine {
+  flex: none;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding-inline: 4px;
+  background: none;
+}
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.summaryTitle {
+  font: 800 19px/1.1 var(--a-font-ui);
+  letter-spacing: -0.02em;
+}
+.summaryMeta {
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-ink);
+}
+.summaryNote {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--a-mute);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.playSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-button);
+  background: var(--a-ink);
+  color: var(--a-white);
+  font: 700 15px/1 var(--a-font-ui);
+  cursor: pointer;
+  transition: transform var(--a-dur) var(--a-ease), box-shadow var(--a-dur) var(--a-ease);
+}
+.playSmall:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (hover: hover) {
+  .playSmall:not(:disabled):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--a-azure);
+  }
+}
+.playBtn {
+  flex: 1 1 auto;
+}
+.read {
+  flex: 1 1 auto;
+}
+
+/* ---- transport */
+.transport {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.tCount {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tPlay {
+  width: 56px;
+}
+.tBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: var(--a-keyline);
+  border-radius: 12px;
+  background: var(--a-white);
+  color: var(--a-ink);
+  font: 700 14px/1 var(--a-font-ui);
+  cursor: pointer;
+  transition: background-color var(--a-dur) var(--a-ease);
+}
+.tBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.tMain {
+  background: var(--a-ink);
+  color: var(--a-white);
+}
+.tWide {
+  width: auto;
+  padding: 0 12px 0 16px;
+}
+.tText {
+  width: auto;
+  min-width: 44px;
+  padding: 0 10px;
+}
+.tText[aria-pressed='true'] {
+  background: var(--a-azure);
+}
+@media (hover: hover) {
+  .tBtn:not(:disabled):not(.tMain):hover {
+    background: var(--a-azure-tint);
+  }
+}
+.scrub {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.scrub::-webkit-slider-runnable-track {
+  height: 12px;
+  border: 2px solid var(--a-ink);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent var(--at), rgba(255, 255, 255, 0.78) var(--at)), var(--track);
+}
+.scrub::-moz-range-track {
+  height: 8px;
+  border: 2px solid var(--a-ink);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent var(--at), rgba(255, 255, 255, 0.78) var(--at)), var(--track);
+}
+.scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -8px;
+  border: 2px solid var(--a-ink);
+  border-radius: 50%;
+  background: var(--a-white);
+  box-shadow: 2px 2px 0 var(--a-ink);
+}
+.scrub::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--a-ink);
+  border-radius: 50%;
+  background: var(--a-white);
+  box-shadow: 2px 2px 0 var(--a-ink);
+}
+.scrub:focus-visible {
+  outline: none;
+}
+.scrub:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--a-white), 0 0 0 4px var(--a-ink);
+}
+.scrub:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--a-white), 0 0 0 4px var(--a-ink);
+}
+
+/* ---- sheet: cards and actions under the map, in the thumb zone */
+.below {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: var(--a-keyline);
+  background: var(--a-white);
+  padding-bottom: calc(12px + var(--a-safe-bottom));
+}
+.below .actions,
+.below .transport {
+  padding: 0 14px;
+}
+.below .actions {
+  flex-wrap: nowrap;
+}
+.below .playBtn,
+.below .read {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 10px;
+}
+.cards {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.cards::-webkit-scrollbar {
+  display: none;
+}
+.cardItem {
+  flex: none;
+  width: min(84vw, 344px);
+  min-height: 132px;
+  scroll-snap-align: center;
+  padding: 12px;
+  border: var(--a-keyline);
+  border-radius: 16px;
+  background: var(--a-white);
+  transition: box-shadow var(--a-dur) var(--a-ease), background-color var(--a-dur) var(--a-ease);
+}
+.cardItem {
+  cursor: pointer;
+}
+.cardItem[data-current] {
+  box-shadow: var(--a-shadow-sm);
+  cursor: default;
+}
+.cardItem:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+.cardItem:not([data-current]) {
+  background: var(--a-paper);
+}
+
+/* ---------------------------------------------------------------- the full-screen sheet */
+.full {
+  position: fixed;
+  inset: 0;
+  z-index: var(--a-z-sheet);
+  display: flex;
+  flex-direction: column;
+  background: var(--a-white);
+  color: var(--a-ink);
+  outline: none;
+  transform: translateY(100%);
+  transition: transform 260ms var(--a-ease);
+}
+.fullOpen {
+  transform: none;
+}
+.fullBar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(6px + var(--a-safe-top)) 12px 6px;
+  border-bottom: var(--a-keyline);
+  background: var(--a-white);
+}
+.fullTitle {
+  min-width: 0;
+}
+.fullTitle h2 {
+  margin-top: 2px;
+  font: 800 17px/1.15 var(--a-font-ui);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fullBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------------------------------------------- the static level */
+.static {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.static-sheet {
+  padding: 14px 16px calc(20px + var(--a-safe-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.why {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 14.5px;
+  color: var(--a-mute);
+}
+.sketchFrame {
   border: var(--a-keyline);
   border-radius: var(--a-r-card);
   overflow: hidden;
   background: var(--a-paper);
+  flex: none;
 }
-.stops {
+.stopList,
+.stopRows {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
-.stop {
+.stopList {
+  gap: 10px;
+}
+.stopDayLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 2px;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.stopRow {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -49,27 +674,56 @@
   min-height: 44px;
   padding: 4px 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: none;
   color: var(--a-ink);
+  font: inherit;
   text-align: left;
   cursor: pointer;
 }
-.stop[aria-current='true'] {
+.stopRow[aria-current='step'] {
   background: var(--a-azure-tint);
 }
-.n {
+@media (hover: hover) {
+  .stopRow:hover {
+    background: var(--a-paper-deep);
+  }
+}
+.stopN {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   flex: none;
   border: 2px solid var(--a-ink);
   border-radius: 50%;
-  font-size: 12px;
   background: var(--a-white);
+  box-shadow: inset 0 0 0 3px var(--day);
+  font-size: 12px;
 }
-.stopName {
+.stopRowName {
   flex: 1;
-  font-weight: 600;
+  min-width: 0;
+  font-weight: 650;
+}
+.stopRowTime {
+  font-size: 12px;
+  color: var(--a-mute);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .full,
+  .dayCard,
+  .follow {
+    transition: none;
+    animation: fade 200ms ease both;
+  }
+  .dayCard {
+    transform: translate(-50%, -50%);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
 }

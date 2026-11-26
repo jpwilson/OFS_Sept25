@@ -1,0 +1,213 @@
+/* ---- phone top: a floating back button on the cover, then a slim bar */
+.float {
+  position: fixed;
+  z-index: var(--a-z-float);
+  top: calc(10px + var(--a-safe-top));
+  left: max(12px, var(--a-safe-left));
+  transition: opacity var(--a-dur) var(--a-ease), transform var(--a-dur) var(--a-ease);
+}
+.floatBtn {
+  background: var(--a-white);
+  border: var(--a-keyline);
+  box-shadow: var(--a-shadow-sm);
+}
+.hidden {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+.mini {
+  position: fixed;
+  z-index: var(--a-z-bar);
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: calc(var(--a-bar-h) + var(--a-safe-top));
+  padding: var(--a-safe-top) 16px 0 max(4px, var(--a-safe-left));
+  background: var(--a-white);
+  border-bottom: var(--a-keyline);
+  transform: translateY(-100%);
+  transition: transform var(--a-dur) var(--a-ease);
+}
+.miniOn {
+  transform: none;
+}
+.miniTitle {
+  flex: 1;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 16.5px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- phone bottom: in the thumb zone */
+.bottom {
+  position: fixed;
+  z-index: var(--a-z-float);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px max(8px, var(--a-safe-right)) calc(6px + var(--a-safe-bottom)) max(8px, var(--a-safe-left));
+  background: var(--a-white);
+  border-top: var(--a-keyline);
+}
+.side {
+  flex: none;
+  width: 48px;
+  height: 48px;
+}
+.where {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-height: 52px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--a-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.where:active {
+  background: var(--a-paper);
+}
+.label {
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.name {
+  font-weight: 800;
+  font-size: 15.5px;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.segs {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+  margin-top: 5px;
+}
+.seg {
+  flex-basis: 0;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--a-paper-deep);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--a-line);
+}
+.seg > span {
+  display: block;
+  height: 100%;
+  transform-origin: 0 50%;
+  transition: transform 240ms var(--a-ease);
+  box-shadow: inset 0 0 0 1.5px var(--a-ink);
+  border-radius: 3px;
+}
+.map,
+.likeBtn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 48px;
+  padding: 0 16px 0 13px;
+  border-radius: var(--a-r-pill);
+  border: var(--a-keyline);
+  background: var(--a-ink);
+  color: var(--a-white);
+  font-weight: 750;
+  font-size: 15px;
+  cursor: pointer;
+}
+.map:active,
+.likeBtn:active {
+  transform: scale(0.97);
+}
+.likeBtn {
+  background: var(--a-white);
+  color: var(--a-ink);
+  padding: 0 14px 0 12px;
+  font-size: 14px;
+}
+.liked {
+  background: var(--a-fizz-tint);
+}
+
+/* ---- share link bar */
+.share {
+  position: sticky;
+  top: 0;
+  z-index: var(--a-z-bar);
+  background: var(--a-white);
+  border-bottom: var(--a-keyline);
+  padding-top: var(--a-safe-top);
+}
+.shareInner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--a-bar-h);
+  max-width: var(--a-max);
+  margin-inline: auto;
+  padding-inline: var(--a-gutter);
+}
+.word {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-right: auto;
+  color: var(--a-ink);
+  text-decoration: none;
+  font-weight: 800;
+  font-stretch: 88%;
+  font-size: 19px;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+.mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--a-tide);
+  border: 2px solid var(--a-ink);
+  box-shadow: 2px 2px 0 var(--a-ink);
+  transform: rotate(-6deg);
+}
+.shareBtns {
+  display: flex;
+  gap: 4px;
+}
+@media (max-width: 420px) {
+  .wordText {
+    font-size: 17px;
+  }
+}
+@media (max-width: 370px) {
+  .wordText {
+    display: none;
+  }
+}

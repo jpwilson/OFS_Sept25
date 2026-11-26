@@ -1,30 +1,46 @@
 .places {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 .place {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.01em;
+  padding-bottom: 8px;
   margin-bottom: 6px;
+  border-bottom: var(--a-keyline);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+.count {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0 7px;
+  border: 2px solid var(--a-ink);
+  border-radius: 999px;
+  background: var(--a-azure-tint);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 .list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 60px;
-  padding: 6px;
-  border-radius: 14px;
+  min-height: 68px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 16px;
   text-decoration: none;
   color: var(--a-ink);
 }
@@ -33,31 +49,37 @@
 }
 @media (hover: hover) {
   .row:hover {
-    background: var(--a-paper-deep);
+    background: var(--a-azure-tint);
   }
 }
 .thumb {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   flex: none;
   border-radius: 50%;
   border: 2px solid var(--a-ink);
   object-fit: cover;
-  background: var(--a-paper-deep);
+  background: var(--a-azure-tint);
 }
 .text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  flex: 1;
   min-width: 0;
 }
 .title {
-  font-weight: 650;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 .meta {
-  font-size: 12px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--a-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

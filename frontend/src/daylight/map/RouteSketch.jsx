@@ -1,19 +1,22 @@
-// The SVG route sketch (owner: F0, MAP may restyle). PLAN-DAYLIGHT 3.6: the static level,
-// the phone's inline strip before MapLibre loads, and the stub other packages build on.
-// Stops projected on paper (equirectangular, corrected for latitude), legs coloured by day
-// over an ink casing, numbered discs with upright DM Mono digits. No map data, so no
-// attribution is needed.
-import { useMemo } from 'react'
-import { DAY_WASHES, WASH, COLOR, FONT } from '../styles/tokens.js'
-import { greatCircle } from '../lib/geo.js'
+// The SVG route sketch (owner: MAP). PLAN-DAYLIGHT 3.6: the static level, the phone's
+// inline strip, and the first paint while the live map loads.
+// Stops projected on paper (equirectangular, corrected for latitude), the same gentle
+// curves as the live map coloured by day over an ink casing, numbered discs with upright
+// DM Mono digits and the day's colour as a ring. No map data, so no attribution is needed.
+//   <RouteSketch journey activeStopId onStopSelect width height labels="named|none" />
+//   dayColor(dayIndex)
+// Sizes are in viewBox units, so pass a width close to the width it is shown at.
+import { useId, useMemo } from 'react'
+import { shortPlace } from '../lib/format.js'
+import { COLOR, FONT } from '../styles/tokens.js'
+import { dayColor } from './colors.js'
+import { legLine } from './route.js'
 import s from './RouteSketch.module.css'
 
-export function dayColor(i) {
-  return WASH[DAY_WASHES[i % DAY_WASHES.length]].base
-}
+export { dayColor }
 
-function projector(stops, w, h, pad) {
-  const lats = stops.map((p) => p.lat), lngs = stops.map((p) => p.lng)
+function projector(points, w, h, pad) {
+  const lats = points.map((p) => p[1]), lngs = points.map((p) => p[0])
   const midLat = (Math.min(...lats) + Math.max(...lats)) / 2
   const k = Math.cos((midLat * Math.PI) / 180) || 1
   const x0 = Math.min(...lngs) * k, x1 = Math.max(...lngs) * k
@@ -21,90 +24,114 @@ function projector(stops, w, h, pad) {
   const sx = (w - pad * 2) / Math.max(x1 - x0, 1e-6), sy = (h - pad * 2) / Math.max(y1 - y0, 1e-6)
   const sc = Math.min(sx, sy)
   const ox = (w - (x1 - x0) * sc) / 2, oy = (h - (y1 - y0) * sc) / 2
-  return (lat, lng) => [ox + (lng * k - x0) * sc, h - (oy + (lat - y0) * sc)]
+  return (lng, lat) => [ox + (lng * k - x0) * sc, h - (oy + (lat - y0) * sc)]
 }
 
-/**
- * <RouteSketch journey activeStopId onStopSelect width={640} height={360} labels="named|none" />
- * Responsive: the SVG scales to its container's width.
- */
 export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, height = 360, labels = 'named', className }) {
+  const uid = useId().replace(/:/g, '')
   const geo = useMemo(() => {
     if (!journey?.stops?.length) return null
-    const pad = 36
-    const P = projector(journey.stops, width, height, pad)
-    const pts = Object.fromEntries(journey.stops.map((st) => [st.id, P(st.lat, st.lng)]))
-    const legs = journey.legs.map((l) => {
-      const a = journey.stops.find((x) => x.id === l.from), b = journey.stops.find((x) => x.id === l.to)
-      const line = l.arc ? greatCircle(a, b, 24).map(([lng, lat]) => P(lat, lng)) : [pts[l.from], pts[l.to]]
-      return { ...l, d: 'M' + line.map((p) => p.map((v) => v.toFixed(1)).join(',')).join('L') }
-    })
+    const small = width < 480
+    const R = small ? 11 : 13
+    const pad = small ? 30 : 40
+    const lines = journey.legs.map((l) => ({ leg: l, line: legLine(journey, l) }))
+    // fit the curves as well as the stops, so a bowed leg never leaves the paper
+    const P = projector([...journey.stops.map((st) => [st.lng, st.lat]), ...lines.flatMap((x) => x.line)], width, height, pad)
+    const pts = Object.fromEntries(journey.stops.map((st) => [st.id, P(st.lng, st.lat)]))
+    // numbered discs that would sit on top of each other are eased apart
+    const named = journey.stops.filter((st) => st.kind === 'named')
+    for (let pass = 0; pass < 6; pass++) {
+      for (let i = 0; i < named.length; i++) {
+        for (let j = i + 1; j < named.length; j++) {
+          const a = pts[named[i].id], b = pts[named[j].id]
+          let dx = b[0] - a[0], dy = b[1] - a[1]
+          const d = Math.hypot(dx, dy), min = R * 2 + 1
+          if (d >= min) continue
+          if (d < 0.5) {
+            dx = 1
+            dy = 0
+          }
+          const push = Math.min(R * 0.6, (min - d) / 2) / Math.max(d, 1)
+          a[0] -= dx * push; a[1] -= dy * push
+          b[0] += dx * push; b[1] += dy * push
+        }
+      }
+    }
+    const legs = lines.map(({ leg, line }) => ({ ...leg, d: 'M' + line.map(([lng, lat]) => P(lng, lat).map((v) => v.toFixed(1)).join(',')).join('L') }))
     // labels: right, left, above or below the disc, skipped when they would still collide
     const boxes = journey.stops.map((st) => {
       const [x, y] = pts[st.id]
-      const r = st.kind === 'named' ? 13 : 6
+      const r = st.kind === 'named' ? R + 2 : 6
       return [x - r, y - r, x + r, y + r]
     })
     const hit = (a, b) => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]
     const labelsAt = {}
+    const fs = small ? 11.5 : 12.5
     for (const st of journey.stops) {
       if (labels !== 'named' || st.kind !== 'named' || !st.name) continue
-      const text = st.name.length > 26 ? `${st.name.slice(0, 25)}…` : st.name
-      const w = text.length * 6.7 + 4, h = 15
+      const short = shortPlace(st.name, 1)
+      const text = short.length > 22 ? `${short.slice(0, 21)}…` : short
+      const w = text.length * fs * 0.56 + 6, h = fs + 4
       const [x, y] = pts[st.id]
+      const g = R + 6
       const tries = [
-        { tx: x + 18, ty: y + 4, anchor: 'start', box: [x + 16, y - 9, x + 16 + w, y - 9 + h] },
-        { tx: x - 18, ty: y + 4, anchor: 'end', box: [x - 16 - w, y - 9, x - 16, y - 9 + h] },
-        { tx: x, ty: y - 19, anchor: 'middle', box: [x - w / 2, y - 32, x + w / 2, y - 32 + h] },
-        { tx: x, ty: y + 28, anchor: 'middle', box: [x - w / 2, y + 15, x + w / 2, y + 15 + h] },
+        { tx: x + g, ty: y + fs * 0.34, anchor: 'start', box: [x + g - 2, y - h / 2, x + g + w, y + h / 2] },
+        { tx: x - g, ty: y + fs * 0.34, anchor: 'end', box: [x - g - w, y - h / 2, x - g + 2, y + h / 2] },
+        { tx: x, ty: y - g - 2, anchor: 'middle', box: [x - w / 2, y - g - h, x + w / 2, y - g + 2] },
+        { tx: x, ty: y + g + fs * 0.8, anchor: 'middle', box: [x - w / 2, y + g - 2, x + w / 2, y + g + h] },
       ]
-      const ok = tries.find((t) => t.box[0] >= 2 && t.box[2] <= width - 2 && t.box[1] >= 2 && t.box[3] <= height - 2 && !boxes.some((b) => hit(b, t.box)))
+      const ok = tries.find((t) => t.box[0] >= 3 && t.box[2] <= width - 3 && t.box[1] >= 3 && t.box[3] <= height - 3 && !boxes.some((b) => hit(b, t.box)))
       if (ok) {
         boxes.push(ok.box)
         labelsAt[st.id] = { ...ok, text }
       }
     }
-    return { pts, legs, labelsAt }
+    return { pts, legs, labelsAt, R, fs }
   }, [journey, width, height, labels])
   if (!geo) return null
   const named = journey.stops.filter((st) => st.kind === 'named')
+  const { R, fs } = geo
   return (
-    <svg className={`${s.sketch} ${className || ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Route sketch: ${named.length} stops over ${journey.days.length} ${journey.days.length === 1 ? 'day' : 'days'}`} data-ui="route-sketch">
+    <svg className={`${s.sketch} ${className || ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Route sketch: ${named.length} ${named.length === 1 ? 'stop' : 'stops'} over ${journey.days.length} ${journey.days.length === 1 ? 'day' : 'days'}`} data-ui="route-sketch">
       <defs>
-        <pattern id="ofsa-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-          <path d="M24 0H0V24" fill="none" stroke={COLOR.ink} strokeOpacity=".06" strokeWidth="1" />
+        <pattern id={`g${uid}`} width="22" height="22" patternUnits="userSpaceOnUse">
+          <circle cx="11" cy="11" r="1.1" fill={COLOR.ink} fillOpacity=".14" />
         </pattern>
       </defs>
       <rect width={width} height={height} fill={COLOR.paper} />
-      <rect width={width} height={height} fill="url(#ofsa-grid)" />
+      <rect width={width} height={height} fill={`url(#g${uid})`} />
       {geo.legs.map((l) => (
-        <path key={`c${l.id}`} d={l.d} fill="none" stroke={COLOR.ink} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+        <path key={`c${l.id}`} d={l.d} fill="none" stroke={COLOR.ink} strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
       ))}
       {geo.legs.map((l) => (
-        <path key={l.id} d={l.d} fill="none" stroke={dayColor(l.dayIndex)} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path key={l.id} d={l.d} fill="none" stroke={dayColor(l.dayIndex)} strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
       ))}
       {journey.stops.map((st) => {
         const [x, y] = geo.pts[st.id]
         const active = st.id === activeStopId
-        const r = st.kind === 'named' ? (active ? 15 : 12) : 5
+        const isNamed = st.kind === 'named'
+        const r = isNamed ? (active ? R + 3 : R) : 5.5
+        const lab = geo.labelsAt[st.id]
         const body = (
           <>
-            <circle cx={x} cy={y} r={r} fill={st.kind === 'named' ? (active ? COLOR.ink : COLOR.white) : dayColor(st.dayIndex)} stroke={COLOR.ink} strokeWidth="2" />
+            {isNamed && active ? <circle cx={x + 2} cy={y + 3} r={r} fill={COLOR.ink} /> : null}
+            <circle cx={x} cy={y} r={r} fill={isNamed ? (active ? COLOR.ink : COLOR.white) : dayColor(st.dayIndex)} stroke={COLOR.ink} strokeWidth="2" />
+            {isNamed && !active ? <circle cx={x} cy={y} r={r - 2.6} fill="none" stroke={dayColor(st.dayIndex)} strokeWidth="2.6" /> : null}
             {st.n != null ? (
-              <text x={x} y={y + 4} textAnchor="middle" fontFamily={FONT.mono} fontSize="11.5" fontWeight="500" fill={active ? COLOR.white : COLOR.ink}>
+              <text x={x} y={y + (R > 11 ? 4.2 : 3.8)} textAnchor="middle" fontFamily={FONT.mono} fontSize={R > 11 ? 11.5 : 10.5} fontWeight="500" fill={active ? COLOR.white : COLOR.ink}>
                 {st.n}
               </text>
             ) : null}
-            {geo.labelsAt[st.id] ? (
-              <text x={geo.labelsAt[st.id].tx} y={geo.labelsAt[st.id].ty} textAnchor={geo.labelsAt[st.id].anchor} fontFamily={FONT.ui} fontSize="12.5" fontWeight="650" fill={COLOR.ink} stroke={COLOR.paper} strokeWidth="3" paintOrder="stroke">
-                {geo.labelsAt[st.id].text}
+            {lab ? (
+              <text x={lab.tx} y={lab.ty} textAnchor={lab.anchor} fontFamily={FONT.ui} fontSize={fs} fontWeight="700" fill={COLOR.ink} stroke={COLOR.paper} strokeWidth="3.5" strokeLinejoin="round" paintOrder="stroke">
+                {lab.text}
               </text>
             ) : null}
           </>
         )
-        if (!onStopSelect || st.kind !== 'named') return <g key={st.id}>{body}</g>
+        if (!onStopSelect || !isNamed) return <g key={st.id}>{body}</g>
         return (
-          <g key={st.id} className={s.hit} role="button" tabIndex={0} aria-label={`Stop ${st.n}: ${st.name || 'unnamed'}`} onClick={() => onStopSelect(st.id)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onStopSelect(st.id))}>
+          <g key={st.id} className={s.hit} role="button" tabIndex={0} aria-label={`Stop ${st.n}: ${shortPlace(st.name, 1) || 'unnamed'}`} onClick={() => onStopSelect(st.id)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onStopSelect(st.id))}>
             <circle cx={x} cy={y} r="22" fill="transparent" />
             {body}
           </g>

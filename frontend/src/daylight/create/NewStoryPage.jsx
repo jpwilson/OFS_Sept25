@@ -1,48 +1,62 @@
-// /create?from=photos (stub by F0; CREATE owns this file). Proves buildDraft ->
-// draftToEvent -> StoryView + JourneyMap with no network.
-import { useMemo, useState } from 'react'
+// /create?from=photos, "From photos" (owner: CREATE). PLAN-DAYLIGHT 2.8 and 4.2.
+// Pick photos and the story appears straight away from their own time and place; uploads,
+// place names and the write-up improve it in place; a voice note, a few words or answers
+// make it better; nothing is posted until Publish or Save draft.
+//   <NewStoryPage />                                   the route
+//   <NewStoryPage files metaOf onBack backLabel />     Smart Import hands over an album
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { buildDraft, draftToEvent } from './draft.js'
-import { useParsedStory } from '../story/useParsedStory.js'
-import StoryView from '../story/StoryView.jsx'
-import JourneyMap from '../map/JourneyMap.jsx'
-import { Head } from '../ui/Head.jsx'
-import { Button } from '../ui/Button.jsx'
-import { Stub } from '../ui/Stub.jsx'
 import { useChrome } from '../shell/chrome.js'
+import { useMaker, StoryMaker } from './maker.js'
+import CreateFlow from './CreateFlow.jsx'
+import { Picker, Reading } from './Picker.jsx'
 
-export default function NewStoryPage() {
-  const { user } = useAuth() || {}
-  const [draft, setDraft] = useState(null)
-  const [busy, setBusy] = useState(false)
+function Running({ maker, onLeave, leaveLabel, canUseAI, onEmpty }) {
+  const st = useMaker(maker)
+  useEffect(() => {
+    if (st.phase === 'nophotos') onEmpty()
+  }, [st.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+  if (st.phase !== 'ready') return <Reading done={st.read.done} total={st.read.total} />
+  return <CreateFlow maker={maker} onLeave={onLeave} leaveLabel={leaveLabel} canUseAI={canUseAI} />
+}
+
+export default function NewStoryPage({ files: given, metaOf, onBack, backLabel }) {
+  const auth = useAuth() || {}
+  const canUseAI = !!(auth.isSuperuser || auth.isPaidSubscriber || auth.isTrialActive)
+  const [maker, setMaker] = useState(null)
+  const [error, setError] = useState(null)
+  const started = useRef(null)
   useChrome({ footer: false })
-  const event = useMemo(() => (draft ? draftToEvent(draft, { author: user }) : null), [draft, user])
-  const { parsed, journey } = useParsedStory(event)
-  const pick = async (e) => {
-    if (!e.target.files?.length) return
-    setBusy(true)
-    try {
-      setDraft(await buildDraft(e.target.files))
-    } finally {
-      setBusy(false)
-    }
+
+  const begin = (files) => {
+    setError(null)
+    const m = new StoryMaker({ author: auth.user, canUseAI })
+    setMaker(m)
+    m.start(files, { metaOf })
   }
-  return (
-    <div className="a-wrap" style={{ paddingBlock: 20, display: 'grid', gap: 16 }} data-wash="fizz">
-      <Head as="h1" before="A story from your" mark="photos" after="." />
-      <Stub pkg="create" name="New story from photos" note="Stub: pick photos to see the instant draft through the shared StoryView and journey. Uploads, voice, questions and Publish arrive with CREATE.">
-        <div>
-          <Button icon="photos" busy={busy} onClick={() => document.getElementById('ofsa-create-pick')?.click()}>Pick photos</Button>
-          <input id="ofsa-create-pick" type="file" accept="image/*" multiple hidden onChange={pick} data-ui="photo-input" />
-        </div>
-        {draft ? <p className="a-mono a-small">{draft.photos.length} photos · {draft.days.length} days · {draft.stops.length} stops</p> : null}
-      </Stub>
-      {event ? (
-        <>
-          {journey ? <JourneyMap journey={journey} mode="strip" /> : null}
-          <StoryView event={event} parsed={parsed} journey={journey} mode="preview" />
-        </>
-      ) : null}
-    </div>
-  )
+  useEffect(() => {
+    if (given?.length && started.current !== given) {
+      started.current = given
+      begin(given)
+    }
+  }, [given]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => maker?.destroy(), [maker])
+
+  const leave = () => {
+    setMaker(null)
+    if (onBack) onBack()
+  }
+  if (maker) {
+    return (
+      <Running
+        maker={maker}
+        canUseAI={canUseAI}
+        onLeave={leave}
+        leaveLabel={backLabel || 'Start over'}
+        onEmpty={() => { setMaker(null); setError('None of those files are photos. Pick photos from your camera roll or a folder.') }}
+      />
+    )
+  }
+  if (given?.length) return <Reading done={0} total={given.length} />
+  return <Picker onFiles={begin} error={error} canUseAI={canUseAI} />
 }

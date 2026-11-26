@@ -1,0 +1,342 @@
+/* DOM markers for both maps (owner: MAP). MapLibre positions the marker root with a
+   transform, so every visual and every animation lives on a child. */
+
+/* ---------------------------------------------------------------- world: story pins */
+.pin {
+  --pin: 48px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: var(--pin);
+  height: var(--pin);
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@media (min-width: 900px) {
+  .pin {
+    --pin: 52px;
+  }
+}
+.pin:global(.maplibregl-marker-covered) {
+  pointer-events: none;
+}
+.pin:focus-visible {
+  outline: none;
+}
+.body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+  transition: transform 220ms var(--a-ease-pop);
+  animation: pop 320ms var(--a-ease-pop) both;
+}
+.print {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+  border: 3px solid var(--a-white);
+  background: var(--a-azure-tint) center / cover no-repeat;
+  box-shadow: 0 0 0 2px var(--a-ink), 3px 4px 0 2px var(--a-ink);
+}
+.print[data-empty] {
+  display: grid;
+  place-items: center;
+  font: 700 15px/1 var(--a-font-ui);
+  color: var(--a-ink);
+  background: var(--a-wash, var(--a-azure));
+}
+/* the two covers behind the front one in a group */
+.back {
+  box-shadow: 0 0 0 2px var(--a-ink);
+  transform: translate(-13px, 2px) scale(0.84);
+}
+.back + .back {
+  transform: translate(13px, 2px) scale(0.84);
+}
+.count {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid var(--a-white);
+  background: var(--a-ink);
+  color: var(--a-white);
+  font: 500 12.5px/1 var(--a-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+@media (hover: hover) {
+  .pin:hover .body {
+    transform: scale(1.1);
+  }
+}
+.pin:focus-visible .print:last-of-type,
+.pin[data-hover] .print:last-of-type {
+  box-shadow: 0 0 0 2px var(--a-ink), 0 0 0 5px var(--a-white), 0 0 0 7px var(--a-ink), 3px 4px 0 7px var(--a-ink);
+}
+.pin[data-hover] .body {
+  animation: pulse 520ms var(--a-ease-pop);
+}
+.pin[data-selected] {
+  z-index: 3;
+}
+.pin[data-selected] .body {
+  transform: scale(1.18);
+}
+.pin[data-selected] .print:last-of-type {
+  box-shadow: 0 0 0 2px var(--a-ink), 0 0 0 6px var(--a-azure), 0 0 0 8px var(--a-ink), 3px 5px 0 8px var(--a-ink);
+}
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+@keyframes pulse {
+  40% {
+    transform: scale(1.22);
+  }
+}
+
+/* the element the selected story's card hangs from (desktop) */
+.anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 5;
+}
+
+/* ---------------------------------------------------------------- journey: stops */
+.stop {
+  --disc: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--disc);
+  height: var(--disc);
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.stop::before {
+  /* 44px hit area around a 30px disc */
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+}
+.stop:focus-visible {
+  outline: none;
+}
+.disc {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--a-ink);
+  background: var(--a-white);
+  color: var(--a-ink);
+  /* upright numerals: the disc is never rotated, whatever the map's bearing */
+  font: 500 13px/1 var(--a-font-mono);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 2px 3px 0 var(--a-ink);
+  transition: transform 220ms var(--a-ease-pop), background-color 160ms, color 160ms;
+}
+.disc::after {
+  /* the day's colour, as a ring inside the keyline */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--day, transparent);
+}
+.stop[data-dim] .disc {
+  opacity: 0.45;
+  box-shadow: none;
+}
+.stop[data-ahead] .disc {
+  background: var(--a-paper);
+  box-shadow: none;
+}
+.stop[data-ahead] .disc::after {
+  box-shadow: none;
+}
+.stop[data-active] {
+  z-index: 4;
+}
+.stop[data-active] .disc {
+  transform: scale(1.32);
+  background: var(--a-ink);
+  color: var(--a-white);
+  box-shadow: 0 0 0 3px var(--a-white), 0 0 0 5px var(--a-ink), 3px 4px 0 5px var(--a-ink);
+}
+.stop[data-active] .disc::after {
+  box-shadow: none;
+}
+.stop:focus-visible .disc {
+  box-shadow: 0 0 0 3px var(--a-white), 0 0 0 5px var(--a-ink);
+}
+@media (hover: hover) {
+  .stop:hover .disc {
+    transform: scale(1.14);
+  }
+  .stop[data-active]:hover .disc {
+    transform: scale(1.36);
+  }
+}
+/* a photo point with no name: a small dot in the day's colour */
+.dot {
+  --disc: 14px;
+}
+.dot .disc {
+  background: var(--day, var(--a-azure));
+  box-shadow: none;
+  font-size: 0;
+}
+.dot .disc::after {
+  box-shadow: none;
+}
+
+/* the stop's name, beside the active disc */
+.tag {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 5px 9px;
+  border: 2px solid var(--a-ink);
+  border-radius: 9px;
+  background: var(--a-white);
+  color: var(--a-ink);
+  font: 700 13px/1.15 var(--a-font-ui);
+  white-space: nowrap;
+  max-width: var(--tag-max, 190px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 2px 3px 0 var(--a-ink);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms;
+}
+.stop[data-side='left'] .tag {
+  left: auto;
+  right: calc(100% + 12px);
+}
+.stop[data-active] .tag,
+.stop[data-label] .tag {
+  opacity: 1;
+}
+.stop[data-label]:not([data-active]) .tag {
+  padding: 3px 7px;
+  border-width: 1.5px;
+  font-weight: 650;
+  font-size: 12px;
+  box-shadow: none;
+}
+
+/* photo prints standing on their stop */
+.prints {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  display: flex;
+  transform: translateX(calc(-50% + var(--fan-shift, 0px)));
+  pointer-events: none;
+  transition: opacity 180ms;
+}
+.stop[data-prints='off'] .prints {
+  opacity: 0;
+}
+.stopPrint {
+  --w: 46px;
+  display: block;
+  width: var(--w);
+  height: calc(var(--w) * 0.78);
+  flex: none;
+  border: 3px solid var(--a-white);
+  border-radius: 6px;
+  background: var(--a-paper-deep) center / cover no-repeat;
+  box-shadow: 0 0 0 1.5px var(--a-ink), 2px 3px 0 1.5px var(--a-ink);
+  transform: rotate(-3deg);
+  transform-origin: 50% 100%;
+  transition: width 240ms var(--a-ease-pop), height 240ms var(--a-ease-pop);
+}
+.stopPrint + .stopPrint {
+  display: none;
+  margin-left: -14px;
+  transform: rotate(4deg) translateY(2px);
+}
+.stopPrint + .stopPrint + .stopPrint {
+  transform: rotate(-5deg) translateY(-1px);
+}
+.stop[data-active] .stopPrint {
+  --w: 84px;
+}
+.stop[data-active] .stopPrint + .stopPrint {
+  display: block;
+  animation: fan 360ms var(--a-ease-pop) both;
+}
+.stop[data-active] .stopPrint + .stopPrint + .stopPrint {
+  animation-delay: 70ms;
+}
+.prints::after {
+  /* the pin that holds the print to the map */
+  content: '';
+  position: absolute;
+  left: calc(50% - var(--fan-shift, 0px));
+  top: 100%;
+  width: 2px;
+  height: 9px;
+  margin-left: -1px;
+  background: var(--a-ink);
+}
+@keyframes fan {
+  from {
+    opacity: 0;
+    transform: rotate(0) translateY(10px) scale(0.6);
+  }
+}
+
+/* the head of the line during playback */
+.traveller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--a-ink);
+  border: 3px solid var(--a-white);
+  box-shadow: 0 0 0 2px var(--a-ink);
+  pointer-events: none;
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .disc,
+  .stopPrint,
+  .stopPrint + .stopPrint {
+    animation: none !important;
+    transition: none !important;
+  }
+}

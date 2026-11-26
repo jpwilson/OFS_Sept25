@@ -1,3 +1,4 @@
-// The create package's public helpers (stubs by F0; CREATE replaces the insides, keeps the names).
-export { buildDraft, draftToEvent, draftHtml, markerSpan, exifTime } from './draft.js'
-export { composeEvent } from './compose.js'
+// The create package's public helpers (owner: CREATE). Names frozen by FOUNDATION.md.
+export { buildDraft, draftToEvent, draftHtml, markerSpan, exifTime, readMeta, groupStops, pickCover, workingTitle, resolvePhotos } from './draft.js'
+export { composeEvent, finalizeStoryHtml, writeRequest, normalizeMediaUrl } from './compose.js'
+export { StoryMaker, useMaker, AUDIENCES, CATEGORIES, AI_PER_DAY } from './maker.js'
