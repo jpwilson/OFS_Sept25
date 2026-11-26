@@ -27,6 +27,44 @@
     <meta name="twitter:image:alt" content="Our Family Socials: an open family photo album with holiday photos from the beach, mountains and road trips" />
     <!-- SEO:END -->
 
+    <!-- LANDING:BOOT (owner: landing F0). Decides, before anything renders, whether this
+         visit boots the standalone story landing or the app. The variant name and the
+         asset map are filled in at build time (vite.config.js, scripts/prerender.mjs).
+         Keep it before every stylesheet. -->
+    <script>
+      (function () {
+        var d = document.documentElement, boot = 'app', assets = null /*LANDING:ASSETS*/;
+        try {
+          var q = location.search, h = location.hash;
+          var authInUrl = /[?&](code|access_token|refresh_token|token_hash|type|error|error_description|error_code|invite)=/.test(q) ||
+            /(access_token|refresh_token|error_description|type)=/.test(h);
+          if ('__LANDING_VARIANT__' === 'story' && location.pathname === '/' && !authInUrl && !/[?&]landing=legacy(&|$)/.test(q)) {
+            var session = false;
+            try {
+              var ls = window.localStorage;
+              if (ls.getItem('token')) session = true;
+              for (var i = 0; !session && i < ls.length; i++) if (/^sb-.*-auth-token$/.test(ls.key(i) || '')) session = true;
+            } catch (e) { session = false; }
+            if (!session) boot = 'landing';
+          }
+        } catch (e) { boot = 'app'; }
+        d.setAttribute('data-boot', boot);
+        if (!assets) return;
+        try {
+          var out = '';
+          if (boot === 'landing') {
+            for (var c = 0; c < assets.css.length; c++) out += '<link rel="stylesheet" href="' + assets.css[c] + '">';
+            for (var f = 0; f < assets.fonts.length; f++) out += '<link rel="preload" as="font" type="font/woff2" crossorigin href="' + assets.fonts[f] + '">';
+            for (var j = 0; j < assets.js.length; j++) out += '<link rel="modulepreload" href="' + assets.js[j] + '">';
+          } else {
+            for (var a = 0; a < assets.appCss.length; a++) out += '<link rel="stylesheet" href="' + assets.appCss[a] + '">';
+            for (var k = 0; k < assets.app.length; k++) out += '<link rel="modulepreload" href="' + assets.app[k] + '">';
+          }
+          if (out) document.write(out);
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 

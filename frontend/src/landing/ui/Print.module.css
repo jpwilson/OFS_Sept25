@@ -1,0 +1,26 @@
+.print {
+  display: inline-block;
+  margin: 0;
+  padding: 10px;
+  padding-bottom: 10px;
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+  border-radius: 4px;
+  box-shadow: var(--l-shadow);
+  transform: rotate(var(--tilt, -2deg));
+}
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+}
+.caption {
+  padding: 10px 2px 2px;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  color: var(--l-ink);
+}

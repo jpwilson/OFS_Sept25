@@ -1,0 +1,22 @@
+.ghost {
+  display: block;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-variation-settings: 'wdth' 75;
+  font-size: var(--l-size-ghost);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  color: var(--l-wash-deep);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}

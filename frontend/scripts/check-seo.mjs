@@ -88,7 +88,7 @@ for (const page of PAGES) {
   if (words < MIN_WORDS) fail(page.path, `only ${words} crawler-visible words (need > ${MIN_WORDS})`)
 
   // the H1 text must really be in the HTML, not injected by JS
-  if (!html.includes('<h1>')) fail(page.path, 'H1 is not in the raw HTML')
+  if (!/<h1[\s>]/.test(html)) fail(page.path, 'H1 is not in the raw HTML')
 
   rows.push({ path: page.path, words, titleLen: title?.length ?? 0, descLen: desc?.length ?? 0, types: [...new Set(types)].join(',') })
 }

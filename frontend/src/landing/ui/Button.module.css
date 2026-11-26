@@ -1,0 +1,82 @@
+.btn {
+  --h: 48px;
+  --px: 22px;
+  --fs: 16px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: var(--h);
+  padding: 0 var(--px);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-button);
+  box-shadow: var(--l-shadow);
+  font-family: var(--l-font-text);
+  font-size: var(--fs);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    box-shadow var(--l-dur-hover) var(--l-ease-out),
+    background-color var(--l-dur-hover) ease;
+}
+.btn:hover {
+  text-decoration: none;
+}
+.lg {
+  --h: 58px;
+  --px: 28px;
+  --fs: 18px;
+}
+.md {
+  --h: 48px;
+}
+.solid {
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-color: var(--l-ink);
+}
+.ghost {
+  background: var(--l-white);
+  color: var(--l-ink);
+}
+@media (hover: hover) {
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--l-ink);
+  }
+  .btn:hover .icon {
+    transform: translateX(3px);
+  }
+}
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--l-ink);
+}
+.btn:focus-visible {
+  outline: 3px solid var(--l-ink);
+  outline-offset: 4px;
+  border-radius: var(--l-r-button);
+}
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.icon {
+  flex: none;
+  transition: transform var(--l-dur-hover) var(--l-ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .icon {
+    transition: none;
+  }
+}

@@ -1,0 +1,93 @@
+/* Landing tokens (owner: F0). Everything lives on .ofsl, never :root, so the app's own
+   variables and the landing's never meet. Washes are set with data-wash on any element
+   inside .ofsl and expose --l-wash and --l-wash-deep. Text is ink on every wash. */
+
+.ofsl {
+  /* colour */
+  --l-ink: #101b3b;
+  --l-paper: #f4f7fb;
+  --l-white: #ffffff;
+  --l-line: rgba(16, 27, 59, 0.14);
+  --l-mute: rgba(16, 27, 59, 0.66);
+  --l-wash: #19cfc7;
+  --l-wash-deep: #0fb8b1;
+
+  /* raw wash values, for canvas or SVG fills that cannot read a data-wash */
+  --l-tide: #19cfc7;
+  --l-tide-deep: #0fb8b1;
+  --l-fizz: #ff62c4;
+  --l-fizz-deep: #f247af;
+  --l-zest: #ff8a1f;
+  --l-zest-deep: #f27405;
+  --l-azure: #3aa8ff;
+  --l-azure-deep: #1f93f0;
+  --l-lime: #c6f135;
+  --l-lime-deep: #aedb1c;
+  --l-paper-deep: #e3e9f2;
+
+  /* type */
+  --l-font-display: 'OFSL Bricolage', 'OFSL Bricolage Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --l-font-text: 'OFSL Bricolage', 'OFSL Bricolage Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --l-font-story: 'OFSL Literata', 'OFSL Literata Fallback', Georgia, 'Times New Roman', serif;
+  --l-font-mono: 'OFSL DM Mono', 'OFSL DM Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --l-size-hero: clamp(44px, 7.6vw, 128px);
+  --l-size-head: clamp(34px, 5vw, 72px);
+  --l-size-ghost: clamp(150px, 32vw, 560px);
+  --l-size-body: clamp(17px, 1.1vw + 12px, 18px);
+  --l-size-lede: clamp(18px, 1.2vw + 12px, 22px);
+  --l-size-label: 11.5px;
+  --l-track-head: -0.03em;
+  --l-track-label: 0.12em;
+  --l-lh-head: 0.94;
+  --l-lh-body: 1.55;
+
+  /* shape */
+  --l-keyline: 2px solid var(--l-ink);
+  --l-shadow: 4px 4px 0 var(--l-ink);
+  --l-shadow-sm: 3px 3px 0 var(--l-ink);
+  --l-shadow-lg: 6px 6px 0 var(--l-ink);
+  --l-r-button: 14px;
+  --l-r-card: 20px;
+  --l-r-readout: 12px;
+  --l-r-sticker: 6px;
+  --l-r-pill: 999px;
+
+  /* layout */
+  --l-gutter: clamp(18px, 4vw, 56px);
+  --l-max: 1240px;
+  --l-band-y: clamp(72px, 10vw, 152px);
+  --l-nav-h: 80px;
+  --l-horizon: 80%;
+
+  /* motion */
+  --l-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --l-ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --l-dur-enter: 700ms;
+  --l-dur-hover: 200ms;
+}
+
+.ofsl [data-wash='tide'] {
+  --l-wash: var(--l-tide);
+  --l-wash-deep: var(--l-tide-deep);
+}
+.ofsl [data-wash='fizz'] {
+  --l-wash: var(--l-fizz);
+  --l-wash-deep: var(--l-fizz-deep);
+}
+.ofsl [data-wash='zest'] {
+  --l-wash: var(--l-zest);
+  --l-wash-deep: var(--l-zest-deep);
+}
+.ofsl [data-wash='azure'] {
+  --l-wash: var(--l-azure);
+  --l-wash-deep: var(--l-azure-deep);
+}
+.ofsl [data-wash='lime'] {
+  --l-wash: var(--l-lime);
+  --l-wash-deep: var(--l-lime-deep);
+}
+.ofsl [data-wash='paper'] {
+  --l-wash: var(--l-paper);
+  --l-wash-deep: var(--l-paper-deep);
+}

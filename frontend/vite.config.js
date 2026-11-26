@@ -1,9 +1,40 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { resolveVariant } from './scripts/landing/variant.mjs'
+
+// Which landing page this build serves: 'classic' (today's) or 'story' (the rebuild).
+// See scripts/landing/variant.mjs and landing.config.json.
+const LANDING_VARIANT = resolveVariant()
+
+// Story variant: fills the variant into the inline boot script in index.html.
+// Classic variant: removes the boot script and makes boot-app.jsx (today's main.jsx body)
+// the page entry, so a classic build's html and app loading are exactly as before.
+const BOOT_BLOCK = /\n\s*<!-- LANDING:BOOT[\s\S]*?<\/script>/
+function landingVariantHtml() {
+  return {
+    name: 'ofs-landing-variant',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        if (!BOOT_BLOCK.test(html)) throw new Error('index.html: LANDING:BOOT block missing')
+        if (LANDING_VARIANT === 'story') return html.replace(/__LANDING_VARIANT__/g, LANDING_VARIANT)
+        return html.replace(BOOT_BLOCK, '').replace('src="/src/main.jsx"', 'src="/src/boot-app.jsx"')
+      }
+    }
+  }
+}
 
 export default defineConfig({
+  define: {
+    __LANDING_VARIANT__: JSON.stringify(LANDING_VARIANT),
+  },
+  build: {
+    // scripts/prerender.mjs reads this to find the landing chunk and stylesheet.
+    manifest: true,
+  },
   plugins: [
+    landingVariantHtml(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -70,6 +101,10 @@ export default defineConfig({
           /^\/(features|pricing|faq|about|alternatives)$/,
           /^\/compare\//
         ],
+        // Landing images and fonts are large and only wanted on the landing page; they are
+        // served with an immutable cache header instead (vercel.json). Landing JS and CSS
+        // chunks stay precached so a cached index.html always finds its own chunks.
+        globIgnores: ['landing/**', '.vite/**'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB (increased from default 2 MB)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
@@ -120,6 +155,11 @@ export default defineConfig({
       }
     })
   ],
+  // Dev only: pre-bundle the landing's lazily imported deps so the first visit to the
+  // landing does not trigger a dependency re-optimisation and a full reload.
+  optimizeDeps: {
+    include: ['lenis', '@vercel/analytics', 'posthog-js'],
+  },
   server: {
     port: 3000,
     proxy: {

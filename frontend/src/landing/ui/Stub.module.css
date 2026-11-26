@@ -1,0 +1,20 @@
+.stub {
+  min-height: 56svh;
+  display: grid;
+  align-content: center;
+  border-top: 2px dashed rgba(16, 27, 59, 0.25);
+}
+.inner {
+  display: grid;
+  gap: 18px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+}
+.note {
+  max-width: 46ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+}

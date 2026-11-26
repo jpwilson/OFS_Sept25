@@ -1,0 +1,31 @@
+.section {
+  position: relative;
+  padding-block: var(--l-band-y);
+  color: var(--l-ink);
+  scroll-margin-top: 0;
+}
+.section[data-pad='sm'] {
+  padding-block: clamp(44px, 6vw, 88px);
+}
+.section[data-pad='none'] {
+  padding-block: 0;
+}
+.wash {
+  background: var(--l-wash);
+}
+.paper {
+  background: var(--l-paper);
+}
+.white {
+  background: var(--l-white);
+}
+.section[data-floor]::before {
+  content: '';
+  position: absolute;
+  inset: var(--l-horizon) 0 0 0;
+  background: var(--l-wash-deep);
+  pointer-events: none;
+}
+.inner {
+  position: relative;
+}
