@@ -3,8 +3,8 @@
 // prints the lines it rests on. Poster-first: flow mode shows the five states as a stack.
 import { useEffect, useRef } from 'react'
 import { IMPORT as I } from '../content/explain.js'
-import { IMPORT_ALBUMS, IMPORT_SEGMENTS, IMPORT_UNDATED } from '../content/explain.sample.js'
-import { Button, Head, Label, Section, Shot, Stage, cx } from '../ui/index.js'
+import { IMPORT_ALBUMS, IMPORT_PICKED, IMPORT_SEGMENTS, IMPORT_UNDATED } from '../content/explain.sample.js'
+import { ArtImg, Button, Cutout, Head, Label, Section, Shot, Stage, cx } from '../ui/index.js'
 import { clamp, smoothstep, win } from '../lib/math.js'
 import { scrollToY } from '../lib/scroll.js'
 import { ImportScene, STATES } from './importScene.js'
@@ -15,10 +15,11 @@ const DATA = {
   segments: IMPORT_SEGMENTS,
   undated: IMPORT_UNDATED,
   albums: IMPORT_ALBUMS,
-  text: { unsorted: I.unsorted, trip: I.trip, weekend: I.weekend, away: I.away, home: I.home },
+  text: { unsorted: I.unsorted, trip: I.trip, weekend: I.weekend, away: I.away, home: I.home, picker: I.picker },
 }
-/** The progress at which state i is fully arrived. */
-const HOLD = (i) => (i === 0 ? 0 : (i + 0.6) / STATES)
+/** The progress at which state i is fully arrived (for the picker: every photo ticked). */
+const HOLD = (i) => (i + 0.6) / STATES
+const fill = (t, n) => t.replace('{n}', String(n))
 
 /** A canvas that sizes itself to its box. fixed: draw one state and stop. */
 function useScene(boxRef, canvasRef, fixed) {
@@ -65,6 +66,7 @@ function RuleCard({ st, i }) {
         </span>
         <h3 className={s.cardName}>{st.name}</h3>
       </div>
+      <p className={s.say}>{st.say}</p>
       <ul className={s.rules}>
         {st.rules.map((r) => (
           <li key={r.text}>
@@ -109,13 +111,48 @@ function CanvasBox({ fixed, sceneRef, onShuffle, children, className }) {
       <div ref={box} className={s.canvasWrap}>
         <canvas ref={canvas} className={s.canvas} aria-hidden="true" />
       </div>
-      <span className={s.stageLabel}>{I.stageLabel}</span>
       {onShuffle ? (
         <Button size="md" variant="ghost" className={s.shuffle} onClick={() => onShuffle(scene.current)}>
           {I.shuffle}
         </Button>
       ) : null}
       {children}
+    </div>
+  )
+}
+
+/**
+ * The pick state as plain HTML, for the prerender, no script and reduced motion: the
+ * illustrated phone with its grid, every photo of the sample roll ticked, the count at its
+ * final value. The canvas draws the same picker in motion.
+ */
+const PICKER_CELLS = 24
+const PICKER_PHOTOS = IMPORT_SEGMENTS.flatMap((g) => g.photos)
+function Picker() {
+  const cells = []
+  for (let c = 0, j = 0; c < PICKER_CELLS; c++) {
+    const decoy = c % 5 === 2
+    cells.push({ c, decoy, id: PICKER_PHOTOS[decoy ? (c * 7) % PICKER_PHOTOS.length : j++ % PICKER_PHOTOS.length] })
+  }
+  return (
+    <div className={cx(s.canvasBox, s.pickerBox)}>
+      <div className={s.phone} role="img" aria-label={`${I.picker.title}: ${fill(I.picker.selected, IMPORT_PICKED)}`}>
+        <p className={s.phoneTitle} aria-hidden="true">
+          {I.picker.title}
+        </p>
+        <ul className={s.phoneGrid} aria-hidden="true">
+          {cells.map((k) => (
+            <li key={k.c} data-on={k.decoy ? undefined : ''}>
+              <ArtImg id={k.id} alt="" sizes="80px" />
+              <i />
+            </li>
+          ))}
+        </ul>
+        <p className={s.phoneFoot} aria-hidden="true">
+          <b>{fill(I.picker.selected, IMPORT_PICKED)}</b>
+          <span>{fill(I.picker.button, IMPORT_PICKED)}</span>
+        </p>
+      </div>
     </div>
   )
 }
@@ -162,17 +199,17 @@ function Pinned() {
     const el = stage.current
     if (!el) return
     const top = el.getBoundingClientRect().top + window.scrollY
-    scrollToY(top + (el.offsetHeight - window.innerHeight) * (i === 0 ? 0.02 : HOLD(i)))
+    scrollToY(top + (el.offsetHeight - window.innerHeight) * HOLD(i))
   }
   const shuffle = (sc) => {
     if (!sc) return
     sc.shuffle()
     sc.draw()
-    if (last.current > 0) jump(0)
+    if (last.current !== 1) jump(1)
   }
 
   return (
-    <Stage id="lp-import" svh={360} wash="azure" pinned onProgress={onProgress} stageRef={stage} className={s.stage} pinClassName={s.pin} data-mode="pinned" aria-labelledby="lp-import-h">
+    <Stage id="lp-import" svh={430} wash="azure" pinned onProgress={onProgress} stageRef={stage} className={s.stage} pinClassName={s.pin} data-mode="pinned" aria-labelledby="lp-import-h">
       <div ref={root} className={cx('l-wrap', s.in)} data-state="0">
         <div className={s.top}>
           <Label dot strong>
@@ -217,9 +254,13 @@ function Flow() {
       <ol className={s.frames}>
         {I.states.map((st, i) => (
           <li key={st.key} className={s.frame} data-state={i}>
-            <CanvasBox fixed={i} className={s.frameCanvas} onShuffle={i === 0 ? (sc) => sc && (sc.shuffle(), sc.draw()) : null}>
-              {i === 2 || i === 3 ? <Legend /> : null}
-            </CanvasBox>
+            {i === 0 ? (
+              <Picker />
+            ) : (
+              <CanvasBox fixed={i} className={s.frameCanvas} onShuffle={i === 1 ? (sc) => sc && (sc.shuffle(), sc.draw()) : null}>
+                {i === 3 || i === 4 ? <Legend /> : null}
+              </CanvasBox>
+            )}
             <RuleCard st={st} i={i} />
           </li>
         ))}
@@ -237,11 +278,13 @@ function Captures() {
           {c.label}
         </Label>
         <p className="l-lede">{I.lede}</p>
-        <p className={cx('l-small', s.sampleNote)}>{I.sampleNote}</p>
       </div>
       <div className={s.capsRow}>
-        <Shot id={c.drop.id} alt={c.drop.alt} caption={c.drop.caption} className={s.cap1} sizes="(max-width: 760px) 92vw, 600px" />
-        <Shot id={c.albums.id} alt={c.albums.alt} caption={c.albums.caption} className={s.cap2} sizes="(max-width: 760px) 92vw, 600px" />
+        <Shot id={c.drop.id} alt={c.drop.alt} caption={c.drop.caption} className={s.cap1} sizes="(max-width: 760px) 92vw, 480px" />
+        <div className={s.cap2Wrap}>
+          <Shot id={c.albums.id} alt={c.albums.alt} caption={c.albums.caption} className={s.cap2} sizes="(max-width: 760px) 92vw, 820px" />
+          <Cutout id="g-kids-biscuit" alt={I.kidsAlt} className={s.kids} shadow sizes="(max-width: 760px) 50vw, 320px" />
+        </div>
       </div>
     </Section>
   )

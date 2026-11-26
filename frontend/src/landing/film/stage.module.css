@@ -20,6 +20,12 @@
     --u: min(calc(var(--sh) / 100), 2.16vw);
   }
 }
+/* a tablet in portrait: the phone's compositions at a larger unit, with their own slots where given */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .film {
+    --u: min(calc(var(--sh) / 85), 1.72vw);
+  }
+}
 
 .pin {
   position: relative;
@@ -56,6 +62,13 @@
     --A: var(--Am);
     --floor: var(--fm);
     --hz: var(--hzm, 6.4);
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .scene {
+    --A: var(--At, var(--Am));
+    --floor: var(--ft, var(--fm));
+    --hz: var(--hzt, var(--hzm, 6.4));
   }
 }
 .film[data-mode='pinned'] .scene {
@@ -163,6 +176,17 @@
 .flip {
   transform: scaleX(-1);
 }
+.tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--l-wash);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
 .shadow {
   position: absolute;
   left: calc(var(--ax) * 100%);
@@ -181,12 +205,13 @@
   --y: var(--yd);
   --w: var(--wd);
   --r: var(--rd, 0deg);
+  --s: var(--sd, 1);
   position: absolute;
   left: 50%;
   top: var(--floor);
   z-index: var(--z, 6);
   width: calc(var(--w) * var(--u));
-  transform: translate(calc(var(--x) * var(--u) - 50%), calc(var(--y) * var(--u) * -1 - 50%)) rotate(var(--r));
+  transform: translate(calc(var(--x) * var(--u) - 50%), calc(var(--y) * var(--u) * -1 - 50%)) rotate(var(--r)) scale(var(--s, 1));
 }
 .amv {
   position: relative;
@@ -211,9 +236,31 @@
     --y: var(--ym);
     --w: var(--wm);
     --r: var(--rm, 0deg);
+    --s: var(--sm, 1);
   }
+}
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
   .actor[data-off-m],
   .air[data-off-m] {
+    display: none;
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .actor {
+    --x: var(--xt, var(--xm));
+    --lift: var(--lt, var(--lm));
+    --h: var(--ht, var(--hm));
+    --r: var(--rt, var(--rm, 0deg));
+  }
+  .air {
+    --x: var(--xt, var(--xm));
+    --y: var(--yt, var(--ym));
+    --w: var(--wt, var(--wm));
+    --r: var(--rt, var(--rm, 0deg));
+    --s: var(--st, var(--sm, 1));
+  }
+  .actor[data-off-t],
+  .air[data-off-t] {
     display: none;
   }
 }
@@ -269,6 +316,69 @@
   height: auto;
 }
 
+/* a phone holding a capture, sized by its Air slot */
+.phone {
+  --dw: calc(var(--w) * var(--u));
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin: 0;
+}
+.phoneBody {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 18.6;
+  padding: calc(var(--dw) * 0.035);
+  background: var(--l-ink);
+  border-radius: calc(var(--dw) * 0.16);
+  box-shadow: 5px 5px 0 var(--l-white);
+}
+.phoneScreen {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--l-white);
+  border-radius: calc(var(--dw) * 0.125);
+}
+.phoneScreen > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.phoneNotch {
+  position: absolute;
+  top: calc(var(--dw) * 0.06);
+  left: 50%;
+  width: 30%;
+  height: calc(var(--dw) * 0.07);
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--l-ink);
+}
+.phone > figcaption {
+  font-family: var(--l-font-mono);
+  font-size: clamp(9px, calc(1.1 * var(--u)), 11px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  text-align: center;
+}
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .phone > figcaption {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+  .phoneBody {
+    box-shadow: 3px 3px 0 var(--l-white);
+  }
+}
+
 /* ---------- copy ---------- */
 
 .copy {
@@ -276,7 +386,7 @@
   left: var(--l-gutter);
   top: calc(var(--l-nav-h) + 22px);
   z-index: 20;
-  width: min(41vw, 66 * var(--u));
+  width: min(var(--copy-w, 41vw), 82 * var(--u));
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 12px;
@@ -318,8 +428,8 @@
   margin: 0;
 }
 .head {
-  font-size: clamp(34px, calc(7.9 * var(--u)), 84px);
-  max-width: 11.5em;
+  font-size: clamp(34px, calc(var(--head-fs, 7.9) * var(--u)), 84px);
+  max-width: 12.5em;
 }
 .w {
   display: inline-block;
@@ -329,7 +439,7 @@
   margin-left: 0.04em;
 }
 .body {
-  max-width: 33em;
+  max-width: var(--body-w, 33em);
   font-size: clamp(15px, calc(1.84 * var(--u)), 18.5px);
   line-height: 1.42;
   font-weight: 500;
@@ -387,11 +497,16 @@
   gap: 4px;
   max-width: 250px;
 }
-.fact > span:nth-child(2) {
+.fact [data-part='value'] {
   font-size: clamp(22px, calc(3.3 * var(--u)), 32px);
   white-space: nowrap;
 }
-.fact > span:nth-child(3) {
+.factWords [data-part='value'] {
+  font-size: clamp(17px, calc(2.3 * var(--u)), 22px);
+  line-height: 1.12;
+  padding-block: 2px 3px;
+}
+.fact [data-part='note'] {
   font-size: 13px;
   line-height: 1.3;
   max-width: 34ch;
@@ -487,40 +602,22 @@
   position: absolute;
   right: var(--l-gutter);
   top: calc(var(--l-nav-h) + 22px);
-  display: grid;
-  gap: 7px;
-  justify-items: end;
+  display: flex;
+  align-items: baseline;
+  gap: 0.7em;
   font-family: var(--l-font-mono);
   font-size: var(--l-size-label);
   font-weight: 500;
   letter-spacing: var(--l-track-label);
   text-transform: uppercase;
 }
-.counterRow {
-  display: flex;
-  gap: 0.8em;
-  align-items: baseline;
-}
-.counterRow > b {
+.counter > b {
   font-weight: 500;
-  min-width: 9.2em;
-  text-align: right;
+  font-size: 15px;
+  letter-spacing: 0.06em;
 }
-.counterRow > span {
+.counter > span {
   opacity: 0.62;
-}
-.ticks {
-  display: grid;
-  grid-template-columns: repeat(12, 9px);
-  gap: 3px;
-}
-.ticks > i {
-  height: 5px;
-  border-radius: 2px;
-  background: rgba(16, 27, 59, 0.22);
-}
-.ticks > i[data-on] {
-  background: var(--l-ink);
 }
 
 .rail {
@@ -624,7 +721,13 @@
     font-size: 12px;
   }
   .head {
-    font-size: clamp(30px, calc(4.6 * var(--u)), 44px);
+    font-size: clamp(28px, calc(var(--head-fs-m, 4.6) * var(--u)), 44px);
+    max-width: none;
+  }
+  .head br {
+    display: none;
+  }
+  .body {
     max-width: none;
   }
   .body {
@@ -640,10 +743,14 @@
     letter-spacing: 0.08em;
     white-space: nowrap;
   }
-  /* the eyebrow carries the month on a phone */
   .month,
   .counter {
-    display: none;
+    right: 18px;
+    top: calc(var(--l-nav-h) + 9px);
+    font-size: 9.5px;
+  }
+  .counter > b {
+    font-size: 11px;
   }
   .dock {
     left: 14px;
@@ -657,7 +764,7 @@
   /* the third readout moves out; the audience chip sits on the floor above the row */
   .br {
     left: auto;
-    bottom: 168px;
+    bottom: 158px;
     flex-direction: row;
   }
   .br > .fact {
@@ -705,14 +812,18 @@
   .fact:last-child {
     flex: 1 1 auto;
   }
-  .fact > span:nth-child(1) {
+  .fact [data-part='label'] {
     font-size: 9.5px;
     letter-spacing: 0.08em;
   }
-  .fact > span:nth-child(2) {
+  .fact [data-part='value'] {
     font-size: 21px;
   }
-  .fact > span:nth-child(3) {
+  .factWords [data-part='value'] {
+    font-size: 16px;
+    white-space: normal;
+  }
+  .fact [data-part='note'] {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -736,5 +847,175 @@
   .chipDot {
     width: 26px;
     height: 26px;
+  }
+}
+
+/* with no rail (the film as a column of posters) the phone's docks sit at the bottom edge */
+@media (max-aspect-ratio: 9/10) {
+  .film:not([data-mode='pinned']) .bl {
+    bottom: 22px;
+  }
+  .film:not([data-mode='pinned']) .br {
+    bottom: 100px;
+  }
+}
+
+/* ---------- a tablet held upright (iPad portrait): the same portrait compositions, at reading sizes ---------- */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .copy {
+    left: 32px;
+    right: 32px;
+    top: calc(var(--l-nav-h) + 14px);
+    gap: 10px;
+  }
+  .slate,
+  .eyebrow {
+    font-size: 11.5px;
+    letter-spacing: var(--l-track-label);
+  }
+  .slate > span {
+    display: inline;
+  }
+  .copyTop {
+    width: max-content;
+    max-width: calc(100vw - 150px);
+  }
+  .head {
+    font-size: clamp(36px, calc(var(--head-fs-t, 4.4) * var(--u)), 66px);
+    max-width: 12.5em;
+  }
+  .body {
+    max-width: var(--body-w, 33em);
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .month,
+  .counter {
+    right: 32px;
+    top: calc(var(--l-nav-h) + 16px);
+    font-size: 11.5px;
+  }
+  .counter > b {
+    font-size: 14px;
+  }
+  .dock {
+    left: 32px;
+    right: 32px;
+    gap: 12px;
+  }
+  .bl {
+    right: auto;
+    bottom: 96px;
+  }
+  .br {
+    left: auto;
+    bottom: 96px;
+    flex-direction: row-reverse;
+  }
+  .br > .fact {
+    display: inline-grid;
+  }
+  .fact,
+  .fact:last-child {
+    flex: 0 0 auto;
+    padding: 10px 14px 12px;
+    gap: 4px;
+  }
+  .fact [data-part='label'] {
+    font-size: 11px;
+    letter-spacing: var(--l-track-label);
+  }
+  .fact [data-part='value'] {
+    font-size: 26px;
+  }
+  .factWords [data-part='value'] {
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .fact [data-part='note'] {
+    display: block;
+    font-size: 13px;
+  }
+  .aud {
+    padding: 8px 14px 9px 10px;
+    gap: 10px;
+    box-shadow: 4px 4px 0 var(--l-white);
+  }
+  .audIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .audIcon > svg {
+    width: 18px;
+    height: 18px;
+  }
+  .audText {
+    display: grid;
+    gap: 2px;
+  }
+  .audLabel,
+  .audName > i {
+    font-size: 10.5px;
+  }
+  .audName {
+    font-size: 17px;
+    gap: 8px;
+  }
+  .rail {
+    bottom: 18px;
+    gap: 6px;
+    padding: 6px;
+  }
+  .chip {
+    min-width: 64px;
+    padding: 4px 8px 5px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .chipDot {
+    width: 30px;
+    height: 30px;
+  }
+  .photo > figcaption {
+    font-size: 14px;
+  }
+  .film:not([data-mode='pinned']) .bl,
+  .film:not([data-mode='pinned']) .br {
+    bottom: 28px;
+  }
+}
+
+/* ---------- a tablet on its side, or a small laptop: the rail and the readouts, tightened ---------- */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1300px) {
+  .rail {
+    gap: 3px;
+    padding: 5px;
+  }
+  .chip {
+    min-width: 44px;
+    padding: 4px 4px 5px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  /* every readout on one line each: label, value, note */
+  .fact {
+    max-width: none;
+    padding: 9px 11px 10px;
+  }
+  .fact [data-part='label'],
+  .fact [data-part='note'] {
+    white-space: nowrap;
+  }
+  .fact [data-part='note'] {
+    font-size: 12px;
+    max-width: none;
+  }
+  .factWords [data-part='value'] {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .dock {
+    gap: 9px;
   }
 }

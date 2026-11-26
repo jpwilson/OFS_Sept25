@@ -17,6 +17,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../../src/landing/content')
 const SOURCES = new Set(['facts.js', 'cast.js'])
+// business.js is skipped by name: its figures are supplied by the business, not derived from code.
+const BUSINESS = new Set(['business.js'])
 const SRC_RE = /[\w./-]+\.\w+:\d+/
 
 /** Every string literal in JS source, with the line it starts on. Template literals yield their text parts. */
@@ -128,7 +130,7 @@ const allowed = (s) =>
 let failures = 0
 const files = readdirSync(DIR).filter((f) => f.endsWith('.js'))
 for (const f of files) {
-  if (SOURCES.has(f) || f.endsWith('.sample.js')) continue
+  if (SOURCES.has(f) || BUSINESS.has(f) || f.endsWith('.sample.js')) continue
   const file = join(DIR, f)
   if (f.endsWith('.facts.js')) {
     const mod = await import(pathToFileURL(file).href)

@@ -5,7 +5,7 @@ import s from './Device.module.css'
 
 /**
  * A CSS phone frame (keyline, radius, notch) holding a real capture. The capture fills the
- * screen from the top. caption: as Shot (string before the mandatory line; false hides it).
+ * screen from the top. caption: as Shot (a string is the caption; left out, SHOT_CAPTION; false hides it).
  * width: px number or any CSS length (default 320px); it never exceeds the container.
  */
 export function Device({ id, alt, caption, className, style, priority, width }) {
@@ -20,8 +20,7 @@ export function Device({ id, alt, caption, className, style, priority, width }) 
       </span>
       {caption === false ? null : (
         <figcaption className={s.caption} data-part="caption">
-          {typeof caption === 'string' && caption ? `${caption} ` : null}
-          {SHOT_CAPTION}
+          {typeof caption === 'string' && caption ? caption : SHOT_CAPTION}
         </figcaption>
       )}
     </figure>

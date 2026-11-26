@@ -56,8 +56,7 @@ export function CropShot({ id, alt, caption, crop, cropM, className, style, widt
       </span>
       {caption === false ? null : (
         <figcaption className={s.caption}>
-          {typeof caption === 'string' && caption ? <span>{caption} </span> : null}
-          {SHOT_CAPTION}
+          {typeof caption === 'string' && caption ? <span>{caption}</span> : SHOT_CAPTION}
         </figcaption>
       )}
     </figure>

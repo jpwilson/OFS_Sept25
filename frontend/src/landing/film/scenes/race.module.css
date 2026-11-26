@@ -1,0 +1,151 @@
+/* 06 MARATHON: the audience card (owner: film). */
+
+.chipSlot {
+  --pp: calc(var(--w) * var(--u));
+}
+.card {
+  display: grid;
+  gap: calc(var(--pp) * 0.022);
+  padding: calc(var(--pp) * 0.034) calc(var(--pp) * 0.04) calc(var(--pp) * 0.036);
+  background: var(--l-ink);
+  color: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: calc(var(--pp) * 0.04);
+  box-shadow: calc(var(--pp) * 0.014) calc(var(--pp) * 0.014) 0 var(--l-white);
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--pp) * 0.03);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: calc(var(--pp) * 0.105);
+  height: calc(var(--pp) * 0.105);
+  border-radius: calc(var(--pp) * 0.024);
+  background: var(--l-white);
+  color: var(--l-ink);
+  flex: none;
+}
+.icon > svg {
+  width: 56%;
+  height: 56%;
+}
+.title {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.label {
+  font-family: var(--l-font-mono);
+  font-size: max(9.5px, calc(var(--pp) * 0.026));
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  opacity: 0.74;
+}
+.name {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.5em;
+  line-height: 1;
+}
+.name > b {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: max(20px, calc(var(--pp) * 0.082));
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.name > i {
+  font-style: normal;
+  font-family: var(--l-font-mono);
+  font-size: max(9.5px, calc(var(--pp) * 0.027));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+.members {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(var(--pp) * 0.018);
+}
+.members > li {
+  --av: calc(var(--pp) * 0.075);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: calc(var(--pp) * 0.018);
+  padding: calc(var(--pp) * 0.014) calc(var(--pp) * 0.02);
+  background: var(--l-white);
+  color: var(--l-ink);
+  border-radius: calc(var(--pp) * 0.022);
+  line-height: 1.1;
+}
+.members > li > :first-child {
+  grid-row: span 2;
+}
+.members b {
+  font-size: max(13px, calc(var(--pp) * 0.036));
+  font-weight: 700;
+}
+.members li > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--l-font-mono);
+  font-size: max(8.5px, calc(var(--pp) * 0.021));
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.members svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+.note {
+  font-size: max(13px, calc(var(--pp) * 0.033));
+  line-height: 1.3;
+  opacity: 0.86;
+}
+
+@media (max-aspect-ratio: 9/10) {
+  .card {
+    box-shadow: 3px 3px 0 var(--l-white);
+  }
+  .name > b {
+    font-size: 19px;
+  }
+  .label,
+  .name > i {
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+  }
+  .members {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .members > li {
+    --av: 22px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 3px 8px 3px 4px;
+  }
+  .members > li > :first-child {
+    grid-row: auto;
+  }
+  .members b {
+    font-size: 13px;
+  }
+  .members li > span:last-child {
+    font-size: 8px;
+  }
+  .note {
+    display: none;
+  }
+}

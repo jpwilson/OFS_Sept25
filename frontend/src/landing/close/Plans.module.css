@@ -4,35 +4,106 @@
     radial-gradient(circle at 1px 1px, rgba(16, 27, 59, 0.13) 1px, transparent 1.4px) 0 0 / 22px 22px,
     var(--l-paper);
 }
+.band .lbl {
+  font-size: 13px;
+}
+
+/* ---------- the poster: one reader, one storyteller, what each pays ---------- */
+
 .top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px 48px;
-  flex-wrap: wrap;
-  margin-bottom: clamp(36px, 5vw, 60px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px clamp(32px, 5vw, 72px);
+  align-items: end;
+  margin-bottom: clamp(40px, 5vw, 72px);
 }
 .intro {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   justify-items: start;
+  padding-bottom: 32px;
 }
 .head {
-  max-width: 15ch;
+  font-size: clamp(52px, 6.6vw, 104px);
+  max-width: 11ch;
 }
 .lede {
   max-width: 38ch;
   font-size: var(--l-size-lede);
   line-height: 1.45;
-  color: var(--l-mute);
+  font-weight: 500;
+}
+.duo {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+  padding: 0 8px 26px;
+}
+/* the floor under the two of them */
+.duo::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 54px;
+  background: var(--l-paper-deep);
+  border: var(--l-keyline);
+  border-radius: 999px;
+}
+.who {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+.whoImg {
+  width: clamp(120px, 11vw, 160px);
+}
+.tag {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  text-align: center;
+  padding: 14px 16px 14px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  transform: rotate(-2deg);
+}
+.writer .tag {
+  background: var(--l-tide);
+  transform: rotate(2deg);
+}
+.tagBig {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+.tagPrice {
+  font-size: clamp(56px, 5vw, 76px);
+  font-variant-numeric: tabular-nums;
+}
+.tagUnit {
+  display: block;
+  font-size: clamp(26px, 2.2vw, 34px);
+}
+.tagNote {
+  max-width: 20ch;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 500;
 }
 
 /* ---------- billing switch ---------- */
-
-.joeSmall {
-  display: none;
-  width: 70px;
-}
 
 .proHead {
   display: flex;
@@ -66,11 +137,11 @@
 .billing label span {
   display: grid;
   place-items: center;
-  min-height: 40px;
-  padding: 0 14px;
+  min-height: 44px;
+  padding: 0 16px;
   border-radius: var(--l-r-pill);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   transition:
     background-color var(--l-dur-hover) ease,
     color var(--l-dur-hover) ease;
@@ -88,42 +159,35 @@
 
 .row {
   display: grid;
-  grid-template-columns: minmax(120px, 0.62fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas: 'free pro life';
   gap: clamp(16px, 2vw, 28px);
   align-items: stretch;
-}
-.joe {
-  position: relative;
-  margin: 0;
-  align-self: end;
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-}
-.joeImg {
-  width: 100%;
-  max-width: 190px;
-}
-.joe figcaption {
-  color: var(--l-mute);
 }
 .card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 26px 26px 26px;
+  gap: 18px;
+  padding: 28px;
   background: var(--l-white);
   border: var(--l-keyline);
   border-radius: var(--l-r-card);
   box-shadow: var(--l-shadow);
 }
+.free {
+  grid-area: free;
+}
 .pro {
+  grid-area: pro;
   background: var(--l-tide);
   box-shadow: var(--l-shadow-lg);
 }
+.life {
+  grid-area: life;
+}
 .name {
   align-self: flex-start;
-  padding: 4px 10px 5px;
+  padding: 5px 12px 6px;
   border: var(--l-keyline);
   border-radius: var(--l-r-sticker);
   background: var(--c, var(--l-white));
@@ -131,7 +195,7 @@
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 86;
-  font-size: 22px;
+  font-size: 26px;
   line-height: 1;
   letter-spacing: -0.02em;
   transform: rotate(-2deg);
@@ -150,33 +214,32 @@
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 8px 12px;
-  min-height: 100px;
+  min-height: 110px;
   align-content: flex-end;
 }
 .amount {
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 80;
-  font-size: clamp(60px, 4.6vw, 84px);
+  font-size: clamp(68px, 5.4vw, 96px);
   line-height: 0.85;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
 }
 .per {
   padding-bottom: 4px;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.2;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(24px, 2vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 .note {
   flex-basis: 100%;
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: var(--l-size-label);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--l-ink);
-  opacity: 0.75;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.35;
 }
 .monthly {
   display: none;
@@ -188,27 +251,27 @@
   display: none;
 }
 .line {
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 19px;
   line-height: 1.3;
-  padding-bottom: 14px;
+  padding-bottom: 16px;
   border-bottom: 2px solid var(--l-ink);
 }
 .list {
   flex: 1;
   display: grid;
   align-content: start;
-  gap: 10px;
+  gap: 12px;
 }
 .list li {
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr);
-  gap: 8px;
-  font-size: 16px;
+  gap: 10px;
+  font-size: 18px;
   line-height: 1.4;
 }
 .tick {
-  margin-top: 1px;
+  margin-top: 3px;
 }
 .go {
   margin-top: 8px;
@@ -225,12 +288,26 @@
 }
 .trial {
   display: grid;
-  gap: 18px;
+  gap: 22px;
   align-content: start;
-  padding: 24px 26px 26px;
+  padding: 28px;
   background: var(--l-white);
   border: var(--l-keyline);
   border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.trialHead {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.trialTitle {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(34px, 3.4vw, 48px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
 }
 .terms {
   display: grid;
@@ -240,40 +317,43 @@
   overflow: hidden;
 }
 .terms > div {
-  display: grid;
-  gap: 6px;
-  padding: 12px 14px 14px;
+  padding: 14px 14px 16px;
   background: var(--l-lime);
 }
 .terms > div + div {
   border-left: var(--l-keyline);
 }
-.terms dt {
-  color: var(--l-ink);
-  opacity: 0.72;
-}
 .terms dd {
   margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.termBig {
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 86;
-  font-size: 22px;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.termLine {
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 500;
 }
 .rules {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 .rules li {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   gap: 12px;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.45;
 }
 .rules svg {
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .math {
   display: grid;
@@ -282,11 +362,11 @@
 }
 .calc {
   display: grid;
-  gap: 10px;
-  padding: 18px 22px 20px;
+  gap: 12px;
+  padding: 22px 24px 24px;
   background: var(--l-white);
   border: var(--l-keyline);
-  border-radius: var(--l-r-readout);
+  border-radius: var(--l-r-card);
   box-shadow: var(--l-shadow);
 }
 .sum {
@@ -296,14 +376,14 @@
   gap: 4px 10px;
   font-family: var(--l-font-mono);
   font-weight: 500;
-  font-size: 20px;
+  font-size: 22px;
   font-variant-numeric: tabular-nums;
 }
 .op {
   color: var(--l-mute);
 }
 .vsOp {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--l-mute);
@@ -311,64 +391,102 @@
 .result {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-top: 10px;
+  gap: 18px;
+  padding-top: 12px;
   border-top: 1px dashed var(--l-line);
 }
 .big {
   flex: none;
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 86;
-  font-size: 48px;
+  font-size: 64px;
   line-height: 1;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 .unit {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-size: 0.5em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 .resultNote {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.4;
   color: var(--l-mute);
 }
 
-@media (max-width: 1100px) {
-  .row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+/* The lifetime arithmetic, inside its own card. */
+.calcIn {
+  box-shadow: none;
+  padding: 16px 18px 18px;
+  background: var(--l-paper);
+  border-radius: var(--l-r-readout);
+}
+.calcIn .sum {
+  font-size: 19px;
+}
+.calcIn .big {
+  font-size: 48px;
+}
+.calcIn .resultNote {
+  font-size: 15px;
+}
+.calcIn .result {
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.calcIn .resultNote {
+  flex: 1 1 14ch;
+}
+
+/* iPad landscape: three cards still fit; the poster tightens */
+@media (max-width: 1199px) {
+  .card {
+    padding: 24px 22px;
   }
-  .joe {
-    display: none;
-  }
-  .joeSmall {
-    display: inline-block;
-  }
-  .top {
-    flex-wrap: nowrap;
-    align-items: flex-end;
-  }
-  .joeSmall {
-    flex: none;
+  .list li {
+    font-size: 17px;
   }
   .below {
     grid-template-columns: 1fr;
   }
 }
-@media (max-width: 860px) {
-  .row {
+
+/* iPad portrait: the poster stacks, Pro leads across the top, Free and Lifetime below */
+@media (max-width: 1023px) {
+  .top {
     grid-template-columns: 1fr;
   }
-  .price {
-    min-height: 0;
+  .intro {
+    padding-bottom: 0;
   }
-  .top {
-    position: relative;
+  .head {
+    max-width: none;
+    font-size: clamp(60px, 9.6vw, 92px);
+  }
+  .duo {
+    max-width: 620px;
+    width: 100%;
+    justify-self: center;
+  }
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'pro pro'
+      'free life';
+  }
+  .pro .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+  .pro .go {
+    justify-self: start;
+    width: auto;
+    min-width: 50%;
   }
   .terms {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -382,36 +500,62 @@
   .terms > div:nth-child(n + 3) {
     border-top: var(--l-keyline);
   }
-  .trial,
-  .card {
-    padding-inline: 20px;
+}
+
+/* Phone */
+@media (max-width: 640px) {
+  .head {
+    font-size: clamp(46px, 13vw, 58px);
+  }
+  .duo {
+    gap: 10px;
+    padding-inline: 0;
+  }
+  .whoImg {
+    width: min(100%, 118px);
+  }
+  .tag {
+    padding: 12px 10px;
+  }
+  .tagPrice {
+    font-size: 52px;
+  }
+  .tagUnit {
+    font-size: 22px;
+  }
+  .tagNote {
+    font-size: 14px;
+  }
+  .row {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'free' 'pro' 'life';
+  }
+  .pro .list {
+    grid-template-columns: 1fr;
+  }
+  .pro .go {
+    width: 100%;
+  }
+  .price {
+    min-height: 0;
+  }
+  .card,
+  .trial {
+    padding: 22px 20px;
+  }
+  .math {
+    grid-template-columns: 1fr;
+  }
+  .big {
+    font-size: 52px;
+  }
+  .list li,
+  .rules li {
+    font-size: 17px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .billing label span {
     transition: none;
   }
-}
-
-/* The lifetime arithmetic, inside its own card. */
-.calcIn {
-  box-shadow: none;
-  padding: 14px 16px 16px;
-  background: var(--l-paper);
-}
-.calcIn .sum {
-  font-size: 18px;
-}
-.calcIn .big {
-  font-size: 40px;
-}
-.calcIn .resultNote {
-  font-size: 14px;
-}
-.calcIn .result {
-  flex-wrap: wrap;
-  gap: 6px 14px;
-}
-.calcIn .resultNote {
-  flex: 1 1 14ch;
 }

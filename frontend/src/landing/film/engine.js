@@ -8,8 +8,8 @@
 import { clamp, easeOutCubic, lerp, win } from '../lib/math.js'
 import { scrollToY } from '../lib/scroll.js'
 import { BEATS, MEASURE } from './beats.js'
-import { back, bump, drop, f1, f3, floodEase, w } from './ease.js'
-import { STAGE } from './layout.js'
+import { back, bump, drop, f1, f3, floodEase, settle, w } from './ease.js'
+import { STAGE, pick } from './layout.js'
 import * as T from './timeline.js'
 
 // ---- a cached element: only touches the DOM when a value really changed -------------------
@@ -106,7 +106,8 @@ export class FilmEngine {
   constructor(section, pin, opts = {}) {
     this.section = section
     this.pin = pin
-    this.monthNames = opts.months || []
+    this.geo = { tetonsDays: opts.tetonsDays, years: opts.years }
+    this.rail = opts.rail || []
     this.E = new Map()
     this.words = new Map()
     this.scenes = {}
@@ -124,7 +125,8 @@ export class FilmEngine {
     pin.querySelectorAll('[data-actor]').forEach((el) => {
       const rise = el.querySelector('[data-rise]')
       const sh = el.querySelector('[data-shadow]')
-      this.A.set(el.getAttribute('data-f'), { rise: rise ? new N(rise) : NIL, sh: sh ? new N(sh) : NIL })
+      const tint = el.querySelector('[data-tint]')
+      this.A.set(el.getAttribute('data-f'), { rise: rise ? new N(rise) : NIL, sh: sh ? new N(sh) : NIL, tint: tint ? new N(tint) : NIL, box: el.parentElement, z: null })
     })
     pin.querySelectorAll('[data-scene]').forEach((el) => {
       this.scenes[el.getAttribute('data-scene')] = { el, root: new N(el), live: null }
@@ -142,7 +144,6 @@ export class FilmEngine {
     this.phone = false
     this.Rmax = 1
     this.fy = {}
-    this.geo = {}
 
     // live state
     this.S = 0
@@ -154,7 +155,10 @@ export class FilmEngine {
     this.tx = 0
     this.ty = 0
     this.active = ''
-    this.month = -1
+    this.chapter = ''
+    this.swNow = ''
+    this.swLock = null
+    this.swUntil = 0
 
     this.ro = new ResizeObserver(() => this.resize())
     this.ro.observe(pin)
@@ -170,8 +174,8 @@ export class FilmEngine {
     this.timers = []
     this.cleanup = []
     this.grab()
-    this.intro()
     this.holdBack()
+    this.timers.push(setTimeout(() => this.warmHero(), 350))
   }
 
   /**
@@ -182,8 +186,8 @@ export class FilmEngine {
   holdBack() {
     this.parked = {}
     T.ORDER.forEach((k, i) => {
-      // the hero is on screen and chapter 01 is next: the browser's own lazy loading has them
-      if (i < 2) return
+      // only the hero is left to the browser; chapter 01 is given back once the first screen has had its turn
+      if (i < 1) return
       const sc = this.scenes[k]
       if (!sc) return
       const list = []
@@ -198,6 +202,7 @@ export class FilmEngine {
       })
       this.parked[k] = list
     })
+    this.timers.push(setTimeout(() => this.warm(T.ORDER[1]), 2500))
   }
   warm(k) {
     const list = this.parked && this.parked[k]
@@ -215,9 +220,29 @@ export class FilmEngine {
     })
   }
 
-  /** Dragging across a switch picks whatever is under the pointer (a click already works natively). */
+  /**
+   * The switches. The hero's follows the scroll, and picking an option glides to that step.
+   * The portrait's is its own: a click or a drag across it picks whatever is under the pointer.
+   */
   grab() {
+    this.heroInputs = {}
     this.pin.querySelectorAll('[data-aud]').forEach((fs) => {
+      const hero = !!fs.closest('[data-scene="hero"]')
+      if (hero) {
+        fs.querySelectorAll('input').forEach((el) => (this.heroInputs[el.value] = el))
+        const onChange = (e) => {
+          const slug = e.target && e.target.value
+          if (!slug || T.HERO.rest[slug] == null) return
+          // hold the visitor's choice while the page glides there
+          this.swLock = slug
+          this.swNow = slug
+          this.swUntil = (this.time || performance.now()) + 2600
+          this.glide(T.HERO.rest[slug])
+        }
+        fs.addEventListener('change', onChange)
+        this.cleanup.push(() => fs.removeEventListener('change', onChange))
+        return
+      }
       let down = false
       const at = (e) => {
         const el = document.elementFromPoint(e.clientX, e.clientY)
@@ -228,7 +253,6 @@ export class FilmEngine {
       }
       const onDown = () => {
         down = true
-        this.stopIntro(false)
       }
       const onMove = (e) => {
         if (down) at(e)
@@ -236,15 +260,12 @@ export class FilmEngine {
       const onUp = () => {
         down = false
       }
-      const onKey = () => this.stopIntro(false)
       fs.addEventListener('pointerdown', onDown)
-      fs.addEventListener('keydown', onKey)
       window.addEventListener('pointermove', onMove, { passive: true })
       window.addEventListener('pointerup', onUp, { passive: true })
       window.addEventListener('pointercancel', onUp, { passive: true })
       this.cleanup.push(() => {
         fs.removeEventListener('pointerdown', onDown)
-        fs.removeEventListener('keydown', onKey)
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
         window.removeEventListener('pointercancel', onUp)
@@ -252,38 +273,27 @@ export class FilmEngine {
     })
   }
 
-  /**
-   * The switch's opening play, once: Private, then Close Family, then back to Followers,
-   * where it rests. Skipped under reduced motion or if the visitor has already scrolled;
-   * any touch of the switch or the scroll wheel ends it.
-   */
-  intro() {
-    const fs = this.pin.querySelector('[data-scene="hero"] [data-aud]')
-    if (!fs || this.reduced || window.scrollY > 8) return
-    // ?intro=0 skips the play (used when shooting checkpoint sheets)
-    if (/[?&]intro=0\b/.test(window.location.search)) return
-    this.introFs = fs
-    const pick = (v) => {
-      const el = fs.querySelector(`input[value="${v}"]`)
-      if (el) el.checked = true
+  /** The hero's switch shows the step the scroll is on (unless the visitor has just picked one). */
+  followSwitch(slug) {
+    if (this.swLock) {
+      if (slug !== this.swLock && this.time < this.swUntil) return
+      this.swLock = null
     }
-    this.introPick = pick
-    this.timers.push(
-      setTimeout(() => pick('private'), 1000),
-      setTimeout(() => pick('close'), 1950),
-      setTimeout(() => {
-        pick('followers')
-        this.introFs = null
-      }, 3000),
-    )
+    if (slug === this.swNow) return
+    this.swNow = slug
+    const el = this.heroInputs[slug]
+    if (el && !el.checked) el.checked = true
   }
-  /** rest: put the switch back on Followers (when scrolling ended the play, not the visitor's own choice). */
-  stopIntro(rest) {
-    if (!this.introFs) return
-    this.timers.forEach((t) => clearTimeout(t))
-    this.timers = []
-    if (rest) this.introPick('followers')
-    this.introFs = null
+
+  /** The hero's people are below the floor on the first screen, so the browser would not fetch them yet. */
+  warmHero() {
+    const sc = this.scenes.hero
+    if (!sc) return
+    sc.el.querySelectorAll('img[loading="lazy"]').forEach((img) => {
+      if (img.offsetParent === null) return // the other layout's
+      img.loading = 'eager'
+      if (img.decode) img.decode().catch(() => undefined)
+    })
   }
 
   destroy() {
@@ -298,6 +308,8 @@ export class FilmEngine {
     this.A.forEach((a) => {
       if (a.rise.el) a.rise.reset()
       if (a.sh.el) a.sh.reset()
+      if (a.tint.el) a.tint.reset()
+      if (a.z != null && a.box) a.box.style.zIndex = ''
     })
     Object.values(this.scenes).forEach((s) => {
       s.root.reset()
@@ -323,11 +335,12 @@ export class FilmEngine {
     if (!W || !H) return
     this.W = W
     this.H = H
-    this.phone = W / H <= 0.9
-    this.u = this.phone ? Math.min(H / 100, W * 0.0216) : Math.min(H / 100, W * 0.00625)
+    this.phone = W / H <= 0.9 // portrait: a phone or a tablet held upright
+    this.tablet = this.phone && W >= 700
+    this.k = this.tablet ? 't' : this.phone ? 'm' : 'd'
+    this.u = this.tablet ? Math.min(H / 85, W * 0.0172) : this.phone ? Math.min(H / 100, W * 0.0216) : Math.min(H / 100, W * 0.00625)
     this.cx = W / 2
-    const k = this.phone ? 'm' : 'd'
-    for (const key of T.ORDER) this.fy[key] = (STAGE[key][k].floor / 100) * H
+    for (const key of T.ORDER) this.fy[key] = (pick(STAGE[key], this.k).floor / 100) * H
     this.Rmax = Math.hypot(W / 2, H) + 0.06 * H
     // Positions that depend on layout are read here, never in the frame loop.
     try {
@@ -365,8 +378,10 @@ export class FilmEngine {
   // ---- things to grab -----------------------------------------------------------------------
   /** Glide to where a scene rests. */
   jump(key, immediate) {
-    const S = T.HOLD[key]
-    if (S == null) return
+    if (T.HOLD[key] != null) this.glide(T.HOLD[key], immediate)
+  }
+  /** Glide to a point on the film's clock. */
+  glide(S, immediate) {
     const r = this.section.getBoundingClientRect()
     const top = r.top + window.scrollY
     const range = Math.max(0, r.height - window.innerHeight)
@@ -378,7 +393,6 @@ export class FilmEngine {
     if (this.dead || !this.W) return
     const S = p * T.SPAN
     this.S = S
-    if (this.introFs && S > 3) this.stopIntro(true)
     const dt = this.last ? Math.min(0.05, (f.time - this.last) / 1000) : 0.016
     this.last = f.time
     this.time = f.time
@@ -460,7 +474,7 @@ export class FilmEngine {
     return n
   }
 
-  /** People rise from below the floor line. t: 0 below, 1 standing; overshoots on the way. */
+  /** People rise from below the floor line. t: 0 below, 1 standing; a little past standing near the end, then settled. */
   riseIn(name, t, i = 0, out = 0) {
     const a = this.A.get(name)
     if (!a) return
@@ -469,7 +483,8 @@ export class FilmEngine {
       return
     }
     this.put(name)
-    const e = back(t, 1.9) * (1 - out * out)
+    // a smooth rise with a small overshoot at the top: a fast start reads as a snap under the scroll
+    const e = settle(t, 0.05) * (1 - out * out)
     const wob = (1 - clamp(t)) * (i % 2 ? -5 : 5)
     a.rise.tf(e >= 0.9995 && out <= 0 ? '' : `translate3d(0,${f1((1 - e) * 104)}%,0) rotate(${f1(wob)}deg)`)
     a.sh.op(clamp(t * 1.7 - 0.5) * (1 - out))
@@ -549,34 +564,23 @@ export class FilmEngine {
     n.tf(Math.abs(x) < 0.05 && Math.abs(y) < 0.05 && sc < 1.0005 ? '' : `translate3d(${f1(x)}px,${f1(y)}px,0) scale(${f3(sc)})`)
   }
 
-  // ---- HUD: the month counter and the rail ---------------------------------------------------
+  // ---- HUD: the chapter counter and the rail ---------------------------------------------------
   hud(S) {
-    // the month runs with the scroll between scenes and rests on each scene's own month
-    let m = 0
-    for (let i = 1; i < T.ORDER.length; i++) {
-      const k = T.ORDER[i]
-      const prev = T.ORDER[i - 1]
-      const fl = T.FLOOD[k] || [T.LIVE[k][0], T.LIVE[k][0] + 20]
-      const t = win(S, fl[0] - 14, fl[1] - 6)
-      if (t > 0) m = lerp(T.MONTH[prev], T.MONTH[k], t)
-    }
-    const mi = Math.round(m)
-    if (mi !== this.month) {
-      this.month = mi
-      this.n('hud:month').text(this.monthNames[mi] || '')
-      for (let i = 0; i < 12; i++) this.n(`hud:tick${i}`).attr('data-on', i <= mi)
-    }
-    const counter = this.n('hud:counter')
-    const cIn = win(S, 70, 100)
-    const cOut = win(S, T.FLOOD.app[0] - 6, T.FLOOD.app[0] + 14)
-    counter.show(cIn > 0 && cOut < 1)
-    counter.op(cIn * (1 - cOut))
+    // which scene has the stage
+    let scene = 'hero'
+    for (const k of T.ORDER) if (T.FLOOD[k] && S >= T.FLOOD[k][0] + 14) scene = k
 
-    // rail: appears with chapter 01, leaves before the close
+    // 01 / 07, across the seven chapters
+    const ci = T.CHAPTERS.indexOf(scene)
+    const counter = this.n('hud:counter')
+    counter.show(ci >= 0)
+    if (ci >= 0 && scene !== this.chapter) this.n('hud:num').text(String(ci + 1).padStart(2, '0'))
+    this.chapter = scene
+
+    // the rail: in with chapter 01, aside while the portrait's own switch is on stage, out before the close
     const rail = this.n('hud:rail')
-    const rIn = win(S, 82, 112)
+    const rIn = win(S, T.FLOOD.coast[0] + 10, T.FLOOD.coast[0] + 40)
     const rOut = win(S, T.FLOOD.end[0] - 4, T.FLOOD.end[0] + 14)
-    // it steps aside while the portrait's own switch is on stage
     const mid = win(S, T.FLOOD.ours[0] - 6, T.FLOOD.ours[0] + 10) * (1 - win(S, T.FLOOD.app[0] + 14, T.FLOOD.app[0] + 34))
     const ro = easeOutCubic(rIn) * (1 - rOut) * (1 - mid)
     rail.show(ro > 0)
@@ -584,12 +588,7 @@ export class FilmEngine {
     rail.tf(rIn >= 1 ? '' : `translate3d(0,${f1((1 - easeOutCubic(rIn)) * 40)}px,0)`)
 
     let active = ''
-    if (S >= T.FLOOD.tell[0] + 12) active = 'tell'
-    if (S >= T.FLOOD.read[0] + 12) active = 'read'
-    if (S >= T.FLOOD.map[0] + 12) active = 'map'
-    if (S >= T.FLOOD.year[0] + 12) active = 'year'
-    if (S >= T.FLOOD.ours[0] + 12) active = ''
-    if (S >= T.FLOOD.app[0] + 12) active = 'app'
+    for (const r of this.rail) if (r.scenes.includes(scene)) active = r.key
     if (active !== this.active) {
       if (this.active) this.n(`rail:${this.active}`).attr('data-active', false)
       if (active) this.n(`rail:${active}`).attr('data-active', true)

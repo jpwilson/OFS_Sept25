@@ -4,7 +4,7 @@
 import { useEffect, useRef } from 'react'
 import { HOW } from '../content/explain.js'
 import { ROUTES } from '../content/routes.js'
-import { Button, Head, Label, Readout, Shot, Stage, cx } from '../ui/index.js'
+import { Button, Cutout, Head, Label, Shot, Stage, Sticker, cx } from '../ui/index.js'
 import { clamp, easeOutBack, lerp, smoothstep, win } from '../lib/math.js'
 import { scrollToY } from '../lib/scroll.js'
 import { two, usePinnedMode } from './shared.js'
@@ -15,13 +15,13 @@ const N = HOW.stations.length
 const PATH_H = 'M 10 84 C 90 84 130 30 230 34 S 360 98 470 72 S 600 18 700 40 S 860 104 990 50'
 const PATH_V = 'M 30 10 C 30 120 8 170 12 260 S 52 420 46 520 S 10 660 16 760 S 32 920 30 990'
 const NODES = [0.02, 0.35, 0.66, 0.98]
-const REST = 0.62
-// Phones: each capture is cropped to its most telling region (zoom, focus x, focus y).
+const REST = 0.62 // share of each step the rider rests at its station before moving on
+const PHONE_MAX = 600
+// Each capture is cropped to its most telling region (zoom on phones, focus x, focus y).
 const CROP = {
-  'ui-groups': [2.2, '0%', '16%'],
-  'ui-quickadd-modes': [1.2, '50%', '10%'],
-  'ui-story-comments': [1.8, '0%', '42%'],
-} // share of each step the rider rests at its station before moving on
+  'ui-groups': [1.5, '0%', '12%'],
+  'ui-story-comments': [1.4, '0%', '40%'],
+}
 
 /** Where along the path (0..1) the rider is at overall progress p. */
 function riderAt(p) {
@@ -61,19 +61,41 @@ function Track({ vertical, pathRef, lineRef, nodesRef, riderRef, onJump }) {
   )
 }
 
-function Visual({ st, i }) {
+const WAY_WASH = ['fizz', 'azure', 'lime']
+
+function Body({ st, i }) {
   if (i === 0) {
     return (
       <div className={s.pass}>
-        <Label strong>Free trial</Label>
-        <div className={s.passRow}>
-          {st.readouts.map((r) => (
-            <Readout key={r.label} label={r.label} value={r.value} unit={r.unit} size="lg" className={s.passReadout} />
+        <Label strong>{st.passLabel}</Label>
+        <ul className={s.passList}>
+          {st.pass.map((t) => (
+            <li key={t}>{t}</li>
           ))}
-        </div>
+        </ul>
         <Button href={ROUTES.signup} size="lg" arrow trackAs="lp_how_start">
           {st.cta}
         </Button>
+      </div>
+    )
+  }
+  if (st.ways) {
+    return (
+      <div className={s.ways}>
+        <Label strong>{st.waysLabel}</Label>
+        <ul>
+          {st.ways.map((w, k) => (
+            <li key={w.name} data-wash={WAY_WASH[k]} style={{ '--k': k }}>
+              <a href={w.href}>
+                <b>{w.name}</b>
+                <span>{w.tool}</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h13M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     )
   }
@@ -82,20 +104,47 @@ function Visual({ st, i }) {
       className={s.shotBox}
       style={CROP[st.shot] ? { '--z': CROP[st.shot][0], '--ox': CROP[st.shot][1], '--oy': CROP[st.shot][2] } : undefined}
     >
-      <Shot id={st.shot} alt={st.shotAlt} className={s.shot} sizes="(max-width: 760px) 80vw, 560px" />
-      {st.readouts ? (
-        <div className={s.shotReadouts}>
-          {st.readouts.map((r) => (
-            <Readout key={r.label} label={r.label} value={r.value} size="md" />
+      <Shot id={st.shot} alt={st.shotAlt} className={s.shot} sizes="(max-width: 760px) 92vw, 680px" />
+      {st.callouts ? (
+        <ul className={s.callouts}>
+          {st.callouts.map((c, k) => (
+            <li key={c} style={{ '--k': k }}>
+              <Sticker tilt={k ? 2 : -3} className={s.callout}>
+                {c}
+              </Sticker>
+            </li>
           ))}
-        </div>
+        </ul>
+      ) : null}
+      {st.badges ? (
+        <ul className={s.callouts} data-badges="">
+          {st.badges.map((c, k) => (
+            <li key={c} style={{ '--k': k }}>
+              <Sticker tilt={k ? 2 : -3} className={s.callout}>
+                {c}
+              </Sticker>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </div>
   )
 }
 
+/** The station's visual: the proof, with one of the family beside it doing the step. */
+function Visual({ st, i }) {
+  return (
+    <>
+      <Body st={st} i={i} />
+      {st.person ? <Cutout id={st.person} alt={st.personAlt} className={s.person} shadow sizes="(max-width: 760px) 30vw, 240px" /> : null}
+    </>
+  )
+}
+
 export function How() {
-  const mode = usePinnedMode()
+  // Phones read the four steps as a stacked column with a rail (every line at reading size);
+  // iPad and desktop pin the stage and let the path draw itself.
+  const mode = usePinnedMode(PHONE_MAX)
   const pinned = mode === 'pinned'
   const stage = useRef(null)
   const stations = useRef(null)

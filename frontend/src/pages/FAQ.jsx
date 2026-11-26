@@ -43,7 +43,7 @@ export default function FAQ() {
           <h1 className={styles.title}>Our Family Socials FAQ</h1>
           <p className={styles.subtitle}>
             Frequently asked questions about Our Family Socials, a private social network for
-            families. If your question is not answered here, email support@ourfamilysocials.com.
+            families. Anything else you would like to know, just email support@ourfamilysocials.com.
           </p>
         </div>
 

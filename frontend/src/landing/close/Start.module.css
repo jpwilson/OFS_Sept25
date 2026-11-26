@@ -28,15 +28,6 @@
   width: 100%;
   box-shadow: var(--l-shadow-lg);
 }
-.plateNote {
-  margin-top: 16px;
-  text-align: right;
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: var(--l-size-label);
-  letter-spacing: var(--l-track-label);
-  text-transform: uppercase;
-}
 .card {
   grid-column: 1 / span 5;
   grid-row: 1;
@@ -53,25 +44,35 @@
   transform: rotate(-1deg);
 }
 .head {
-  font-size: clamp(40px, 5.4vw, 84px);
+  font-size: clamp(44px, 5.6vw, 88px);
 }
 .line {
   max-width: 34ch;
-  font-size: var(--l-size-lede);
+  font-size: clamp(18px, 1.2vw + 8px, 22px);
   line-height: 1.45;
   font-weight: 500;
 }
+.band .eyebrow {
+  font-size: 13px;
+}
 .terms {
   justify-self: stretch;
-  margin-top: -8px;
+  margin-top: -6px;
   padding-top: 14px;
   border-top: 2px solid var(--l-ink);
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: 12.5px;
-  line-height: 1.6;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+.join {
+  justify-self: stretch;
+  padding: 12px 16px 13px;
+  background: var(--l-sun);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.35;
 }
 .actions {
   display: grid;
@@ -87,7 +88,40 @@
   font-weight: 600;
 }
 
-@media (max-width: 860px) {
+/* iPad landscape: the card takes a little more of the row */
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .card {
+    grid-column: 1 / span 6;
+  }
+  .plate {
+    grid-column: 6 / -1;
+    margin-left: -12px;
+  }
+  .card {
+    max-width: 520px;
+  }
+}
+
+/* iPad portrait: the whole landscape photograph across the top, the card overlapping its foot */
+@media (max-width: 1023px) and (min-width: 641px) {
+  .stage {
+    display: block;
+  }
+  .plate {
+    margin: 0;
+  }
+  .card {
+    margin: -18px auto 0;
+    max-width: 600px;
+    transform: rotate(-1deg);
+  }
+  .head {
+    font-size: clamp(56px, 8vw, 72px);
+  }
+}
+
+/* Phone: the portrait photograph, then the card */
+@media (max-width: 640px) {
   .stage {
     display: block;
   }
@@ -101,16 +135,13 @@
     width: min(100%, 460px);
     margin-inline: auto;
   }
-  .plateNote {
-    text-align: center;
-  }
-  .plate {
-    margin-left: auto;
-  }
   .card {
-    margin-top: -24px;
+    margin-top: 12px;
     margin-inline: auto;
     max-width: 520px;
     transform: rotate(-1.5deg);
+  }
+  .head {
+    font-size: clamp(44px, 12.4vw, 54px);
   }
 }

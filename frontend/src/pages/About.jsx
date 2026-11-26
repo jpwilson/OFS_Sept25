@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './About.module.css'
+import { JOIN_LINE } from '../content/marketing.js'
 
 export default function About() {
   const { user } = useAuth()
@@ -21,34 +22,35 @@ export default function About() {
         <section className={styles.section}>
           <h2>What is Our Family Socials?</h2>
           <p>
-            Our Family Socials is a private, ad-free social network designed specifically for families 
-            to share life events, photos, and memories together. Unlike public social media platforms, 
-            everything is private by default, and there are no algorithms manipulating what you see.
+            Our Family Socials is a private, ad-free social network made for families to share life
+            events, photos and memories together. A new event goes to the family you have approved,
+            you choose the audience for every one, and the feed is in date order with nothing ranked.
           </p>
           <p>
-            We built this platform because existing social networks weren't designed for families. 
-            They're cluttered with ads, algorithms hide your posts, and your family photos end up 
-            mixed with everything else in an endless scroll. Our Family Socials gives families a 
-            dedicated space to preserve memories the way they deserve.
+            We built Our Family Socials for our own family: one place where the long version of our
+            lives could live, from the road trip to the school play, shared with the people who
+            already know the kids' names. It gives every family a space of its own to keep their
+            memories the way they deserve, and to come back to them for years.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2>Why We're Different</h2>
+          <h2>What Makes It Ours</h2>
           <div className={styles.features}>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>🔒</div>
-              <h3>Private by Default</h3>
+              <h3>You Choose the Audience</h3>
               <p>
-                Every event is private unless you explicitly share it. You control exactly who 
-                can see each memory, from everyone you follow to custom groups like "close family only."
+                A new event goes to the followers you have approved, and you can set any event to
+                Close Family, a Custom Group like "close family only," Private (just you) or Public
+                (anyone with the link).
               </p>
             </div>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>🚫</div>
               <h3>No Ads, Ever</h3>
               <p>
-                We'll never sell your data or show you ads. Your family memories aren't a product 
+                We'll never sell your data or show you ads. Your family memories aren't a product
                 to be monetized. We're funded by subscriptions from families who value privacy.
               </p>
             </div>
@@ -65,16 +67,16 @@ export default function About() {
               <div className={styles.featureIcon}>🗺️</div>
               <h3>Interactive Maps & Timeline</h3>
               <p>
-                See your family's adventures on an interactive world map. Watch years of memories 
-                unfold chronologically in the timeline view. Filter by person, place, or date.
+                See your family's adventures on an interactive world map. Watch years of memories
+                unfold in order in the timeline view. Filter by person, category or date.
               </p>
             </div>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>🤖</div>
               <h3>AI-Powered Stories</h3>
               <p>
-                Let AI help you write event descriptions. Upload your photos, and we'll generate 
-                a story based on what's in them. Edit it to perfection or use it as-is.
+                Add your photos, type or say what happened, and AI Create drafts the story, the
+                headings and a caption for every photo. Make it your own, or post it as it is.
               </p>
             </div>
             <div className={styles.feature}>
@@ -104,12 +106,12 @@ export default function About() {
             <div className={styles.step}>
               <div className={styles.stepNumber}>3</div>
               <h3>Share Life Events</h3>
-              <p>Create event pages with photos, stories, locations, and dates. Choose who can see each event.</p>
+              <p>Create event pages with photos, stories, locations, and dates. Choose who opens each event.</p>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNumber}>4</div>
               <h3>Stay Connected</h3>
-              <p>View your family's events in the feed, on the map, or in the timeline. Comment, like, and engage.</p>
+              <p>View your family's events in the feed, on the map, or in the timeline. Comment, like and cheer each other on.</p>
             </div>
           </div>
         </section>
@@ -117,13 +119,13 @@ export default function About() {
         <section className={styles.section}>
           <h2>Pricing</h2>
           <p>
-            We offer a free plan for family members who want to view and engage with events (but not create them), 
-            and a Pro plan ($9/month annual or $12/month) for unlimited event creation. We also offer a one-time 
+            Readers are free, forever: family members read, like and comment on the free plan.
+            Storytellers pick Pro ($9/month annual or $12/month) for unlimited event creation. We also offer a one-time 
             Lifetime plan ($294) for long-term users.
           </p>
           <p>
-            <strong>All new accounts get a 30-day free trial of Pro features.</strong> Only published events 
-            count toward your limit—drafts and deleted events are free.
+            <strong>All new accounts get a 30-day free trial of Pro, no card needed,</strong> with
+            up to 5 published events. Drafts are free, so write as many as you like.
           </p>
           <Link to="/pricing" className={styles.ctaButton}>View Pricing Details</Link>
         </section>
@@ -132,10 +134,10 @@ export default function About() {
           <h2>Who It's For</h2>
           <ul className={styles.list}>
             <li><strong>Parents</strong> wanting to share kids' milestones with grandparents</li>
-            <li><strong>Extended families</strong> staying connected across distance</li>
-            <li><strong>Travelers</strong> documenting vacations with rich photo albums and maps</li>
-            <li><strong>Anyone</strong> tired of public social media and seeking a private alternative</li>
-            <li><strong>Families</strong> who value privacy and want to preserve memories without ads</li>
+            <li><strong>Extended families</strong> staying close across any distance</li>
+            <li><strong>Travelers</strong> telling the story of every trip with photo albums and maps</li>
+            <li><strong>Anyone</strong> who wants to share their life privately with the people who matter</li>
+            <li><strong>Families</strong> who value privacy and want to keep their memories ad-free</li>
           </ul>
         </section>
 
@@ -143,6 +145,7 @@ export default function About() {
           <h2>Get Started</h2>
           <p>
             Ready to start sharing your family's story? Sign up for free and get a 30-day Pro trial.
+            {' '}{JOIN_LINE}
           </p>
           <div className={styles.ctaButtons}>
             <Link to="/login?signup=true" className={styles.ctaButton}>Sign Up Free</Link>

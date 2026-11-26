@@ -1,35 +1,23 @@
-import { useState } from 'react'
 import { COMPARE } from '../content/close.js'
-import { Head, Icon, Label, Reveal, Section } from '../ui/index.js'
+import { biz } from '../content/business.js'
+import { Cutout, Head, Icon, Label, Reveal, Section } from '../ui/index.js'
 import s from './Compare.module.css'
 
-/**
- * One alternative. Under 700px wide (and only once the page is mounted) the quote shows a
- * few lines with a control that opens the rest; the whole text is always in the DOM.
- */
+/** One "Coming from…?" card: only what you get here. */
 function Card({ c, i }) {
-  const [open, setOpen] = useState(false)
-  const qid = `lp-cmp-${c.path.split('/').pop()}`
   return (
     <Reveal as="li" i={i % 2} className={s.card}>
       <div className={s.cardTop} data-wash={c.wash}>
         <span className={s.vs} aria-hidden="true">
-          vs
+          <Icon name="arrow" size={18} />
         </span>
         <h3 className={s.name}>{c.name}</h3>
       </div>
       <div className={s.body}>
-        <Label className={s.src}>The short answer, from our page</Label>
-        <blockquote id={qid} className={s.quote} cite={c.path} data-open={open || undefined}>
-          <p>{c.short}</p>
-        </blockquote>
-        <button type="button" className={s.toggle} aria-expanded={open} aria-controls={qid} onClick={() => setOpen((v) => !v)}>
-          {open ? COMPARE.collapse : COMPARE.expand}
-          <Icon name={open ? 'close' : 'plus'} size={16} />
-        </button>
+        <p className={s.text}>{c.text}</p>
         <a className={s.more} href={c.path}>
           {COMPARE.more}
-          <span className="l-sr"> with {c.name}</span>
+          <span className="l-sr"> about {c.name.replace(/^Coming from |\?$/g, '')}</span>
           <Icon name="arrow" size={18} />
         </a>
       </div>
@@ -37,18 +25,21 @@ function Card({ c, i }) {
   )
 }
 
-/** 12 · Where the others are better. The text is each compare page's own short answer. */
+/** 12 · Why Our Family Socials. Head and line from business.js. */
 export function Compare() {
   return (
     <Section id="lp-compare" wash="azure" className={s.band}>
-      <div className={s.top}>
-        <div>
-          <Label strong dot>
+      <div className={s.poster}>
+        <div className={s.copy}>
+          <Label strong dot className={s.eyebrow}>
             {COMPARE.label}
           </Label>
-          <Head {...COMPARE.head} className={s.head} />
+          <Head {...biz('whyHead')} className={s.head} />
+          <p className={s.lede}>{biz('whyLine')}</p>
         </div>
-        <p className={s.lede}>{COMPARE.lede}</p>
+        <figure className={s.stage}>
+          <Cutout id={COMPARE.person} alt={COMPARE.personAlt} shadow className={s.person} sizes="(max-width: 640px) 36vw, 220px" />
+        </figure>
       </div>
 
       <ul className={s.cards}>

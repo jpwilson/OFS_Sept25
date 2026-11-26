@@ -12,7 +12,7 @@ Sheet A (the household and grandparents). They are one family and should look re
 
 Sheet B (relatives by marriage and friends):
 - AUNT KATE, 43, Tom's sister. White woman, auburn hair in a loose bun, freckles. Navy-and-white Breton striped top, tan wide trousers, white plimsolls.
-- UNCLE MARCUS, 35, Kate's husband. Black man, short fade haircut, tortoiseshell glasses, neat short beard. Charcoal bomber jacket over a white tee, dark jeans, white trainers.
+- UNCLE MARCUS, 44, Kate's husband. White man, fair skin, dark-blond hair greying at the temples, clean-shaven, tortoiseshell glasses, easy smile, medium build. Charcoal bomber jacket over a white tee, dark jeans, white trainers.
 - FINN, 14, Kate's son. White teenage boy, shaggy auburn hair, lanky. Grey hoodie, black joggers, headphones around his neck, skate shoes.
 - PRIYA, 37, Maya's friend. South Asian woman, long dark plait, warm smile. Cobalt-blue shirt dress, tan sandals.
 - SAM, 41, Tom's running partner. East Asian man, athletic, short black hair. Sage-green overshirt over a white tee, dark chinos, grey trainers.

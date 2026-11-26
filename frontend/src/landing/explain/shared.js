@@ -7,11 +7,11 @@ import { prefersReducedMotion } from '../lib/scroll.js'
  * 'flow' on the server, without script and under reduced motion (plain stacked content);
  * 'pinned' once mounted with motion allowed. The first client render matches the server.
  */
-export function usePinnedMode() {
+export function usePinnedMode(minWidth = 0) {
   const [mode, setMode] = useState('flow')
   useEffect(() => {
-    if (!prefersReducedMotion()) setMode('pinned')
-  }, [])
+    if (!prefersReducedMotion() && window.innerWidth > minWidth) setMode('pinned')
+  }, [minWidth])
   return mode
 }
 

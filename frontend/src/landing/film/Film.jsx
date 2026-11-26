@@ -6,23 +6,24 @@
 // scenes stack inside it, and engine.js plays the arrivals around each poster. Reduced
 // motion, no script, a very short screen or an engine error all leave the posters standing.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { FILM_IDS, HUD, SR } from '../content/film.js'
-import { SAMPLE_YEAR } from '../content/film.sample.js'
+import { FILM_IDS, HUD, SR, YEAR } from '../content/film.js'
+import { TETONS as TETONS_SAMPLE, YEARS, ageLabel } from '../content/film.sample.js'
 import { onFrame, prefersReducedMotion, refreshScroll, scrollToId, stageProgress } from '../lib/scroll.js'
 import { Icon } from '../ui/index.js'
 import { FilmEngine } from './engine.js'
 import { App, End, Ours } from './scenes/Finale.jsx'
 import { Hero } from './scenes/Hero.jsx'
-import { MapScene, World } from './scenes/Map.jsx'
-import { Read } from './scenes/Read.jsx'
-import { Tell } from './scenes/Tell.jsx'
+import { Kitchen } from './scenes/Kitchen.jsx'
+import { Race } from './scenes/Race.jsx'
+import { Coast, Tetons, World } from './scenes/Trips.jsx'
+import { Wedding } from './scenes/Wedding.jsx'
 import { Year } from './scenes/Year.jsx'
 import s from './stage.module.css'
-import { ANCHOR, ORDER, STAGE_SVH } from './timeline.js'
+import { ANCHOR, CHAPTERS, ORDER, STAGE_SVH } from './timeline.js'
 
 const useIso = typeof window === 'undefined' ? useEffect : useLayoutEffect
 const MIN_H = 560
-const RAIL_WASH = { tell: 'fizz', read: 'zest', map: 'azure', year: 'lime', app: 'paper' }
+const two = (n) => String(n).padStart(2, '0')
 
 function canPin() {
   if (prefersReducedMotion()) return false
@@ -34,23 +35,16 @@ function canPin() {
 function Hud({ onJump }) {
   return (
     <div className={s.hud}>
-      <div className={s.counter} data-f="hud:counter" aria-hidden="true">
-        <span className={s.counterRow}>
-          <b data-f="hud:month">{HUD.months[0]}</b>
-          <span>{SAMPLE_YEAR}</span>
-        </span>
-        <span className={s.ticks}>
-          {HUD.months.map((m, i) => (
-            <i key={m} data-f={`hud:tick${i}`} data-on={i === 0 ? '' : undefined} />
-          ))}
-        </span>
-      </div>
+      <p className={s.counter} data-f="hud:counter" aria-hidden="true">
+        <b data-f="hud:num">{two(1)}</b>
+        <span>/ {two(CHAPTERS.length)}</span>
+      </p>
       <div className={s.railSlot}>
         <nav className={s.rail} data-f="hud:rail" aria-label={HUD.railLabel}>
           {HUD.rail.map((r, i) => (
             <a key={r.key} className={s.chip} href={r.href} data-f={`rail:${r.key}`} onClick={(e) => onJump(e, r.key)}>
-              <span className={s.chipDot} data-wash={RAIL_WASH[r.key]}>
-                {r.key === 'app' ? <Icon name="play" size={14} /> : <b>{String(i + 1).padStart(2, '0')}</b>}
+              <span className={s.chipDot} data-wash={r.wash}>
+                {r.key === 'app' ? <Icon name="play" size={14} /> : <b>{two(i + 1)}</b>}
               </span>
               <span>{r.label}</span>
             </a>
@@ -68,6 +62,8 @@ export function Film() {
   const engine = useRef(null)
   const failed = useRef(false)
   const before = useRef(null)
+  // settled: the script has decided to leave the posters standing (see crowd.module.css)
+  const [settled, setSettled] = useState(false)
 
   // Decide the mode once mounted, and again when the motion preference or the screen changes.
   useIso(() => {
@@ -80,6 +76,7 @@ export function Film() {
         before.current = { into: -el.getBoundingClientRect().top, h: first ? first.offsetHeight : window.innerHeight }
       }
       setMode(next)
+      setSettled(next === 'poster')
     }
     decide()
     const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null
@@ -97,10 +94,16 @@ export function Film() {
       console.error('[film] engine failed; showing the posters instead', err)
       failed.current = true
       setMode('poster')
+      setSettled(true)
     }
     let e
     try {
-      e = new FilmEngine(section.current, pin.current, { months: HUD.months })
+      e = new FilmEngine(section.current, pin.current, {
+        rail: HUD.rail,
+        tetonsDays: TETONS_SAMPLE.days.map((d) => d.place),
+        // chapter 07: the label and the lit categories for each of the five ages
+        years: { labels: YEARS.map(ageLabel), chips: YEARS.map((y) => y.photos.map((p) => YEAR.categories.indexOf(p.category))) },
+      })
     } catch (err) {
       fail(err)
       return undefined
@@ -150,6 +153,7 @@ export function Film() {
       id="lp-film"
       className={s.film}
       data-mode={mode}
+      data-settled={settled && !pinned ? '' : undefined}
       aria-label={HUD.filmLabel}
       style={pinned ? { height: `calc(var(--sh) * ${STAGE_SVH / 100})` } : undefined}
     >
@@ -158,10 +162,12 @@ export function Film() {
         : null}
       <div ref={pin} className={s.pin}>
         <Hero />
-        <Tell id={ids.tell} />
-        <Read id={ids.read} />
-        <MapScene id={ids.map} />
+        <Coast id={ids.trips} />
+        <Tetons id={ids.tetons} />
         <World />
+        <Wedding id={ids.wedding} />
+        <Kitchen id={ids.home} />
+        <Race id={ids.race} />
         <Year id={ids.year} />
         <Ours id={ids.finale} />
         <App id={ids.app} />

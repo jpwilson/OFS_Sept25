@@ -23,3 +23,13 @@ export const floodEase = (t) => 1 - Math.pow(1 - clamp(t), 2.2)
 export const w = (S, r) => win(S, r[0], r[1])
 /** Progress of the i-th item of a staggered run { a, step, dur }. */
 export const wi = (S, run, i) => win(S, run.a + i * run.step, run.a + i * run.step + run.dur)
+
+/**
+ * A slow rise: eases in and out (never faster than one and a half times its average speed),
+ * drifts a few percent past its mark near the end and settles. For people arriving.
+ */
+export const settle = (t, over = 0.03) => {
+  const x = clamp(t)
+  const s = x * x * (3 - 2 * x)
+  return s + over * Math.sin(Math.PI * clamp((x - 0.72) / 0.28))
+}

@@ -22,7 +22,7 @@ const SECTIONS = {
   film: ['Film'],
   explain: ['Difference', 'How', 'Create', 'Import'],
   proof: ['Anatomy', 'Places', 'Views', 'Audience', 'Family'],
-  close: ['Nav', 'Limits', 'Compare', 'Plans', 'Questions', 'Start', 'Footer'],
+  close: ['Nav', 'Milestone', 'Love', 'Compare', 'Plans', 'Questions', 'Start', 'Footer'],
   ui: ['Kitchen'],
 }
 

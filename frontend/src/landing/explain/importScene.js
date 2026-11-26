@@ -1,10 +1,11 @@
-// Smart Import canvas (owner: explain). A made-up camera roll moves through five states,
+// Smart Import canvas (owner: explain). A made-up camera roll moves through six states,
 // following the rules of backend/app/utils/photo_clustering.py:
-//   0 pile   1 in time order   2 breaks   3 trips merge   4 albums
+//   0 pick (an illustrated phone photo picker: ticks land, the count climbs, Add is pressed)
+//   1 pile   2 in time order   3 breaks   4 trips merge   5 albums
 // Plain 2D canvas, one draw per changed frame; no allocation in the hot path beyond the
 // per-thumb interpolation. Browser only: construct it in an effect.
 import { maybeArt } from '../art/manifest.js'
-import { clamp, easeInOutCubic, lerp, win } from '../lib/math.js'
+import { clamp, easeInOutCubic, easeOutBack, lerp, win } from '../lib/math.js'
 
 const INK = '#101b3b'
 const WHITE = '#ffffff'
@@ -14,7 +15,9 @@ const FIZZ = '#ff62c4'
 const ZEST = '#ff8a1f'
 const MONO = '"OFSL DM Mono", ui-monospace, "SF Mono", Menlo, monospace'
 const DISPLAY = '"OFSL Bricolage", system-ui, -apple-system, "Segoe UI", sans-serif'
-export const STATES = 5
+export const STATES = 6
+const PICK_FAN = [0.04, 0.55] // the share of the pick state over which the ticks land
+const PICK_PRESS = 0.72 // where in the pick state the Add button is pressed
 
 /** Deterministic pseudo-random in [0,1) from an integer seed. */
 function rand(seed) {
@@ -120,8 +123,7 @@ export class ImportScene {
     if (!w || !h) return
     const n = this.thumbs.length
     const pad = Math.max(12, Math.min(w, h) * 0.05)
-    const top = w < 520 ? 34 : 18 // clear the stage label
-    const area = { x: pad, y: pad + top, w: w - pad * 2, h: h - pad * 2 - top }
+    const area = { x: pad, y: pad, w: w - pad * 2, h: h - pad * 2 }
     this.area = area
     // leave room for the tray and the legend under the flow
     this.foot = w < 520 ? 58 : 30
@@ -132,8 +134,181 @@ export class ImportScene {
       if (this.flow(true, true).fits) break
     }
     this.setT(T)
-    const L = [this.pile(), this.flow(false, false), this.flow(true, false), this.flow(true, true), this.albums()]
+    this.pickerLayout()
+    const L = [null, this.pile(), this.flow(false, false), this.flow(true, false), this.flow(true, true), this.albums()]
     this.L = L
+  }
+
+  /* ---------------- the picker (state 0) ---------------- */
+
+  /** A plain illustrated phone with a photo grid. On a narrow canvas the canvas is the phone. */
+  pickerLayout() {
+    const { w, h, thumbs } = this
+    const narrow = w < 520
+    // on a narrow canvas the canvas is the phone: it uses the whole box
+    const area = narrow ? { x: 6, y: 6, w: w - 12, h: h - 12 } : this.area
+    const ph = area.h
+    const pw = narrow ? area.w : Math.min(area.w * 0.62, ph * 0.64)
+    const px = area.x + (area.w - pw) / 2
+    const py = area.y
+    const bez = narrow ? 7 : Math.max(9, pw * 0.045)
+    const screen = { x: px + bez, y: py + bez, w: pw - 2 * bez, h: ph - 2 * bez }
+    const headH = narrow ? 0 : 44
+    const footH = narrow ? 48 : 64
+    const grid = { x: screen.x, y: screen.y + headH, w: screen.w, h: Math.max(40, screen.h - headH - footH) }
+    const cols = narrow ? 7 : 5
+    const cell = grid.w / cols
+    // every fifth cell is a photo nobody picked, so the ticks read as choices
+    const isDecoy = (c) => c % 5 === 2
+    const cellOf = []
+    const decoys = []
+    let c = 0
+    for (let j = 0; j < thumbs.length; c++) {
+      if (isDecoy(c)) decoys.push({ c, src: thumbs[(c * 7) % thumbs.length] })
+      else cellOf[j++] = c
+    }
+    const rows = Math.ceil(c / cols)
+    this.pk = { narrow, phone: { x: px, y: py, w: pw, h: ph }, bez, screen, grid, headH, footH, cols, cell, cellOf, decoys, rows, maxScroll: Math.max(0, rows * cell - grid.h) }
+  }
+
+  /** Ticks landed (0..n), the grid scroll and the button press at pick-state time t0. */
+  pickState(t0) {
+    const n = this.thumbs.length
+    const { rows, cell, grid, maxScroll } = this.pk
+    const tk = clamp(win(t0, PICK_FAN[0], PICK_FAN[1]))
+    const ticked = Math.round(tk * n)
+    const vis = grid.h / cell
+    const scroll = clamp((tk * rows - vis * 0.7) * cell, 0, maxScroll)
+    const press = clamp(win(t0, PICK_PRESS, PICK_PRESS + 0.08))
+    return { ticked, tickF: tk * n, scroll, press }
+  }
+
+  cellBox(c, scroll) {
+    const { grid, cols, cell } = this.pk
+    return { x: grid.x + (c % cols) * cell, y: grid.y + Math.floor(c / cols) * cell - scroll, s: cell }
+  }
+
+  /** Where photo j sits in the picker (as a thumb position), clamped into the visible grid. */
+  pickerPos(j, scroll) {
+    const b = this.cellBox(this.pk.cellOf[j], scroll)
+    const { grid } = this.pk
+    const y = clamp(b.y + b.s / 2, grid.y + b.s * 0.3, grid.y + grid.h - b.s * 0.3)
+    return { x: b.x + b.s / 2, y, s: b.s - 2, r: 0, a: 1, z: 0 }
+  }
+
+  drawPicker(t0, alpha) {
+    const { ctx, thumbs, pk } = this
+    const n = thumbs.length
+    const st = this.pickState(t0)
+    const { phone, screen, grid, headH, footH, narrow, cell } = pk
+    const text = this.data.text.picker
+    ctx.save()
+    ctx.globalAlpha = alpha
+    // the phone
+    if (!narrow) {
+      ctx.fillStyle = INK
+      roundRect(ctx, phone.x + 6, phone.y + 6, phone.w, phone.h, 30)
+      ctx.fill()
+    }
+    ctx.fillStyle = WHITE
+    ctx.strokeStyle = INK
+    ctx.lineWidth = 2.5
+    roundRect(ctx, phone.x, phone.y, phone.w, phone.h, narrow ? 18 : 30)
+    ctx.fill()
+    ctx.stroke()
+    ctx.fillStyle = PAPER
+    roundRect(ctx, screen.x, screen.y, screen.w, screen.h, narrow ? 12 : 22)
+    ctx.fill()
+    // header
+    ctx.fillStyle = INK
+    ctx.textBaseline = 'middle'
+    ctx.font = `800 19px ${DISPLAY}`
+    if (headH) ctx.fillText(text.title, screen.x + 12, screen.y + headH / 2 + 1)
+    // the grid (clipped to the screen)
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(grid.x, grid.y, grid.w, grid.h)
+    ctx.clip()
+    const drawCell = (c, t, on, pop) => {
+      const b = this.cellBox(c, st.scroll)
+      if (b.y > grid.y + grid.h || b.y + b.s < grid.y) return
+      const g = 1
+      const im = t.img && t.img.ok ? t.img.img : null
+      if (t.undated) {
+        ctx.fillStyle = WHITE
+        ctx.fillRect(b.x + g, b.y + g, b.s - 2 * g, b.s - 2 * g)
+        ctx.fillStyle = 'rgba(16,27,59,.25)'
+        for (let r = 0; r < 4; r++) ctx.fillRect(b.x + b.s * 0.18, b.y + b.s * (0.2 + r * 0.16), b.s * (r % 2 ? 0.4 : 0.62), Math.max(2, b.s * 0.06))
+      } else if (im) {
+        const side = Math.min(im.naturalWidth, im.naturalHeight)
+        ctx.drawImage(im, (im.naturalWidth - side) / 2, (im.naturalHeight - side) / 2, side, side, b.x + g, b.y + g, b.s - 2 * g, b.s - 2 * g)
+      } else {
+        ctx.fillStyle = '#cfe6ff'
+        ctx.fillRect(b.x + g, b.y + g, b.s - 2 * g, b.s - 2 * g)
+      }
+      if (on) {
+        ctx.strokeStyle = LIME
+        ctx.lineWidth = 3
+        ctx.strokeRect(b.x + 2.5, b.y + 2.5, b.s - 5, b.s - 5)
+      }
+      // the tick circle, top right
+      const r = Math.max(8, Math.min(12, cell * 0.17)) * (on ? 1 + 0.35 * pop : 1)
+      const cx = b.x + b.s - r - 4
+      const cy = b.y + r + 4
+      ctx.beginPath()
+      ctx.arc(cx, cy, r, 0, Math.PI * 2)
+      ctx.fillStyle = on ? LIME : 'rgba(255,255,255,.55)'
+      ctx.fill()
+      ctx.lineWidth = 1.75
+      ctx.strokeStyle = on ? INK : WHITE
+      ctx.stroke()
+      if (on) {
+        ctx.beginPath()
+        ctx.moveTo(cx - r * 0.45, cy + r * 0.02)
+        ctx.lineTo(cx - r * 0.1, cy + r * 0.38)
+        ctx.lineTo(cx + r * 0.5, cy - r * 0.35)
+        ctx.lineWidth = 2.2
+        ctx.strokeStyle = INK
+        ctx.stroke()
+      }
+    }
+    for (const d of pk.decoys) drawCell(d.c, d.src, false, 0)
+    for (let j = 0; j < n; j++) {
+      const on = j < st.ticked
+      const pop = on ? clamp(1 - (st.tickF - j) / 3) : 0
+      drawCell(pk.cellOf[j], thumbs[j], on, pop)
+    }
+    ctx.restore()
+    // footer: the count climbing, then Add pressed
+    const fy = screen.y + screen.h - footH / 2
+    ctx.fillStyle = INK
+    const tight = screen.w < 270
+    ctx.font = `800 ${narrow ? 16 : tight ? 15 : 18}px ${DISPLAY}`
+    ctx.textBaseline = 'middle'
+    ctx.fillText(text.selected.replace('{n}', String(st.ticked)), screen.x + 12, fy)
+    const label = text.button.replace('{n}', String(Math.max(1, st.ticked)))
+    ctx.font = `700 ${narrow || tight ? 13 : 15}px ${DISPLAY}`
+    const bw = ctx.measureText(label).width + (tight ? 20 : 26)
+    const bh = narrow ? 34 : 40
+    const bx = screen.x + screen.w - bw - (tight ? 6 : 10)
+    const down = easeOutBack(st.press) * 2
+    const by = fy - bh / 2 + down
+    const ready = st.ticked > 0
+    ctx.globalAlpha = alpha * (ready ? 1 : 0.4)
+    if (st.press < 0.5) {
+      ctx.fillStyle = INK
+      roundRect(ctx, bx + 3, by + 3 - down, bw, bh, bh / 2)
+      ctx.fill()
+    }
+    ctx.fillStyle = st.press > 0 ? LIME : INK
+    ctx.strokeStyle = INK
+    ctx.lineWidth = 2
+    roundRect(ctx, bx, by, bw, bh, bh / 2)
+    ctx.fill()
+    ctx.stroke()
+    ctx.fillStyle = st.press > 0 ? INK : WHITE
+    ctx.fillText(label, bx + (tight ? 10 : 13), by + bh / 2 + 1)
+    ctx.restore()
   }
 
   setT(T) {
@@ -311,7 +486,7 @@ export class ImportScene {
     const f = clamp(p) * STATES
     const i = Math.min(STATES - 1, Math.floor(f))
     const t = f - i
-    if (i === 0) return { from: 0, to: 0, t: 0, i }
+    if (i === 0) return { from: 0, to: 0, t: 0, i, t0: t }
     return { from: i - 1, to: i, t: win(t, 0, 0.5), i }
   }
 
@@ -319,23 +494,34 @@ export class ImportScene {
     if (!this.dirty || !this.L || !this.w) return
     this.dirty = false
     const { ctx, w, h, thumbs, L, T } = this
-    const { from, to, t } = this.phase(this.p)
+    const { from, to, t, t0 } = this.phase(this.p)
     ctx.clearRect(0, 0, w, h)
-    const A = L[from]
-    const B = L[to]
+    // state 0 at rest: the picker alone
+    if (to === 0) {
+      this.drawPicker(t0, 1)
+      return
+    }
     const wTo = easeInOutCubic(t)
+    // leaving the picker: it fades as the picked photos lift out of it into the pile
+    let A = L[from]
+    if (from === 0) {
+      const sc = this.pickState(1).scroll
+      A = thumbs.map((_, j) => this.pickerPos(j, sc))
+      this.drawPicker(1, clamp(1 - wTo * 1.6))
+    }
+    const B = L[to]
     const weight = (state) => (state === to ? (from === to ? 1 : wTo) : 0) + (state === from && from !== to ? 1 - wTo : 0)
 
-    // tray (states 1-3)
-    const trayA = weight(1) + weight(2) + weight(3)
+    // tray (states 2-4)
+    const trayA = weight(2) + weight(3) + weight(4)
     if (trayA > 0.01) this.drawTray(trayA)
-    // album cards (state 4)
-    if (weight(4) > 0.01) this.drawCards(weight(4))
-    // trip highlight (state 3)
-    if (weight(3) > 0.01) this.drawTrip(L[3], weight(3))
-    // zone bars and dates (states 2-3)
-    const zA = Math.max(weight(2), weight(3))
-    if (zA > 0.01) this.drawZones(from === 3 || to === 3 ? (weight(3) >= weight(2) ? L[3] : L[2]) : L[2], zA)
+    // album cards (state 5)
+    if (weight(5) > 0.01) this.drawCards(weight(5))
+    // trip highlight (state 4)
+    if (weight(4) > 0.01) this.drawTrip(L[4], weight(4))
+    // zone bars and dates (states 3-4)
+    const zA = Math.max(weight(3), weight(4))
+    if (zA > 0.01) this.drawZones(from === 4 || to === 4 ? (weight(4) >= weight(3) ? L[4] : L[3]) : L[3], zA)
 
     // thumbs, per-thumb stagger so the move reads as many hands, not one slide
     const n = thumbs.length
@@ -347,12 +533,12 @@ export class ImportScene {
       const e = from === to ? 1 : easeInOutCubic(clamp((t - d * 0.5) / (1 - 0.35 * 0.5)))
       cur[j] = { j, x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e), s: lerp(a.s, b.s, e), r: lerp(a.r, b.r, e), z: lerp(a.z, b.z, e) }
     }
-    if (to === 0 || to === 4) cur.sort((p, q) => p.z - q.z)
+    if (to === 1 || to === 5) cur.sort((p, q) => p.z - q.z)
     for (const c of cur) this.drawThumb(thumbs[c.j], c)
 
     // markers last, above the thumbs
-    const mA = weight(2) + weight(3)
-    if (mA > 0.01) this.drawMarkers(weight(3) >= weight(2) ? L[3].markers : L[2].markers, mA)
+    const mA = weight(3) + weight(4)
+    if (mA > 0.01) this.drawMarkers(weight(4) >= weight(3) ? L[4].markers : L[3].markers, mA)
     void T
   }
 

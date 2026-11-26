@@ -1,0 +1,7 @@
+
+The attached images are EDIT SOURCES (opaque photos). For each shot, edit the named source and change ONLY what is described: keep the canvas size, framing, composition, poses, expressions, clothes, background and every other person exactly as they are. No text anywhere.
+
+1. `photo-years-2a.png` — source: the FIRST attached image. The GIRL (10 years old, plaits) gets a full natural set of front teeth: fill the gaps so her smile shows complete upper front teeth. Nothing else changes.
+2. `photo-years-4b.png` — source: the SECOND attached image. The BOY (12 years old, green track top) gets a full natural set of front teeth, no gap. Nothing else changes.
+3. `photo-years-5a.png` — source: the THIRD attached image. Age the PARENTS by about twelve years to around fifty: the MOTHER (mustard cardigan) gets visible grey streaks through her chestnut hair and a few fine lines; the FATHER (denim shirt) gets clearly greying hair at the temples and a mostly grey beard. The young woman (their daughter) does not change.
+4. `photo-years-5b.png` — source: the FOURTH attached image. Age the PARENTS to around fifty: the MOTHER (mustard cardigan) gets visible grey streaks in her chestnut hair and fine lines; the FATHER (denim shirt) gets greying temples and a mostly grey beard. The GRANDPARENTS (the woman with the cane and the man in the burgundy polo) look about ten years older, around eighty: whiter, thinner hair, deeper lines, slightly stooped. The graduate (green gown) and the young woman in red do not change.

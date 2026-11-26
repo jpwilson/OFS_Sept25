@@ -24,7 +24,7 @@ Write for someone who has just come back from a trip, or is planning a wedding, 
 
 ## The sample family (replaces SPEC's section)
 
-They are American. Household: **Maya** 38 (the mom), **Tom** 40, **Ivy** 9, **Leo** 5, **Biscuit** the terrier. Grandparents: **Nana Ruth** 68 (Tom's mother), **Grandpa Joe** 71 (Maya's father). **Aunt Kate** 43 (Tom's sister), **Uncle Marcus** 35 (Kate's husband), **Finn** 14 (Kate's son). Friends: **Priya** 37, **Sam** 41, **Deb** 56. The new character sheet is `landing-art/ref/cast-a.png`; sheet B is unchanged.
+They are American. Household: **Maya** 38 (the mom), **Tom** 40, **Ivy** 9, **Leo** 5, **Biscuit** the terrier. Grandparents: **Nana Ruth** 68 (Tom's mother), **Grandpa Joe** 71 (Maya's father). **Aunt Kate** 43 (Tom's sister), **Uncle Marcus** 44 (Kate's husband; recast on 2026-11-26 at the owner's request, so sheet B was remade: `landing-art/ref/cast-b.png` is the new one), **Finn** 14 (Kate's son). Friends: **Priya** 37, **Sam** 41, **Deb** 56. The new character sheet is `landing-art/ref/cast-a.png`.
 
 Followers are the eight non-household people. Close Family is Ruth, Joe, Kate, Marcus. The Custom Group "Run club" is Sam, Priya, Deb. Counts stay computed from `content/cast.js`; update its notes (Marcus is Kate's husband).
 

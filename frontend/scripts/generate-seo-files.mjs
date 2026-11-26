@@ -112,18 +112,16 @@ interactive world map and multi-stop journey maps built from photo GPS data, a
 timeline grouped by year, confirmed family relationships that build a family tree,
 no advertising anywhere in the product, and no selling of user data.
 
-Platform: a progressive web app. It runs in the browser on phone, tablet and
-desktop and can be installed to a phone home screen. There is no App Store or
-Google Play app.
+Platform: it runs in the browser on phone, tablet and desktop and can be added
+to a phone's home screen. A native iPhone app is in development.
 
 Pricing (published at ${SITE_ORIGIN}/pricing): Free to View is $0/forever;
 Pro is $9/month billed annually ($108/year) or $12/month billed monthly;
 Lifetime is a one-time $294. Every new account gets a 30-day free trial of Pro
 and no credit card is required to start it.
 
-Not available yet: printed photo books are advertised on the site as coming soon.
-AI Create, which drafts an event story from a batch of photos, is in beta and
-requires a paid plan or an active free trial.
+AI Create drafts an event story from a batch of photos, a few typed lines or a
+voice note. It is included with Pro, Lifetime and the free trial.
 
 ## Key pages
 

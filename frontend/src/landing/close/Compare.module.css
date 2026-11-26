@@ -4,26 +4,58 @@
 .band .lede {
   color: var(--l-ink);
 }
-.top {
+/* ---------- the poster: the claim, and Uncle Marcus with his camera on the floor ---------- */
+
+.poster {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 24px 64px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px clamp(24px, 4vw, 64px);
   align-items: end;
-  margin-bottom: clamp(36px, 5vw, 64px);
+  margin-bottom: clamp(40px, 5vw, 72px);
 }
-.top > div {
+.copy {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   justify-items: start;
+  padding-bottom: 28px;
+}
+.band .eyebrow {
+  font-size: 13px;
 }
 .head {
-  max-width: 15ch;
+  font-size: clamp(48px, 6.2vw, 96px);
+  max-width: 16ch;
 }
 .lede {
-  max-width: 40ch;
+  max-width: 44ch;
   font-size: var(--l-size-lede);
   line-height: 1.45;
-  color: var(--l-mute);
+  font-weight: 500;
+}
+.stage {
+  position: relative;
+  margin: 0;
+  align-self: end;
+  width: clamp(150px, 14vw, 200px);
+}
+/* a floor line under his feet, out to the band's edges */
+.stage::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: -120vw;
+  right: -120vw;
+  bottom: 0;
+  height: 30px;
+  background: var(--l-wash-deep);
+}
+.person {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
 }
 .cards {
   display: grid;
@@ -79,21 +111,11 @@
   gap: 14px;
   padding: 22px 26px 24px;
 }
-.src {
-  color: var(--l-mute);
-}
-.toggle {
-  display: none;
-}
-.quote {
+.text {
   flex: 1;
-  margin: 0;
-  padding-left: 16px;
-  border-left: 3px solid var(--l-ink);
-}
-.quote p {
-  font-size: 17px;
-  line-height: 1.55;
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 .more {
   align-self: flex-start;
@@ -163,8 +185,7 @@
     box-shadow: var(--l-shadow);
   }
 }
-@media (max-width: 860px) {
-  .top,
+@media (max-width: 1023px) {
   .cards,
   .links {
     grid-template-columns: 1fr;
@@ -181,34 +202,64 @@
   }
 }
 
-/* Phones: a few lines of each quote, with a control for the rest (only once mounted, so
-   without script the full text shows). */
-@media (max-width: 699px) {
-  :global(html.ofsl-on) .quote:not([data-open]) p {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    overflow: hidden;
+/* iPad portrait: the cards stay in two columns; the links too */
+@media (max-width: 1023px) and (min-width: 641px) {
+  .head {
+    font-size: clamp(64px, 9.6vw, 92px);
   }
-  :global(html.ofsl-on) .toggle {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 40px;
-    padding: 0 14px;
-    border: var(--l-keyline);
-    border-radius: var(--l-r-pill);
-    background: var(--l-white);
-    font-weight: 600;
-    font-size: 15px;
+  .stage {
+    width: clamp(170px, 24vw, 220px);
   }
+  .cards,
+  .links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cardTop,
   .body {
+    padding-inline: 22px;
+  }
+  .text {
+    font-size: 18px;
+  }
+  .linkName {
+    font-size: 22px;
+  }
+}
+
+/* Phone */
+@media (max-width: 640px) {
+  .poster {
+    grid-template-columns: minmax(0, 1fr) 30%;
+    gap: 16px;
+  }
+  .copy {
+    display: contents;
+  }
+  .eyebrow,
+  .head,
+  .lede {
+    grid-column: 1 / -1;
+  }
+  .head {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: clamp(42px, 11.6vw, 52px);
+  }
+  .stage {
+    grid-column: 2;
+    grid-row: 3;
+    width: 100%;
+  }
+  .lede {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: center;
+  }
+    .body {
     gap: 12px;
     padding-block: 18px 16px;
   }
-  .more {
-    min-height: 40px;
+  .text {
+    font-size: 17px;
   }
 }

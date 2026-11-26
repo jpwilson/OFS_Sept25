@@ -1,7 +1,7 @@
 // Renders marketing page data to static HTML, JSON-LD and plain text.
 // Used at build time by scripts/prerender.mjs and scripts/generate-seo-files.mjs.
 import { escapeHtml, inlineToHtml, inlineToText } from './inline.js'
-import { SITE_NAME, SITE_ORIGIN, OG_IMAGE, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, OG_IMAGE_ALT, absUrl } from './site.js'
+import { SITE_NAME, SITE_ORIGIN, OG_IMAGE, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, OG_IMAGE_ALT, absUrl, LAST_UPDATED_ISO } from './site.js'
 
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -9,14 +9,14 @@ export const NAV_LINKS = [
   { href: '/pricing', label: 'Pricing' },
   { href: '/faq', label: 'FAQ' },
   { href: '/about', label: 'About' },
-  { href: '/alternatives', label: 'Alternatives' }
+  { href: '/alternatives', label: 'Compare' }
 ]
 
 export const COMPARE_LINKS = [
-  { href: '/compare/facebook-groups', label: 'vs private Facebook groups' },
-  { href: '/compare/tinybeans', label: 'vs Tinybeans' },
-  { href: '/compare/familyalbum', label: 'vs FamilyAlbum' },
-  { href: '/compare/private-instagram', label: 'vs a private Instagram account' },
+  { href: '/compare/facebook-groups', label: 'Coming from a private Facebook group' },
+  { href: '/compare/tinybeans', label: 'Coming from Tinybeans' },
+  { href: '/compare/familyalbum', label: 'Coming from FamilyAlbum' },
+  { href: '/compare/private-instagram', label: 'Coming from a private Instagram account' },
   { href: '/compare/how-to-share-photos-privately', label: "How to share kids' photos privately" }
 ]
 
@@ -168,7 +168,7 @@ const SOFTWARE_APPLICATION = {
     'GPS location extraction from photo metadata',
     'Timeline view grouped by year',
     'Video uploads with built-in trimming',
-    'AI Create (beta) event story drafting',
+    'AI Create story drafting from your photos',
     'Family trees from confirmed relationships',
     'Private share links for people without an account',
     'No advertising and no data selling'
@@ -222,7 +222,7 @@ export function buildJsonLd(page) {
     inLanguage: 'en',
     isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
     about: { '@id': `${SITE_ORIGIN}/#webapp` },
-    ...(page.updated ? { dateModified: '2026-10-21' } : {})
+    ...(page.updated ? { dateModified: LAST_UPDATED_ISO } : {})
   })
 
   if (page.path === '/' || page.path === '/pricing' || page.path === '/features') {
@@ -263,7 +263,7 @@ export function buildJsonLd(page) {
       description: page.description,
       mainEntityOfPage: { '@id': `${absUrl(page.path)}#webpage` },
       inLanguage: 'en',
-      dateModified: '2026-10-21',
+      dateModified: LAST_UPDATED_ISO,
       author: { '@id': `${SITE_ORIGIN}/#organization` },
       publisher: { '@id': `${SITE_ORIGIN}/#organization` }
     })

@@ -72,29 +72,13 @@
   height: 100%;
   max-width: none;
 }
-.stageLabel {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 10px 5px;
-  background: var(--l-white);
-  border: var(--l-keyline);
-  border-radius: var(--l-r-sticker);
-  box-shadow: var(--l-shadow-sm);
-  transform: rotate(-2deg);
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: var(--l-size-label);
-  letter-spacing: var(--l-track-label);
-  text-transform: uppercase;
-}
 .shuffle {
   position: absolute;
   left: 12px;
   bottom: 12px;
   transition: opacity 300ms var(--l-ease-out);
 }
-.in:not([data-state='0']) .shuffle {
+.in:not([data-state='1']) .shuffle {
   opacity: 0;
   pointer-events: none;
 }
@@ -113,12 +97,12 @@
   border: var(--l-keyline);
   border-radius: var(--l-r-readout);
   font-family: var(--l-font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+  font-size: 13px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: opacity 300ms var(--l-ease-out);
 }
-.in:not([data-state='2']):not([data-state='3']) .legend {
+.in:not([data-state='3']):not([data-state='4']) .legend {
   opacity: 0;
 }
 .legend span {
@@ -157,13 +141,14 @@
 .chips button {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 9px 5px 5px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 5px 12px 5px 6px;
   background: rgba(255, 255, 255, 0.5);
   border: 2px solid var(--l-ink);
   border-radius: var(--l-r-pill);
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1.1;
   transition:
     background var(--l-dur-hover),
@@ -172,14 +157,15 @@
 .chips button i {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--l-white);
   border: 1.5px solid var(--l-ink);
   font-style: normal;
-  font-family: var(--l-font-mono);
-  font-size: 10.5px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 14px;
 }
 .chips button:hover {
   background: var(--l-white);
@@ -225,13 +211,24 @@
   display: grid;
   gap: 6px;
 }
+.cardTop {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
 .cardName {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.1;
+}
+.say {
   font-family: var(--l-font-display);
   font-weight: 800;
   font-stretch: 86%;
   font-variation-settings: 'wdth' 86;
-  font-size: clamp(28px, 2.6vw, 40px);
-  line-height: 0.95;
+  font-size: clamp(28px, 2.7vw, 42px);
+  line-height: 0.98;
   letter-spacing: -0.03em;
 }
 .rules {
@@ -250,7 +247,7 @@
   padding-bottom: 0;
 }
 .rules p {
-  font-size: 16px;
+  font-size: clamp(16px, 1.25vw, 18px);
   line-height: 1.42;
   font-weight: 500;
 }
@@ -259,6 +256,89 @@
   color: var(--l-mute);
   letter-spacing: 0.06em;
   text-transform: none;
+}
+
+/* ---------- the picker as HTML (flow mode: prerender, no script, reduced motion) ---------- */
+.pickerBox {
+  display: grid;
+  place-items: center;
+  padding: 52px 16px 24px;
+}
+.phone {
+  width: min(100%, 340px);
+  padding: 12px;
+  background: var(--l-white);
+  border: 2.5px solid var(--l-ink);
+  border-radius: 30px;
+  box-shadow: 6px 6px 0 var(--l-ink);
+}
+.phoneTitle {
+  padding: 4px 6px 10px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 19px;
+}
+.phoneGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 2px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.phoneGrid li {
+  position: relative;
+  aspect-ratio: 1;
+  background: #cfe6ff;
+}
+.phoneGrid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.phoneGrid li[data-on] {
+  box-shadow: inset 0 0 0 3px var(--l-lime);
+}
+.phoneGrid li[data-on] img {
+  outline: 3px solid var(--l-lime);
+  outline-offset: -3px;
+}
+.phoneGrid i {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--l-white);
+  background: rgba(255, 255, 255, 0.55);
+}
+.phoneGrid li[data-on] i {
+  border-color: var(--l-ink);
+  background:
+    linear-gradient(135deg, transparent 0 40%, var(--l-ink) 40% 52%, transparent 52%) 2px 3px / 8px 8px no-repeat,
+    var(--l-lime);
+}
+.phoneFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 4px 2px;
+  font-family: var(--l-font-display);
+}
+.phoneFoot b {
+  font-weight: 800;
+  font-size: 18px;
+}
+.phoneFoot span {
+  padding: 9px 14px 10px;
+  border-radius: var(--l-r-pill);
+  background: var(--l-ink);
+  color: var(--l-white);
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 3px 3px 0 var(--l-lime);
 }
 
 /* ---------- flow mode (server, no script, reduced motion) ---------- */
@@ -284,7 +364,7 @@
 :global(html:not(.ofsl-on)) .frame {
   grid-template-columns: minmax(0, 1fr);
 }
-.frame:not([data-state='0']) .shuffle {
+.frame:not([data-state='1']) .shuffle {
   display: none;
 }
 .frame .legend {
@@ -297,32 +377,44 @@
 }
 .capsTop {
   display: grid;
-  gap: 14px;
-  max-width: 60ch;
+  gap: 16px;
+  max-width: 62ch;
 }
-.sampleNote {
-  color: var(--l-ink);
-  opacity: 0.75;
+.capsTop :global(.l-lede) {
+  max-width: 46ch;
+  font-size: clamp(19px, 1.6vw, 24px);
 }
 .capsRow {
   margin-top: clamp(28px, 4vw, 48px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
   gap: clamp(18px, 3vw, 40px);
   align-items: start;
 }
 .cap1 {
   transform: rotate(-1deg);
 }
+.cap2Wrap {
+  position: relative;
+  padding-bottom: clamp(90px, 10vw, 150px);
+}
 .cap2 {
-  transform: rotate(1deg) translateY(28px);
+  transform: rotate(1deg) translateY(10px);
+}
+.kids {
+  position: absolute;
+  right: -4%;
+  bottom: 0;
+  width: clamp(200px, 22vw, 330px);
+  z-index: 2;
+  pointer-events: none;
 }
 .capsRow [data-art-missing] {
   aspect-ratio: 16 / 10 !important;
 }
 
-/* ---------- phone ---------- */
-@media (max-width: 760px) {
+/* ---------- iPad portrait and phone (<1000): canvas above, the card below ---------- */
+@media (max-width: 999px) {
   .in {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
@@ -330,15 +422,52 @@
       'top'
       'canvas'
       'side';
-    gap: 12px;
-    padding-top: calc(var(--l-nav-h) - 10px);
-    padding-bottom: 16px;
+    gap: 16px;
+    padding-top: calc(var(--l-nav-h) - 4px);
+    padding-bottom: 22px;
   }
   .in .head {
-    font-size: 30px;
+    font-size: 46px;
+  }
+  .frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .capsRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cap1 {
+    width: min(100%, 460px);
+  }
+  .cap2 {
+    transform: rotate(1deg);
+  }
+  .kids {
+    left: auto;
+    right: -4%;
+    width: 260px;
+  }
+}
+/* ---------- phone (<=600) ---------- */
+@media (max-width: 600px) {
+  .in {
+    gap: 10px;
+    padding-top: calc(var(--l-nav-h) - 16px);
+    padding-bottom: 14px;
+  }
+  .in .head {
+    font-size: 25px;
   }
   .in .top {
     gap: 8px;
+  }
+  /* once the pile has been seen, the headline steps aside for the canvas and the card */
+  .in:not([data-state='0']):not([data-state='1']) .head {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
   .side {
     gap: 8px;
@@ -348,6 +477,9 @@
     gap: 4px;
   }
   .chips button {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
     padding: 4px;
   }
   .chips button span {
@@ -355,52 +487,45 @@
   }
   .chips button[data-on='cur'] span {
     display: inline;
-    padding-right: 4px;
+    padding-right: 6px;
   }
   .card {
     gap: 8px;
-    padding: 14px;
+    padding: 14px 16px;
     box-shadow: var(--l-shadow);
   }
+  .say {
+    font-size: 26px;
+  }
   .cardName {
-    font-size: 24px;
+    font-size: 16px;
   }
   .rules li {
     padding: 7px 0 8px;
   }
   .rules p {
-    font-size: 13.5px;
-    line-height: 1.34;
-  }
-  .src {
-    font-size: 9px;
-  }
-  .stageLabel {
-    top: 8px;
-    left: 8px;
-    font-size: 10px;
+    font-size: 16px;
+    line-height: 1.36;
   }
   .legend {
     right: 8px;
     bottom: 8px;
     max-width: calc(100% - 16px);
-    font-size: 9.5px;
+    font-size: 13px;
     gap: 4px 8px;
   }
   .shuffle {
     left: 8px;
     bottom: 8px;
   }
-  .frame {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .frameCanvas {
     aspect-ratio: 1 / 1;
   }
-  .capsRow {
-    grid-template-columns: minmax(0, 1fr);
+  .kids {
+    width: 200px;
+    right: -6%;
   }
-  .cap2 {
-    transform: rotate(1deg);
+  .cap2Wrap {
+    padding-bottom: 110px;
   }
 }

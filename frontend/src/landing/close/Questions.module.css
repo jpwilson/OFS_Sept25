@@ -11,14 +11,42 @@
   gap: 22px;
   justify-items: start;
 }
+.band .eyebrow {
+  font-size: 13px;
+}
 .head {
   max-width: 8ch;
+  font-size: clamp(52px, 6.6vw, 104px);
 }
 .lede {
   max-width: 30ch;
   font-size: var(--l-size-lede);
   line-height: 1.45;
-  color: var(--l-mute);
+  font-weight: 500;
+}
+.stage {
+  position: relative;
+  margin: 8px 0 0;
+  justify-self: stretch;
+  display: grid;
+  justify-items: center;
+  padding-bottom: 18px;
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44px;
+  background: var(--l-wash-deep);
+  border: var(--l-keyline);
+  border-radius: 999px;
+}
+.person {
+  position: relative;
+  z-index: 1;
+  width: clamp(130px, 12vw, 180px);
 }
 .band {
   border-top: var(--l-keyline);
@@ -58,7 +86,7 @@
 .n {
   font-family: var(--l-font-mono);
   font-weight: 500;
-  font-size: var(--l-size-label);
+  font-size: 14px;
   letter-spacing: var(--l-track-label);
   color: var(--l-mute);
   font-variant-numeric: tabular-nums;
@@ -70,7 +98,7 @@
   font-family: var(--l-font-display);
   font-weight: 700;
   font-variation-settings: 'wdth' 90;
-  font-size: clamp(20px, 1.2vw + 10px, 26px);
+  font-size: clamp(21px, 1.2vw + 10px, 27px);
   line-height: 1.15;
   letter-spacing: -0.015em;
 }
@@ -110,19 +138,51 @@
 .a {
   max-width: 62ch;
   padding: 0 52px 26px 56px;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.6;
 }
-@media (max-width: 860px) {
+/* iPad portrait: the claim and Aunt Kate side by side across the top, the list below */
+@media (max-width: 1023px) {
   .grid {
     grid-template-columns: 1fr;
   }
   .side {
     position: static;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+  }
+  .side > :not(.stage) {
+    grid-column: 1;
+  }
+  .stage {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: end;
+    width: clamp(150px, 26vw, 220px);
   }
   .head {
     max-width: none;
+    font-size: clamp(64px, 10vw, 96px);
   }
+}
+@media (max-width: 640px) {
+  .head {
+    font-size: clamp(48px, 13.4vw, 60px);
+  }
+  .stage {
+    width: 34vw;
+  }
+  .person {
+    width: 100%;
+  }
+  .qText {
+    font-size: 20px;
+  }
+  .a {
+    font-size: 16px;
+  }
+}
+@media (max-width: 640px) {
   .q {
     grid-template-columns: 26px minmax(0, 1fr) 32px;
     gap: 12px;

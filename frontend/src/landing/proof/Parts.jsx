@@ -1,5 +1,5 @@
 // The pieces of a story page, as shown by Anatomy (owner: proof).
-import { Cutout, Print, Readout, Icon, ArtImg } from '../ui/index.js'
+import { Cutout, Print, Icon, ArtImg } from '../ui/index.js'
 import { CropShot } from './CropShot.jsx'
 import { SAMPLE_TAGS } from '../content/proof.sample.js'
 import { cx } from '../ui/cx.js'
@@ -52,11 +52,33 @@ export function PartMedia({ part, compact, className }) {
   return <CropShot id={part.shot} alt={part.label} caption={false} className={cx(s.shot, className)} />
 }
 
-/** The true lines and the facts for one part. */
-export function PartText({ part, n, headingAs: H = 'h3', id }) {
+/** A part's numbers, each as one line with its noun at the same size. */
+export function PartFacts({ part }) {
+  if (!part.facts) return null
+  return (
+    <ul className={s.facts}>
+      {part.facts.map((f) => (
+        // "60 seconds for the longest clip"
+        <li key={f.label} className={s.fact}>
+          <span className={s.factLine}>
+            <strong className={s.factValue}>
+              {f.value}
+              {f.unit ? ` ${f.unit}` : ''}
+            </strong>{' '}
+            {f.label}
+          </span>
+          {f.note ? <span className={s.factNote}>{f.note}</span> : null}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** The true lines and the facts for one part. hideTitle: the caller shows the name itself. */
+export function PartText({ part, n, headingAs: H = 'h3', id, hideTitle }) {
   return (
     <div className={s.text}>
-      <H className={s.title} id={id}>
+      <H className={hideTitle ? 'l-sr' : s.title} id={id}>
         <span className={s.num}>{n}</span>
         {part.label}
       </H>
@@ -65,13 +87,7 @@ export function PartText({ part, n, headingAs: H = 'h3', id }) {
           {l}
         </p>
       ))}
-      {part.facts ? (
-        <div className={s.facts}>
-          {part.facts.map((f) => (
-            <Readout key={f.label} size="sm" label={f.label} value={f.value} unit={f.unit} note={f.note} />
-          ))}
-        </div>
-      ) : null}
+      <PartFacts part={part} />
     </div>
   )
 }
