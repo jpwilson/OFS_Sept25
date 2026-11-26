@@ -2,10 +2,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { resolveVariant } from './scripts/landing/variant.mjs'
+import { resolveAppLook } from './scripts/daylight/variant.mjs'
+import { daylightSeam, daylightPwaOptions } from './scripts/daylight/vite-seam.mjs'
 
 // Which landing page this build serves: 'classic' (today's) or 'story' (the rebuild).
 // See scripts/landing/variant.mjs and landing.config.json.
 const LANDING_VARIANT = resolveVariant()
+
+// Which app look this build ships: 'classic' (today's app, no Daylight code), 'optin' or
+// 'daylight'. See scripts/daylight/variant.mjs, app.config.json and docs/app/SPEC.md.
+// The seam plugin is added only when the look is not classic, so a classic build is
+// byte-identical to one made before Daylight existed (scripts/daylight/check-classic.mjs).
+const APP_LOOK = resolveAppLook()
 
 // Story variant: fills the variant into the inline boot script in index.html.
 // Classic variant: removes the boot script and makes boot-app.jsx (today's main.jsx body)
@@ -28,6 +36,7 @@ function landingVariantHtml() {
 export default defineConfig({
   define: {
     __LANDING_VARIANT__: JSON.stringify(LANDING_VARIANT),
+    __APP_LOOK__: JSON.stringify(APP_LOOK),
   },
   build: {
     // scripts/prerender.mjs reads this to find the landing chunk and stylesheet.
@@ -35,8 +44,9 @@ export default defineConfig({
   },
   plugins: [
     landingVariantHtml(),
+    ...(APP_LOOK === 'classic' ? [] : [daylightSeam({ look: APP_LOOK })]),
     react(),
-    VitePWA({
+    VitePWA(daylightPwaOptions(APP_LOOK, {
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
       manifest: {
@@ -153,7 +163,7 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }))
   ],
   // Dev only: pre-bundle the landing's lazily imported deps so the first visit to the
   // landing does not trigger a dependency re-optimisation and a full reload.

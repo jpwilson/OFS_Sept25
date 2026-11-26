@@ -1,0 +1,166 @@
+/* Daylight tokens (owner: F0). On .ofsa, never :root, prefix --a-. Values mirror
+   styles/tokens.js. Text on every wash is ink; white text on a wash fails contrast. */
+
+.ofsa {
+  /* colour */
+  --a-ink: #101b3b;
+  --a-ink-soft: #24315a;
+  --a-paper: #f4f7fb;
+  --a-paper-deep: #e3e9f2;
+  --a-white: #ffffff;
+  --a-line: rgba(16, 27, 59, 0.14);
+  --a-line-strong: rgba(16, 27, 59, 0.28);
+  --a-mute: rgba(16, 27, 59, 0.66);
+  --a-scrim: rgba(16, 27, 59, 0.38);
+  --a-danger: #c4253b;
+
+  --a-tide: #19cfc7;
+  --a-tide-deep: #0fb8b1;
+  --a-tide-tint: #d1f5f3;
+  --a-azure: #3aa8ff;
+  --a-azure-deep: #1f93f0;
+  --a-azure-tint: #d8edff;
+  --a-fizz: #ff62c4;
+  --a-fizz-deep: #f247af;
+  --a-fizz-tint: #ffddf2;
+  --a-zest: #ff8a1f;
+  --a-zest-deep: #f27405;
+  --a-zest-tint: #ffe5cc;
+  --a-lime: #c6f135;
+  --a-lime-deep: #aedb1c;
+  --a-lime-tint: #f1fbd0;
+  --a-sun: #ffd43b;
+  --a-sun-deep: #f2c21c;
+  --a-sun-tint: #fff4cc;
+  --a-violet: #a98bff;
+  --a-violet-deep: #8f6cf5;
+  --a-violet-tint: #ece5ff;
+
+  /* the current wash (set with data-wash on any element) */
+  --a-wash: var(--a-tide);
+  --a-wash-deep: var(--a-tide-deep);
+  --a-wash-tint: var(--a-tide-tint);
+
+  /* type */
+  --a-font-ui: 'OFSL Bricolage', 'OFSL Bricolage Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --a-font-story: 'OFSL Literata', 'OFSL Literata Fallback', Georgia, 'Times New Roman', serif;
+  --a-font-mono: 'OFSL DM Mono', 'OFSL DM Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
+  --a-size-page: clamp(28px, 3vw, 44px);
+  --a-size-story-title: clamp(34px, 4.4vw, 64px);
+  --a-size-lead: clamp(24px, 2.4vw, 32px);
+  --a-size-card: 20px;
+  --a-size-body: 16px;
+  --a-size-small: 14px;
+  --a-size-story: 18px;
+  --a-lh-story: 1.61;
+  --a-size-label: 11.5px;
+  --a-track-label: 0.12em;
+  --a-track-head: -0.025em;
+
+  /* shape */
+  --a-keyline: 2px solid var(--a-ink);
+  --a-hairline: 1px solid var(--a-line);
+  --a-shadow-sm: 3px 3px 0 var(--a-ink);
+  --a-shadow: 4px 4px 0 var(--a-ink);
+  --a-shadow-lg: 6px 6px 0 var(--a-ink);
+  --a-r-button: 14px;
+  --a-r-card: 20px;
+  --a-r-readout: 12px;
+  --a-r-sticker: 6px;
+  --a-r-sheet: 24px;
+  --a-r-pill: 999px;
+
+  /* layout */
+  --a-target: 44px;
+  --a-bar-h: 52px;
+  --a-tab-h: 64px;
+  --a-safe-top: env(safe-area-inset-top, 0px);
+  --a-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --a-safe-left: env(safe-area-inset-left, 0px);
+  --a-safe-right: env(safe-area-inset-right, 0px);
+  --a-gutter: 16px;
+  --a-max: 1240px;
+  /* space a page keeps clear at the bottom for the tab bar (0 on desktop) */
+  --a-bottom-clear: calc(var(--a-tab-h) + var(--a-safe-bottom));
+
+  /* motion */
+  --a-dur: 200ms;
+  --a-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --a-ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* layers */
+  --a-z-bar: 100;
+  --a-z-float: 200;
+  --a-z-sheet: 300;
+  --a-z-dialog: 400;
+  --a-z-toast: 500;
+
+  /* bridge for the landing primitives Daylight reuses (Sticker, Label) */
+  --l-ink: var(--a-ink);
+  --l-white: var(--a-white);
+  --l-keyline: var(--a-keyline);
+  --l-shadow: var(--a-shadow);
+  --l-r-sticker: var(--a-r-sticker);
+  --l-font-mono: var(--a-font-mono);
+  --l-size-label: var(--a-size-label);
+  --l-track-label: var(--a-track-label);
+}
+
+@media (min-width: 900px) {
+  .ofsa {
+    --a-bar-h: 64px;
+    --a-gutter: clamp(24px, 3vw, 40px);
+    --a-size-story: 19px;
+    --a-lh-story: 1.63;
+    --a-bottom-clear: 0px;
+  }
+}
+
+.ofsa [data-wash='tide'],
+.ofsa[data-wash='tide'] {
+  --a-wash: var(--a-tide);
+  --a-wash-deep: var(--a-tide-deep);
+  --a-wash-tint: var(--a-tide-tint);
+}
+.ofsa [data-wash='azure'],
+.ofsa[data-wash='azure'] {
+  --a-wash: var(--a-azure);
+  --a-wash-deep: var(--a-azure-deep);
+  --a-wash-tint: var(--a-azure-tint);
+}
+.ofsa [data-wash='fizz'],
+.ofsa[data-wash='fizz'] {
+  --a-wash: var(--a-fizz);
+  --a-wash-deep: var(--a-fizz-deep);
+  --a-wash-tint: var(--a-fizz-tint);
+}
+.ofsa [data-wash='zest'],
+.ofsa[data-wash='zest'] {
+  --a-wash: var(--a-zest);
+  --a-wash-deep: var(--a-zest-deep);
+  --a-wash-tint: var(--a-zest-tint);
+}
+.ofsa [data-wash='lime'],
+.ofsa[data-wash='lime'] {
+  --a-wash: var(--a-lime);
+  --a-wash-deep: var(--a-lime-deep);
+  --a-wash-tint: var(--a-lime-tint);
+}
+.ofsa [data-wash='sun'],
+.ofsa[data-wash='sun'] {
+  --a-wash: var(--a-sun);
+  --a-wash-deep: var(--a-sun-deep);
+  --a-wash-tint: var(--a-sun-tint);
+}
+.ofsa [data-wash='violet'],
+.ofsa[data-wash='violet'] {
+  --a-wash: var(--a-violet);
+  --a-wash-deep: var(--a-violet-deep);
+  --a-wash-tint: var(--a-violet-tint);
+}
+.ofsa [data-wash='paper'],
+.ofsa[data-wash='paper'] {
+  --a-wash: var(--a-paper);
+  --a-wash-deep: var(--a-paper-deep);
+  --a-wash-tint: var(--a-paper);
+}

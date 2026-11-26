@@ -1,0 +1,20 @@
+.stub {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 24px;
+  border: 2px dashed var(--a-ink);
+  border-radius: var(--a-r-card);
+  background: var(--a-wash-tint);
+}
+.name {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.note {
+  color: var(--a-mute);
+  max-width: 60ch;
+}

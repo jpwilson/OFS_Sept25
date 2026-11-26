@@ -1,0 +1,43 @@
+/* Self-contained: this renders in the classic look, outside any .ofsa scope. */
+.offer {
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 9997;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  color: #101b3b;
+  border: 2px solid #101b3b;
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 #101b3b;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.go {
+  min-height: 44px;
+  padding: 0 8px 0 18px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 999px 0 0 999px;
+}
+.x {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 0 999px 999px 0;
+}
+.go:focus-visible,
+.x:focus-visible {
+  outline: 2px solid #101b3b;
+  outline-offset: 2px;
+}

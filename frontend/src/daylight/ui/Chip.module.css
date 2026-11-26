@@ -1,0 +1,88 @@
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--a-r-pill);
+  border: var(--a-keyline);
+  background: var(--a-white);
+  color: var(--a-ink);
+  font-family: var(--a-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  flex: none;
+}
+button.chip {
+  cursor: pointer;
+  transition: background-color var(--a-dur) var(--a-ease);
+}
+/* 44px hit area on a 36px chip */
+button.chip::after {
+  content: '';
+  position: absolute;
+  inset: -4px -2px;
+}
+.sm {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+  border-width: 1.5px;
+}
+.chip[data-wash] {
+  background: var(--a-wash-tint);
+}
+.selected,
+.chip[data-wash].selected {
+  background: var(--a-ink);
+  color: var(--a-white);
+}
+.chip[data-wash].selected .dot {
+  background: var(--a-wash);
+  box-shadow: 0 0 0 1.5px var(--a-white);
+}
+@media (hover: hover) {
+  button.chip:not(.selected):hover {
+    background: var(--a-paper-deep);
+  }
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--a-wash);
+  box-shadow: 0 0 0 1.5px var(--a-ink);
+  flex: none;
+}
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.removable {
+  padding-right: 4px;
+}
+.remove {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.remove::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+@media (hover: hover) {
+  .remove:hover {
+    background: var(--a-paper-deep);
+  }
+}

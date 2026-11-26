@@ -1,0 +1,85 @@
+.menu {
+  position: fixed;
+  z-index: var(--a-z-dialog);
+  padding: 6px;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: 16px;
+  box-shadow: var(--a-shadow);
+  max-height: calc(100dvh - 96px);
+  overflow: auto;
+  animation: pop 160ms var(--a-ease);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--a-ink);
+  font-family: var(--a-font-ui);
+  font-size: 15px;
+  font-weight: 550;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.item:focus-visible {
+  outline-offset: -2px;
+}
+@media (hover: hover) {
+  .item:hover {
+    background: var(--a-paper);
+  }
+}
+.item:focus {
+  background: var(--a-paper);
+}
+.big {
+  min-height: 52px;
+  font-size: 17px;
+  padding: 10px 4px;
+  border-radius: 12px;
+}
+.labels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.note {
+  font-size: 13px;
+  font-weight: 450;
+  color: var(--a-mute);
+}
+.noicon {
+  width: 20px;
+  flex: none;
+}
+.chev {
+  color: var(--a-mute);
+  flex: none;
+}
+.danger {
+  color: var(--a-danger);
+}
+.divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--a-line);
+}
+.list {
+  display: flex;
+  flex-direction: column;
+}
