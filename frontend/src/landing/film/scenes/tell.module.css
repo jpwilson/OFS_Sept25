@@ -1,0 +1,361 @@
+/* 01 TELL (owner: film). The page and the voice note are designed fragments sized in page
+   units (--pu), so they scale with the stage. */
+
+
+/* ---------- the kitchen: four registered stages in one box ---------- */
+
+.stages {
+  position: absolute;
+  inset: 0;
+}
+.stage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.stage:nth-child(4) {
+  opacity: 1;
+}
+.stage > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.level {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 0;
+  height: 0;
+  border-top: 2px dashed var(--l-ink);
+  opacity: 0;
+}
+.level > span {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+}
+
+/* ---------- the story page ---------- */
+
+.pageSlot {
+  --pu: calc(var(--w) * var(--u) / 35);
+}
+.page {
+  position: relative;
+  display: grid;
+  gap: calc(1.25 * var(--pu));
+  padding: calc(2.3 * var(--pu)) calc(2 * var(--pu)) calc(1.4 * var(--pu));
+  color: var(--l-ink);
+}
+.paper {
+  position: absolute;
+  inset: 0;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: calc(1.5 * var(--pu));
+  box-shadow: calc(0.5 * var(--pu)) calc(0.5 * var(--pu)) 0 var(--l-ink);
+  transform-origin: 50% 100%;
+}
+.page > :not(.paper) {
+  position: relative;
+}
+.page > .ptagSlot {
+  position: absolute;
+  right: calc(1.8 * var(--pu));
+  top: -11px;
+}
+.ptitle {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: calc(2.5 * var(--pu));
+  line-height: 1;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+.pchips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(0.6 * var(--pu));
+  font-size: max(13px, calc(1.22 * var(--pu)));
+  font-weight: 600;
+  line-height: 1;
+}
+.pchips > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.4em 0.7em 0.44em;
+  border-radius: 999px;
+  border: 1.5px solid var(--l-ink);
+  white-space: nowrap;
+}
+.pchips svg {
+  width: 1.05em;
+  height: 1.05em;
+}
+.cat {
+  background: var(--l-fizz);
+}
+.pchips > .date {
+  border-color: transparent;
+  padding-inline: 0.1em;
+  font-weight: 500;
+  color: var(--l-mute);
+}
+
+.sec {
+  display: grid;
+  grid-template-columns: calc(11.6 * var(--pu)) minmax(0, 1fr);
+  gap: calc(1.5 * var(--pu));
+  align-items: center;
+}
+.sec[data-side='r'] {
+  grid-template-columns: minmax(0, 1fr) calc(11.6 * var(--pu));
+}
+.sec[data-side='r'] > .pslot {
+  order: 2;
+}
+.secText {
+  display: grid;
+  gap: calc(0.5 * var(--pu));
+  align-content: center;
+}
+.h {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: calc(1.95 * var(--pu));
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.line {
+  font-family: var(--l-font-story);
+  font-size: max(13px, calc(1.3 * var(--pu)));
+  line-height: 1.36;
+}
+
+/* a print: white border, caption in the story voice */
+.pslot {
+  position: relative;
+  min-width: 0;
+}
+.pmv {
+  position: relative;
+}
+.print {
+  margin: 0;
+  padding: calc(0.45 * var(--pu)) calc(0.45 * var(--pu)) calc(0.4 * var(--pu));
+  background: var(--l-white);
+  border: 1.5px solid var(--l-ink);
+  border-radius: 3px;
+  box-shadow: calc(0.3 * var(--pu)) calc(0.3 * var(--pu)) 0 var(--l-ink);
+}
+.printImg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 1px;
+}
+.print > figcaption {
+  padding-top: calc(0.32 * var(--pu));
+  font-family: var(--l-font-story);
+  font-style: italic;
+  font-size: max(13px, calc(1.22 * var(--pu)));
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.sec:nth-of-type(odd) .print {
+  transform: rotate(-1.6deg);
+}
+.sec:nth-of-type(even) .print {
+  transform: rotate(1.4deg);
+}
+
+/* the gallery: three prints overlapping at the foot, half off the page */
+.pile {
+  height: calc(3.6 * var(--pu));
+}
+.pile > .gslot {
+  position: absolute;
+  top: 0;
+  width: calc(8.4 * var(--pu));
+}
+.pile > .gslot:nth-child(1) {
+  left: 0;
+}
+.pile > .gslot:nth-child(2) {
+  left: calc(6.6 * var(--pu));
+}
+.pile > .gslot:nth-child(3) {
+  left: calc(13.2 * var(--pu));
+}
+.gslot .print > figcaption {
+  display: none;
+}
+.gslot:nth-child(odd) .print {
+  transform: rotate(-4deg);
+}
+.gslot:nth-child(even) .print {
+  transform: rotate(3deg);
+}
+.count {
+  position: absolute;
+  right: 0;
+  top: calc(0.6 * var(--pu));
+}
+.count b {
+  font-weight: 500;
+}
+
+/* ---------- the voice note ---------- */
+
+.voiceSlot {
+  --pu: calc(var(--w) * var(--u) / 24);
+}
+.voice {
+  position: relative;
+  display: grid;
+  gap: calc(0.8 * var(--pu));
+  padding: calc(1.1 * var(--pu)) calc(1.4 * var(--pu)) calc(1.3 * var(--pu));
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-radius: calc(1.5 * var(--pu));
+  box-shadow: calc(0.5 * var(--pu)) calc(0.5 * var(--pu)) 0 var(--l-white);
+}
+/* the tail points down at the phone */
+.voice::after {
+  content: '';
+  position: absolute;
+  left: calc(2.6 * var(--pu));
+  top: calc(100% - 1px);
+  border: calc(1.3 * var(--pu)) solid transparent;
+  border-top-color: var(--l-ink);
+  border-bottom-width: 0;
+  border-left-width: 0;
+}
+.vtop {
+  display: flex;
+  align-items: center;
+  gap: calc(0.7 * var(--pu));
+  font-family: var(--l-font-mono);
+  font-size: max(9px, calc(1.02 * var(--pu)));
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rec {
+  width: calc(0.9 * var(--pu));
+  height: calc(0.9 * var(--pu));
+  border-radius: 50%;
+  background: var(--l-fizz);
+}
+.vtag {
+  opacity: 0.8;
+}
+.timer {
+  margin-left: auto;
+  font-weight: 500;
+  font-size: max(11px, calc(1.5 * var(--pu)));
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.wave {
+  position: relative;
+  height: calc(3.4 * var(--pu));
+}
+.bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bars > i {
+  flex: none;
+  width: calc(0.34 * var(--pu));
+  height: calc(var(--b) * 0.24 * var(--pu));
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.28);
+}
+.barsOn > i {
+  background: var(--l-white);
+}
+.said {
+  font-family: var(--l-font-story);
+  font-style: italic;
+  font-size: max(13px, calc(1.44 * var(--pu)));
+  line-height: 1.34;
+}
+
+/* ---------- the sticker ---------- */
+
+.stickerSlot {
+  text-align: center;
+}
+.sticker {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: max(12px, calc(1.86 * var(--u)));
+  letter-spacing: -0.01em;
+  padding: 0.46em 0.7em 0.5em;
+  background: var(--l-lime);
+  white-space: nowrap;
+}
+
+
+/* ---------- phone ---------- */
+
+@media (max-aspect-ratio: 9/10) {
+  .pageSlot {
+    --pu: calc(var(--w) * var(--u) / 19.6);
+  }
+  .page {
+    gap: calc(0.95 * var(--pu));
+    padding: calc(1.7 * var(--pu)) calc(1.3 * var(--pu)) calc(1.5 * var(--pu));
+  }
+  .line,
+  .pchips,
+  .pile {
+    display: none;
+  }
+  .ptitle {
+    font-size: max(15px, calc(1.9 * var(--pu)));
+    line-height: 1.02;
+    white-space: normal;
+    text-wrap: balance;
+  }
+  .sec,
+  .sec[data-side='r'] {
+    grid-template-columns: calc(6.4 * var(--pu)) minmax(0, 1fr);
+    gap: calc(1 * var(--pu));
+  }
+  .sec[data-side='r'] > .pslot {
+    order: 0;
+  }
+  .print > figcaption {
+    display: none;
+  }
+  .h {
+    font-size: max(12.5px, calc(1.5 * var(--pu)));
+    line-height: 1.06;
+  }
+  .voiceSlot {
+    --pu: calc(var(--w) * var(--u) / 19);
+  }
+  .vtop {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .said {
+    display: none;
+  }
+  .sticker {
+    font-size: max(11.5px, calc(1.46 * var(--u)));
+  }
+}

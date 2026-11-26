@@ -1,0 +1,214 @@
+.band {
+  border-top: var(--l-keyline);
+}
+.band .lede {
+  color: var(--l-ink);
+}
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 24px 64px;
+  align-items: end;
+  margin-bottom: clamp(36px, 5vw, 64px);
+}
+.top > div {
+  display: grid;
+  gap: 20px;
+  justify-items: start;
+}
+.head {
+  max-width: 12ch;
+}
+.lede {
+  max-width: 40ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  color: var(--l-mute);
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  overflow: hidden;
+}
+.cardTop {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 20px 26px 18px;
+  background: var(--l-wash);
+  border-bottom: var(--l-keyline);
+}
+.vs {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  height: 30px;
+  padding: 0 9px;
+  transform: translateY(-4px) rotate(-4deg);
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.name {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(26px, 1.4vw + 14px, 34px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 26px 24px;
+}
+.src {
+  color: var(--l-mute);
+}
+.toggle {
+  display: none;
+}
+.quote {
+  flex: 1;
+  margin: 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--l-ink);
+}
+.quote p {
+  font-size: 17px;
+  line-height: 1.55;
+}
+.more {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 600;
+}
+.more svg {
+  transition: transform var(--l-dur-hover) var(--l-ease-out);
+}
+.more:hover svg {
+  transform: translateX(3px);
+}
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+  margin-top: clamp(20px, 2.4vw, 32px);
+}
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%;
+  padding: 22px 22px 22px 26px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  text-decoration: none;
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    box-shadow var(--l-dur-hover) var(--l-ease-out);
+}
+.link > span:first-child {
+  display: grid;
+  gap: 4px;
+}
+.linkName {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 24px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.linkLine {
+  color: var(--l-mute);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.linkArrow {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: var(--l-keyline);
+  border-radius: 50%;
+  background: var(--l-tide);
+}
+@media (hover: hover) {
+  .link:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--l-shadow);
+  }
+}
+@media (max-width: 860px) {
+  .top,
+  .cards,
+  .links {
+    grid-template-columns: 1fr;
+  }
+  .cardTop,
+  .body {
+    padding-inline: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .more svg {
+    transition: none;
+  }
+}
+
+/* Phones: a few lines of each quote, with a control for the rest (only once mounted, so
+   without script the full text shows). */
+@media (max-width: 699px) {
+  :global(html.ofsl-on) .quote:not([data-open]) p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+  :global(html.ofsl-on) .toggle {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: var(--l-keyline);
+    border-radius: var(--l-r-pill);
+    background: var(--l-white);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .body {
+    gap: 12px;
+    padding-block: 18px 16px;
+  }
+  .more {
+    min-height: 40px;
+  }
+}

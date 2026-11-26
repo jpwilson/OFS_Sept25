@@ -1,0 +1,121 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.side {
+  position: sticky;
+  top: calc(var(--l-nav-h) + 24px);
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+.head {
+  max-width: 9ch;
+}
+.lede {
+  max-width: 34ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  color: var(--l-mute);
+}
+.prop {
+  width: clamp(150px, 16vw, 220px);
+  height: auto;
+  margin-top: 10px;
+  transform: rotate(-6deg);
+  filter: drop-shadow(4px 5px 0 rgba(16, 27, 59, 0.16));
+}
+.list {
+  counter-reset: lim;
+  border-top: var(--l-keyline);
+}
+.item {
+  counter-increment: lim;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  column-gap: 22px;
+  row-gap: 6px;
+  padding: 26px 0 28px;
+  border-bottom: 1px solid var(--l-line);
+}
+.n {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  background: var(--c, var(--l-tide));
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  transform: rotate(-3deg);
+}
+.n::before {
+  content: counter(lim, decimal-leading-zero);
+}
+.item:nth-child(5n + 2) .n {
+  --c: var(--l-fizz);
+  transform: rotate(2deg);
+}
+.item:nth-child(5n + 3) .n {
+  --c: var(--l-zest);
+}
+.item:nth-child(5n + 4) .n {
+  --c: var(--l-azure);
+  transform: rotate(3deg);
+}
+.item:nth-child(5n + 5) .n {
+  --c: var(--l-lime);
+}
+.s {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(22px, 1.6vw + 10px, 30px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+.c {
+  max-width: 54ch;
+  color: var(--l-mute);
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+  .side > :not(.prop) {
+    grid-column: 1;
+  }
+  .prop {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: end;
+    width: 110px;
+  }
+  .head {
+    max-width: none;
+  }
+  .item {
+    grid-template-columns: 46px minmax(0, 1fr);
+    column-gap: 16px;
+    padding: 22px 0 24px;
+  }
+  .n {
+    width: 44px;
+    height: 44px;
+    font-size: 13px;
+  }
+}

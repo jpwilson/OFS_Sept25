@@ -1,0 +1,361 @@
+/* FINALE: the portrait, the app, the close (owner: film). */
+
+/* ---------- the portrait ---------- */
+.ours {
+  --cw: min(36vw, 57.6 * var(--u));
+}
+.group {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: 50% 48%;
+}
+/* when the portrait shrinks it becomes a white-bordered print */
+.printBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  background: linear-gradient(to bottom, var(--l-wash) 0, var(--l-wash) calc(var(--floor) - var(--hz) * var(--u)), var(--l-wash-deep) calc(var(--floor) - var(--hz) * var(--u)));
+  border: calc(2.4 * var(--u)) solid var(--l-white);
+  outline: calc(0.5 * var(--u)) solid var(--l-ink);
+  box-shadow: calc(1.6 * var(--u)) calc(1.6 * var(--u)) 0 calc(0.5 * var(--u)) var(--l-ink);
+}
+.leader {
+  --x: var(--xd);
+  --y: var(--yd);
+  --len: var(--lend);
+  --ang: var(--angd);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: 8;
+  width: calc(var(--len) * var(--u));
+  height: 0;
+  border-top: 2px solid var(--l-ink);
+  transform-origin: 0 0;
+  transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u) * -1)) rotate(var(--ang));
+  pointer-events: none;
+}
+.leader::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+}
+.tagSlot > div {
+  display: flex;
+  justify-content: center;
+}
+.storyTag {
+  display: inline-flex;
+  align-items: stretch;
+  border: 2px solid var(--l-ink);
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-ink);
+  font-family: var(--l-font-mono);
+  font-size: clamp(9px, calc(1.2 * var(--u)), 11.5px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.storyTag > b {
+  padding: 5px 9px;
+  font-weight: 500;
+}
+.storyTag > i {
+  padding: 5px 9px;
+  font-style: normal;
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+.console {
+  position: absolute;
+  left: calc(50% - var(--cw) / 2);
+  bottom: 26px;
+  z-index: 21;
+  width: var(--cw);
+  display: grid;
+  gap: 8px;
+}
+.labelRow {
+  display: flex;
+  justify-content: center;
+  font-family: var(--l-font-mono);
+  font-size: clamp(9px, calc(1.2 * var(--u)), 11.5px);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.labelRow > b {
+  font-weight: 500;
+}
+.switch {
+  gap: 0;
+  touch-action: pan-y;
+}
+.switch > div {
+  max-width: none;
+  padding: 6px;
+  box-shadow: var(--l-shadow-lg);
+}
+.switch > div > label {
+  min-height: 52px;
+}
+.switch > div > label > span {
+  font-size: 16px;
+}
+.switch > div > span {
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: calc((100% - 12px) / 5);
+}
+.small {
+  position: absolute;
+  left: var(--l-gutter);
+  right: var(--l-gutter);
+  bottom: 5px;
+  z-index: 20;
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+
+/* ---------- the app ---------- */
+.window {
+  --pp: calc(var(--w) * var(--u));
+  display: grid;
+  gap: 9px;
+  margin: 0;
+}
+.frame {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1.36;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: calc(var(--pp) * 0.022);
+  box-shadow: var(--l-shadow-lg);
+}
+.frame > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.feedM {
+  display: none !important;
+}
+.window > figcaption {
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.railSlot .railTag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  transform: translate(-8%, -55%);
+}
+
+/* ---------- the close ---------- */
+.end {
+  background: var(--l-white);
+}
+.plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.plate > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 46%;
+}
+.plateM {
+  display: none !important;
+}
+.plate > img {
+  object-position: 50% 12%;
+}
+.endBand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: clamp(16px, calc(2.4 * var(--u)), 26px) var(--l-gutter) clamp(18px, calc(2.8 * var(--u)), 30px);
+  background: var(--l-white);
+  border-top: 3px solid var(--l-ink);
+}
+.endH {
+  font-size: clamp(34px, calc(7.6 * var(--u)), 88px);
+  white-space: nowrap;
+}
+.endSide {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  max-width: 470px;
+}
+.endLine {
+  font-size: clamp(16px, calc(2 * var(--u)), 20px);
+  line-height: 1.36;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.endCta {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+.endNote {
+  position: absolute;
+  left: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 16px);
+  z-index: 5;
+  padding: 5px 10px;
+  background: var(--l-white);
+  border: 1.5px solid var(--l-ink);
+  border-radius: 6px;
+  font-family: var(--l-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- phone ---------- */
+@media (max-aspect-ratio: 9/10) {
+  .ours {
+    --cw: calc(100% - 28px);
+  }
+  .leader {
+    display: none;
+  }
+  .storyTag {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .storyTag > b,
+  .storyTag > i {
+    padding: 3px 6px;
+  }
+  .console {
+    left: 14px;
+    bottom: 96px;
+    gap: 0;
+  }
+  .labelRow {
+    order: -1;
+    justify-content: flex-start;
+    padding: 0 2px 9px;
+  }
+  .switch > div {
+    padding: 5px;
+    box-shadow: var(--l-shadow);
+  }
+  .switch > div > label > span {
+    font-size: 13px;
+  }
+  .switch > div > span {
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    width: calc((100% - 10px) / 5);
+  }
+  .small {
+    left: 14px;
+    right: 14px;
+    bottom: auto;
+    top: calc(100% - 88px);
+    font-size: 9px;
+    white-space: normal;
+  }
+  .frame {
+    aspect-ratio: 0.8;
+  }
+  .feedD {
+    display: none !important;
+  }
+  .feedM {
+    display: block !important;
+  }
+  .window > figcaption {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  .plate {
+    inset: 0 0 212px 0;
+  }
+  .plate > img {
+    object-position: 50% 24%;
+  }
+  .plateD {
+    display: none !important;
+  }
+  .plateM {
+    display: block !important;
+  }
+  .endBand {
+    display: grid;
+    gap: 12px;
+    padding: 16px 16px 20px;
+    border-top-width: 2px;
+  }
+  .endH {
+    font-size: clamp(30px, calc(4.4 * var(--u)), 42px);
+    white-space: normal;
+  }
+  .endSide {
+    max-width: none;
+    justify-items: stretch;
+    gap: 10px;
+  }
+  .endLine {
+    font-size: 14.5px;
+  }
+  .endCta {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 8px;
+  }
+  .endCta > a {
+    --h: 50px;
+    --px: 8px;
+    --fs: 15.5px;
+  }
+  .endNote {
+    left: 14px;
+    top: calc(var(--l-nav-h) + 8px);
+    font-size: 9px;
+  }
+}

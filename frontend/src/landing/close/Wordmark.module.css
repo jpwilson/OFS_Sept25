@@ -1,0 +1,45 @@
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--l-ink);
+}
+.dots {
+  width: 38px;
+  height: auto;
+  flex: none;
+}
+.full {
+  display: inline-block;
+}
+.sticker {
+  box-shadow: var(--l-shadow-sm);
+  padding: 0.1em 0.22em 0.12em;
+  margin: 0 0.06em;
+}
+.short {
+  display: none;
+}
+@media (max-width: 560px) {
+  .mark[data-short] .full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .mark[data-short] .short {
+    display: inline-block;
+  }
+  .mark[data-short] {
+    gap: 8px;
+  }
+}

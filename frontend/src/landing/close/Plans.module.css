@@ -1,0 +1,412 @@
+.band {
+  border-top: var(--l-keyline);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(16, 27, 59, 0.13) 1px, transparent 1.4px) 0 0 / 22px 22px,
+    var(--l-paper);
+}
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(36px, 5vw, 60px);
+}
+.intro {
+  display: grid;
+  gap: 20px;
+  justify-items: start;
+}
+.head {
+  max-width: 15ch;
+}
+.lede {
+  max-width: 38ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  color: var(--l-mute);
+}
+
+/* ---------- billing switch ---------- */
+
+.switchRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.joeSmall {
+  display: none;
+  width: 70px;
+}
+
+.billing {
+  display: inline-flex;
+  margin: 0;
+  padding: 4px;
+  min-width: 0;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-pill);
+  background: var(--l-white);
+  box-shadow: var(--l-shadow);
+}
+.billing label {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.billing input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.billing label span {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: var(--l-r-pill);
+  font-weight: 600;
+  font-size: 16px;
+  transition:
+    background-color var(--l-dur-hover) ease,
+    color var(--l-dur-hover) ease;
+}
+.billing input:checked + span {
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+.billing input:focus-visible + span {
+  outline: 3px solid var(--l-ink);
+  outline-offset: 3px;
+}
+
+/* ---------- cards ---------- */
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.62fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+  align-items: stretch;
+}
+.joe {
+  position: relative;
+  margin: 0;
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+.joeImg {
+  width: 100%;
+  max-width: 190px;
+}
+.joe figcaption {
+  color: var(--l-mute);
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 26px 26px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.pro {
+  background: var(--l-tide);
+  box-shadow: var(--l-shadow-lg);
+}
+.name {
+  align-self: flex-start;
+  padding: 4px 10px 5px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--c, var(--l-white));
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transform: rotate(-2deg);
+}
+.free .name {
+  --c: var(--l-lime);
+}
+.pro .name {
+  --c: var(--l-white);
+}
+.life .name {
+  --c: var(--l-fizz);
+}
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  min-height: 100px;
+  align-content: flex-end;
+}
+.amount {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 80;
+  font-size: clamp(60px, 4.6vw, 84px);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.per {
+  padding-bottom: 4px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.note {
+  flex-basis: 100%;
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: var(--l-size-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--l-ink);
+  opacity: 0.75;
+}
+.monthly {
+  display: none;
+}
+.band:has(input[value='monthly']:checked) .monthly {
+  display: block;
+}
+.band:has(input[value='monthly']:checked) .yearly {
+  display: none;
+}
+.line {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.3;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--l-ink);
+}
+.list {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+.list li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.tick {
+  margin-top: 1px;
+}
+.go {
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* ---------- trial, rules and arithmetic ---------- */
+
+.below {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(16px, 2vw, 28px);
+  margin-top: clamp(28px, 3vw, 44px);
+}
+.trial {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 24px 26px 26px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+}
+.terms {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  overflow: hidden;
+}
+.terms > div {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px 14px;
+  background: var(--l-lime);
+}
+.terms > div + div {
+  border-left: var(--l-keyline);
+}
+.terms dt {
+  color: var(--l-ink);
+  opacity: 0.72;
+}
+.terms dd {
+  margin: 0;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.rules {
+  display: grid;
+  gap: 12px;
+}
+.rules li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 12px;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.rules svg {
+  margin-top: 2px;
+}
+.math {
+  display: grid;
+  gap: clamp(16px, 2vw, 22px);
+  align-content: start;
+}
+.calc {
+  display: grid;
+  gap: 10px;
+  padding: 18px 22px 20px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow);
+}
+.sum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.op {
+  color: var(--l-mute);
+}
+.vsOp {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--l-mute);
+}
+.result {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--l-line);
+}
+.big {
+  flex: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.unit {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.resultNote {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--l-mute);
+}
+
+@media (max-width: 1100px) {
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .joe {
+    display: none;
+  }
+  .joeSmall {
+    display: inline-block;
+  }
+  .switchRow {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .below {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 860px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .price {
+    min-height: 0;
+  }
+  .top {
+    position: relative;
+  }
+  .terms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .terms > div + div {
+    border-left: 0;
+  }
+  .terms > div:nth-child(even) {
+    border-left: var(--l-keyline);
+  }
+  .terms > div:nth-child(n + 3) {
+    border-top: var(--l-keyline);
+  }
+  .trial,
+  .card {
+    padding-inline: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .billing label span {
+    transition: none;
+  }
+}
+
+/* The lifetime arithmetic, inside its own card. */
+.calcIn {
+  box-shadow: none;
+  padding: 14px 16px 16px;
+  background: var(--l-paper);
+}
+.calcIn .sum {
+  font-size: 18px;
+}
+.calcIn .big {
+  font-size: 40px;
+}
+.calcIn .resultNote {
+  font-size: 14px;
+}
+.calcIn .result {
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.calcIn .resultNote {
+  flex: 1 1 14ch;
+}

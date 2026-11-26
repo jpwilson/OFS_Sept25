@@ -1,0 +1,175 @@
+/* 02 READ (owner: film). */
+
+.videoSlot,
+.commentSlot,
+.reactions {
+  --pp: calc(var(--w) * var(--u));
+}
+
+/* ---------- the clip ---------- */
+.video {
+  position: relative;
+  margin: 0;
+  padding: calc(var(--pp) * 0.03);
+  background: var(--l-ink);
+  border: 2px solid var(--l-ink);
+  border-radius: calc(var(--pp) * 0.045);
+  box-shadow: calc(var(--pp) * 0.022) calc(var(--pp) * 0.022) 0 var(--l-white);
+}
+.videoImg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10.4;
+  object-fit: cover;
+  border-radius: calc(var(--pp) * 0.03);
+}
+.play {
+  --p: 100;
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: calc(var(--pp) * 0.27);
+  height: calc(var(--pp) * 0.27);
+  margin: calc(var(--pp) * -0.135) 0 0 calc(var(--pp) * -0.135);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--l-white);
+  color: var(--l-ink);
+}
+.play > svg:first-child {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  transform: rotate(-90deg);
+}
+.play > svg:last-child {
+  position: relative;
+  width: 44%;
+  height: 44%;
+  margin-left: 6%;
+}
+.ringBg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: 4;
+}
+.ringOn {
+  fill: none;
+  stroke: var(--l-lime);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: var(--p) 100;
+}
+.video > figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: calc(var(--pp) * 0.03) calc(var(--pp) * 0.012) calc(var(--pp) * 0.008);
+  color: var(--l-white);
+  font-family: var(--l-font-story);
+  font-style: italic;
+  font-size: max(13px, calc(var(--pp) * 0.066));
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---------- the lightbox capture ---------- */
+.shotSlot figcaption {
+  font-size: clamp(9px, calc(1.1 * var(--u)), 11px);
+  letter-spacing: 0.06em;
+  opacity: 1;
+}
+.shotSlot figure {
+  gap: 6px;
+}
+
+/* ---------- reactions ---------- */
+.reactions > div {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(var(--pp) * 0.03);
+}
+.rxTag {
+  margin-right: auto;
+}
+.card {
+  position: relative;
+}
+.replyTag {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  transform: translateY(-60%);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36em;
+  padding: 0.3em 0.62em 0.34em 0.5em;
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--l-ink);
+  font-size: max(12.5px, calc(1.62 * var(--u)));
+  font-weight: 700;
+  line-height: 1;
+}
+.badge:nth-child(1) {
+  color: #e0245e;
+}
+.badge:nth-child(3) {
+  color: #c98a00;
+}
+.badge > b {
+  color: var(--l-ink);
+}
+
+/* ---------- comments ---------- */
+.card {
+  display: grid;
+  gap: calc(var(--pp) * 0.03);
+  padding: calc(var(--pp) * 0.045) calc(var(--pp) * 0.05);
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+  border-radius: calc(var(--pp) * 0.05);
+  box-shadow: 4px 4px 0 var(--l-ink);
+}
+.comment {
+  --av: calc(var(--pp) * 0.15);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--pp) * 0.04);
+  align-items: start;
+}
+.comment > p {
+  font-size: max(13px, calc(var(--pp) * 0.063));
+  line-height: 1.3;
+}
+.comment > p > b {
+  display: block;
+  font-weight: 700;
+}
+.reply {
+  --av: calc(var(--pp) * 0.115);
+  margin-left: calc(var(--pp) * 0.11);
+  padding-left: calc(var(--pp) * 0.04);
+  border-left: 2px solid var(--l-line);
+}
+
+@media (max-aspect-ratio: 9/10) {
+  .rxTag {
+    display: none;
+  }
+  .wallSlot figcaption,
+  .video > figcaption,
+  .shotSlot figcaption {
+    display: none;
+  }
+  .badge {
+    font-size: 12px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+}

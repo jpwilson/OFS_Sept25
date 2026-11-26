@@ -1,0 +1,104 @@
+.band {
+  overflow: clip;
+}
+.band[data-pad] {
+  padding-bottom: clamp(56px, 6vw, 96px);
+}
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+}
+.plate {
+  /* Beside the card, tucked under its edge by less than the print's border plus a sliver of
+     hedge: the card never covers a face. */
+  grid-column: 6 / -1;
+  grid-row: 1;
+  position: relative;
+  margin-left: -20px;
+}
+.printD {
+  display: block;
+  width: 100%;
+  box-shadow: var(--l-shadow-lg);
+}
+.printM {
+  display: none;
+  width: 100%;
+  box-shadow: var(--l-shadow-lg);
+}
+.plateNote {
+  margin-top: 16px;
+  text-align: right;
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: var(--l-size-label);
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.card {
+  grid-column: 1 / span 5;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+  padding: clamp(26px, 3vw, 44px);
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+  transform: rotate(-1deg);
+}
+.head {
+  font-size: clamp(40px, 5.4vw, 84px);
+}
+.line {
+  max-width: 34ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  font-weight: 500;
+}
+.actions {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.login {
+  font-size: 16px;
+  color: var(--l-mute);
+}
+.login a {
+  color: var(--l-ink);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .stage {
+    display: block;
+  }
+  .printD {
+    display: none;
+  }
+  .printM {
+    display: block;
+  }
+  .plate {
+    width: min(100%, 460px);
+    margin-inline: auto;
+  }
+  .plateNote {
+    text-align: center;
+  }
+  .plate {
+    margin-left: auto;
+  }
+  .card {
+    margin-top: -24px;
+    margin-inline: auto;
+    max-width: 520px;
+    transform: rotate(-1.5deg);
+  }
+}

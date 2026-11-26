@@ -1,0 +1,417 @@
+.section {
+  position: relative;
+  background: var(--l-wash);
+  color: var(--l-ink);
+  isolation: isolate;
+  overflow: clip;
+}
+.stage {
+  background: transparent;
+}
+.pin {
+  display: flex;
+  flex-direction: column;
+}
+.stage[data-pinned] > .pin {
+  padding-top: calc(var(--l-nav-h) + 8px);
+  padding-bottom: 22px;
+}
+.stage:not([data-pinned]) > .pin {
+  padding-top: var(--l-band-y);
+  overflow: visible;
+}
+.ghost {
+  position: absolute;
+  right: -2vw;
+  top: 4vh;
+  z-index: -1;
+}
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex: none;
+}
+.header {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.head {
+  max-width: 14ch;
+}
+.stage[data-pinned] .head {
+  font-size: clamp(34px, 4.2vw, 64px) !important;
+}
+.lede {
+  max-width: 40ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.progress {
+  display: none;
+  width: 220px;
+  height: 14px;
+  padding: 2px;
+  border: var(--l-keyline);
+  border-radius: 999px;
+  background: var(--l-white);
+  margin-bottom: 8px;
+}
+.stage[data-pinned] .progress {
+  display: block;
+}
+.bar {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--l-ink);
+  transform-origin: left;
+  transform: scaleX(calc(0.06 + var(--p, 0) * 0.94));
+}
+
+/* ---------- the reel ---------- */
+.reelWin {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: clamp(16px, 3vh, 36px);
+}
+.reelWin[data-drag] {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.reelWin[data-drag]:active {
+  cursor: grabbing;
+}
+.track {
+  display: flex;
+  gap: clamp(28px, 4vw, 72px);
+  flex: 1;
+  min-height: 0;
+  padding-inline: var(--l-gutter);
+  will-change: transform;
+}
+.stage[data-pinned] .track {
+  padding-right: 28vw;
+}
+.card {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 2.4vw, 36px);
+  min-height: 0;
+}
+.device {
+  width: min(300px, 27svh) !important;
+  flex: none;
+  transition: transform 600ms var(--l-ease-pop);
+}
+.card:nth-child(odd) .device {
+  transform: rotate(-2.5deg);
+}
+.card:nth-child(even) .device {
+  transform: rotate(2deg);
+}
+.card[data-on] .device {
+  transform: rotate(0) translateY(-10px);
+}
+.cardText {
+  display: grid;
+  gap: 10px;
+  width: min(300px, 26vw);
+  padding: 18px 20px 20px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  transition: transform 500ms var(--l-ease-pop);
+}
+.card[data-on] .cardText {
+  transform: translateY(-6px) rotate(-1deg);
+}
+.cardNum {
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  letter-spacing: var(--l-track-label);
+  color: var(--l-mute);
+}
+.cardName {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(36px, 3.6vw, 56px);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+}
+.cardBody {
+  font-size: 16.5px;
+  line-height: 1.5;
+}
+.reelFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--l-gutter) 0;
+  flex: none;
+}
+.hint {
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.cap {
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* Flow: a native sideways scroller. */
+.stage:not([data-pinned]) .track {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--l-gutter);
+  padding-block: 18px 24px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+.stage:not([data-pinned]) .card {
+  scroll-snap-align: start;
+}
+.stage:not([data-pinned]) .device {
+  width: min(280px, 62vw) !important;
+}
+
+/* ---------- browse by category ---------- */
+.browse {
+  display: grid;
+  gap: 22px;
+  padding-top: clamp(56px, 7vw, 110px);
+}
+.browseHead {
+  display: grid;
+  gap: 10px;
+}
+.browseTitle {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+.browseLede {
+  max-width: 56ch;
+  font-size: 17px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.chip {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-pill);
+  background: var(--l-white);
+  font-weight: 600;
+  font-size: 15.5px;
+  transition:
+    transform 260ms var(--l-ease-pop),
+    box-shadow 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+.chip:hover {
+  transform: translateY(-2px);
+}
+.chip[aria-pressed='true'] {
+  background: var(--l-ink);
+  color: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-white), 3px 3px 0 2px var(--l-ink);
+  transform: translateY(-2px) rotate(-1.5deg);
+}
+.own {
+  border-style: dashed;
+}
+.own[aria-pressed='true'] {
+  border-style: solid;
+}
+.count {
+  font-family: var(--l-font-mono);
+  font-size: 12px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: 18px;
+  min-height: 200px;
+  padding-bottom: 14px;
+}
+.feedCard[hidden] {
+  display: none;
+}
+.feedInner {
+  display: grid;
+  gap: 10px;
+  animation: cardIn 520ms var(--l-ease-pop) both;
+  animation-delay: calc(var(--k, 0) * 60ms);
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92) rotate(-2deg);
+  }
+}
+.feedMeta {
+  display: grid;
+  gap: 2px;
+}
+.feedCat {
+  font-family: var(--l-font-mono);
+  font-size: 10.5px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.feedTitle {
+  font-weight: 700;
+  font-size: 15.5px;
+  line-height: 1.2;
+}
+.empty {
+  grid-column: 1 / -1;
+  align-self: center;
+  justify-self: start;
+  max-width: 44ch;
+  padding: 16px 20px;
+  background: var(--l-white);
+  border: 2px dashed var(--l-ink);
+  border-radius: var(--l-r-card);
+  font-weight: 500;
+}
+.filters {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 2px solid var(--l-ink);
+}
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-family: var(--l-font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.filterRow li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.filterRow li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--l-ink);
+  transform: rotate(45deg);
+}
+
+/* ---------- the shelf: cards with Leo and Ivy on the same floor line ---------- */
+.shelf {
+  display: grid;
+  grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr) clamp(70px, 7vw, 104px);
+  align-items: end;
+  gap: clamp(12px, 2vw, 28px);
+}
+.kidL,
+.kidR {
+  width: 100%;
+  margin-bottom: -6px;
+}
+.kidsSlot {
+  display: none;
+}
+.floorBand {
+  background: var(--l-wash-deep);
+  border-top: 2px solid rgba(16, 27, 59, 0.18);
+  padding-block: 18px clamp(40px, 5vw, 72px);
+}
+.floorInner {
+  display: grid;
+  gap: 16px;
+}
+.floorBand .filters {
+  border-top-color: var(--l-ink);
+}
+
+@media (max-width: 1100px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+    width: min(300px, 74vw);
+  }
+  .cardText {
+    width: 100%;
+  }
+  .stage:not([data-pinned]) .device {
+    width: 100% !important;
+  }
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chip {
+    font-size: 14.5px;
+    padding: 6px 13px;
+  }
+  .shelf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kidL,
+  .kidR {
+    display: none;
+  }
+  .kidsSlot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    min-height: 180px;
+  }
+  .kidM {
+    width: 64px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feedInner {
+    animation: none;
+  }
+  .device,
+  .cardText,
+  .chip {
+    transition: none !important;
+  }
+}
