@@ -37,22 +37,26 @@ AUDIENCE_OPENERS  COUNTS{cast,household,followers,closeFamily,runClub}  STORIES 
 <Sticker tilt size="md|sm">word</Sticker>   // sm: 2px shadow, tighter padding, for nav and label sizes
 <Button variant="solid|ghost" size="md|lg" href onClick arrow icon trackAs />   // an href of '#id' glides if the element exists
 <Label strong dot as>   <Readout label value unit note size="sm|md|lg" valueRef />   <GhostWord center>
+//   Readout root has data-readout; parts carry data-part="label|value|unit|note"
 <Cutout id alt className style priority sizes shadow imgRef />
-<Shot id alt caption />        // caption: a string prefix, or false; otherwise always prints "Real interface. Sample family."
+<Shot id alt caption />   // root data-shot; parts data-part="frame|caption|caption-own" (Device: "frame|caption")        // caption: a string prefix, or false; otherwise always prints "Real interface. Sample family."
 <Print id alt caption tilt />   <Device id alt caption width />   // width: px number or CSS length, default 320px, capped at 100%
 <ArtImg id alt className priority sizes fit />   // a bare manifest image (or labelled placeholder), no frame
 //   Cutout, Print, Shot, Device and ArtImg use the manifest's wM for the phone copy's srcset width (half of w if absent)
 <Section id wash tone="wash|paper|white" pad="md|sm|none" inner="wrap|none" floor as sectionRef />
 <Stage id svh wash floor pinned onProgress(p, pinEl, frame) pinClassName stageRef />
 <Reveal as delay i ...rest />   watchReveal(el)   // id, data-*, aria-* pass through; style is merged
-<AudienceSwitch value onChange(name) name label hideLabel />   AUDIENCES [{name,slug}]   AUDIENCE_DEFAULT
+<AudienceSwitch value onChange(name) name label hideLabel size="md|lg" />   AUDIENCES [{name,slug}]   AUDIENCE_DEFAULT
+//   order (round two): Private, Close Family, Followers, Custom Group, Public; slugs unchanged
+//   tune with CSS variables on the switch or any ancestor: --l-aud-h --l-aud-fs --l-aud-pad --l-aud-max --l-aud-opt-px
 <Icon name size title />       // arrow arrow-down play pin lock people heart close check plus
 <Stub name pkg id wash tone note />   Missing   useFrame(fn)   cx   WASHES
 ```
 
-- `AudienceSwitch` is a fieldset carrying `data-aud`. Input values are the slugs `private`, `custom`, `close`, `followers`, `public`; each input also carries `data-aud-name` with the app's name. It works before hydration. Style state from CSS, for example `.scene:has([data-aud] input[value='close']:checked) .crowd { ... }`.
+- `AudienceSwitch` is a fieldset carrying `data-aud` and `data-size`. Options are in the order Private, Close Family, Followers, Custom Group, Public. Input values are the slugs `private`, `close`, `followers`, `custom`, `public` (select by value, never by position); each input also carries `data-aud-name` with the app's name. It works before hydration. Style state from CSS, for example `.scene:has([data-aud] input[value='close']:checked) .crowd { ... }`.
 - Global utility classes inside `.ofsl`: `l-wrap l-hero l-head l-head-sm l-lede l-mute l-story l-mono l-small l-sr l-nowrap`. `l-hero`, `l-head` and `l-head-sm` are one class strong (`:where(.ofsl) .l-head`), so a package class loaded after them can change font-size or line-height without `!important`.
-- Tokens as in SPEC, plus raw colours `--l-tide`, `--l-tide-deep` and so on for each wash, and `--l-shadow`, `--l-keyline`, `--l-r-*`, `--l-gutter`, `--l-horizon`, `--l-nav-h`, `--l-ease-out`, `--l-ease-pop`.
+- Washes (`WASHES`): `tide fizz zest azure lime paper sun violet`. Round two adds `sun` (`#FFD43B`, deep `#F2C21C`) and `violet` (`#A98BFF`, deep `#8F6CF5`); ink text on both.
+- Tokens as in SPEC, plus raw colours `--l-tide`, `--l-tide-deep` and so on for each wash (including `--l-sun`, `--l-sun-deep`, `--l-violet`, `--l-violet-deep`), and `--l-shadow`, `--l-keyline`, `--l-r-*`, `--l-gutter`, `--l-horizon`, `--l-nav-h`, `--l-ease-out`, `--l-ease-pop`.
 - See every primitive on every wash: run your dev server and open `/?only=ui`. The sheet is `frontend/shots/f0-ui-d/sheet.jpg`.
 
 ## Your package
@@ -75,7 +79,7 @@ The page is rendered to HTML at build time and hydrated. So: no `window`, `docum
 
 Several builders are in this repo at once.
 - **Do not run `npm run build`.** It writes the shared `frontend/dist` and `frontend/dist-ssr` and would collide with the others. To prove your code compiles, run `npx vite build --outDir /tmp/ofsl-<pkg>-dist --emptyOutDir` from `frontend/` and delete that folder afterwards. The director runs the full build and the server render at integration.
-- Work from the dev server on your own port: `npx vite --port <port> --strictPort` from `frontend/`, then `http://127.0.0.1:<port>/?only=<pkg>` shows only your package, so a half-written sibling cannot break your view. Ports: film 5321, explain 5322, proof 5323, close 5324. Stop the server when you finish.
+- Work from the dev server on your own port: `npx vite --port <port> --strictPort --host 127.0.0.1` from `frontend/` (without `--host 127.0.0.1` Vite listens on `localhost` only and `http://127.0.0.1:<port>` is refused), then `http://127.0.0.1:<port>/?only=<pkg>` shows only your package, so a half-written sibling cannot break your view. Ports: film 5321, explain 5322, proof 5323, close 5324. Stop the server when you finish.
 - Screenshots: `node scripts/landing/shots.mjs --url 'http://127.0.0.1:<port>/?only=<pkg>' --out shots/<pkg>-d --steps 12` (add `--phone` for 390x844; `--selector`, `--from`, `--to`, `--w`, `--h`, `--reduced`, `--click`, `--press` as needed). It writes numbered JPEGs and a `sheet.jpg`, and prints console errors and whether the page scrolls sideways. Read the sheet as an image before you report.
 - Art is finished: 97 images. The manifest is `src/landing/art/manifest.json`; see them all on colour in `landing-art/sheets/wash-*.jpg`, `detail-people-*.jpg`, `detail-things-*.jpg`, `photos-*.jpg`, `plates.jpg`, `kitchen-overlay.jpg`. Note: for poses with arms up, `headTop` marks the hand, not the crown.
 - Real-interface captures (`kind: "ui"`, ids in `CAPTURE.md`) are still being made. Until an id appears in the manifest, `Shot` and `Device` render a labelled placeholder; build against the ids and re-shoot later.

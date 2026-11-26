@@ -2,6 +2,8 @@
 
 Read all of this before writing code. Your own handover brief in `docs/landing/handover/` adds detail for your package; where they disagree, this file wins and you tell the director.
 
+**Then read `docs/landing/ROUND2.md`.** It records the owner's review of the first build and changes the sample family, the stories, the film's order, the audience order and most headlines. Where ROUND2.md and this file differ, ROUND2.md wins.
+
 Repo: `/Users/jpwilson/Documents/Projects/SGTG/OFS_claude`, branch `landing/rebuild`. Frontend in `frontend/` (React 19, Vite 5, react-router 7, JavaScript, CSS Modules). Reference implementation to port from: `/Users/jpwilson/Documents/Projects/otherwise` (read `docs/BUILD.md`, `docs/handover/FILM.md`, `src/lib`, `src/ui`, `src/film`, `scripts/shots.mjs`; look at `shots/film-d/sheet.jpg` and `shots/film-m/sheet.jpg`).
 
 ## What we are building
