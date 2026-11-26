@@ -134,7 +134,7 @@ export default function ResetPage() {
       >
         <Stack>
           {topError}
-          <p className={s.body}>Open it on this device or any other. Nothing after a minute? Look in spam, or send it again.</p>
+          <p className={s.body}>Open it on this device to choose your new password. Nothing after a minute? Look in spam, or send it again.</p>
           <Button size="lg" full variant="ghost" onClick={send} busy={busy} disabled={left > 0} data-ui="resend">
             {left > 0 ? `Send it again in ${left}s` : 'Send it again'}
           </Button>

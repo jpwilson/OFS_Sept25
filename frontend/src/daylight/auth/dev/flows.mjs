@@ -5,6 +5,8 @@
 //
 //   node src/daylight/auth/dev/flows.mjs [--base http://127.0.0.1:5336] [--only name,name]
 //
+// The Google flows need Google switched on in the dev server (VITE_AUTH_GOOGLE=1, see
+// src/daylight/auth/lib/features.js); the email flows pass either way.
 // Each flow starts from GET /__fx/reset in a fresh browser context, at 390x844. Exits 1 on
 // any failure, page error or unexpected console error.
 import { createRequire } from 'node:module'
