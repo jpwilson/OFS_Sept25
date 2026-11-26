@@ -30,19 +30,19 @@ export const NAV = {
 export const LIMITS = {
   label: 'Before you ask',
   head: { before: 'What it does not', mark: 'do', after: '.' },
-  lede: 'Eight things worth knowing before you start. None of them is hidden in the app, but they are easier to hear up front.',
+  lede: 'Eight things worth knowing before you share your first vacation. None of them is hidden in the app; they are just easier to hear up front.',
   items: [
     {
       s: 'It is a web app you add to your home screen.',
-      c: 'There is no app-store app and no push notifications. Email tells you about follow requests, comments on your stories and new stories from people you follow.',
+      c: 'There is no app-store app and no push notifications. Email tells you when someone asks to follow you, comments on your story or posts a new one.',
     },
     {
-      s: 'It is not a backup.',
+      s: 'It is not a backup of your camera roll.',
       c: 'Photos are stored resized, so keep your originals.',
     },
     {
       s: `Video clips are trimmed to ${fact('videoSeconds')} seconds.`,
-      c: 'The editor asks you to choose the part to keep before the clip goes in.',
+      c: 'Keep the best part of the toast or the finish line: the editor asks you which part before the clip goes in.',
     },
     {
       s: `AI Create is in beta, with ${fact('aiPerDay')} uses a day.`,
@@ -61,7 +61,7 @@ export const LIMITS = {
       c: 'Unless a story is Private, its card (title, cover, place) is listed to signed-in members. Opening it follows the audience you chose.',
     },
     {
-      s: 'Publishing needs a paid plan after the trial.',
+      s: 'Writing stories needs a paid plan after the trial.',
       c: 'With no plan you can still open stories by people you follow and any Public story, and like and comment.',
     },
   ],
@@ -76,7 +76,7 @@ export const LIMITS = {
 export const COMPARE = {
   label: 'Compared fairly',
   head: { before: 'Where the others are', mark: 'better', after: '.' },
-  lede: 'Each comparison page starts with where the other choice is stronger. This is the short answer from each, word for word.',
+  lede: 'Some families are better served elsewhere, and we would rather say so. Each comparison page starts with where the other choice is stronger; this is its short answer, word for word.',
   more: 'Read the full comparison',
   expand: 'Read the short answer',
   collapse: 'Show less',
@@ -157,13 +157,13 @@ export const PLAN_MATH = (() => {
 export const PLANS = {
   label: 'Plans',
   head: { before: 'Readers are free. Storytellers', mark: 'pay', after: '.' },
-  lede: 'Your relatives never pay to open what you share with them. You pay to write.',
+  lede: 'Grandma never pays to open the vacation story. The person who writes it up does. No plan has ads, and no feed is ranked.',
   billing: { legend: 'Billing', yearly: 'Annual', monthly: 'Monthly' },
   free: {
     name: PRICES.free.name,
     price: PRICES.free.price,
     per: PRICES.free.period,
-    line: 'For the people you share with.',
+    line: 'For everyone you share with.',
     list: [
       'Open stories by people you follow, and any Public story',
       `Like, comment and react, with ${fact('reactions')} reactions`,
@@ -175,7 +175,7 @@ export const PLANS = {
     name: PRICES.pro.name,
     yearly: { price: PRICES.pro.perMonthBilledYearly, per: 'a month', note: `billed annually, ${PRICES.pro.perYear} a year` },
     monthly: { price: PRICES.pro.perMonth, per: 'a month', note: 'billed monthly' },
-    line: 'For the person who writes the stories.',
+    line: 'For whoever writes up the trips, the wedding and the birthdays.',
     list: [
       'No cap on the number of stories',
       `Up to ${fact('photosPro')} photos and ${fact('videosPerStory')} video clips per story`,
@@ -226,7 +226,7 @@ export const QUESTIONS = {
   items: [
     {
       q: 'What is Our Family Socials?',
-      a: 'A private, ad-free place where a family shares the long version: written stories with photo galleries, video and journey maps. You decide who can open each one. In the app a story is called an event.',
+      a: 'A private, ad-free place where a family keeps the long version of its vacations, weddings, birthdays and big days: written stories with photo galleries, video and journey maps. You decide who can open each one. In the app a story is called an event.',
     },
     {
       q: 'Is it really free to read?',
@@ -234,19 +234,19 @@ export const QUESTIONS = {
     },
     {
       q: 'Who can open a story I post?',
-      a: 'You pick one of five audiences per story. Private is only you, unless you make a share link for it. Custom Group is a named list you build from people you follow. Close Family is a tick you set per follower. Followers means people whose follow request you accepted. Public opens for anyone with the link, signed in or not.',
+      a: 'You pick one of five audiences per story. Private is only you, unless you make a share link for it. Custom Group is a named list you build from people you follow. Close Family is a checkmark you set per follower. Followers means people whose follow request you accepted. Public opens for anyone with the link, signed in or not.',
     },
     {
       q: 'What does Public mean, exactly?',
       a: 'Anyone with the link can open a Public story, signed in or not. Separately, the card of any story that is not Private (title, cover, place) is listed to signed-in members; opening it still follows the audience you chose.',
     },
     {
-      q: 'Do my relatives need an account?',
+      q: 'Does Grandma need an account?',
       a: `To open your stories in the app, yes: a free account, and you accept their follow request. Or make a share link, a key you hand out yourself: it opens that one story for anyone who has it, without an account, and ends after ${fact('shareLinkDays')}. A Public story opens for anyone with the link.`,
     },
     {
-      q: 'How does AI Create work?',
-      a: `Add photos or clips and type or speak a description. It returns a title, a story with section headings, a caption per photo, a category and a place. AI Draft and AI Interview show you the draft to edit; Quick Publish posts it straight away. It is in beta, needs Pro or the trial, allows ${fact('aiPerDay')} uses a day, and publishes to Followers until you edit the story.`,
+      q: 'How do I make a story?',
+      a: `Add the photos from the day. They are enough on their own: AI Create writes the title, the story with its headings and a caption for every photo. A few typed lines or a voice note make it better, and AI Interview asks you a few questions to make it better still. It is in beta, needs Pro or the trial, allows ${fact('aiPerDay')} uses a day, and publishes to Followers until you edit the story. Or write it yourself in the editor.`,
     },
     {
       q: 'Is there an app?',
@@ -257,7 +257,7 @@ export const QUESTIONS = {
       a: 'While your plan or trial is not active, other people cannot open your stories in the app. A share link you already made keeps working until it ends. You can still open stories by people you follow and any Public story, and like and comment, but you cannot publish or follow new people.',
     },
     {
-      q: 'How does the map know where my photos were taken?',
+      q: 'How does the map know where we went?',
       a: 'Your browser reads the GPS position and the time from each photo before it uploads. Each located photo becomes a numbered stop on the story\'s map, joined to the next by a dashed line. You can also add location markers in the editor.',
     },
     {
@@ -271,8 +271,9 @@ export const QUESTIONS = {
 
 export const START = {
   label: 'Start here',
-  head: { before: 'Start with one', mark: 'story', after: '.' },
-  line: `A free account, no card. The trial gives you ${fact('trialDays')} days and ${fact('trialStories')} published stories to try it.`,
+  head: { before: 'Start with your last', mark: 'vacation', after: '.' },
+  line: 'Add its photos. They are enough on their own: AI Create writes the title, the story with its headings and a caption for every photo, and you choose who can open it.',
+  terms: `A free account, no card, and ${fact('trialDays')} days to try it, with ${fact('trialStories')} stories to publish.`,
   start: 'Start free',
   login: 'Log in',
   loginLead: 'Already have an account?',

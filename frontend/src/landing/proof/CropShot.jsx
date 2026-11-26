@@ -4,26 +4,26 @@
 // the phone shows their central part at a readable size). Rectangles are fractions of the
 // capture: { x, y, w, h }. Pure CSS (custom properties + one media query), so it server-renders.
 import { maybeArt } from '../art/manifest.js'
-import { ArtImg } from '../ui/ArtImg.jsx'
-import { SHOT_CAPTION } from '../ui/index.js'
+import { SHOT_CAPTION, ArtImg } from '../ui/index.js'
 import { cx } from '../ui/cx.js'
 import s from './CropShot.module.css'
 
 /** Crops for the desktop captures, by id. m: phone (<=700px). d: every screen. */
 export const CROPS = {
-  'ui-share': { d: { x: 0, y: 0.41, w: 1, h: 0.29 } }, // "Link expires in" to "Create Share Link" only
-  'ui-tree': { m: { x: 0.26, y: 0.4, w: 0.5, h: 0.46 } },
+  // measured on the round-two captures (Maine coast story, viewed as Nana Ruth)
+  'ui-share': { d: { x: 0, y: 0.41, w: 1, h: 0.28 } }, // "Link expires in" to "Create Share Link" only
+  'ui-tree': { m: { x: 0.28, y: 0.42, w: 0.52, h: 0.45 } },
   'ui-groups': { m: { x: 0, y: 0, w: 0.92, h: 0.6 } },
   'ui-profile': { m: { x: 0.28, y: 0.06, w: 0.44, h: 0.82 } },
   'ui-story-head': { m: { x: 0, y: 0.05, w: 0.7, h: 0.95 } },
-  'ui-story-text': { d: { x: 0, y: 0, w: 1, h: 0.62 }, m: { x: 0.03, y: 0, w: 0.9, h: 0.62 } },
+  'ui-story-text': { d: { x: 0, y: 0, w: 1, h: 0.84 }, m: { x: 0.02, y: 0, w: 0.96, h: 0.84 } },
   'ui-story-toc': { d: { x: 0, y: 0, w: 1, h: 0.58 } },
-  'ui-story-journey': { m: { x: 0.25, y: 0.15, w: 0.55, h: 0.7 } },
-  'ui-story-gallery': { m: { x: 0, y: 0, w: 0.62, h: 0.9 } },
+  'ui-story-journey': { m: { x: 0.28, y: 0.14, w: 0.47, h: 0.52 } },
+  'ui-story-gallery': { m: { x: 0, y: 0, w: 0.62, h: 0.78 } },
   'ui-story-comments': { m: { x: 0, y: 0.05, w: 0.85, h: 0.9 } },
   'ui-lightbox': { m: { x: 0.14, y: 0, w: 0.72, h: 1 } },
   'ui-privacy': { m: { x: 0, y: 0, w: 0.62, h: 1 } },
-  'ui-worldmap-d': { m: { x: 0.33, y: 0.12, w: 0.58, h: 0.78 } },
+  'ui-worldmap-d': { m: { x: 0.1, y: 0.14, w: 0.52, h: 0.56 } },
 }
 
 const FULL = { x: 0, y: 0, w: 1, h: 1 }

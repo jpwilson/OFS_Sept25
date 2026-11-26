@@ -21,5 +21,5 @@ export { ArtImg } from './ArtImg.jsx'
 export { useFrame } from './useFrame.js'
 export { cx } from './cx.js'
 
-/** Wash ids, in page order. */
-export const WASHES = ['tide', 'fizz', 'zest', 'azure', 'lime', 'paper']
+/** Wash ids (round one's five, paper, then round two's sun and violet). */
+export const WASHES = ['tide', 'fizz', 'zest', 'azure', 'lime', 'paper', 'sun', 'violet']

@@ -8,6 +8,14 @@ import { onceInView, two } from './shared.js'
 import s from './Create.module.css'
 
 const TILTS = [-4, 3, -2, 5, -3]
+// Phones: each Quick Add screen is cropped to its telling region (zoom, focus x, focus y):
+// the photo strip, the recording, the written draft.
+const CROP = {
+  'ui-quickadd-input': [1.7, '0%', '42%'],
+  'ui-quickadd-recording': [1.6, '50%', '62%'],
+  'ui-quickadd-review': [1.9, '100%', '30%'],
+}
+const cropVars = (id) => (CROP[id] ? { '--z': CROP[id][0], '--ox': CROP[id][1], '--oy': CROP[id][2] } : undefined)
 
 export function Create() {
   const root = useRef(null)
@@ -82,6 +90,25 @@ export function Create() {
           <Head id="lp-create-h" className={s.head} {...C.head} />
           <p className="l-lede">{C.lede}</p>
 
+          <div className={s.ladderWrap}>
+            <Label strong className={s.subLabel}>
+              {C.ladderLabel}
+            </Label>
+            <ol className={s.ladder}>
+              {C.ladder.map((l, i) => (
+                <Reveal as="li" key={l.name} i={i} className={s.rung} style={{ '--k': i }}>
+                  <span className={s.meter} aria-hidden="true">
+                    {C.ladder.map((_, k) => (
+                      <i key={k} data-on={k <= i ? '' : undefined} />
+                    ))}
+                  </span>
+                  <b>{l.name}</b>
+                  <span>{l.text}</span>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+
           <div className={s.modes}>
             <Label strong className={s.subLabel}>
               {C.modesLabel}
@@ -154,7 +181,7 @@ export function Create() {
                     <i />
                     <b>{C.label}</b>
                   </span>
-                  <span className={s.screen}>
+                  <span className={s.screen} style={cropVars(t.shot)}>
                     <ArtImg id={t.shot} alt={t.alt} className={s.winImg} sizes="(max-width: 760px) 86vw, 560px" />
                   </span>
                 </span>

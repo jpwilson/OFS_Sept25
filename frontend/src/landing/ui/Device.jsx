@@ -12,14 +12,14 @@ export function Device({ id, alt, caption, className, style, priority, width }) 
   const st = width != null ? { ...style, '--l-device-w': typeof width === 'number' ? `${width}px` : width } : style
   return (
     <figure className={cx(s.device, className)} style={st}>
-      <span className={s.body}>
+      <span className={s.body} data-part="frame">
         <span className={s.screen}>
           <ArtImg id={id} alt={alt || ''} className={s.img} priority={priority} sizes="(max-width: 640px) 70vw, 320px" />
         </span>
         <span className={s.notch} aria-hidden="true" />
       </span>
       {caption === false ? null : (
-        <figcaption className={s.caption}>
+        <figcaption className={s.caption} data-part="caption">
           {typeof caption === 'string' && caption ? `${caption} ` : null}
           {SHOT_CAPTION}
         </figcaption>

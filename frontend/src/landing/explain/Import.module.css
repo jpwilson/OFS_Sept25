@@ -325,7 +325,7 @@
 @media (max-width: 760px) {
   .in {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 45fr) minmax(0, 55fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas:
       'top'
       'canvas'

@@ -38,6 +38,7 @@ export function Kitchen() {
                 <Readout label="Pro" value={PRICES.pro.perMonthBilledYearly} unit="/ month" note="Billed yearly" />
               </div>
               <AudienceSwitch name={`aud-${w}`} />
+              {i === 0 ? <AudienceSwitch name="aud-lg" size="lg" label="Who can open this story (size lg)" /> : null}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                 {ICON_NAMES.map((n) => (
                   <span key={n} title={n} style={{ display: 'grid', placeItems: 'center', width: 40, height: 40, background: '#fff', border: '2px solid #101B3B', borderRadius: 10 }}>

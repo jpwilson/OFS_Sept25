@@ -23,6 +23,10 @@
   --l-azure-deep: #1f93f0;
   --l-lime: #c6f135;
   --l-lime-deep: #aedb1c;
+  --l-sun: #ffd43b;
+  --l-sun-deep: #f2c21c;
+  --l-violet: #a98bff;
+  --l-violet-deep: #8f6cf5;
   --l-paper-deep: #e3e9f2;
 
   /* type */
@@ -86,6 +90,14 @@
 .ofsl [data-wash='lime'] {
   --l-wash: var(--l-lime);
   --l-wash-deep: var(--l-lime-deep);
+}
+.ofsl [data-wash='sun'] {
+  --l-wash: var(--l-sun);
+  --l-wash-deep: var(--l-sun-deep);
+}
+.ofsl [data-wash='violet'] {
+  --l-wash: var(--l-violet);
+  --l-wash-deep: var(--l-violet-deep);
 }
 .ofsl [data-wash='paper'] {
   --l-wash: var(--l-paper);

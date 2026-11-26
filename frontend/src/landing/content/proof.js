@@ -12,11 +12,11 @@ const names = (ids) => {
 
 export const ANATOMY = {
   id: 'lp-anatomy',
-  eyebrow: 'One real story page, taken apart',
-  head: { before: 'Everything that fits in one', mark: 'story', after: '.' },
-  lede: 'This is "A week on the coast path", the whole page, as the app shows it. Scroll and it comes apart, piece by piece. Tap any label for the detail.',
+  eyebrow: 'One real vacation story, taken apart',
+  head: { before: 'Everything a great trip', mark: 'deserves', after: '.' },
+  lede: 'This is "A week on the Maine coast", the whole page, as Nana Ruth opens it. Scroll and it comes apart, piece by piece. Tap any label for the detail.',
   shot: 'ui-story-d',
-  shotAlt: 'The full story page for "A week on the coast path", from its cover down to the comments',
+  shotAlt: 'The full story page for "A week on the Maine coast", from its cover down to the comments',
   explode: 'Spread it out',
   assemble: 'Put it back',
   detailFor: 'Details for',
@@ -25,7 +25,7 @@ export const ANATOMY = {
   next: 'Next part',
   stepOf: 'Part',
   sample: 'Sample story, real page',
-  // at: where this part sits down the tall capture ui-story-d (0 top, 1 bottom), measured on the capture (1760x11834, reader view). The audience is the author's setting, so it closes the tour.
+  // at: where this part sits down the tall capture ui-story-d (0 top, 1 bottom), measured on the capture (1510x10061, the Maine coast story as Nana Ruth sees it). The audience is the author's setting, so it closes the tour.
   parts: [
     {
       id: 'head',
@@ -33,7 +33,7 @@ export const ANATOMY = {
       shot: 'ui-story-head',
       at: 0.045,
       side: 'left',
-      lines: ['Every story opens on a cover photo, its title, the place and the dates.', 'The story itself takes a like.'],
+      lines: ['The trip opens on its best photo, with the title, the place and the dates.', 'Whoever reads it can leave the story a like.'],
     },
     {
       id: 'tags',
@@ -41,48 +41,48 @@ export const ANATOMY = {
       tags: true,
       at: 0.08,
       side: 'right',
-      lines: ['Tag the people in a story, including people with no account: a child, a grandparent, a pet.', 'They can claim their profile later.'],
+      lines: ['Tag everyone who was there, including people with no account: a child, a grandparent, the dog.', 'They can claim their profile later.'],
     },
     {
       id: 'toc',
       label: 'Contents',
       shot: 'ui-story-toc',
-      at: 0.125,
+      at: 0.12,
       side: 'left',
-      lines: ['The page builds a contents list from your headings, so a long story is easy to move around.', 'The editor has headings, bold, italic, links and lists.'],
-    },
-    {
-      id: 'text',
-      label: 'Text and captioned photos',
-      shot: 'ui-story-text',
-      at: 0.2,
-      side: 'right',
-      lines: ['Photos sit inside the text, each with its own caption.', 'HEIC photos are accepted. Photos are stored resized, so keep your originals.'],
-      facts: [
-        { label: 'Photos per story, Pro', value: fact('photosPro') },
-        { label: 'Photos per story, trial', value: fact('photosTrial') },
-      ],
+      lines: ['A week is a lot of story. The page builds a contents list from your headings, so anyone can jump to the day they want.', 'The editor has headings, bold, italic, links and lists.'],
     },
     {
       id: 'video',
       label: 'Video clips',
       print: 'photo-race-video',
       printCaption: "Sample clip still, from Dad's first marathon",
-      at: 0.34,
-      side: 'left',
-      lines: ['Clips go inline like photos, each with a caption.', `Clips are trimmed to ${fact('videoSeconds')} seconds in the editor.`],
+      at: 0.325,
+      side: 'right',
+      lines: ['The moment itself, moving: clips sit in the text like photos, each with a caption.', `Clips are trimmed to ${fact('videoSeconds')} seconds in the editor.`],
       facts: [
         { label: 'Longest clip', value: fact('videoSeconds'), unit: 'sec' },
         { label: 'Clips per story', value: fact('videosPerStory') },
       ],
     },
     {
+      id: 'text',
+      label: 'Text and captioned photos',
+      shot: 'ui-story-text',
+      at: 0.41,
+      side: 'left',
+      lines: ['Tell it the way you would at the dinner table, with each photo right where it happened and a caption of its own.', 'HEIC photos are accepted. Photos are stored resized, so keep your originals.'],
+      facts: [
+        { label: 'Photos per story, Pro', value: fact('photosPro') },
+        { label: 'Photos per story, trial', value: fact('photosTrial') },
+      ],
+    },
+    {
       id: 'journey',
       label: 'Journey map',
       shot: 'ui-story-journey',
-      at: 0.745,
+      at: 0.74,
       side: 'right',
-      lines: ['GPS and the time taken are read from each photo in your browser before upload.', 'Each located photo becomes a stop. Stops are numbered and joined by a dashed line in order.'],
+      lines: ['Every place you stopped, on the trip’s own map. GPS and the time taken are read from each photo in your browser before upload.', 'Each located photo becomes a stop. Stops are numbered and joined by a dashed line in order.'],
       facts: [{ label: 'Map layers', value: fact('mapLayers'), note: factList('mapLayers').join(', ') }],
     },
     {
@@ -91,7 +91,7 @@ export const ANATOMY = {
       shot: 'ui-story-gallery',
       at: 0.815,
       side: 'left',
-      lines: ['The story ends with a gallery of everything in it.', 'The gallery opens full screen, with a slideshow and zoom.'],
+      lines: ['Every photo from the trip, together at the end of the story.', 'The gallery opens full screen, with a slideshow and zoom.'],
     },
     {
       id: 'lightbox',
@@ -99,16 +99,16 @@ export const ANATOMY = {
       shot: 'ui-lightbox',
       at: 0.84,
       side: 'right',
-      lines: [`${fact('reactions')} reactions on every photo and on every comment.`, 'The caption travels with the photo into the full-screen view.'],
+      lines: [`The family reacts to the photo they love: ${fact('reactions')} reactions on every photo and every comment.`, 'The caption travels with the photo into the full-screen view.'],
       facts: [{ label: 'Reactions', value: fact('reactions') }],
     },
     {
       id: 'comments',
       label: 'Comments and replies',
       shot: 'ui-story-comments',
-      at: 0.905,
+      at: 0.9,
       side: 'left',
-      lines: ['Comments sit under the story, where the family talks about it.', `Replies nest ${fact('replyLevels')} levels deep, so a conversation keeps its shape.`],
+      lines: ['Grandpa asks, you answer, he replies. Comments sit under the story where the family talks about it.', `Replies nest ${fact('replyLevels')} levels deep, so a conversation keeps its shape.`],
       facts: [{ label: 'Reply levels', value: fact('replyLevels') }],
     },
     {
@@ -119,7 +119,7 @@ export const ANATOMY = {
       at: 0.975,
       side: 'right',
       lines: [
-        `Each story has one of ${fact('audiences')} audiences. New stories start on ${fact('audienceDefault')}.`,
+        `You choose who opens it, one of ${fact('audiences')} audiences per story. New stories start on ${fact('audienceDefault')}.`,
         `A share link opens this one story without an account and ends after ${fact('shareLinkDays')}.`,
       ],
       facts: [
@@ -134,17 +134,18 @@ export const ANATOMY = {
 
 export const PLACES = {
   id: 'lp-places',
-  eyebrow: 'Journey map and world map',
-  head: { before: 'Every stop, every story, on one', mark: 'map', after: '.' },
-  lede: 'Your photos carry the place and the time they were taken. The story turns them into a route, and the map view puts every story the family has written in one place.',
-  routeLabel: 'A week on the coast path',
+  eyebrow: 'Journey map and the map view',
+  head: { before: 'Every vacation, every stop, on one', mark: 'map', after: '.' },
+  lede: 'Back from a trip, your photos already know where you went and when. The story turns them into a route anyone can follow, and the map view puts every trip the family has taken in one place.',
+  routeLabel: 'A week on the Maine coast',
   routeSample: 'Sample route, drawn from the story’s six located photos',
+  insetLabel: 'Mount Desert Island',
   stopsLabel: 'The stops, in order',
   start: 'Start',
   switchLabel: 'Show on the real map',
   modes: [
-    { id: 'trip', label: 'One trip', shot: 'ui-story-journey', alt: 'The journey map inside the coast story: six numbered stops joined by a dashed line', caption: 'Journey map, inside the story.' },
-    { id: 'world', label: 'Every story', shot: 'ui-worldmap-d', alt: 'The map view: one pin for each of the family’s stories, with nearby pins grouped', caption: 'Map view, every story.' },
+    { id: 'trip', label: 'One trip', shot: 'ui-story-journey', alt: 'The journey map inside the Maine coast story: six numbered stops joined by a dashed line', caption: 'Journey map, inside the story.' },
+    { id: 'world', label: 'Every trip', shot: 'ui-worldmap-d', alt: 'The map view: one pin for each of the family’s stories, with nearby pins grouped', caption: 'Map view, every story.' },
   ],
   facts: [
     { label: 'Read in your browser', text: 'GPS and the time taken are read from each photo in your browser, before anything is uploaded.' },
@@ -160,8 +161,8 @@ export const PLACES = {
 export const VIEWS = {
   id: 'lp-views',
   eyebrow: `${fact('views')} views, ${fact('categories')} categories`,
-  head: { before: 'Four views of the same', mark: 'year', after: '.' },
-  lede: 'The same stories, laid out the way you want to find them.',
+  head: { before: 'Every memory, four ways to', mark: 'find', after: 'it.' },
+  lede: 'Looking for last summer’s lake day, or the morning Ivy turned nine? The same stories, laid out four ways: by date, by month, on the map, and year by year.',
   dragHint: 'Scroll or drag',
   reel: [
     { id: 'feed', name: factList('views')[0], shot: 'ui-feed-m', text: 'Cards in date order, by the date posted or the date it happened. Your choice. Nothing is ranked.' },
@@ -169,12 +170,11 @@ export const VIEWS = {
     { id: 'map', name: factList('views')[2], shot: 'ui-worldmap', text: 'A pin per story, on a flat map of the world.' },
     { id: 'timeline', name: factList('views')[3], shot: 'ui-timeline', text: 'Stories grouped by year, newest first.' },
   ],
-  browseHead: 'Browse by category',
-  browseLede: `Tap a category. The cards below filter the way the feed does. A story can carry up to ${fact('categoriesPerStory')} categories.`,
+  browseHead: 'All the vacations. Or just the birthdays.',
+  browseLede: `Tap a category and the cards filter the way the feed does. A story can carry up to ${fact('categoriesPerStory')} categories, and you can make your own: this family made Wedding.`,
   all: 'All',
-  ownChip: 'Your own',
+  ownNote: 'Their own',
   categories: factList('categories'),
-  emptyOwn: 'None of the sample stories uses a category of its own. In the app you can type one in.',
   showing: 'Showing',
   of: 'of',
   stories: 'stories',
@@ -214,14 +214,14 @@ export const AUDIENCE_MATRIX = [
   // Private: author only (privacy.py:29-32); others denied (privacy.py:42-44); never in a feed (privacy.py:212);
   // a share link still opens it (share_links.py:14-45 has no audience check; :203-233 serves by token alone).
   { name: 'Private', note: 'unless you make a share link for it', cells: { you: 'open', close: 'none', follower: 'none', runclub: 'none', member: 'none', web: 'none', share: 'open' } },
-  // Custom Group: group members open it (privacy.py:69-79); other signed-in members get the card
-  // (privacy.py:210-212); not signed in: no card (privacy.py:206-208) and no open (privacy.py:46-48).
-  { name: 'Custom Group', note: `${RUN_CLUB.name}, a list you made`, cells: { you: 'open', close: 'card', follower: 'card', runclub: 'open', member: 'card', web: 'none', share: 'open' } },
   // Close Family: accepted follow with the Close Family tick (privacy.py:59-67); the tick is set per
   // follower by the author (backend/app/api/users.py:355-369); others signed in get the card (privacy.py:210-212).
   { name: 'Close Family', note: 'followers you ticked', cells: { you: 'open', close: 'open', follower: 'card', runclub: 'card', member: 'card', web: 'none', share: 'open' } },
   // Followers: any accepted follower (privacy.py:50-57); a member you have not approved gets the card (privacy.py:210-212).
-  { name: 'Followers', note: 'requests you accepted', cells: { you: 'open', close: 'open', follower: 'open', runclub: 'open', member: 'card', web: 'none', share: 'open' } },
+  { name: 'Followers', note: 'friends and family who follow you', cells: { you: 'open', close: 'open', follower: 'open', runclub: 'open', member: 'card', web: 'none', share: 'open' } },
+  // Custom Group: group members open it (privacy.py:69-79); other signed-in members get the card
+  // (privacy.py:210-212); not signed in: no card (privacy.py:206-208) and no open (privacy.py:46-48).
+  { name: 'Custom Group', note: `${RUN_CLUB.name}, a list you made`, cells: { you: 'open', close: 'card', follower: 'card', runclub: 'open', member: 'card', web: 'none', share: 'open' } },
   // Public: everyone, signed in or not (privacy.py:38-40); the card is listed even when signed out (privacy.py:206-208).
   { name: 'Public', note: 'anyone with the link', cells: { you: 'open', close: 'open', follower: 'open', runclub: 'open', member: 'open', web: 'open', share: 'open' } },
 ]
@@ -241,9 +241,9 @@ export const CROWD = [
 
 export const AUDIENCE = {
   id: 'lp-audience',
-  eyebrow: `${fact('audiences')} settings, one per story`,
-  head: { before: 'Exactly who can open', mark: 'what', after: '.' },
-  lede: 'Pick a setting. The row lights up and the family shows who can open the story. This is how the app decides, cell by cell.',
+  eyebrow: 'Exactly who can open what',
+  head: { before: 'Grandma gets the birthday. The run club gets the', mark: 'race', after: '.' },
+  lede: 'Ivy’s birthday goes to close family. Dad’s marathon goes to his running friends. The Maine trip goes to everyone who follows Maya. Pick a setting and see exactly who can open it, cell by cell, the way the app decides.',
   switchLabel: 'Who can open this story',
   rowHead: 'Story set to',
   colHead: 'Who is asking',
@@ -301,17 +301,17 @@ export const FAMILY = {
 
 /** Text blocks for llms-full.txt (marketing.js block format: { h2 } | { p } | { ul: [] }). */
 export const SEO_BLOCKS = [
-  { h2: 'Everything that fits in one story' },
+  { h2: `${ANATOMY.head.before} ${ANATOMY.head.mark}${ANATOMY.head.after}` },
   { p: ANATOMY.lede },
   { ul: ANATOMY.parts.map((p) => `${p.label}: ${p.lines.join(' ')}`) },
-  { h2: 'Every stop, every story, on one map' },
+  { h2: `${PLACES.head.before} ${PLACES.head.mark}${PLACES.head.after}` },
   { p: PLACES.lede },
   { ul: [...PLACES.facts.map((f) => `${f.label}: ${f.text}`), PLACES.byHand] },
-  { h2: 'Four views of the same year' },
+  { h2: `${VIEWS.head.before} ${VIEWS.head.mark} ${VIEWS.head.after}` },
   { ul: VIEWS.reel.map((r) => `${r.name}: ${r.text}`) },
   { p: VIEWS.browseLede },
   { p: `Categories: ${VIEWS.categories.join(', ')}, or your own.` },
-  { h2: 'Exactly who can open what' },
+  { h2: `${AUDIENCE.head.before} ${AUDIENCE.head.mark}${AUDIENCE.head.after}` },
   {
     ul: AUDIENCE_MATRIX.map(
       (r) => `${r.name}: ` + AUDIENCE_COLUMNS.map((c) => `${c.label.toLowerCase()}: ${CELL_TEXT[r.cells[c.id]].toLowerCase()}`).join('; ') + '.',
@@ -319,6 +319,6 @@ export const SEO_BLOCKS = [
   },
   { p: AUDIENCE.note },
   { ul: [...AUDIENCE.worth.map((w) => w.text), ...AUDIENCE.facts] },
-  { h2: 'It knows who is who' },
+  { h2: `${FAMILY.head.before} ${FAMILY.head.mark}${FAMILY.head.after}` },
   { ul: FAMILY.points.map((p) => `${p.title}. ${p.text}`) },
 ]

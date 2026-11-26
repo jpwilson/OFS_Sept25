@@ -1,6 +1,5 @@
 // The pieces of a story page, as shown by Anatomy (owner: proof).
-import { Cutout, Print, Readout, Icon } from '../ui/index.js'
-import { ArtImg } from '../ui/ArtImg.jsx'
+import { Cutout, Print, Readout, Icon, ArtImg } from '../ui/index.js'
 import { CropShot } from './CropShot.jsx'
 import { SAMPLE_TAGS } from '../content/proof.sample.js'
 import { cx } from '../ui/cx.js'

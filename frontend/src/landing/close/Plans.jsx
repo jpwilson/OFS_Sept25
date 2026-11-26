@@ -75,10 +75,7 @@ export function Plans() {
           <Head {...PLANS.head} className={s.head} />
           <p className={s.lede}>{PLANS.lede}</p>
         </div>
-        <div className={s.switchRow}>
-          <Billing />
-          <Cutout id={PLANS.person} alt="" shadow sizes="90px" className={s.joeSmall} />
-        </div>
+        <Cutout id={PLANS.person} alt="" shadow sizes="90px" className={s.joeSmall} />
       </div>
 
       <div className={s.row}>
@@ -98,7 +95,10 @@ export function Plans() {
         </Reveal>
 
         <Reveal as="article" i={1} className={cx(s.card, s.pro)}>
-          <h3 className={s.name}>{pro.name}</h3>
+          <div className={s.proHead}>
+            <h3 className={s.name}>{pro.name}</h3>
+            <Billing />
+          </div>
           <div className={s.yearly}>
             <Price amount={pro.yearly.price} per={pro.yearly.per} note={pro.yearly.note} k="pro-month-yearly" noteK="pro-year" noteAmount={PLAN_MATH.perYear} />
           </div>
