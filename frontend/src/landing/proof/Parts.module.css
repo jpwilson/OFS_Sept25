@@ -93,18 +93,18 @@
   border-radius: var(--l-r-pill);
   background: var(--l-tide);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.2;
   white-space: nowrap;
 }
 .compact .chip {
-  font-size: 12px;
+  font-size: 13px;
   padding: 2px 8px 2px 6px;
 }
 .tagNote {
   font-family: var(--l-font-mono);
-  font-size: 10.5px;
-  letter-spacing: var(--l-track-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-align: center;
   color: var(--l-mute);
@@ -122,26 +122,61 @@
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 86;
-  font-size: 26px;
+  font-size: clamp(26px, 2.2vw, 32px);
   line-height: 1.02;
   letter-spacing: -0.02em;
 }
 .num {
   font-family: var(--l-font-mono);
   font-weight: 500;
-  font-size: var(--l-size-label);
+  font-size: 14px;
   letter-spacing: var(--l-track-label);
   color: var(--l-mute);
   transform: translateY(-3px);
 }
 .line {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.5;
   max-width: 46ch;
 }
 .facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 6px;
+  display: grid;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fact {
+  display: grid;
+  gap: 2px;
+  justify-self: start;
+  padding: 8px 14px 9px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow-sm);
+}
+.factLine {
+  font-family: var(--l-font-display);
+  font-variation-settings: 'wdth' 86;
+  font-weight: 700;
+  font-size: clamp(20px, 1.6vw, 24px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.factValue {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.factNote {
+  font-size: 15px;
+  color: var(--l-mute);
+}
+@media (max-width: 760px) {
+  .line {
+    font-size: 16px;
+  }
+  .factLine {
+    font-size: 19px;
+  }
 }

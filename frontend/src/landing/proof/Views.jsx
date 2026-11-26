@@ -1,63 +1,110 @@
-// 8. Views (lp-views): four views of the same year, then browsing by category. (owner: proof)
-// Wide screens with motion: a pinned sideways reel driven by scroll (and by drag).
-// Otherwise: the same reel as a native sideways scroller with snap points.
+// 8. Views (lp-views): the same stories, four ways to find them; then browsing by category. (owner: proof)
+// With script and motion (pinned): one big phone and the app's view switch. Scrolling switches
+// the view (Feed, Calendar, Map, Timeline); the screen before it tucks in behind, so the deck
+// of four phones is the claim. A tap on the switch glides to that view.
+// Without motion (server, no script, reduced motion): the four phones side by side, complete.
 import { useMemo, useRef, useState } from 'react'
 import { VIEWS } from '../content/proof.js'
 import { SAMPLE_CARDS, OWN_CATEGORY } from '../content/proof.sample.js'
 import { Head, Label, Device, Shot, Stage, Cutout, GhostWord, Reveal, SHOT_CAPTION } from '../ui/index.js'
 import { clamp, remap } from '../lib/math.js'
-import { scrollToY } from '../lib/scroll.js'
 import { cx } from '../ui/cx.js'
-import { usePinMode, pad2 } from './shared.jsx'
+import { usePinMode, scrollStageTo, PIcon, pad2 } from './shared.jsx'
 import s from './Views.module.css'
 
 const V = VIEWS
+const N = V.reel.length
+const P0 = 0.05
+const P1 = 0.95
 
-function Reel({ pinned, trackRef, stageRef }) {
-  const drag = useRef(null)
-  const onDown = (e) => {
-    if (!pinned || e.button !== 0) return
-    const st = stageRef.current
-    const tr = trackRef.current
-    if (!st || !tr) return
-    const travel = Math.max(1, tr.scrollWidth - tr.parentElement.clientWidth)
-    const scrollLen = Math.max(1, st.offsetHeight - window.innerHeight)
-    drag.current = { x: e.clientX, y: window.scrollY, k: scrollLen / travel, moved: false }
-    e.currentTarget.setPointerCapture(e.pointerId)
-  }
-  const onMove = (e) => {
-    const d = drag.current
-    if (!d) return
-    const dx = e.clientX - d.x
-    if (Math.abs(dx) > 4) d.moved = true
-    scrollToY(Math.max(0, d.y - dx * d.k), { immediate: true })
-  }
-  const onUp = (e) => {
-    drag.current = null
-    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+/** Write the active view into the DOM (pin attribute, phones' depth, the switch's pressed state). */
+function paint(root, k) {
+  if (!root) return
+  root.setAttribute('data-k', String(k))
+  root.querySelectorAll('[data-f="phone"]').forEach((el) => el.setAttribute('data-d', String(clamp(Number(el.getAttribute('data-i')) - k, -3, 1))))
+  root.querySelectorAll('[data-f="vbtn"]').forEach((el) => el.setAttribute('aria-pressed', String(Number(el.getAttribute('data-i')) === k)))
+}
+
+function Switcher({ stageRef, pinRef }) {
+  const go = (i) => {
+    paint(pinRef.current, i)
+    scrollStageTo(stageRef.current, P0 + ((i + 0.5) / N) * (P1 - P0))
   }
   return (
-    <div className={s.reelWin} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} data-drag={pinned || undefined}>
-      <ol className={s.track} ref={trackRef}>
+    <div className={s.lead}>
+      <div className={s.copy}>
+        <div className={s.header}>
+          <Label dot>{V.eyebrow}</Label>
+          <Head size="head" before={V.head.before} mark={V.head.mark} after={V.head.after} className={s.head} />
+          <p className={s.claim}>{V.claim}</p>
+        </div>
+        <div className={s.vswitch} role="group" aria-label={V.switchLabel}>
+          {V.reel.map((r, i) => (
+            <button key={r.id} type="button" className={s.vbtn} data-f="vbtn" data-i={i} aria-pressed={i === 0} onClick={() => go(i)}>
+              <PIcon name={r.id} size={22} />
+              <span>{r.name}</span>
+            </button>
+          ))}
+        </div>
+        <div className={s.names} aria-live="polite">
+          {V.reel.map((r, i) => (
+            <div key={r.id} className={s.nameBlock} data-i={i}>
+              <p className={s.bigName}>
+                {r.name}
+                <span className={s.how}>{r.how}</span>
+              </p>
+              <p className={s.nameText}>{r.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className={s.deck}>
+        <div className={s.phones}>
+          {V.reel.map((r, i) => (
+            <div key={r.id} className={s.phone} data-f="phone" data-i={i} data-d={i === 0 ? 0 : 1}>
+              <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.device} width="100%" />
+            </div>
+          ))}
+        </div>
+        <Cutout id="p-ruth-tablet" alt={V.readerAlt} className={s.reader} shadow sizes="(max-width: 760px) 30vw, 260px" />
+        <p className={s.cap}>{SHOT_CAPTION}</p>
+      </div>
+    </div>
+  )
+}
+
+/** No motion: the four phones side by side, each with its name and line. */
+function Grid() {
+  return (
+    <div className={cx('l-wrap', s.flow)}>
+      <div className={s.flowTop}>
+        <div className={s.header}>
+          <Label dot>{V.eyebrow}</Label>
+          <Head size="head" before={V.head.before} mark={V.head.mark} after={V.head.after} className={s.head} />
+          <p className={s.claim}>{V.claim}</p>
+          <p className={s.lede}>{V.lede}</p>
+        </div>
+        <Cutout id="p-ruth-tablet" alt={V.readerAlt} className={s.flowReader} shadow sizes="220px" />
+      </div>
+      <ol className={s.grid}>
         {V.reel.map((r, i) => (
-          <li key={r.id} className={s.card} data-f="view" data-i={i}>
-            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.device} width={pinned ? 'min(280px, 23svh)' : 'min(280px, 62vw)'} />
-            <div className={s.cardText}>
-              <span className={s.cardNum}>
-                {pad2(i + 1)} / {pad2(V.reel.length)}
+          <li key={r.id} className={s.gridItem}>
+            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.gridDevice} width="100%" />
+            <div className={s.gridText}>
+              <span className={s.gridNum}>
+                <PIcon name={r.id} size={20} />
+                {pad2(i + 1)} / {pad2(N)}
               </span>
-              <h3 className={s.cardName}>{r.name}</h3>
-              <p className={s.cardBody}>{r.text}</p>
+              <h3 className={s.gridName}>
+                {r.name}
+                <span className={s.how}>{r.how}</span>
+              </h3>
+              <p className={s.nameText}>{r.text}</p>
             </div>
           </li>
         ))}
       </ol>
-      <div className={s.reelFoot}>
-        <span className={s.cap}>{SHOT_CAPTION}</span>
-        <span className={s.hint}>
-          {V.dragHint}
-        </span>
-      </div>
+      <p className={s.cap}>{SHOT_CAPTION}</p>
     </div>
   )
 }
@@ -71,108 +118,90 @@ function Browse() {
   const chips = [...V.categories.map((c) => ({ id: c, label: c })), { id: OWN_CATEGORY, label: OWN_CATEGORY, own: true }]
   return (
     <>
-    <div className={cx('l-wrap', s.browse)}>
-      <div className={s.browseHead}>
-        <h3 className={s.browseTitle}>{V.browseHead}</h3>
-        <p className={s.browseLede}>{V.browseLede}</p>
-      </div>
-      <div className={s.chips} role="group" aria-label={V.browseHead}>
-        <button type="button" className={s.chip} aria-pressed={sel.length === 0} onClick={() => setSel([])}>
-          {V.all}
-        </button>
-        {chips.map((c) => (
-          <button key={c.id} type="button" className={cx(s.chip, c.own && s.own)} aria-pressed={sel.includes(c.id)} onClick={() => toggle(c.id)}>
-            {c.label}
-            {c.own ? <span className={s.ownNote}>{V.ownNote}</span> : null}
+      <div className={cx('l-wrap', s.browse)}>
+        <div className={s.browseHead}>
+          <h3 className={s.browseTitle}>{V.browseHead}</h3>
+          <p className={s.browseLede}>{V.browseLede}</p>
+        </div>
+        <div className={s.chips} role="group" aria-label={V.browseHead}>
+          <button type="button" className={s.chip} aria-pressed={sel.length === 0} onClick={() => setSel([])}>
+            {V.all}
           </button>
-        ))}
-      </div>
-      <p className={s.count} aria-live="polite">
-        {V.showing} {shown.length} {V.of} {SAMPLE_CARDS.length} {V.stories}
-      </p>
-      <div className={s.shelf}>
-      <Cutout id="p-leo-school" className={s.kidL} shadow sizes="120px" />
-      <ul className={s.cards}>
-        {SAMPLE_CARDS.map((c) => {
-          const on = shown.includes(c)
-          return (
-            <li key={c.id} className={s.feedCard} data-on={on || undefined} hidden={!on} style={{ '--k': shown.indexOf(c) }} data-sig={sig}>
-              <div className={s.feedInner} key={sig}>
-                <Shot id={c.shot} alt={`Feed card: ${c.title}`} caption={false} sizes="(max-width: 760px) 80vw, 240px" />
-                <span className={s.feedMeta}>
-                  <span className={s.feedCat}>{c.categories.join(' · ')}</span>
-                  <span className={s.feedTitle}>{c.title}</span>
-                </span>
-              </div>
+          {chips.map((c) => (
+            <button key={c.id} type="button" className={cx(s.chip, c.own && s.own)} aria-pressed={sel.includes(c.id)} onClick={() => toggle(c.id)}>
+              {c.label}
+              {c.own ? <span className={s.ownNote}>{V.ownNote}</span> : null}
+            </button>
+          ))}
+        </div>
+        <p className={s.count} aria-live="polite">
+          {V.showing} {shown.length} {V.of} {SAMPLE_CARDS.length} {V.stories}
+        </p>
+        <div className={s.shelf}>
+          <Cutout id="p-leo-school" className={s.kidL} shadow sizes="140px" />
+          <ul className={s.cards}>
+            {SAMPLE_CARDS.map((c) => {
+              const on = shown.includes(c)
+              return (
+                <li key={c.id} className={s.feedCard} data-on={on || undefined} hidden={!on} style={{ '--k': shown.indexOf(c) }} data-sig={sig}>
+                  <div className={s.feedInner} key={sig}>
+                    <Shot id={c.shot} alt={`Feed card: ${c.title}`} caption={false} sizes="(max-width: 760px) 46vw, 300px" />
+                    <span className={s.feedMeta}>
+                      <span className={s.feedCat}>{c.categories.join(' · ')}</span>
+                      <span className={s.feedTitle}>{c.title}</span>
+                    </span>
+                  </div>
+                </li>
+              )
+            })}
+            <li className={s.kidsSlot} aria-hidden="true">
+              <Cutout id="p-leo-school" className={s.kidM} shadow sizes="90px" />
+              <Cutout id="p-ivy-trophy" className={s.kidM} shadow sizes="90px" />
             </li>
-          )
-        })}
-        <li className={s.kidsSlot} aria-hidden="true">
-          <Cutout id="p-leo-school" className={s.kidM} shadow sizes="90px" />
-          <Cutout id="p-ivy-trophy" className={s.kidM} shadow sizes="90px" />
-        </li>
-      </ul>
-      <Cutout id="p-ivy-trophy" className={s.kidR} shadow sizes="120px" />
-      </div>
-    </div>
-    <div className={s.floorBand}>
-      <div className={cx('l-wrap', s.floorInner)}>
-        <p className={s.cap}>{SHOT_CAPTION}</p>
-        <div className={s.filters}>
-          <Label>{V.filtersLabel}</Label>
-          <ul className={s.filterRow}>
-            {V.filters.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
           </ul>
+          <Cutout id="p-ivy-trophy" className={s.kidR} shadow sizes="140px" />
         </div>
       </div>
-    </div>
+      <div className={s.floorBand}>
+        <div className={cx('l-wrap', s.floorInner)}>
+          <p className={s.cap}>{SHOT_CAPTION}</p>
+          <div className={s.filters}>
+            <Label>{V.filtersLabel}</Label>
+            <ul className={s.filterRow}>
+              {V.filters.map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
     </>
   )
 }
 
 export function Views() {
-  const mode = usePinMode(900)
+  const mode = usePinMode(0)
   const pinned = mode === 'pin'
-  const trackRef = useRef(null)
   const stageRef = useRef(null)
-  const lastI = useRef(-1)
+  const pinRef = useRef(null)
+  const lastK = useRef(-1)
   const modeRef = useRef(mode)
   modeRef.current = mode
 
   const onProgress = (p, pin) => {
-    const tr = trackRef.current
-    if (!tr) return
-    if (modeRef.current !== 'pin') {
-      tr.style.transform = ''
-      return
-    }
-    const travel = Math.max(0, tr.scrollWidth - tr.parentElement.clientWidth)
-    const pp = clamp(remap(p, 0.06, 0.94, 0, 1))
-    tr.style.transform = `translate3d(${(-pp * travel).toFixed(1)}px, 0, 0)`
-    pin.style.setProperty('--p', pp.toFixed(4))
-    const i = Math.round(pp * (V.reel.length - 1))
-    if (i === lastI.current) return
-    lastI.current = i
-    tr.querySelectorAll('[data-f="view"]').forEach((el) => el.toggleAttribute('data-on', Number(el.getAttribute('data-i')) === i))
+    if (modeRef.current !== 'pin') return
+    pinRef.current = pin
+    const k = clamp(Math.floor(remap(p, P0, P1, 0, 1) * N), 0, N - 1)
+    if (k === lastK.current) return
+    lastK.current = k
+    paint(pin, k)
   }
 
   return (
     <section id={V.id} data-wash="lime" className={s.section} data-mode={mode}>
-      <Stage svh={300} pinned={pinned} onProgress={onProgress} className={s.stage} pinClassName={s.pin} stageRef={stageRef} aria-label={V.head.before + ' ' + V.head.mark}>
+      <Stage svh={400} pinned={pinned} onProgress={onProgress} className={s.stage} pinClassName={s.pin} stageRef={stageRef} aria-label={V.head.before + ' ' + V.head.mark}>
         <GhostWord className={s.ghost}>{V.head.mark}</GhostWord>
-        <div className={cx('l-wrap', s.top)}>
-          <div className={s.header}>
-            <Label dot>{V.eyebrow}</Label>
-            <Head size="head" before={V.head.before} mark={V.head.mark} after={V.head.after} className={s.head} />
-            <p className={s.lede}>{V.lede}</p>
-          </div>
-          <div className={s.progress} aria-hidden="true">
-            <span className={s.bar} />
-          </div>
-        </div>
-        <Reel pinned={pinned} trackRef={trackRef} stageRef={stageRef} />
+        {pinned ? <Switcher stageRef={stageRef} pinRef={pinRef} /> : <Grid />}
       </Stage>
       <Reveal>
         <Browse />

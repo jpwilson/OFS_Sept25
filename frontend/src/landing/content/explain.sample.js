@@ -50,3 +50,6 @@ export const IMPORT_ALBUMS = {
   race: { title: 'Sunday morning', evidence: 'OCT · 1 DAY · 12 PHOTOS · HOME' },
   unsorted: { title: 'Unsorted', evidence: '5 PHOTOS · NO TIME, OR ALONE' },
 }
+
+/** How many photos the sample picker selects: every photo in the sample roll, counted, never typed. */
+export const IMPORT_PICKED = IMPORT_SEGMENTS.reduce((n, s) => n + s.photos.length, 0) + IMPORT_UNDATED

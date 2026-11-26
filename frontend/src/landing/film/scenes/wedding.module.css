@@ -1,4 +1,4 @@
-/* 02 READ (owner: film). */
+/* 04 WEDDING, and the clip and comment fragments the marathon shares (owner: film). */
 
 .videoSlot,
 .commentSlot,
@@ -76,7 +76,7 @@
 }
 
 /* ---------- the lightbox capture ---------- */
-.shotSlot figcaption {
+.shotSlot [data-part='caption'] {
   font-size: clamp(9px, calc(1.1 * var(--u)), 11px);
   letter-spacing: 0.06em;
   opacity: 1;
@@ -117,10 +117,10 @@
   font-weight: 700;
   line-height: 1;
 }
-.badge:nth-child(1) {
+.badge[data-icon='heart'] {
   color: #e0245e;
 }
-.badge:nth-child(3) {
+.badge[data-icon='star'] {
   color: #c98a00;
 }
 .badge > b {
@@ -165,11 +165,31 @@
   }
   .wallSlot figcaption,
   .video > figcaption,
-  .shotSlot figcaption {
+  .shotSlot [data-part='caption'] {
     display: none;
   }
   .badge {
     font-size: 12px;
     box-shadow: 2px 2px 0 var(--l-ink);
   }
+}
+
+@media (max-aspect-ratio: 9/10) {
+  .replyTag {
+    display: none;
+  }
+  .comment > p {
+    font-size: 12.5px;
+    line-height: 1.24;
+  }
+  .card {
+    box-shadow: 3px 3px 0 var(--l-ink);
+  }
+}
+
+/* a clip's caption never runs past its tile */
+.video > figcaption > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -11,6 +11,12 @@ import s from './Places.module.css'
 
 const P = PLACES
 
+// The real maps, cropped to the map itself (measured on the round-three captures).
+const MAP_CROP = {
+  'ui-story-journey': { d: { x: 0.22, y: 0.18, w: 0.78, h: 0.64 }, m: { x: 0.3, y: 0.18, w: 0.6, h: 0.56 } },
+  'ui-worldmap-d': { d: { x: 0.06, y: 0.14, w: 0.66, h: 0.62 }, m: { x: 0.1, y: 0.2, w: 0.5, h: 0.46 } },
+}
+
 // The drawing. Maine's six stops are real coordinates (content/proof.sample.js). The first two are
 // far apart; the last four sit close together on Mount Desert Island, so the main map marks them
 // with a box and an inset draws them larger. Equirectangular, scaled for latitude.
@@ -98,7 +104,8 @@ function RouteMap({ active, setActive }) {
           io.disconnect()
         }
       },
-      { rootMargin: '0px 0px -20% 0px' },
+      // fires just before the route scrolls into view, so it is drawn by the time it is seen
+      { rootMargin: '0px 0px 25% 0px' },
     )
     io.observe(el)
     return () => io.disconnect()
@@ -190,48 +197,49 @@ export function Places() {
     <section id={P.id} data-wash="azure" className={s.section}>
       <GhostWord className={s.ghost}>{P.head.mark}</GhostWord>
       <div className={cx('l-wrap', s.inner)}>
-        <div className={s.header}>
-          <Label dot>{P.eyebrow}</Label>
-          <Head before={P.head.before} mark={P.head.mark} after={P.head.after} className={s.head} />
-          <p className="l-lede">{P.lede}</p>
-        </div>
-
         <div className={s.grid}>
+          <div className={s.colReal}>
+            <div className={s.header}>
+              <Label dot>{P.eyebrow}</Label>
+              <Head before={P.head.before} mark={P.head.mark} after={P.head.after} className={s.head} />
+              <p className={s.lede}>{P.lede}</p>
+            </div>
+            <Reveal className={s.real} delay={120}>
+              <fieldset className={s.switch}>
+                <legend className={s.switchLegend}>{P.switchLabel}</legend>
+                <div className={s.switchTrack} data-mode={mode}>
+                  {P.modes.map((m) => (
+                    <label key={m.id} className={s.switchOpt}>
+                      <input type="radio" name="lp-places-mode" value={m.id} checked={mode === m.id} onChange={() => setMode(m.id)} className={s.switchInput} />
+                      <span>{m.label}</span>
+                    </label>
+                  ))}
+                  <span className={s.switchThumb} aria-hidden="true" />
+                </div>
+              </fieldset>
+              <div className={s.shots}>
+                {P.modes.map((m) => (
+                  <div key={m.id} className={s.shotLayer} data-on={mode === m.id || undefined} aria-hidden={mode !== m.id || undefined}>
+                    <CropShot id={m.shot} alt={m.alt} caption={m.caption} crop={MAP_CROP[m.shot].d} cropM={MAP_CROP[m.shot].m} width={620} />
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+
           <Reveal className={s.colRoute}>
             <RouteMap active={active} setActive={setActive} />
           </Reveal>
-
-          <Reveal className={s.colReal} delay={120}>
-            <fieldset className={s.switch}>
-              <legend className={s.switchLegend}>{P.switchLabel}</legend>
-              <div className={s.switchTrack} data-mode={mode}>
-                {P.modes.map((m) => (
-                  <label key={m.id} className={s.switchOpt}>
-                    <input type="radio" name="lp-places-mode" value={m.id} checked={mode === m.id} onChange={() => setMode(m.id)} className={s.switchInput} />
-                    <span>{m.label}</span>
-                  </label>
-                ))}
-                <span className={s.switchThumb} aria-hidden="true" />
-              </div>
-            </fieldset>
-            <div className={s.shots}>
-              {P.modes.map((m) => (
-                <div key={m.id} className={s.shotLayer} data-on={mode === m.id || undefined} aria-hidden={mode !== m.id || undefined}>
-                  <CropShot id={m.shot} alt={m.alt} caption={m.caption} />
-                </div>
-              ))}
-            </div>
-            <ul className={s.facts}>
-              {P.facts.map((f, i) => (
-                <Reveal as="li" key={f.label} className={s.fact} i={i}>
-                  <span className={s.factLabel}>{f.label}</span>
-                  {f.value ? <span className={s.factValue}>{f.value}</span> : null}
-                  <span className={s.factText}>{f.text}</span>
-                </Reveal>
-              ))}
-            </ul>
-          </Reveal>
         </div>
+
+        <ul className={s.facts}>
+          {P.facts.map((f, i) => (
+            <Reveal as="li" key={f.label} className={s.fact} i={i}>
+              <span className={s.factTitle}>{f.value ? `${f.value} ${f.noun}` : f.label}</span>
+              <span className={s.factText}>{f.text}</span>
+            </Reveal>
+          ))}
+        </ul>
       </div>
 
       <div className={s.scene}>

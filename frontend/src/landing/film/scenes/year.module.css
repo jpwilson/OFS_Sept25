@@ -1,8 +1,133 @@
-/* 04 YEAR (owner: film). */
+/* 07 THROUGH THE YEARS (owner: film). */
 
-/* sets of kids and props that belong to another category: transparent at rest */
+.year {
+  --px: var(--pxd);
+}
+
+/* stages and photographs that are not the resting one: transparent at rest */
 .alt > [data-f] {
   opacity: 0;
+}
+
+/* ---------- the height chart: a column of pencil marks for each child ---------- */
+.chart {
+  --px: var(--pxd);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.marks {
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  /* each child's rail stops just above their own last mark */
+  height: calc(var(--rh) * var(--A) * var(--u));
+}
+.marks[data-side='l'] {
+  left: calc((var(--px) - var(--half) * 0.86 * var(--A) - 2.6) * var(--u));
+}
+.marks[data-side='r'] {
+  left: calc((var(--px) + var(--half) * 0.86 * var(--A) + 2.6) * var(--u));
+}
+.rail {
+  position: absolute;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--l-ink);
+  opacity: 0.45;
+}
+.who {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  transform: translate(-50%, -5px);
+  padding: 2px 7px 3px;
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-radius: 6px;
+  font-family: var(--l-font-mono);
+  font-size: clamp(10px, calc(1.26 * var(--u)), 12px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.mark {
+  position: absolute;
+  bottom: calc(var(--mh) * var(--A) * var(--u));
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transform: translateY(50%);
+  font-family: var(--l-font-mono);
+  font-size: clamp(11px, calc(1.5 * var(--u)), 14px);
+  font-weight: 500;
+  line-height: 1;
+}
+.mark > i {
+  width: calc(2.2 * var(--u));
+  height: 2px;
+  border-radius: 2px;
+  background: var(--l-ink);
+}
+.mark > b {
+  font-weight: 500;
+}
+.marks[data-side='l'] .mark {
+  right: 0;
+  flex-direction: row-reverse;
+}
+.marks[data-side='r'] .mark {
+  left: 0;
+}
+/* the measuring line that rises as they grow (only while a stage is changing) */
+.level {
+  position: absolute;
+  left: calc((var(--px) - var(--half) * 0.86 * var(--A) - 2.6) * var(--u));
+  bottom: 0;
+  width: calc((var(--half) * 0.86 * var(--A) * 2 + 5.2) * var(--u));
+  height: 0;
+  border-top: 2px dashed var(--l-ink);
+  opacity: 0;
+}
+
+/* ---------- how old they are ---------- */
+.ageSlot {
+  --px: var(--pxd);
+  position: absolute;
+  left: calc(50% + var(--px) * var(--u));
+  top: var(--floor);
+  z-index: 9;
+  transform: translate(-50%, calc((var(--top) * var(--A) + 2.4) * var(--u) * -1 - 100%));
+  pointer-events: none;
+}
+.age {
+  padding: 0.3em 0.7em 0.36em;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: 10px;
+  box-shadow: var(--l-shadow);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(16px, calc(2.5 * var(--u)), 26px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+/* ---------- that year's photographs ---------- */
+.photoSlot figcaption {
+  font-size: max(13px, calc(var(--pp) * 0.066));
+  line-height: 1.18;
+  white-space: normal;
 }
 
 /* ---------- the eight categories ---------- */
@@ -12,8 +137,10 @@
   top: calc(var(--l-nav-h) + 64px);
   z-index: 20;
   display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 6px;
+  width: min(26vw, 42 * var(--u));
 }
 .tab {
   padding: 7px 11px 8px;
@@ -30,21 +157,6 @@
   background: var(--l-ink);
   color: var(--l-white);
   box-shadow: 3px 3px 0 var(--l-white);
-}
-
-/* ---------- the pile of feed cards ---------- */
-.cardSlot figcaption {
-  justify-self: start;
-  padding: 4px 8px;
-  background: var(--l-white);
-  border: 1.5px solid var(--l-ink);
-  border-radius: 6px;
-  font-size: clamp(9px, calc(1.16 * var(--u)), 11.5px);
-  letter-spacing: 0.08em;
-  opacity: 1;
-}
-.cardSlot figure {
-  gap: 7px;
 }
 
 /* ---------- the view toggle and the phone ---------- */
@@ -70,6 +182,10 @@
 .toggle > li[data-on] {
   background: var(--l-ink);
   color: var(--l-white);
+}
+/* it shows the view the phone is on */
+.toggle > li:not([data-on]) {
+  display: none;
 }
 .device {
   --dw: calc(var(--w) * var(--u));
@@ -132,12 +248,47 @@
   text-align: center;
 }
 
+/* ---------- portrait: a phone, or a tablet held upright ---------- */
 @media (max-aspect-ratio: 9/10) {
+  .year,
+  .chart,
+  .ageSlot {
+    --px: var(--pxm);
+  }
+  .marks[data-side='l'] {
+    left: calc((var(--px) - var(--half) * 0.86 * var(--A) - 1.6) * var(--u));
+  }
+  .marks[data-side='r'] {
+    left: calc((var(--px) + var(--half) * 0.86 * var(--A) + 1.6) * var(--u));
+  }
+  .level {
+    left: calc((var(--px) - var(--half) * 0.86 * var(--A) - 1.6) * var(--u));
+    width: calc((var(--half) * 0.86 * var(--A) * 2 + 3.2) * var(--u));
+  }
+  .mark {
+    gap: 3px;
+    font-size: 11px;
+  }
+  .mark > i {
+    width: calc(1.3 * var(--u));
+  }
+  .who {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+  .age {
+    font-size: 15px;
+    border-radius: 8px;
+    box-shadow: 3px 3px 0 var(--l-ink);
+  }
+  /* a phone shows the four categories the five ages use, in one row */
   .tabs {
     left: 18px;
     right: 18px;
     top: calc(var(--floor) - 41.6 * var(--u));
-    flex-wrap: wrap;
+    width: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     gap: 5px;
   }
   .tab {
@@ -145,9 +296,78 @@
     font-size: 12px;
     box-shadow: 2px 2px 0 var(--l-ink);
   }
-  .cardSlot figcaption {
-    font-size: 8px;
-    letter-spacing: 0.05em;
-    line-height: 1.25;
+  .tabMinor {
+    display: none;
+  }
+  /* each caption in full, on two lines if it needs them */
+  .photoSlot figcaption {
+    font-size: 12px;
+    line-height: 1.16;
+    white-space: normal;
+  }
+}
+
+/* ---------- a tablet held upright: the copy, the categories and both photographs down the left; the kids tall on the right ---------- */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .year,
+  .chart,
+  .ageSlot {
+    --px: var(--pxt);
+  }
+  .yearCopy {
+    right: auto;
+    width: calc(23 * var(--u));
+    --head-fs-t: 3.1;
+    --body-w: 12em !important;
+  }
+  .yearCopy > p:last-child {
+    font-size: 16.5px;
+  }
+  .mark {
+    font-size: 13.5px;
+    gap: 4px;
+  }
+  .mark > i {
+    width: calc(1.5 * var(--u));
+  }
+  /* the names sit at the foot of the rails here, clear of the headline */
+  .who {
+    font-size: 11px;
+    bottom: auto;
+    top: 100%;
+    transform: translate(-50%, 6px);
+  }
+  .age {
+    font-size: 22px;
+    border-radius: 10px;
+    box-shadow: var(--l-shadow);
+  }
+  .tabs {
+    left: 32px;
+    right: auto;
+    top: calc(var(--floor) - 41.6 * var(--u));
+    width: calc(17 * var(--u));
+    flex-wrap: wrap;
+    gap: 7px 6px;
+  }
+  .tab {
+    padding: 7px 11px 8px;
+    font-size: 14px;
+    box-shadow: 3px 3px 0 var(--l-ink);
+  }
+  .photoSlot figcaption {
+    font-size: 14px;
+  }
+}
+
+/* one readout, two homes: see Year.jsx */
+@media (max-aspect-ratio: 9/10) {
+  .landscapeOnly {
+    display: none !important;
+  }
+}
+@media (min-aspect-ratio: 9001/10000) {
+  .portraitOnly {
+    display: none !important;
   }
 }

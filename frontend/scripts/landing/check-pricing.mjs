@@ -135,7 +135,9 @@ if (!sourceOnly) {
         if (!allowed.has(v)) fail(`html: plans section prints "${v}", which is not a price from site.js or arithmetic on them`)
       }
     }
-    const page = decode(html)
+    // The Compare cards set each short answer as two <span>s of one paragraph (where they
+    // win, where we fit), so inline span tags are dropped before looking for the text.
+    const page = decode(html.replace(/<\/?span\b[^>]*>/g, ''))
     for (const card of COMPARE.cards) {
       if (!page.includes(card.short)) fail(`html: the short answer for ${card.path} is not in the page`)
       if (!html.includes(`href="${card.path}"`)) fail(`html: no plain link to ${card.path}`)

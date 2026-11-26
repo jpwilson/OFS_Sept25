@@ -2,13 +2,17 @@
 // at its HOLD position by CSS from the variables in layout.js; the engine finds elements by
 // their data-f names and adds offsets that end at zero.
 import { art as getArt } from '../art/manifest.js'
-import { Cutout, Icon, Label, Readout, Sticker, cx } from '../ui/index.js'
-import { ArtImg } from '../ui/ArtImg.jsx'
+import { ArtImg, Cutout, Icon, Label, Readout, SHOT_CAPTION, Sticker, cx } from '../ui/index.js'
 import { H, airVars, floorVars, stageVars } from './layout.js'
-import { ORDER } from './timeline.js'
+import { CHAPTERS, ORDER } from './timeline.js'
 import s from './stage.module.css'
 
-const off = (a) => ({ 'data-off-d': a.d ? undefined : '', 'data-off-m': a.m ? undefined : '' })
+/** Which layouts a slot is absent from. t (tablet portrait) follows m unless it is given. */
+const off = (a) => ({
+  'data-off-d': a.d ? undefined : '',
+  'data-off-m': a.m ? undefined : '',
+  'data-off-t': a.t === null || (a.t === undefined && !a.m) ? '' : undefined,
+})
 
 /**
  * Roughly how wide a cut-out is drawn, as a `sizes` value. Figures under about half the
@@ -30,7 +34,7 @@ function sizesFor(a, h, ar, stage) {
 export function Scene({ k, wash, id, label, className, children, floor = true }) {
   return (
     <section className={cx(s.scene, className)} data-scene={k} data-wash={wash} id={id} aria-label={label} style={{ ...stageVars(k), zIndex: ORDER.indexOf(k) * 2 + 1 }}>
-      {floor ? <div className={s.floor} aria-hidden="true" /> : null}
+      {floor ? <div className={s.floor} data-floor="" aria-hidden="true" /> : null}
       {children}
     </section>
   )
@@ -51,11 +55,12 @@ export function Ghost({ f, children, gw = 3, className, ...rest }) {
  * A cut-out standing on the floor: contact shadow, then the image inside a clip that ends at
  * the feet, so it can rise from below the floor line. `a` is its entry in layout.js.
  */
-export function Actor({ f, a, stage, className, par = 10, i, children, ...rest }) {
+export function Actor({ f, a, stage, className, par = 10, i, tint, vars, children, ...rest }) {
   const meta = getArt(a.art)
   const h = a.h ?? H[a.art] ?? 1
-  const style = floorVars(a, h, meta)
+  const style = { ...floorVars(a, h, meta), ...vars }
   if (i != null) style['--i'] = i
+  const src = meta.srcM || meta.src
   return (
     <div className={cx(s.actor, className)} style={style} {...off(a)} {...rest}>
       <div className={s.mv} data-f={f} data-par={par} data-actor="">
@@ -70,6 +75,8 @@ export function Actor({ f, a, stage, className, par = 10, i, children, ...rest }
                 sizes={stage ? sizesFor(a, h, meta.w / meta.h, stage) : undefined}
               />
             )}
+            {/* a flat copy of the figure in the wash colour: fading it up steps the person back */}
+            {tint && src ? <span className={cx(s.tint, a.flip && s.flip)} data-tint="" style={{ WebkitMaskImage: `url(${src})`, maskImage: `url(${src})` }} /> : null}
           </div>
         </div>
       </div>
@@ -98,6 +105,7 @@ export function HeadWords({ id, before = '', mark, after = '', breakAfter }) {
   const glue = tail && !/^[\p{L}\p{N}]/u.test(tail) ? tail.split(/\s+/)[0] : ''
   const rest = glue ? tail.slice(glue.length).trim() : tail
   const restWords = rest ? rest.split(/\s+/) : []
+  const breaks = [].concat(breakAfter || []) // the word, or words, a line ends on (wide screens)
   return (
     <>
       {words.map((w, i) => (
@@ -105,7 +113,7 @@ export function HeadWords({ id, before = '', mark, after = '', breakAfter }) {
           <span className={s.w} data-hw={id}>
             {w}
           </span>{' '}
-          {breakAfter === w ? <br data-br="" /> : null}
+          {breaks.includes(w) ? <br data-br="" /> : null}
         </span>
       ))}
       <span className={cx(s.w, s.wMark)} data-hw={id}>
@@ -125,9 +133,14 @@ export function HeadWords({ id, before = '', mark, after = '', breakAfter }) {
 }
 
 /** A chapter's copy block: slate, eyebrow, head, one sentence. Top left on desktop, top on a phone. */
-export function Copy({ k, slate, title, eyebrow, head, body, as: Tag = 'h2', className }) {
+export function Copy({ k, slate, title, eyebrow, head, body, as: Tag = 'h2', className, wide, headSize, bodyWidth, breakAfter }) {
+  // wide: the column's width in vw; headSize: the head's size in u; bodyWidth: the sentence's width in em
+  const style = {}
+  if (wide) style['--copy-w'] = `${wide}vw`
+  if (headSize) style['--head-fs'] = headSize
+  if (bodyWidth) style['--body-w'] = `${bodyWidth}em`
   return (
-    <div className={cx(s.copy, className)} data-f={`${k}:copy`}>
+    <div className={cx(s.copy, className)} data-f={`${k}:copy`} style={style}>
       <div className={s.copyTop}>
         {slate ? (
           <p className={s.slate}>
@@ -140,7 +153,7 @@ export function Copy({ k, slate, title, eyebrow, head, body, as: Tag = 'h2', cla
         </Label>
       </div>
       <Tag className={cx('l-head', s.head)}>
-        <HeadWords id={k} {...head} />
+        <HeadWords id={k} {...head} breakAfter={breakAfter} />
       </Tag>
       {body ? (
         <p className={s.body} data-f={`${k}:body`}>
@@ -151,12 +164,14 @@ export function Copy({ k, slate, title, eyebrow, head, body, as: Tag = 'h2', cla
   )
 }
 
-/** A month label in a scene's top right corner (poster and flow modes; the HUD counter replaces it when pinned). */
-export function Month({ children, year }) {
+/** The chapter counter in a scene's top right corner (poster and flow modes; the HUD counter replaces it when pinned). */
+export function Counter({ k }) {
+  const i = CHAPTERS.indexOf(k)
+  if (i < 0) return null
   return (
     <p className={s.month} aria-hidden="true">
-      <b>{children}</b>
-      {year ? <span>{year}</span> : null}
+      <b>{String(i + 1).padStart(2, '0')}</b>
+      <span>/ {String(CHAPTERS.length).padStart(2, '0')}</span>
     </p>
   )
 }
@@ -172,7 +187,9 @@ export function Dock({ f, side = 'bl', className, children }) {
 
 /** One small readout from content: { label, value, unit, note }. */
 export function Fact({ r, size = 'sm', className }) {
-  return <Readout size={size} label={r.label} value={r.value} unit={r.unit} note={r.note} className={cx(s.fact, className)} />
+  // a value in words is set smaller than a number
+  const words = !/^[\d$]/.test(String(r.value))
+  return <Readout size={size} label={r.label} value={r.value} unit={r.unit} note={r.note} className={cx(s.fact, words && s.factWords, className)} />
 }
 
 /** Who can open this chapter's story. */
@@ -255,5 +272,20 @@ export function Glyph({ name, size = 16 }) {
     <svg {...common}>
       <path d="M12 20s-7.5-4.6-7.5-10.1A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.3C19.5 15.4 12 20 12 20z" fill="currentColor" />
     </svg>
+  )
+}
+
+/** A phone holding a real capture (its children fill the screen). caption: printed before the mandatory line. */
+export function Phone({ children, caption, className }) {
+  return (
+    <figure className={cx(s.phone, className)}>
+      <span className={s.phoneBody}>
+        <span className={s.phoneScreen}>{children}</span>
+        <span className={s.phoneNotch} aria-hidden="true" />
+      </span>
+      <figcaption>
+        {caption} {SHOT_CAPTION}
+      </figcaption>
+    </figure>
   )
 }

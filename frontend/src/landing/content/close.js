@@ -25,6 +25,16 @@ export const NAV = {
   menuNote: `A free account, no card. The trial gives you ${fact('trialDays')} days to write.`,
 }
 
+// ---------------------------------------------------------------- band after the film
+
+// Design only. The figure and the sentences are in content/business.js.
+export const MILESTONE = {
+  people: 'g-family-hero',
+  peopleAlt: 'The sample family celebrating',
+  prop: 'prop-balloons',
+  note: 'Sample family. AI-generated illustration.',
+}
+
 // ---------------------------------------------------------------- 11 limits
 
 export const LIMITS = {
@@ -33,39 +43,49 @@ export const LIMITS = {
   lede: 'Eight things worth knowing before you share your first vacation. None of them is hidden in the app; they are just easier to hear up front.',
   items: [
     {
+      key: 'No app store',
       s: 'It is a web app you add to your home screen.',
       c: 'There is no app-store app and no push notifications. Email tells you when someone asks to follow you, comments on your story or posts a new one.',
     },
     {
-      s: 'It is not a backup of your camera roll.',
+      key: 'Not a backup',
+      s: 'It is not a backup of the photos on your phone.',
       c: 'Photos are stored resized, so keep your originals.',
     },
     {
+      key: `${fact('videoSeconds')}-second clips`,
       s: `Video clips are trimmed to ${fact('videoSeconds')} seconds.`,
       c: 'Keep the best part of the toast or the finish line: the editor asks you which part before the clip goes in.',
     },
     {
+      key: `AI Create, ${fact('aiPerDay')} a day`,
       s: `AI Create is in beta, with ${fact('aiPerDay')} uses a day.`,
       c: 'AI Draft and AI Interview show you the draft to edit first. Quick Publish posts it straight away, so read it after.',
     },
     {
+      key: 'AI posts to Followers',
       s: 'AI-made stories are published to Followers.',
       c: 'To give one a smaller audience, edit the story after it is made.',
     },
     {
+      key: 'Public is public',
       s: 'Public means public. A share link is a key.',
       c: `Anyone with the link can open a Public story, signed in or not. A share link opens its one story for anyone who has it, whatever the audience, until it ends after ${fact('shareLinkDays')}.`,
     },
     {
+      key: 'Members see the card',
       s: 'Members can see that a story exists.',
       c: 'Unless a story is Private, its card (title, cover, place) is listed to signed-in members. Opening it follows the audience you chose.',
     },
     {
+      key: 'A plan to publish',
       s: 'Writing stories needs a paid plan after the trial.',
       c: 'With no plan you can still open stories by people you follow and any Public story, and like and comment.',
     },
   ],
   prop: 'prop-print-stack',
+  person: 'p-ruth-tablet',
+  personAlt: 'Nana Ruth, from the sample family, reading on her tablet',
 }
 
 // ---------------------------------------------------------------- 12 compare
@@ -73,11 +93,26 @@ export const LIMITS = {
 // The four "short answer" paragraphs, copied exactly from frontend/src/content/marketing.js
 // (the block after { h2: 'The short answer' } on each page). Do not edit them here: edit
 // marketing.js and copy again. check-pricing.mjs fails if they drift.
+/**
+ * Splits a short answer into where the other choice wins and where we fit, at the sentence
+ * that starts with our name. Rendered as two spans of one paragraph, so the text in the
+ * page is still the short answer exactly (check-pricing.mjs checks it).
+ */
+function splitShort(short) {
+  const m = /\. (?=(Choose |Use )?Our Family Socials)/.exec(short)
+  if (!m) return { them: short, us: '' }
+  return { them: short.slice(0, m.index + 1), us: short.slice(m.index + 2) }
+}
+
 export const COMPARE = {
   label: 'Compared fairly',
   head: { before: 'Where the others are', mark: 'better', after: '.' },
   lede: 'Some families are better served elsewhere, and we would rather say so. Each comparison page starts with where the other choice is stronger; this is its short answer, word for word.',
   more: 'Read the full comparison',
+  them: 'Where they win',
+  us: 'Where we fit',
+  person: 'p-marcus-camera',
+  personAlt: 'Uncle Marcus, from the sample family, taking a photo',
   expand: 'Read the short answer',
   collapse: 'Show less',
   cards: [
@@ -109,7 +144,7 @@ export const COMPARE = {
       short:
         'A private Instagram account is free, instant, and already installed on everyone\'s phone. Our Family Socials costs money to post but keeps family memories off an advertising platform and organises them into event pages, a map and a timeline you can still browse in ten years.',
     },
-  ],
+  ].map((c) => ({ ...c, ...splitShort(c.short) })),
   links: [
     {
       href: '/compare/how-to-share-photos-privately',
@@ -194,12 +229,28 @@ export const PLANS = {
   },
   trial: {
     label: 'The free trial',
+    head: 'Try writing, free.',
     items: [
-      { k: 'Length', v: `${fact('trialDays')} days` },
-      { k: 'Card', v: 'None needed' },
-      { k: 'Stories', v: `${fact('trialStories')} published` },
-      { k: 'Per story', v: `${fact('photosTrial')} photos or videos` },
+      { k: 'Length', v: `${fact('trialDays')} days`, line: 'to write and publish' },
+      { k: 'Card', v: 'No card', line: 'needed to start' },
+      { k: 'Stories', v: `${fact('trialStories')} stories`, line: 'to publish in the trial' },
+      { k: 'Per story', v: `${fact('photosTrial')} photos`, line: 'or videos in each story' },
     ],
+  },
+  // The poster: one reader, one storyteller, each with what they pay.
+  reader: {
+    person: 'p-joe-phone',
+    alt: 'Grandpa Joe, from the sample family, reading a story on his phone',
+    price: PRICES.free.price,
+    unit: 'to read',
+    note: 'Forever. For everyone you share with.',
+  },
+  writer: {
+    person: 'p-maya-talk',
+    alt: 'Maya, from the sample family, talking a story into her phone',
+    price: PRICES.pro.perMonthBilledYearly,
+    unit: 'a month to write',
+    note: `Billed annually, ${PRICES.pro.perYear} a year. Try it free first.`,
   },
   rules: [
     'After the trial, without a plan, you can still open stories by people you follow and any Public story, and like and comment. You cannot publish or follow new people.',
@@ -212,8 +263,6 @@ export const PLANS = {
     lifeNote: 'The one payment equals this many years of Pro paid annually.',
     unitYears: 'years',
   },
-  person: 'p-joe-phone',
-  personAlt: 'Grandpa Joe, from the sample family, reading on his phone',
 }
 
 // ---------------------------------------------------------------- 14 questions
@@ -222,6 +271,8 @@ export const QUESTIONS = {
   label: 'Questions',
   head: { before: 'Fair', mark: 'questions', after: '.' },
   lede: 'Short answers to what people ask before they start.',
+  person: 'p-kate-wave',
+  personAlt: 'Aunt Kate, from the sample family, waving',
   more: 'Read the full FAQ',
   items: [
     {
@@ -340,7 +391,7 @@ export const SEO_BLOCKS = [
       `${PLANS.lifetime.name}: ${PLANS.lifetime.price} ${PLANS.lifetime.per}. ${PLANS.lifetime.line}`,
     ],
   },
-  { p: `Free trial: ${PLANS.trial.items.map((i) => `${i.k.toLowerCase()} ${i.v.toLowerCase()}`).join(', ')}.` },
+  { p: `Free trial: ${PLANS.trial.items.map((i) => `${i.v.toLowerCase()} ${i.line}`).join(', ')}.` },
   ...PLANS.rules.map((p) => ({ p })),
   { h2: head(QUESTIONS.head) },
   ...QUESTIONS.items.flatMap((i) => [{ p: `${i.q} ${i.a}` }]),

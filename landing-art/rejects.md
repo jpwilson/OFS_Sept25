@@ -31,3 +31,7 @@ Rejected and fixed (v1s in raw/_rejects/*.r4v1.png):
 - photo-years-2a, -4b: same tooth rule; fixed as edits.
 - photo-years-4a: Tom was at the wheel, not Ivy; regenerated with Ivy driving.
 - photo-years-5a, -5b: parents showed no grey at about fifty, grandparents not visibly older; fixed as ageing edits.
+
+## Round five (blank phone screens)
+
+Edited: g-family-hero (phone removed, open wave; metrics unchanged), p-maya-phone (phone turned to show its plain back). Checked and left: p-maya-talk (phone edge-on at her mouth), p-joe-phone and p-ruth-tablet (backs face the camera); no photo shows a screen to the camera. Before versions in raw/_rejects/*.r5before.png. No rejects.

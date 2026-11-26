@@ -67,3 +67,27 @@ The wordmark fitted edge to edge by measurement (stacked in three lines on phone
 Look at your own sheets before reporting: each band at 1440x900 and 390x844 (use `/?only=close`), both billing states, the nav over all five washes plus paper and white, the phone menu open, 768 and 1920 once, reduced motion. Keyboard pass. Serve the built `dist` and confirm every link you render returns 200. Run `check-pricing.mjs`.
 
 Report: files, sheet paths, the ten questions with the SPEC statement each answer rests on, the link check result, placeholders, weak spots.
+
+## Round three (26 November 2026)
+
+### Section uplevel (ROUND3 §3, §4)
+
+Every section now opens on a poster: the claim in display type (52-116px desktop, 64-96px iPad portrait, 46-62px phone) beside one of the family, then the detail. No fact was removed. Body copy is 17-19px desktop, 16-17px phone; every label that carries meaning is at least 13px (the shared `Label` stays 11.5px; each module overrides it with a two-class rule). Breakpoints used by the package: phone `<=640`, iPad portrait `641-1023`, iPad landscape/narrow desktop `1024-1199`, desktop `>=1200`.
+
+- **Limits**: head + lede beside a stage card with `p-ruth-tablet` (the home-screen web app) and `prop-print-stack` (keep your originals). The eight statements became eight cards, each with a short display-type key (`LIMITS.items[].key`, e.g. "No app store", "`${fact('videoSeconds')}`-second clips") above the statement and its consequence. 4 columns desktop, 2 on iPads, 1 on phone.
+- **Compare**: head + lede with `p-marcus-camera` on an azure floor. Each short answer is split (`splitShort` in `content/close.js`) into "where they win", set in display type, and "where we fit", at body size: two `<span>`s of one `<p>`, so the page text is still the marketing.js answer exactly. The phone clamp/toggle is gone. 2x2 cards on desktop and iPad portrait.
+- **Plans**: the poster is the claim itself: Grandpa Joe (`p-joe-phone`) under a "$0 to read" tag and Maya (`p-maya-talk`) under "$9 a month to write" (both `data-price`, checked). Cards are 3 across on desktop and iPad landscape; on iPad portrait Pro leads full width with Free and Lifetime below; phone stacks. The trial became "Try writing, free." with four big terms (30 days, No card, 5 stories, 50 photos), each with its line.
+- **Questions**: bigger head and type, `p-kate-wave` on a lime floor under the side column; on iPads the head and Kate sit side by side above the list.
+- **Start**: terms are now 18px bold body text (were 12.5px mono caps). iPad portrait shows the landscape plate full width with the card under it (the card no longer covers Leo or Biscuit); phone uses `plate-year-m` with the card below the note. Plate crop checked with the re-issued candid family photo: no face under the nav, Biscuit whole.
+- `check-pricing.mjs` drops inline `<span>` tags before looking for the short answers (because of the split above).
+
+### The band after the film, and `content/business.js`
+
+- `Milestone` (`close/Milestone.jsx`, `#lp-milestone`, sun wash) is mounted unconditionally from `Page.jsx` right after `<Film />`: "1,000,000 members" (numeral and noun both in display type, no count-up), "We just welcomed our [millionth] member.", "Like everyone before them, they chose to keep their life private from the world and share it with the people closest to them.", the household cut-out with balloons. People, prop and caption are design, in `MILESTONE` in `content/close.js`.
+- The Start card always shows "Join more than a million people sharing with family and close friends, privately and ad-free." in a sun box (`Start.module.css .join`).
+- **`src/landing/content/business.js`** holds the business figures and sentences: `members`, `membersWords`, `membersUnit`, `milestoneHead`, `milestoneLine`, `joinLine` (which fills `{membersWords}`), each with `src: 'supplied by the owner, 2026-11-26'`. They are supplied by the business, not derived from the code, so `check-facts.mjs` skips the file by name. Components read them through `biz(id)`; change a value there and the page changes with no layout edit.
+- There is no vision flag or alternate wording any more: `variant.mjs`, both Vite configs and `landing.config.json` are back to their state before that layer.
+
+Band shots: `frontend/shots/band-{m,tp,tl,d}.jpg` (band and final card side by side).
+
+Sheets: `frontend/shots/close3-{m,tp,tl,d}/sheet.jpg` (`/?only=close`). (The older `vision-*` sheets show a removed experiment; ignore them.)

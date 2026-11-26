@@ -4,8 +4,7 @@
 //   End   the year's last photograph, full bleed, with the closing line and the two buttons.
 import { art as getArt } from '../../art/manifest.js'
 import { APP as A, END as E, HERO, OURS as C } from '../../content/film.js'
-import { AudienceSwitch, Button, SHOT_CAPTION, Shot, cx } from '../../ui/index.js'
-import { ArtImg } from '../../ui/ArtImg.jsx'
+import { ArtImg, AudienceSwitch, Button, SHOT_CAPTION, Shot, cx } from '../../ui/index.js'
 import { APP as LA, OURS as L, STAGE } from '../layout.js'
 import { Actor, Air, Copy, Ghost, HeadWords, Scene, Tag } from '../parts.jsx'
 import cr from './crowd.module.css'
@@ -42,7 +41,7 @@ export function Ours({ id }) {
         <div className={f.printBg} data-f="ours:print" aria-hidden="true" />
         <Actor f="ours:van" a={L.van} stage={stage} par={6} />
         <Actor f="ours:arch" a={L.arch} stage={stage} par={6} />
-        <Actor f="ours:lighthouse" a={L.lighthouse} stage={stage} par={6} />
+        <Actor f="ours:cabin" a={L.cabin} stage={stage} par={6} />
         {ORDER.map((who, i) => {
           const a = L.crowd[who]
           return <Actor key={who} f={`ours:${who}`} a={{ ...a, clip: true, sh: 0.8 }} stage={stage} className={cr.who} i={i} par={a.z >= 4 ? 10 : 7} data-g={a.g} data-gm={a.g} />
@@ -60,7 +59,7 @@ export function Ours({ id }) {
         {C.tags.map((t) => {
           const l = L.tags[t.id]
           return (
-            <Air key={t.id} f={`ours:t-${t.id}`} a={{ d: l.d, m: l.m, z: 9 }} className={f.tagSlot} par={18}>
+            <Air key={t.id} f={`ours:t-${t.id}`} a={{ d: l.d, m: l.m, t: l.t, z: 9 }} className={f.tagSlot} par={18}>
               <span className={f.storyTag}>
                 <b>{t.title}</b>
                 <i>{t.audience}</i>
@@ -73,7 +72,7 @@ export function Ours({ id }) {
       <Copy k="ours" eyebrow={C.eyebrow} head={C.head} body={C.body} />
 
       <div className={f.console} data-f="ours:console">
-        <AudienceSwitch name="ofsl-film-audience-ours" label={C.switchLabel} hideLabel className={f.switch} />
+        <AudienceSwitch name="ofsl-film-audience-ours" label={C.switchLabel} hideLabel size="lg" className={f.switch} />
         <p className={f.labelRow} aria-hidden="true">
           <b>{C.switchLabel}</b>
         </p>
@@ -87,16 +86,33 @@ export function App({ id }) {
   const stage = STAGE.app
   return (
     <Scene k="app" wash="paper" id={id} className={f.app}>
-      <Ghost f="app:ghost" gw={2} style={{ '--gx': 6 }}>
+      <Ghost f="app:ghost" gw={2} style={{ '--gx': -8 }}>
         {A.ghost}
       </Ghost>
       <Actor f="app:joe" a={LA.joe} stage={stage} par={9} />
       <Actor f="app:ruth" a={LA.ruth} stage={stage} par={11} />
+      <Actor f="app:sam" a={LA.sam} stage={stage} par={11} />
 
+      {/* the other screens, fanned out behind the feed */}
+      {A.fan.map((x, i) => (
+        <Air key={x.id} f={`app:r${i}`} a={{ ...LA.fan[i], z: 4 }} className={f.fanSlot} par={12}>
+          <span className={f.fanTag}>
+            <Tag solid>{x.label}</Tag>
+          </span>
+          <Shot id={x.id} alt={x.alt} caption={false} sizes="(max-aspect-ratio: 9/10) 16vh, 18vw" />
+        </Air>
+      ))}
+
+      {/* the feed: large, tilted, in a keylined frame */}
       <Air f="app:feed" a={LA.feed} className={f.feedSlot} par={10}>
         <figure className={f.window}>
+          <span className={f.bar} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
           <span className={f.frame}>
-            <ArtImg id="ui-feed-d" alt={A.feed.alt} className={f.feedD} sizes="(max-aspect-ratio: 9/10) 30vh, 40vw" />
+            <ArtImg id="ui-feed-d" alt={A.feed.alt} className={f.feedD} sizes="(max-aspect-ratio: 9/10) 1px, 42vw" />
             <ArtImg id="ui-feed-m" alt="" className={f.feedM} sizes="(max-aspect-ratio: 9/10) 30vh, 1px" />
           </span>
           <figcaption>
@@ -104,15 +120,6 @@ export function App({ id }) {
           </figcaption>
         </figure>
       </Air>
-
-      {A.rail.map((x, i) => (
-        <Air key={x.id} f={`app:r${i}`} a={{ ...LA.rail[i], z: 6 }} className={f.railSlot} par={14}>
-          <span className={f.railTag}>
-            <Tag solid>{x.label}</Tag>
-          </span>
-          <Shot id={x.id} alt={x.alt} caption={false} sizes="(max-aspect-ratio: 9/10) 1px, 15vw" />
-        </Air>
-      ))}
 
       <Copy k="app" eyebrow={A.eyebrow} head={A.head} body={A.body} />
     </Scene>

@@ -1,0 +1,179 @@
+/* The band after the film (Milestone.jsx). */
+
+/* ---------- the milestone band ---------- */
+
+.band {
+  overflow: clip;
+  border-top: var(--l-keyline);
+  padding-bottom: 0;
+}
+.band[data-pad] {
+  padding-bottom: 0;
+}
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 24px clamp(24px, 4vw, 64px);
+  align-items: end;
+}
+.copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+  padding-bottom: clamp(96px, 10vw, 140px);
+}
+.count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.22em;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-variation-settings: 'wdth' 75;
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  font-size: clamp(76px, 11.5vw, 184px);
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+.unit {
+  /* the noun at a size comparable to the numeral, never a small tag */
+  font-size: 0.72em;
+}
+.head {
+  max-width: 16ch;
+  font-size: clamp(32px, 3.6vw, 56px);
+  line-height: 1;
+}
+.line {
+  max-width: 40ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.scene {
+  position: relative;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  align-self: end;
+  padding-bottom: clamp(28px, 3vw, 44px);
+}
+/* the floor: a full-bleed strip of the deep wash under the family's feet */
+.scene::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: -200vw;
+  right: -200vw;
+  bottom: 0;
+  height: calc(clamp(28px, 3vw, 44px) + 9%);
+  background: var(--l-wash-deep);
+  border-top: var(--l-keyline);
+}
+.family {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 470px);
+}
+.balloons {
+  position: absolute;
+  z-index: 0;
+  top: 2%;
+  right: -2%;
+  width: 30%;
+  max-width: 170px;
+  height: auto;
+  transform: rotate(6deg);
+}
+.note {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 10px;
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* iPad portrait: the count across the top, the family and the words side by side */
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    align-items: end;
+  }
+  .count {
+    font-size: clamp(76px, 15vw, 150px);
+  }
+  .copy {
+    display: contents;
+  }
+  .count {
+    grid-column: 1 / -1;
+  }
+  .head,
+  .line {
+    grid-column: 1;
+  }
+  .head {
+    align-self: end;
+  }
+  .line {
+    align-self: start;
+    padding-bottom: 48px;
+  }
+  .scene {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    padding-bottom: 10px;
+  }
+  .note {
+    position: relative;
+    bottom: auto;
+    justify-self: end;
+    margin-top: 4px;
+  }
+}
+
+/* Phone: one column, the family last, standing on the floor */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .copy {
+    display: grid;
+    padding-bottom: 8px;
+  }
+  .count,
+  .head,
+  .line {
+    grid-column: auto;
+  }
+  .line {
+    padding-bottom: 0;
+  }
+  .count {
+    font-size: clamp(60px, 21vw, 96px);
+    line-height: 0.9;
+  }
+  .head {
+    font-size: clamp(32px, 9vw, 40px);
+  }
+  .scene {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .family {
+    width: min(86%, 360px);
+  }
+}
+

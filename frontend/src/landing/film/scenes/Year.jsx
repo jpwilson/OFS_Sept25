@@ -1,59 +1,93 @@
-// 04 YEAR: "Ivy turns nine". The eight categories, four ways to look at the same year, and
-// the scroll stepping through four of the family's stories before it rests on the birthday.
-import { YEAR as C, HUD } from '../../content/film.js'
-import { SAMPLE_YEAR, SLATE, YEAR_CARDS } from '../../content/film.sample.js'
-import { SHOT_CAPTION, Shot, cx } from '../../ui/index.js'
-import { ArtImg } from '../../ui/ArtImg.jsx'
-import { STAGE, YEAR as L } from '../layout.js'
-import { Actor, Air, AudChip, Copy, Dock, Fact, Ghost, Month, Scene } from '../parts.jsx'
+// 07 THROUGH THE YEARS. The same two children at five ages: as the scroll goes on they grow
+// from one floor line, a pencil mark lands on the height chart for each age, and that year's
+// two photographs stand beside them. At rest only one pair is on stage.
+//
+// Stages are labelled by age, never by calendar year: these are illustrations of a sample
+// family, and the page must not suggest the product has years of history.
+import { hasArt } from '../../art/manifest.js'
+import { YEAR as C } from '../../content/film.js'
+import { YEARS, YEARS_NOTE, ageLabel } from '../../content/film.sample.js'
+import { ArtImg, SHOT_CAPTION, cx } from '../../ui/index.js'
+import { STAGE, YEARS as L } from '../layout.js'
+import { Actor, Air, Copy, Counter, Dock, Fact, Ghost, Photo, Scene } from '../parts.jsx'
+import { AGES, HALF, TOP } from '../years.js'
 import y from './year.module.css'
 
-const SETS = Object.keys(L.sets)
-const REST = C.steps[C.steps.length - 1]
 const VIEW_ART = { Feed: 'ui-feed-m', Calendar: 'ui-calendar', Map: 'ui-worldmap', Timeline: 'ui-timeline' }
-// deal order: the story the chapter rests on is dealt last, so it is on top
-const DEAL = [...SETS.filter((c) => c !== REST), REST]
+const LAST = YEARS.length - 1
+const photoArt = (p) => (hasArt(p.art) || !p.fallback ? p.art : p.fallback)
+/** The categories a phone shows (the four the five ages use); wider screens show all eight. */
+const USED = new Set(YEARS.flatMap((s) => s.photos.map((p) => p.category)))
+
+/** One column of pencil marks: a child's height at each age. */
+function Marks({ who, name, heights, side }) {
+  return (
+    <div className={y.marks} data-side={side} data-f={`year:marks-${who}`} style={{ '--rh': Math.round((heights[heights.length - 1] + 0.06) * 1000) / 1000 }}>
+      <i className={y.rail} />
+      <b className={y.who}>{name}</b>
+      {heights.map((h, i) => (
+        <span key={i} className={y.mark} data-f={`year:mk-${who}${i}`} style={{ '--mh': h }}>
+          <i />
+          <b>{YEARS[i][who]}</b>
+        </span>
+      ))}
+    </div>
+  )
+}
 
 export function Year({ id }) {
   const stage = STAGE.year
+  const now = new Set(YEARS[LAST].photos.map((p) => p.category))
+  const px = { '--pxd': L.pair.d.x, '--pxm': L.pair.m.x, '--pxt': L.pair.t.x, '--half': HALF, '--top': TOP }
   return (
-    <Scene k="year" wash="lime" id={id} className={y.year}>
+    <Scene k="year" wash="sun" id={id} className={y.year}>
       <Ghost f="year:ghost" gw={2.1} style={{ '--gx': 3 }}>
         {C.ghost}
       </Ghost>
 
-      <Actor f="year:ruth" a={L.ruth} stage={stage} par={8} />
-      <Actor f="year:joe" a={L.joe} stage={stage} par={8} />
+      {/* the height chart: one column of marks for each child, either side of them */}
+      <div className={y.chart} style={px} role="img" aria-label={C.chartLabel}>
+        <Marks who="ivy" name="Ivy" heights={AGES.map((g) => g.ivy)} side="l" />
+        <Marks who="leo" name="Leo" heights={AGES.map((g) => g.leo)} side="r" />
+        <i className={y.level} data-f="year:level" />
+      </div>
 
-      {/* one set of kids per category; only the resting one is drawn in the poster */}
-      {SETS.map((cat) =>
-        L.sets[cat].map((a) => <Actor key={a.key} f={`year:k-${a.key}`} a={a} stage={stage} par={12} className={cat === REST ? undefined : y.alt} data-set={cat} />),
-      )}
-      {SETS.map((cat) =>
-        L.props[cat].map((a) =>
-          a.air ? (
-            <Air key={a.key} f={`year:p-${a.key}`} a={a} par={18} className={cat === REST ? undefined : y.alt} />
-          ) : (
-            <Actor key={a.key} f={`year:p-${a.key}`} a={a} stage={stage} par={18} className={cat === REST ? undefined : y.alt} />
-          ),
-        ),
+      {/* the five pairs share one spot and one floor line; only the grown-up one is drawn at rest */}
+      {YEARS.map((s, i) => (
+        <Actor
+          key={i}
+          f={`year:pair${i}`}
+          a={{ ...L.pair, art: AGES[i].art, h: AGES[i].h }}
+          stage={stage}
+          par={12}
+          className={i === LAST ? undefined : y.alt}
+        />
+      ))}
+
+      {/* how old they are, riding just above their heads */}
+      <div className={y.ageSlot} style={px}>
+        <p className={y.age} data-f="year:age">
+          <span data-f="year:agetext">{ageLabel(YEARS[LAST])}</span>
+        </p>
+      </div>
+
+      {/* that year's two photographs */}
+      {YEARS.map((s, i) =>
+        s.photos.map((p, j) => (
+          <Air key={p.art} f={`year:photo${i}-${j}`} a={{ ...L.photos[j], z: 7 + j }} className={cx(y.photoSlot, i === LAST ? undefined : y.alt)} par={14}>
+            <Photo art={photoArt(p)} caption={p.title} sizes="(max-aspect-ratio: 9/10) 22vh, 24vw" />
+          </Air>
+        )),
       )}
 
-      {/* the eight categories, with the app's own names */}
+      {/* the eight categories, with the app's own names; that year's are lit */}
       <ul className={y.tabs} aria-label={C.readouts.categories.label}>
         {C.categories.map((name, i) => (
-          <li key={name} className={y.tab} data-f={`year:tab${i}`} data-on={name === REST ? '' : undefined}>
+          <li key={name} className={cx(y.tab, USED.has(name) ? undefined : y.tabMinor)} data-f={`year:tab${i}`} data-on={now.has(name) ? '' : undefined}>
             {name}
           </li>
         ))}
       </ul>
-
-      {/* the matching feed cards deal into a pile */}
-      {DEAL.map((cat, i) => (
-        <Air key={cat} f={`year:card-${cat}`} a={{ ...L.cards[i], z: 6 + i }} className={y.cardSlot} par={14}>
-          <Shot id={YEAR_CARDS[cat].card} alt={`${C.cardAlt}: ${YEAR_CARDS[cat].title}`} caption={i === DEAL.length - 1 ? undefined : false} sizes="(max-aspect-ratio: 9/10) 16vh, 20vw" />
-        </Air>
-      ))}
 
       {/* four views of the same stories, in a phone */}
       <Air f="year:toggle" a={L.toggle} className={y.toggleSlot} par={12}>
@@ -83,16 +117,17 @@ export function Year({ id }) {
         </figure>
       </Air>
 
-      <Copy k="year" slate={SLATE.year} title={C.story.title} eyebrow={C.eyebrow} head={C.head} body={C.body} />
-      <Month year={SAMPLE_YEAR}>{C.story.month}</Month>
+      <Copy k="year" slate={C.slate} title={YEARS_NOTE} eyebrow={C.eyebrow} head={C.head} body={C.body} headSize={5.6} breakAfter="most" bodyWidth={24} className={y.yearCopy} />
+      <Counter k="year" />
 
       <Dock f="year:bl" side="bl">
         <Fact r={C.readouts.views} />
-        <Fact r={C.readouts.categories} />
+        {/* the categories readout sits in the left dock on portrait screens and in the right one on wide screens */}
+        <Fact r={C.readouts.categories} className={y.portraitOnly} />
       </Dock>
       <Dock f="year:br" side="br">
-        <AudChip f="year:aud" label={HUD.whoLabel} name={C.audience.name} note={C.audience.note} />
         <Fact r={C.readouts.order} />
+        <Fact r={C.readouts.categories} className={y.landscapeOnly} />
       </Dock>
     </Scene>
   )

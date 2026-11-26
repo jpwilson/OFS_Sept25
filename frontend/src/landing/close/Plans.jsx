@@ -62,6 +62,24 @@ function Billing() {
   )
 }
 
+/** One person of the poster, with what they pay on a tag above them. */
+function Who({ who, k, cls }) {
+  return (
+    <figure className={cx(s.who, cls)}>
+      <figcaption className={s.tag}>
+        <span className={s.tagBig}>
+          <span className={s.tagPrice} data-price={k}>
+            {who.price}
+          </span>{' '}
+          <span className={s.tagUnit}>{who.unit}</span>
+        </span>
+        <span className={s.tagNote}>{who.note}</span>
+      </figcaption>
+      <Cutout id={who.person} alt={who.alt} shadow className={s.whoImg} sizes="(max-width: 640px) 40vw, 220px" />
+    </figure>
+  )
+}
+
 /** 13 · Readers are free. Storytellers pay. */
 export function Plans() {
   const { free, pro, lifetime } = PLANS
@@ -69,20 +87,20 @@ export function Plans() {
     <Section id="lp-plans" tone="paper" className={s.band}>
       <div className={s.top}>
         <div className={s.intro}>
-          <Label strong dot>
+          <Label strong dot className={s.lbl}>
             {PLANS.label}
           </Label>
           <Head {...PLANS.head} className={s.head} />
           <p className={s.lede}>{PLANS.lede}</p>
         </div>
-        <Cutout id={PLANS.person} alt="" shadow sizes="90px" className={s.joeSmall} />
+        <div className={s.duo}>
+          <Who who={PLANS.reader} k="free" cls={s.reader} />
+          <Who who={PLANS.writer} k="pro-month-yearly" cls={s.writer} />
+          <p className={s.duoCap}>Sample family</p>
+        </div>
       </div>
 
       <div className={s.row}>
-        <figure className={s.joe}>
-          <Cutout id={PLANS.person} alt={PLANS.personAlt} shadow sizes="220px" className={s.joeImg} />
-          <figcaption className="l-mono">Sample family</figcaption>
-        </figure>
 
         <Reveal as="article" i={0} className={cx(s.card, s.free)}>
           <h3 className={s.name}>{free.name}</h3>
@@ -118,7 +136,7 @@ export function Plans() {
           <p className={s.line}>{lifetime.line}</p>
           <List items={lifetime.list} />
           <div className={cx(s.calc, s.calcIn)}>
-            <Label>{PLANS.math.lifeLabel}</Label>
+            <Label className={s.lbl}>{PLANS.math.lifeLabel}</Label>
             <p className={s.sum} aria-label={`${PLAN_MATH.lifetime} divided by ${PLAN_MATH.perYear} is ${PLAN_MATH.years} ${PLANS.math.unitYears}`}>
               <span data-price="lifetime">{PLAN_MATH.lifetime}</span>
               <span className={s.op}>÷</span>
@@ -141,12 +159,20 @@ export function Plans() {
 
       <div className={s.below}>
         <div className={s.trial}>
-          <Label strong>{PLANS.trial.label}</Label>
+          <div className={s.trialHead}>
+            <Label strong className={s.lbl}>
+              {PLANS.trial.label}
+            </Label>
+            <h3 className={s.trialTitle}>{PLANS.trial.head}</h3>
+          </div>
           <dl className={s.terms}>
             {PLANS.trial.items.map((t) => (
               <div key={t.k}>
-                <dt className="l-mono">{t.k}</dt>
-                <dd>{t.v}</dd>
+                <dt className="l-sr">{t.k}</dt>
+                <dd>
+                  <span className={s.termBig}>{t.v}</span>
+                  <span className={s.termLine}>{t.line}</span>
+                </dd>
               </div>
             ))}
           </dl>
@@ -162,7 +188,7 @@ export function Plans() {
 
         <div className={s.math}>
           <div className={s.calc}>
-            <Label>{PLANS.math.yearLabel}</Label>
+            <Label className={s.lbl}>{PLANS.math.yearLabel}</Label>
             <p className={s.sum} aria-label={`${PLAN_MATH.months} times ${PLAN_MATH.perMonth} is ${PLAN_MATH.monthlyYear}, against ${PLAN_MATH.perYear}`}>
               <span data-math="months">{PLAN_MATH.months}</span>
               <span className={s.op}>×</span>

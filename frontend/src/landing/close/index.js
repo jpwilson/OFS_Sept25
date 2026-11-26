@@ -6,3 +6,5 @@ export { Plans } from './Plans.jsx'
 export { Questions } from './Questions.jsx'
 export { Start } from './Start.jsx'
 export { Footer } from './Footer.jsx'
+// The band after the film (its figures and sentences: content/business.js).
+export { Milestone } from './Milestone.jsx'

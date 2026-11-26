@@ -1,4 +1,4 @@
-/* 01 TELL (owner: film). The page and the voice note are designed fragments sized in page
+/* 05 KITCHEN (owner: film). The page and the voice note are designed fragments sized in page
    units (--pu), so they scale with the stage. */
 
 
@@ -97,7 +97,7 @@
   height: 1.05em;
 }
 .cat {
-  background: var(--l-fizz);
+  background: var(--l-wash);
 }
 .pchips > .date {
   border-color: transparent;
@@ -251,7 +251,7 @@
   width: calc(0.9 * var(--pu));
   height: calc(0.9 * var(--pu));
   border-radius: 50%;
-  background: var(--l-fizz);
+  background: var(--l-wash);
 }
 .vtag {
   opacity: 0.8;
@@ -357,5 +357,75 @@
   }
   .sticker {
     font-size: max(11.5px, calc(1.46 * var(--u)));
+  }
+}
+
+/* ---------- the ways in ---------- */
+.waysSlot {
+  --pu: calc(var(--w) * var(--u) / 47);
+}
+.ways {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(0.7 * var(--pu)) calc(0.8 * var(--pu));
+  align-items: center;
+}
+.waysLabel {
+  display: none;
+  flex: 0 0 100%;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.way {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 0.9em 0.54em 0.7em;
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--l-ink);
+  font-family: var(--l-font-mono);
+  font-size: clamp(10px, calc(1.24 * var(--u)), 11.5px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.way > svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+.way[data-on] {
+  background: var(--l-lime);
+}
+.ask {
+  padding-left: 0.9em;
+  background: var(--l-ink);
+  color: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-white);
+}
+@media (max-aspect-ratio: 9/10) {
+  .ways {
+    display: grid;
+    gap: 4px;
+    justify-items: start;
+  }
+  .waysLabel {
+    display: none;
+  }
+  .way {
+    font-size: 8.5px;
+    letter-spacing: 0.03em;
+    padding: 0.4em 0.6em 0.44em 0.5em;
+    border-width: 1.5px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .ask {
+    box-shadow: 2px 2px 0 var(--l-white);
   }
 }

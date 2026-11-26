@@ -61,17 +61,16 @@ The standard for round three, for every section:
 
 "Make sure that this is responsive so it looks amazing on a phone as well as an iPad." Every package now designs and shoots **four** viewports and sheets them all: phone 390x844, iPad portrait 820x1180, iPad landscape 1180x820, desktop 1440x900. The iPad layouts are designed, not a stretched phone or a squeezed desktop. Touch targets at least 44px on phone and iPad.
 
-## 5. The vision layer (pitch only, never the live site)
+## 5. Member figures (the owner's decision, 26 November 2026)
 
-The owner is preparing a pitch: what this page looks like once the company has a million members. He asked for lines such as "Join tens of thousands of others who share with their family and friends all across the world" and "We've just celebrated our millionth member, who's chosen to keep their life private from the world but share it with their close family and friends."
+The page carries a band directly after the film ("1,000,000 members", "We just welcomed our millionth member…") and a line in the final card ("Join more than a million people sharing with family and close friends, privately and ad-free.").
 
-Those figures are projections. They may appear in a pitch build and never on the public site while they are untrue. So:
+A separate "vision" build with a mock-up label was built first and then removed at the owner's instruction: there is one version of the page and no flag. His direction: design is kept separate from business numbers, and the numbers are the business's to supply.
 
-- A build flag, **`__LANDING_VISION__`**. It is on when `VITE_LANDING_VISION=1`, or when `frontend/landing.config.json` has `"vision": {"preview": true}` and the build is a Vercel preview. `scripts/landing/variant.mjs` resolves it and **throws if it would be on for a production build**; the script does not accept a production value from config at all. Making any of this public later is a deliberate code change, made when the numbers are real and go through `fact()`.
-- With the flag off the page is exactly as it is without this layer: no markup, and none of the vision copy in the bundle (import it behind the flag so it is dropped).
-- With the flag on, the page gains: a milestone band after the film ("We just welcomed our millionth member. Like everyone before them, they chose to keep their life private from the world and share it with the people closest to them."); a line by the final call to action ("Join more than a million people sharing with family and close friends, privately and ad-free."); and a small fixed tag, always visible, reading **"VISION MOCK-UP · PROJECTED FIGURES"**, with the same sentence in the footer note.
-- The copy lives in `src/landing/content/vision.js`, each figure marked `projected: true`. `check-facts.mjs` skips that one file by name, with a comment saying why.
-- No invented quotes, names, press logos, ratings or awards in either mode.
+How that is kept separate in the code:
+- `frontend/src/landing/content/business.js` holds the member figure and the milestone wording, each marked as supplied by the owner on 2026-11-26. They are not derived from the code and were not checked by the builders. Change them there and the page follows; no layout is touched.
+- `content/facts.js` stays what it was: product facts verified against the code, each with a `file:line` source. `check-facts.mjs` skips `business.js` by name.
+- No quotes, names, press logos, ratings or awards are on the page; none have been supplied.
 
 ## 6. Held for the owner's choice
 

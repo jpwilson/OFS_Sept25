@@ -1,15 +1,12 @@
-import { useState } from 'react'
 import { COMPARE } from '../content/close.js'
-import { Head, Icon, Label, Reveal, Section } from '../ui/index.js'
+import { Cutout, Head, Icon, Label, Reveal, Section } from '../ui/index.js'
 import s from './Compare.module.css'
 
 /**
- * One alternative. Under 700px wide (and only once the page is mounted) the quote shows a
- * few lines with a control that opens the rest; the whole text is always in the DOM.
+ * One alternative. The short answer is one paragraph in two spans: where the other choice
+ * wins, set large, then where we fit. Together they are the compare page's text, exactly.
  */
 function Card({ c, i }) {
-  const [open, setOpen] = useState(false)
-  const qid = `lp-cmp-${c.path.split('/').pop()}`
   return (
     <Reveal as="li" i={i % 2} className={s.card}>
       <div className={s.cardTop} data-wash={c.wash}>
@@ -19,14 +16,13 @@ function Card({ c, i }) {
         <h3 className={s.name}>{c.name}</h3>
       </div>
       <div className={s.body}>
-        <Label className={s.src}>The short answer, from our page</Label>
-        <blockquote id={qid} className={s.quote} cite={c.path} data-open={open || undefined}>
-          <p>{c.short}</p>
+        <blockquote className={s.quote} cite={c.path}>
+          <p>
+            <span className={s.them}>{c.them}</span>
+            {c.us ? ' ' : null}
+            {c.us ? <span className={s.us}>{c.us}</span> : null}
+          </p>
         </blockquote>
-        <button type="button" className={s.toggle} aria-expanded={open} aria-controls={qid} onClick={() => setOpen((v) => !v)}>
-          {open ? COMPARE.collapse : COMPARE.expand}
-          <Icon name={open ? 'close' : 'plus'} size={16} />
-        </button>
         <a className={s.more} href={c.path}>
           {COMPARE.more}
           <span className="l-sr"> with {c.name}</span>
@@ -41,14 +37,18 @@ function Card({ c, i }) {
 export function Compare() {
   return (
     <Section id="lp-compare" wash="azure" className={s.band}>
-      <div className={s.top}>
-        <div>
-          <Label strong dot>
+      <div className={s.poster}>
+        <div className={s.copy}>
+          <Label strong dot className={s.eyebrow}>
             {COMPARE.label}
           </Label>
           <Head {...COMPARE.head} className={s.head} />
+          <p className={s.lede}>{COMPARE.lede}</p>
         </div>
-        <p className={s.lede}>{COMPARE.lede}</p>
+        <figure className={s.stage}>
+          <Cutout id={COMPARE.person} alt={COMPARE.personAlt} shadow className={s.person} sizes="(max-width: 640px) 36vw, 220px" />
+          <figcaption className={s.cap}>Sample family</figcaption>
+        </figure>
       </div>
 
       <ul className={s.cards}>

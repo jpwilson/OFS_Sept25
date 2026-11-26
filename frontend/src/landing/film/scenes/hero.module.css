@@ -1,63 +1,104 @@
-/* HERO (owner: film). The switch drives the crowd from CSS alone, through :has(), so the
-   first screen is already interactive before any script runs. Nothing the scroll engine
-   writes is transitioned here: the engine writes the [data-f] wrappers, these rules move
-   the [data-rise] images inside them. */
+/* HERO (owner: film), round two. Five audiences, one group, one camera.
+   As a poster (reduced motion, no script) the checked radio drives everything here through
+   :has(). Once the film is pinned the engine writes the same properties inline from the
+   scroll, so nothing below is transitioned in that mode. */
 
 .hero {
-  --cw: min(36vw, 57.6 * var(--u));
+  --cw: min(38vw, 60.8 * var(--u));
   --hfs: clamp(44px, calc(11.2 * var(--u)), 128px);
+  --wfs: calc(20.4 * var(--u));
   --side: calc(50% - var(--cw) / 2 - var(--l-gutter) - 28px);
 }
 
-/* ---------- the ghost word: the chosen setting's name ----------
-   It sits on the headline's second line, to the right of the sticker, so it reads as the
-   object of the sentence and its top half stays clear of the heads below. */
+/* ---------- the big word: a ticker on the headline's second line ---------- */
 
-.ghosts {
+.words {
   position: absolute;
   z-index: 1;
-  left: calc(50% - 19.5 * var(--u));
-  top: calc(var(--l-nav-h) + 38px + var(--hfs) * 0.98);
+  right: var(--l-gutter);
+  left: calc(50% - 20 * var(--u));
+  top: calc(var(--l-nav-h) + 38px + var(--hfs) * 0.98 - var(--wfs) * 0.2);
+  height: calc(var(--wfs) * 1.12);
+  overflow: hidden;
+  /* the outgoing word leaves just under the deck above it */
+  clip-path: inset(calc(var(--wfs) * 0.17) 0 0 0);
   pointer-events: none;
 }
-.ghost {
+.word {
   position: absolute;
-  left: 0;
-  top: 0;
-  font-size: min(calc(22.4 * var(--u)), calc(78 * var(--u) / var(--gw)));
-  opacity: 0;
-  transform-origin: 0 50%;
-  transition:
-    opacity 240ms ease,
-    transform 520ms var(--l-ease-out);
+  right: 0;
+  bottom: 0;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-variation-settings: 'wdth' 75;
+  font-size: min(var(--wfs), calc(93 * var(--u) / var(--gw)));
+  line-height: calc(var(--wfs) * 1.12);
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  color: var(--l-white);
+  transform: translateY(105%);
 }
-.ghost[data-v='followers'] {
-  opacity: 1;
+.word[data-v='followers'] {
+  transform: none;
 }
-.hero:has(input:checked:not([value='followers'])) .ghost[data-v='followers'] {
-  opacity: 0;
-  transform: translateY(8%) scale(0.96);
+:global([data-mode='poster']) .word {
+  transition: transform 560ms var(--l-ease-out);
 }
-.hero:has(input[value='private']:checked) .ghost[data-v='private'],
-.hero:has(input[value='custom']:checked) .ghost[data-v='custom'],
-.hero:has(input[value='close']:checked) .ghost[data-v='close'],
-.hero:has(input[value='public']:checked) .ghost[data-v='public'] {
-  opacity: 1;
+:global([data-mode='poster']) .hero:has(input:checked:not([value='followers'])) .word[data-v='followers'] {
+  transform: translateY(-105%);
+}
+:global([data-mode='poster']) .hero:has(input[value='private']:checked) .word[data-v='private'],
+:global([data-mode='poster']) .hero:has(input[value='close']:checked) .word[data-v='close'],
+:global([data-mode='poster']) .hero:has(input[value='custom']:checked) .word[data-v='custom'],
+:global([data-mode='poster']) .hero:has(input[value='public']:checked) .word[data-v='public'] {
+  transform: none;
 }
 
-/* ---------- this story: the real feed card, as a tilted print ---------- */
+/* ---------- the group and its camera ---------- */
 
-.card figcaption {
-  font-size: clamp(9px, calc(1.16 * var(--u)), 11.5px);
-  letter-spacing: 0.08em;
-  opacity: 1;
+.group {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  transform-origin: 50% var(--floor);
+  --cam-private: var(--cam-private-d);
+  --cam-close: var(--cam-close-d);
+  --cam-public: var(--cam-public-d);
+  pointer-events: none;
 }
-.card figure {
+
+/* ---------- Private: their own albums ---------- */
+
+.album {
+  z-index: 2;
+}
+.card {
+  display: grid;
   gap: 7px;
+  margin: 0;
 }
-/* the leader is used on a phone only: there it is short and crosses nobody */
-.leader {
-  display: none;
+.cardFrame {
+  display: block;
+  overflow: hidden;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow);
+}
+.cardFrame > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cardCap {
+  font-family: var(--l-font-mono);
+  font-size: clamp(9px, calc(1.14 * var(--u)), 11.5px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
 /* ---------- copy ---------- */
@@ -68,6 +109,7 @@
   right: var(--l-gutter);
   top: calc(var(--l-nav-h) + 14px);
   z-index: 20;
+  pointer-events: none;
 }
 .h1 {
   display: grid;
@@ -86,17 +128,17 @@
 .display {
   display: block;
   font-size: var(--hfs);
-  text-wrap: wrap;
   white-space: nowrap;
 }
+/* the sub line is the headline's deck: top right, beside its first line */
 .sub {
   position: absolute;
-  left: var(--l-gutter);
-  bottom: 122px;
+  left: calc(var(--l-gutter) + var(--hfs) * 10.95);
+  right: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 15px);
   z-index: 20;
-  width: calc(var(--side) - 6px);
-  font-size: clamp(14px, calc(1.68 * var(--u)), 17px);
-  line-height: 1.38;
+  font-size: clamp(12.5px, calc(1.56 * var(--u)), 15.5px);
+  line-height: 1.36;
   font-weight: 500;
 }
 .cta {
@@ -126,7 +168,8 @@
   white-space: nowrap;
 }
 
-/* the switch: the star control, bottom centre */
+/* ---------- the switch: bottom centre ---------- */
+
 .console {
   position: absolute;
   left: calc(50% - var(--cw) / 2);
@@ -136,11 +179,13 @@
   display: grid;
   gap: 8px;
 }
+.console > .labelRow {
+  order: 2;
+}
 .labelRow {
   display: flex;
   justify-content: center;
   gap: 1.4em;
-  padding-inline: 4px;
   font-family: var(--l-font-mono);
   font-size: clamp(9px, calc(1.2 * var(--u)), 11.5px);
   font-weight: 500;
@@ -156,39 +201,25 @@
   opacity: 0.72;
 }
 .switch {
+  --l-aud-h: 54px;
+  --l-aud-fs: 16.5px;
+  --l-aud-max: none;
   gap: 0;
   touch-action: pan-y;
 }
-.switch > div {
-  max-width: none;
-  padding: 6px;
-  box-shadow: var(--l-shadow-lg);
-}
-.switch > div > label {
-  min-height: 52px;
-}
-.switch > div > label > span {
-  font-size: 16px;
-}
-.switch > div > span {
-  top: 6px;
-  bottom: 6px;
-  left: 6px;
-  width: calc((100% - 12px) / 5);
-}
 
-/* who can open it, as an instrument beside the switch */
+/* ---------- who can open it ---------- */
+
 .can {
   position: absolute;
   right: var(--l-gutter);
-  bottom: 28px;
+  bottom: 22px;
   z-index: 20;
   width: var(--side);
   max-width: 340px;
   display: grid;
-  align-content: start;
-  gap: 2px;
-  padding: 9px 16px 11px;
+  gap: 0;
+  padding: 9px 16px 10px;
   background: var(--l-white);
   border: var(--l-keyline);
   border-radius: var(--l-r-readout);
@@ -202,9 +233,45 @@
   text-transform: uppercase;
   color: var(--l-mute);
 }
+.canLabel {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+}
+.canBox {
+  position: relative;
+  display: block;
+  height: 76px;
+  overflow: hidden;
+}
 .canVal {
-  display: none;
-  gap: 4px;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  transform: translateY(105%);
+  visibility: hidden;
+}
+.canVal[data-v='followers'] {
+  transform: none;
+  visibility: visible;
+}
+:global([data-mode='poster']) .canVal {
+  transition:
+    transform 460ms var(--l-ease-out),
+    visibility 460ms linear;
+}
+:global([data-mode='poster']) .hero:has(input:checked:not([value='followers'])) .canVal[data-v='followers'] {
+  transform: translateY(-105%);
+  visibility: hidden;
+}
+:global([data-mode='poster']) .hero:has(input[value='private']:checked) .canVal[data-v='private'],
+:global([data-mode='poster']) .hero:has(input[value='close']:checked) .canVal[data-v='close'],
+:global([data-mode='poster']) .hero:has(input[value='custom']:checked) .canVal[data-v='custom'],
+:global([data-mode='poster']) .hero:has(input[value='public']:checked) .canVal[data-v='public'] {
+  transform: none;
+  visibility: visible;
 }
 .canBig {
   display: flex;
@@ -213,7 +280,7 @@
   font-family: var(--l-font-display);
   font-weight: 800;
   font-variation-settings: 'wdth' 86;
-  font-size: clamp(26px, calc(4 * var(--u)), 42px);
+  font-size: clamp(26px, calc(3.8 * var(--u)), 38px);
   line-height: 1;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -225,21 +292,9 @@
   letter-spacing: 0;
 }
 .canNote {
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.3;
-  color: var(--l-mute);
-}
-.canVal[data-v='followers'] {
-  display: grid;
-}
-.hero:has(input:checked:not([value='followers'])) .canVal[data-v='followers'] {
-  display: none;
-}
-.hero:has(input[value='private']:checked) .canVal[data-v='private'],
-.hero:has(input[value='custom']:checked) .canVal[data-v='custom'],
-.hero:has(input[value='close']:checked) .canVal[data-v='close'],
-.hero:has(input[value='public']:checked) .canVal[data-v='public'] {
-  display: grid;
+  color: var(--l-ink);
 }
 
 /* one tiny line at the very bottom edge */
@@ -259,31 +314,74 @@
   opacity: 0.7;
 }
 
+/* ---------- the first paint with script on opens on Private (see crowd.module.css) ----------
+   The server renders the switch on Followers (the no-script state). Where the script is about
+   to pin the film, the word, the readout and the switch's thumb already show Private, so
+   nothing moves when it arrives. */
+@media (prefers-reduced-motion: no-preference) and (min-height: 560px) {
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .word[data-v='followers'],
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .canVal[data-v='followers'] {
+    transform: translateY(-105%);
+    transition: none;
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .canVal[data-v='followers'] {
+    visibility: hidden;
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .canVal[data-v='private'] {
+    visibility: visible;
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .word[data-v='private'],
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .canVal[data-v='private'] {
+    transform: none;
+    transition: none;
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .switch > div {
+    --i: 0;
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .switch input:checked + span {
+    color: var(--l-ink);
+  }
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .switch input[value='private'] + span {
+    color: var(--l-white);
+  }
+}
+
 /* ---------- phone ---------- */
 
 @media (max-aspect-ratio: 9/10) {
   .hero {
     --cw: calc(100% - 28px);
     --hfs: clamp(36px, calc(5.2 * var(--u)), 52px);
+    --wfs: calc(9.2 * var(--u));
+    --top: calc(var(--l-nav-h) + 6px);
+    --h1b: calc(var(--top) + 19px + 2.82 * var(--hfs));
   }
-  .ghosts {
-    left: 50%;
-    top: 55%;
+  .words {
+    left: 18px;
+    right: 18px;
+    top: calc(var(--h1b) - var(--wfs) * 0.08);
+    height: calc(var(--wfs) * 1.12);
   }
-  .ghost {
-    left: 50%;
-    top: 50%;
-    font-size: min(calc(112vw / var(--gw)), calc(var(--sh) * 0.3));
-    transform: translate(-50%, -50%);
-    transform-origin: 50% 50%;
+  .word {
+    left: 0;
+    right: auto;
+    font-size: min(var(--wfs), calc(43.5 * var(--u) / var(--gw)));
   }
-  .hero:has(input:checked:not([value='followers'])) .ghost[data-v='followers'] {
-    transform: translate(-50%, -44%) scale(0.96);
+  .group {
+    --cam-private: var(--cam-private-m);
+    --cam-close: var(--cam-close-m);
+    --cam-public: var(--cam-public-m);
+  }
+  .cardCap {
+    display: none;
+  }
+  .cardFrame {
+    box-shadow: 3px 3px 0 var(--l-ink);
   }
   .top {
     left: 18px;
     right: 18px;
-    top: calc(var(--l-nav-h) + 6px);
+    top: var(--top);
   }
   .h1 {
     gap: 7px;
@@ -306,54 +404,67 @@
     right: 18px;
     width: auto;
     bottom: auto;
-    top: calc(var(--l-nav-h) + 26px + 2.82 * var(--hfs) + 18px);
-    font-size: clamp(13.5px, calc(1.7 * var(--u)), 15.5px);
-    line-height: 1.34;
+    top: calc(var(--h1b) + var(--wfs) * 1.02 + 6px);
+    font-size: clamp(13px, calc(1.6 * var(--u)), 15px);
+    line-height: 1.3;
+  }
+  /* who can open it, as one plate under the feet */
+  .can {
+    left: 14px;
+    right: 14px;
+    bottom: auto;
+    top: calc(var(--floor) + 5px);
+    width: auto;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 0;
+    padding: 4px 12px 5px;
+    box-shadow: 3px 3px 0 var(--l-ink);
+  }
+  .canLabel {
+    display: none;
+  }
+  .canBox {
+    height: 40px;
+  }
+  /* the line says it: keep the value short so the line fits beside it */
+  .canVal[data-v='public'] .canBig > i {
+    display: none;
+  }
+  .canVal {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    align-content: center;
+    gap: 10px;
+  }
+  .canBig {
+    font-size: 24px;
+  }
+  .canNote {
+    font-size: 13px;
+    line-height: 1.16;
+    max-height: 2.4em;
+    overflow: hidden;
   }
   .console {
     left: 14px;
-    bottom: 148px;
+    bottom: 128px;
     gap: 0;
   }
-  .switch > div {
-    padding: 5px;
-    box-shadow: var(--l-shadow);
-  }
-  .switch > div > label {
-    min-height: 52px;
-  }
-  .switch > div > label > span {
-    font-size: 13px;
-  }
-  .switch > div > span {
-    top: 5px;
-    bottom: 5px;
-    left: 5px;
-    width: calc((100% - 10px) / 5);
-  }
   .labelRow {
-    order: -1;
-    justify-content: flex-start;
-    padding: 0 2px 9px;
-  }
-  .labelRow > span {
     display: none;
   }
-  .note {
-    left: 14px;
-    right: 14px;
-    bottom: 54px;
-    justify-content: center;
-    text-align: center;
-    font-size: 9px;
-    line-height: 1.35;
-    letter-spacing: 0.06em;
-    white-space: normal;
+  .switch {
+    --l-aud-h: 50px;
+    --l-aud-fs: 13px;
+    --l-aud-pad: 5px;
+    --l-aud-opt-px: 3px;
   }
   .cta {
     left: 14px;
     right: 14px;
-    bottom: 88px;
+    bottom: 72px;
     display: grid;
     grid-template-columns: 1fr 1.3fr;
     gap: 8px;
@@ -363,99 +474,196 @@
     --px: 8px;
     --fs: 15.5px;
   }
-  .console {
-    gap: 0;
-  }
-  /* who can open it, as one line on the switch's label row */
-  .can {
-    left: auto;
-    right: 16px;
-    bottom: 221px;
-    width: auto;
-    max-width: none;
-    padding: 0;
-    gap: 0;
-    background: none;
-    border: 0;
-    box-shadow: none;
-  }
-  .canLabel,
-  .canNote {
-    display: none;
-  }
-  .canBig {
-    gap: 0.7em;
-    font-family: var(--l-font-mono);
-    font-size: var(--l-size-label);
-    font-weight: 500;
-    letter-spacing: var(--l-track-label);
-    text-transform: uppercase;
-    font-variation-settings: normal;
-  }
-  .canBig > b {
-    font-weight: 500;
-  }
-  .canBig > i {
-    font-size: 1em;
-    font-weight: 500;
-    letter-spacing: inherit;
-  }
-  .leader {
-    --x: var(--xm);
-    --y: var(--ym);
-    --len: var(--lenm);
-    --ang: var(--angm);
-    display: block;
-    position: absolute;
-    left: 50%;
-    top: var(--floor);
-    z-index: 5;
-    width: calc(var(--len) * var(--u));
-    height: 0;
-    border-top: 2px solid var(--l-ink);
-    transform-origin: 0 0;
-    transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u) * -1)) rotate(var(--ang));
-    pointer-events: none;
-  }
-  .leaderDot {
-    z-index: 11;
-    border-top-color: transparent;
-  }
-  .leaderDot::before {
-    content: '';
-    position: absolute;
-    left: -6px;
-    top: -7px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--l-white);
-    border: 2px solid var(--l-ink);
-  }
-  .card figcaption {
-    font-size: 8px;
-    letter-spacing: 0.05em;
-    line-height: 1.25;
-  }
-  /* the card is small here: keep the mandatory line, drop the "This story." prefix */
-  .card figcaption > span {
-    display: none;
-  }
-  .card figure {
-    gap: 5px;
+  .note {
+    left: 14px;
+    right: 14px;
+    bottom: 45px;
+    text-align: center;
+    font-size: 9px;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    white-space: normal;
   }
   .small {
     left: 14px;
     right: 14px;
-    bottom: 8px;
+    bottom: 6px;
     font-size: 9.5px;
     line-height: 1.26;
     white-space: normal;
   }
+  /* as a poster the full group stands under the sub line, so it stands a little smaller */
+  :global([data-mode='poster']) .hero .group {
+    --cam: 0.74;
+  }
+}
+
+/* ---------- a tablet held upright: the desktop's sentence across the top, the phone's stack below ---------- */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .hero {
+    --cw: calc(58% - 32px);
+    --hfs: clamp(46px, calc(3.9 * var(--u)), 60px);
+    --wfs: calc(8.4 * var(--u));
+    --top: calc(var(--l-nav-h) + 10px);
+    --h1b: calc(var(--top) + 22px + 1.74 * var(--hfs) + 0.43 * var(--wfs));
+  }
+  .top {
+    left: 32px;
+    right: 32px;
+  }
+  .eyebrow {
+    font-size: 11.5px;
+    letter-spacing: var(--l-track-label);
+  }
+  .h1 br {
+    display: inline;
+  }
+  .display {
+    max-width: none;
+    white-space: nowrap;
+  }
+  /* the word sits on the headline's second line, right-aligned, as on a wide screen */
+  .words {
+    left: 32px;
+    right: 32px;
+    top: calc(var(--top) + 22px + 1.74 * var(--hfs) - 0.69 * var(--wfs));
+  }
+  .word {
+    left: auto;
+    right: 0;
+    font-size: min(var(--wfs), calc(34 * var(--u) / var(--gw)));
+  }
+  .group {
+    --cam-private: var(--cam-private-t);
+    --cam-close: var(--cam-close-t);
+    --cam-public: var(--cam-public-t);
+  }
+  .cardCap {
+    display: block;
+    font-size: 10px;
+  }
+  .cardFrame {
+    box-shadow: var(--l-shadow);
+  }
+  .sub {
+    left: 32px;
+    right: 32px;
+    top: calc(var(--h1b) + 6px);
+    max-width: 39em;
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .can {
+    left: 32px;
+    right: 32px;
+    top: calc(var(--floor) + 10px);
+    padding: 7px 18px 8px;
+    box-shadow: var(--l-shadow);
+  }
+  .canBox {
+    height: 46px;
+  }
+  .canVal {
+    gap: 16px;
+  }
+  .canBig {
+    font-size: 32px;
+  }
+  .canVal[data-v='public'] .canBig > i {
+    display: inline;
+  }
+  .canNote {
+    font-size: 16.5px;
+    line-height: 1.25;
+  }
+  /* the switch and the two buttons share one row */
+  .console {
+    left: 32px;
+    bottom: 100px;
+  }
+  .switch {
+    --l-aud-h: 56px;
+    --l-aud-fs: 15px;
+    --l-aud-pad: 6px;
+    --l-aud-opt-px: 6px;
+  }
+  .cta {
+    left: auto;
+    right: 32px;
+    width: calc(42% - 44px);
+    bottom: 100px;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 10px;
+  }
+  .cta > a {
+    --h: 68px;
+    --px: 10px;
+    --fs: 16.5px;
+  }
+  .note {
+    left: 32px;
+    right: 32px;
+    bottom: 64px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .small {
+    left: 32px;
+    right: 32px;
+    bottom: 18px;
+    font-size: 11px;
+  }
+  :global([data-mode='poster']) .hero .group {
+    --cam: 0.88;
+  }
+}
+
+/* ---------- a tablet on its side, or a small laptop: the bottom band, tightened ---------- */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1300px) {
+  .hero {
+    --cw: min(35vw, 56 * var(--u));
+  }
+  /* the deck sits under the big word at a reading size (it steps aside when the walk begins) */
+  .sub {
+    left: auto;
+    right: var(--l-gutter);
+    top: calc(var(--l-nav-h) + 38px + var(--hfs) * 0.98 + var(--wfs) * 0.92 + 6px);
+    width: min(31vw, 366px);
+    font-size: 16px;
+    line-height: 1.38;
+  }
+  /* the two albums on that side sit a little lower, clear of it */
+  .hero .album[data-i='1'] {
+    --x: 39;
+    --y: 22.5;
+  }
+  .hero .album[data-i='3'] {
+    --y: 7.5;
+  }
+  :global([data-mode='poster']) .hero .group {
+    --cam: 0.9;
+  }
+  .cta > a {
+    --h: 52px;
+    --px: 14px;
+    --fs: 15px;
+  }
+  .cta {
+    gap: 8px;
+  }
+  .switch {
+    --l-aud-h: 50px;
+    --l-aud-fs: 14.5px;
+    --l-aud-opt-px: 5px;
+  }
+  .canNote {
+    font-size: 13px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ghost {
-    transition: none;
+  .word,
+  .canVal {
+    transition: none !important;
   }
 }
