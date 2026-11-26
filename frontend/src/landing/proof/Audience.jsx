@@ -9,8 +9,7 @@
 // the pinned stage checks the radio for the step the scroll is on (DOM only, no React state).
 // Faces light from AUDIENCE_MATRIX, the same verified table as the matrix (content/proof.js).
 import { useRef } from 'react'
-import { AUDIENCE, AUDIENCE_COLUMNS, AUDIENCE_MATRIX, AUDIENCE_STEPS, CELL_TEXT, LINEUP } from '../content/proof.js'
-import { person } from '../content/cast.js'
+import { AUDIENCE, AUDIENCE_COLUMNS, AUDIENCE_MATRIX, AUDIENCE_STEPS, CELL_TEXT, CELL_SR, LINEUP, shortName } from '../content/proof.js'
 import { Head, Label, AudienceSwitch, AUDIENCES, Cutout, GhostWord, Icon, Stage } from '../ui/index.js'
 import { maybeArt } from '../art/manifest.js'
 import { clamp, remap } from '../lib/math.js'
@@ -60,7 +59,7 @@ function stateAttrs(col) {
 
 function Figure({ f, i }) {
   const isYou = f.col === 'you'
-  const name = f.anon ? AU.anyone : isYou ? person(f.id).short : person(f.id).short
+  const name = f.anon ? AU.anyone : shortName(f.id)
   if (f.anon) {
     const a = maybeArt(f.art)
     return (
@@ -84,7 +83,6 @@ function Figure({ f, i }) {
           </span>
           <span className={s.badgeName}>{isYou ? `${name} · ${AU.you}` : name}</span>
         </span>
-        <span className={s.badgeCard}>{AU.cardOnly}</span>
       </span>
     </li>
   )
@@ -111,13 +109,15 @@ function Readouts() {
   )
 }
 
+/** "Opens it" with a tick, or a quiet empty cell (named for screen readers only). */
 function Cell({ state }) {
+  if (state !== 'open') return <span className={cx(s.cell, s.cellQuiet)}><span className="l-sr">{CELL_SR}</span></span>
   return (
-    <span className={s.cell} data-state={state}>
+    <span className={s.cell} data-state="open">
       <span className={s.mark} aria-hidden="true">
-        {state === 'open' ? <Icon name="check" size={16} /> : state === 'card' ? <PIcon name="card" size={16} /> : <PIcon name="dash" size={16} />}
+        <Icon name="check" size={16} />
       </span>
-      <span className={s.cellText}>{CELL_TEXT[state]}</span>
+      <span className={s.cellText}>{CELL_TEXT.open}</span>
     </span>
   )
 }

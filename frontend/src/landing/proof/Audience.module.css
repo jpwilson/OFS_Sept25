@@ -145,7 +145,6 @@
 }
 .who {
   --lit: 0;
-  --card: 0;
   position: absolute;
   z-index: 2;
   left: calc(var(--x) * 1%);
@@ -225,7 +224,7 @@
   box-shadow: 2px 2px 0 var(--l-ink);
   white-space: nowrap;
   rotate: -2deg;
-  opacity: calc(0.62 + 0.38 * max(var(--lit), var(--card)));
+  opacity: calc(0.62 + 0.38 * var(--lit));
   transition: opacity 400ms ease, background-color 300ms ease;
 }
 .badgeRow {
@@ -254,21 +253,6 @@
   font-weight: 700;
   font-size: 15px;
   line-height: 1.1;
-}
-.badgeCard {
-  overflow: hidden;
-  max-height: calc(var(--card) * 18px);
-  opacity: var(--card);
-  font-family: var(--l-font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: center;
-  color: var(--l-mute);
-  transition:
-    max-height 300ms ease,
-    opacity 300ms ease;
 }
 .you .badge {
   background: var(--l-lime);
@@ -300,13 +284,6 @@
 .section:has(input[value='custom']:checked) .who[data-custom='open'],
 .section:has(input[value='public']:checked) .who[data-public='open'] {
   --lit: 1;
-}
-.section:has(input[value='private']:checked) .who[data-private='card'],
-.section:has(input[value='close']:checked) .who[data-close='card'],
-.section:has(input[value='followers']:checked) .who[data-followers='card'],
-.section:has(input[value='custom']:checked) .who[data-custom='card'],
-.section:has(input[value='public']:checked) .who[data-public='card'] {
-  --card: 1;
 }
 .section:has(input[value='private']:checked) .read[data-v='private'],
 .section:has(input[value='close']:checked) .read[data-v='close'],
@@ -520,22 +497,13 @@ tr:last-child .keyCol {
   background: var(--l-ink);
   color: var(--l-lime);
 }
-.cell[data-state='card'] .mark {
-  background: var(--l-white);
-  border-radius: 8px;
-}
-.cell[data-state='none'] .mark {
-  border-color: rgba(16, 27, 59, 0.3);
-  color: rgba(16, 27, 59, 0.45);
-}
 .cellText {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.15;
 }
-.cell[data-state='none'] .cellText {
-  font-weight: 500;
-  color: var(--l-mute);
+.cellQuiet {
+  min-height: 28px;
 }
 
 /* ---- phone: every row as a list, the chosen one open ---- */
@@ -741,9 +709,6 @@ tr:last-child .keyCol {
   .badgeName {
     font-size: 13px;
   }
-  .badgeCard {
-    display: none;
-  }
   .tick {
     width: calc(var(--lit) * 16px);
     height: 16px;
@@ -771,8 +736,7 @@ tr:last-child .keyCol {
 }
 @media (max-width: 900px) and (min-width: 761px) {
   .rowLists {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
+    max-width: 640px;
   }
 }
 /* very short phones: the readout's second line yields to the faces */
@@ -786,7 +750,6 @@ tr:last-child .keyCol {
   .fig,
   .badge,
   .tick,
-  .badgeCard,
   .read,
   .anyTag,
   .rowBtn,

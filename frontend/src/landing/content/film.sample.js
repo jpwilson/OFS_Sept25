@@ -8,7 +8,7 @@ export const STORY = {
   coast: { id: 'coast', title: 'A week on the Maine coast', month: 'August', category: 'Vacations', audience: 'Followers', place: 'Acadia, Maine' },
   tetons: { id: 'tetons', title: 'Seven days in the Tetons', month: 'June', category: 'Vacations', audience: 'Followers', place: 'Grand Teton, Wyoming' },
   maui: { id: 'maui', title: 'Spring break in Maui', month: 'March', category: 'Vacations', audience: 'Followers', place: "Ka'anapali, Maui" },
-  wedding: { id: 'wedding', title: 'Kate and Marcus get married', month: 'May', category: 'Wedding', audience: 'Followers', place: 'Hudson Valley, New York' },
+  wedding: { id: 'wedding', title: 'Kate and James get married', month: 'May', category: 'Wedding', audience: 'Followers', place: 'Hudson Valley, New York' },
   kitchen: { id: 'kitchen', title: 'Six weeks without a kitchen', month: 'February', category: 'Projects', audience: 'Followers', place: 'Madison, Wisconsin' },
   marathon: { id: 'marathon', title: "Dad's first marathon", month: 'October', category: 'Milestones', audience: 'Custom Group', group: 'Run club', place: 'Chicago, Illinois' },
   ivy: { id: 'ivy', title: 'Ivy turns nine', month: 'November', category: 'Birthdays', audience: 'Close Family', place: 'Madison, Wisconsin' },
@@ -79,12 +79,12 @@ export const WORLD_TRIPS = [
 export const WORLD_CARDS = [
   { who: 'ruth', name: 'Nana Ruth', art: 'p-ruth-sunhat', photo: 'photo-trip-ruth', place: 'Juneau, Alaska' },
   { who: 'joe', name: 'Grandpa Joe', art: 'p-joe-suitcase', photo: 'photo-trip-joe', place: 'Galway, Ireland' },
-  { who: 'kate', name: 'Kate and Marcus', art: 'p-kate-pack', photo: 'photo-trip-kate', place: 'Amalfi coast' },
+  { who: 'kate', name: 'Kate and James', art: 'p-kate-pack', photo: 'photo-trip-kate', place: 'Amalfi coast' },
 ]
 /** Stories close enough to home to group into one bubble at this zoom. */
 export const WORLD_CLUSTER = '4'
 
-// ---- 04 WEDDING: "Kate and Marcus get married" ---------------------------------------------
+// ---- 04 WEDDING: "Kate and James get married" ---------------------------------------------
 export const WEDDING = {
   wall: [
     { art: 'photo-wedding-ready', caption: 'Getting ready.' },

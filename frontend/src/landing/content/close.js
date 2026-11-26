@@ -43,7 +43,6 @@ export const LOVE = {
   head: { before: 'Why families', mark: 'love', after: 'it.' },
   people: ['p-ruth-wave', 'p-joe-wave'],
   peopleAlt: 'Nana Ruth and Grandpa Joe waving',
-  quoteLabel: 'From our members',
   cards: [
     {
       line: 'Grandparents see the everyday.',
@@ -92,7 +91,7 @@ export const COMPARE = {
   label: 'Why Our Family Socials',
   more: 'Read more',
   person: 'p-marcus-camera',
-  personAlt: 'Uncle Marcus taking a photo',
+  personAlt: 'Uncle James taking a photo',
   cards: [
     {
       path: '/compare/facebook-groups',
