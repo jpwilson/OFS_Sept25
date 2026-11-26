@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { FOOTER } from '../content/close.js'
 import { biz } from '../content/business.js'
 import { Label, Sticker } from '../ui/index.js'
-import { Dots } from './Wordmark.jsx'
+import { Pin } from './Wordmark.jsx'
 import s from './Footer.module.css'
 
 /**
@@ -39,7 +39,7 @@ export function Footer() {
     <footer className={s.footer}>
       <div className={`l-wrap ${s.top}`}>
         <div className={s.lead}>
-          <Dots className={s.dots} />
+          <Pin className={s.pin} />
           <p className={s.small}>{FOOTER.small}</p>
           <p className={s.name}>{biz('copyright')}</p>
         </div>

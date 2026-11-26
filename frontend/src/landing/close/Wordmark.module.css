@@ -11,10 +11,12 @@
   white-space: nowrap;
   color: var(--l-ink);
 }
-.dots {
-  width: 38px;
-  height: auto;
+/* The pin's ink box is 57.5 x 49.5; at 30px tall it stands just over the sticker. */
+.pin {
+  height: 1.6em;
+  width: auto;
   flex: none;
+  margin-block: -0.2em;
 }
 .full {
   display: inline-block;
