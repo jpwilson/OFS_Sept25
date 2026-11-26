@@ -14,32 +14,30 @@ interactive world map and multi-stop journey maps built from photo GPS data, a
 timeline grouped by year, confirmed family relationships that build a family tree,
 no advertising anywhere in the product, and no selling of user data.
 
-Platform: a progressive web app. It runs in the browser on phone, tablet and
-desktop and can be installed to a phone home screen. There is no App Store or
-Google Play app.
+Platform: it runs in the browser on phone, tablet and desktop and can be added
+to a phone's home screen. A native iPhone app is in development.
 
 Pricing (published at https://www.ourfamilysocials.com/pricing): Free to View is $0/forever;
 Pro is $9/month billed annually ($108/year) or $12/month billed monthly;
 Lifetime is a one-time $294. Every new account gets a 30-day free trial of Pro
 and no credit card is required to start it.
 
-Not available yet: printed photo books are advertised on the site as coming soon.
-AI Create, which drafts an event story from a batch of photos, is in beta and
-requires a paid plan or an active free trial.
+AI Create drafts an event story from a batch of photos, a few typed lines or a
+voice note. It is included with Pro, Lifetime and the free trial.
 
 ## Key pages
 
 - [Our Family Socials - Private Family Social Network](https://www.ourfamilysocials.com/): Our Family Socials is a private, ad-free social network where families share life events, photos, journey maps and stories. Free to view, Pro from $9/month.
-- [Features - Our Family Socials](https://www.ourfamilysocials.com/features): Every feature of Our Family Socials: private event pages, a chronological family feed, interactive journey maps, GPS photo extraction and family trees.
+- [Features - Our Family Socials](https://www.ourfamilysocials.com/features): Every feature of Our Family Socials: private event pages, a chronological family feed, interactive journey maps, GPS photo extraction, AI Create and family trees.
 - [Pricing - Our Family Socials](https://www.ourfamilysocials.com/pricing): Our Family Socials pricing: free to view forever, Pro at $9/month billed annually or $12/month, and Lifetime at $294 once. 30-day free trial on all plans.
 - [FAQ - Our Family Socials](https://www.ourfamilysocials.com/faq): Answers to common questions about Our Family Socials: what it is, who can see your events, what the free plan includes, what Pro costs, and how sharing works.
 - [About Our Family Socials](https://www.ourfamilysocials.com/about): Our Family Socials is a private, ad-free social network built for families to share life events, photos and memories. Read why it exists and who it is for.
-- [Best private family sharing apps (honest comparison)](https://www.ourfamilysocials.com/alternatives): An honest look at private family sharing apps - FamilyAlbum, Tinybeans, private Facebook groups, private Instagram, cloud albums - and where each one wins.
-- [Our Family Socials vs private Facebook groups](https://www.ourfamilysocials.com/compare/facebook-groups): Private Facebook groups vs Our Family Socials for family photo sharing: cost, privacy, feed order, organisation, and where Facebook is still better.
-- [Our Family Socials vs Tinybeans](https://www.ourfamilysocials.com/compare/tinybeans): Tinybeans vs Our Family Socials: how a baby and toddler journal differs from a whole-family event network, and the cases where Tinybeans wins.
-- [Our Family Socials vs FamilyAlbum](https://www.ourfamilysocials.com/compare/familyalbum): FamilyAlbum vs Our Family Socials: free unlimited photo storage and prints versus private event pages, journey maps and a whole-family network.
-- [Our Family Socials vs a private Instagram account](https://www.ourfamilysocials.com/compare/private-instagram): Using a private Instagram account for family photos versus a private family social network. Honest comparison of privacy, organisation, feed order and cost.
-- [How to share kids' photos privately with family](https://www.ourfamilysocials.com/compare/how-to-share-photos-privately): How to share children's photos with family without public social media: cloud albums, group chats, child photo apps, private family networks.
+- [Why Our Family Socials - compare private family sharing](https://www.ourfamilysocials.com/alternatives): Why families are moving to Our Family Socials: long family stories, five audiences, journey maps and a timeline, no ads, nothing ranked, and readers are free.
+- [Our Family Socials vs private Facebook groups](https://www.ourfamilysocials.com/compare/facebook-groups): Coming from a private Facebook group? Our Family Socials gives your family whole stories, five audiences, journey maps, a feed in date order and no ads.
+- [Our Family Socials vs Tinybeans](https://www.ourfamilysocials.com/compare/tinybeans): Coming from Tinybeans? Keep every milestone and give the whole family a place for their stories, on one timeline and one map that grow up with your kids.
+- [Our Family Socials vs FamilyAlbum](https://www.ourfamilysocials.com/compare/familyalbum): Coming from FamilyAlbum? Turn your family photos into stories with Smart Import and AI Create, map every trip, and choose who opens each one.
+- [Our Family Socials vs a private Instagram account](https://www.ourfamilysocials.com/compare/private-instagram): Coming from a private Instagram account? Tell the long version: whole family stories with photos, clips and a map, opened by the audience you pick.
+- [How to share kids' photos privately with family](https://www.ourfamilysocials.com/compare/how-to-share-photos-privately): How to share children's photos with family privately: what to look for, and how to do it step by step on Our Family Socials, a private family social network.
 
 ## Full text
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { pageByPath } from '../content/marketing.js'
+import { pageByPath, JOIN_LINE } from '../content/marketing.js'
 import { useSeoHead } from '../content/useSeoHead.js'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -47,7 +47,8 @@ function PricingPage() {
         {/* Header */}
         <h1 className={styles.title}>Simple, transparent pricing</h1>
         <p className={styles.subtitle}>
-          Start for free. Upgrade when you need more. Only published events count towards your limit—drafts and deleted events are free!
+          Readers are free, forever. Storytellers start with a 30-day Pro trial, no card needed,
+          and pick Pro or Lifetime to keep publishing.
         </p>
 
         {/* Billing Toggle */}
@@ -76,11 +77,11 @@ function PricingPage() {
                 <span className={styles.priceAmount}>$0</span>
                 <span className={styles.pricePeriod}>/forever</span>
               </div>
-              <p className={styles.pricingDesc}>Perfect for family viewers</p>
+              <p className={styles.pricingDesc}>For the whole family of readers</p>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><strong>View-only once your trial ends</strong> — creating an event needs an active trial or subscription</li>
-              <li>View the events you have access to</li>
+              <li><strong>Read, like and comment, free forever</strong></li>
+              <li>Open the events of the people you follow, and every Public event</li>
               <li>Like and comment</li>
               <li>Follow family members</li>
               <li>Interactive maps & timeline</li>
@@ -97,7 +98,7 @@ function PricingPage() {
 
           {/* Pro Tier (Featured) */}
           <div className={`${styles.pricingCard} ${styles.featured}`}>
-            <div className={styles.popularBadge}>Most Popular</div>
+            <div className={styles.popularBadge}>For storytellers</div>
             <div className={styles.pricingHeader}>
               <h3>Pro</h3>
               <div className={styles.price}>
@@ -115,6 +116,7 @@ function PricingPage() {
               <li>GPS extraction from photos</li>
               <li>Privacy controls</li>
               <li>Rich text editor</li>
+              <li>AI Create and Smart Import</li>
             </ul>
             {user && isProTier ? (
               <span className={styles.currentPlan}>Current Plan</span>
@@ -156,7 +158,7 @@ function PricingPage() {
         {/* Pricing Footer */}
         <div className={styles.pricingFooter}>
           <p className={styles.pricingNote}>
-            <strong>30-day free trial on all accounts.</strong> Subscribe within 5 days for an extra month free!
+            <strong>30-day free trial on all accounts.</strong> Subscribe within 5 days for an extra month free.
           </p>
         </div>
 
@@ -168,26 +170,29 @@ function PricingPage() {
             <div className={styles.faqItem}>
               <h3>How does the free trial work?</h3>
               <p>
-                Sign up and get Pro features for 30 days, with no credit card required. You can
-                publish up to 5 events during the trial. If you subscribe within the first 5 days,
-                you get an extra month free (60 days total).
+                Sign up and get Pro for 30 days, with no credit card required, and publish up to
+                5 events. Subscribe to Pro during the trial and the days you have left are added on
+                before your first renewal. Subscribe within your first 5 days and we add an extra
+                30 days free on top.
               </p>
             </div>
 
             <div className={styles.faqItem}>
               <h3>What happens when my trial ends?</h3>
               <p>
-                You can still browse the feed, and you can still open your own events, any event
-                set to Public, and events from the people you follow. Opening anything else, and
-                creating new events, needs an active subscription.
+                Your free account keeps the feed, your own events, every event set to Public and
+                the events of the people you follow, all open to you, with likes and comments.
+                Opening everything else, and publishing new events, comes with an active trial or
+                subscription. Pick Pro or Lifetime whenever you are ready, and you are publishing
+                again straight away.
               </p>
             </div>
 
             <div className={styles.faqItem}>
               <h3>Can I cancel anytime?</h3>
               <p>
-                Yes! Cancel your subscription anytime with no questions asked.
-                You'll keep access until the end of your billing period.
+                Yes. Cancel your subscription anytime, with no questions asked. Every event you
+                have published stays right where it is, and you can pick up again whenever you like.
               </p>
             </div>
 
@@ -205,7 +210,7 @@ function PricingPage() {
         {!user && (
           <div className={styles.ctaSection}>
             <h2>Ready to preserve your family memories?</h2>
-            <p>Join families who are already sharing their stories.</p>
+            <p>{JOIN_LINE}</p>
             <Link to="/login?signup=true" className={styles.finalCta}>
               Start Your Free Trial
             </Link>

@@ -8,35 +8,83 @@
 //
 // Inline markup supported in strings: **bold** and [label](href).
 //
-// Every fact here must be traceable to this repo (PricingPage.jsx, the API
-// code, the FAQ) or to a competitor's own website, hedged and dated.
+// Voice (docs/landing/ROUND4.md section 1): say what the product does, in the
+// positive, warmly and truthfully. Never volunteer a limitation, a caveat or a
+// competitor's strength, and never run another product down. Every statement
+// about Our Family Socials must be true in the code today (docs/landing/SPEC.md
+// lists what may and may not be claimed). The member figure comes only from
+// src/landing/content/business.js, which the owner supplies.
 import { faqCategories, flatFaqs } from './faqData.js'
+import { biz } from '../landing/content/business.js'
 
-export const LAST_UPDATED = 'October 2026'
-// ISO form of the same date, used for sitemap <lastmod> and JSON-LD dateModified.
-// Bump both when the content on these pages actually changes.
-export const LAST_UPDATED_ISO = '2026-10-21'
+export const LAST_UPDATED = 'November 2026'
+// ISO form of the same date lives in site.js (sitemap <lastmod>, JSON-LD
+// dateModified). Bump both when the content on these pages actually changes.
+export { LAST_UPDATED_ISO } from './site.js'
+
+// "more than a million", from the owner's figure in business.js.
+const MEMBERS = 'more than ' + biz('membersWords')
+
+export const JOIN_LINE = `Join ${MEMBERS} people sharing their private moments with the people who matter to them.`
+
+const WHY_HEAD = `Why ${MEMBERS} people are moving to Our Family Socials`
 
 const PRICE_NOTE =
   'Free plan $0/forever, Pro $9/month billed annually ($108/year) or $12/month billed monthly, and a one-time Lifetime plan at $294. Every new account gets a 30-day free trial of Pro, no credit card required.'
 
-// The three notes below describe what the product actually enforces, so the
+// The notes below describe what the product actually enforces, so the
 // marketing copy, the FAQ, the JSON-LD and the llms files cannot promise more
 // than the code delivers. Sources: PrivacySelector.jsx and CreateEvent.jsx (the
 // audience options and their default), backend/app/utils/privacy.py
 // (can_view_event, filter_events_for_feed), backend/app/api/events.py
 // (create_event limits) and backend/app/models/user.py (can_view_event).
 const AUDIENCE_NOTE =
-  'You choose an audience for every event you create: **Followers** (the default), **Close Family**, a **custom group**, **Private** (only you) or **Public**. Public events can be opened by anyone who has the link, including people without an account, so choose a narrower audience for anything you want kept inside the family.'
+  'You choose an audience for every event you create: **Followers** (the default), **Close Family**, a **Custom Group**, **Private** (only you) or **Public** (anyone with the link, signed in or not). For anything just for the family, pick Followers, Close Family, a Custom Group or Private.'
 
 const FEED_NOTE =
-  'One thing worth knowing: signed-in members can see an event in the shared feed unless you set it to Private, and opening the event page itself is then gated by the audience you chose. People who are not signed in only ever see events set to Public.'
+  'Want a story nobody else even knows about? Make it Private, and it stays with you alone. Every other event shows its card (title, cover and place) in the feed of signed-in members, and opening the event itself always follows the audience you chose. Visitors who are not signed in can open Public events only.'
 
 const PLAN_RULES =
-  'Every new account starts with a 30-day Pro trial and no credit card is required. During the trial you can publish up to 5 events - only published events count, so drafts and deleted events are free. Pro and Lifetime remove the 5-event limit. If the trial ends and you have not subscribed you keep a free account for viewing, liking and commenting, but you cannot create new events until you subscribe.'
+  'Every new account starts with a 30-day Pro trial, no credit card required, with up to 5 published events (drafts and deleted events do not count). Pro and Lifetime make publishing unlimited. When a trial ends without a plan, the account stays free for reading, liking and commenting, and publishing new events is part of Pro and Lifetime.'
 
 const EXPIRED_VIEWING =
-  'After the trial you can still browse the feed, and you can still open your own events, any event set to Public, and events from the people you follow. Opening anything else needs an active trial or subscription.'
+  'Your free account keeps the feed, your own events, every event set to Public and the events of the people you follow, all open to you, with likes and comments. Opening everything else, and publishing new events, comes with an active trial or subscription.'
+
+// --- shared building blocks for the comparison pages ---
+// Written about Our Family Socials only. Each page frames them for someone
+// arriving from a particular product, and adds its own sections.
+
+const STORY_NAME_NOTE = 'In the app, a story is called an event.'
+
+const AUDIENCE_LIST = {
+  ul: [
+    '**Private**: just you, until you make a share link for it.',
+    '**Custom Group**: a named list you build from the people you follow, such as "Run club" or "The cousins".',
+    '**Close Family**: the followers you have marked as close family.',
+    '**Followers**: everyone whose follow request you accepted. New stories start here.',
+    '**Public**: anyone with the link, signed in or not.'
+  ]
+}
+
+const SHARE_LINK =
+  'Want to send one story to someone without an account? Make a share link. It opens that one story for anyone you give it to, for 1 to 5 days, your choice.'
+
+const MAP_AND_TIMELINE =
+  'The places come from your photos. Our Family Socials reads where and when each photo was taken, right in your browser, and every located photo becomes a numbered stop on the story\'s journey map, joined in order by a dashed line. Then the whole family history opens four ways: a feed in date order, a calendar, a world map with a pin for every story, and a timeline by year.'
+
+const NO_ADS =
+  'Nothing here is ranked. Stories from the people you follow arrive in date order, by the day they were posted or the day they happened, your choice. There are no ads anywhere in Our Family Socials and we never sell your data. Filter by person, category or date range whenever you want to find something.'
+
+const READERS_FREE =
+  'Readers are free, forever: grandparents, cousins and friends read, like and comment on the stories of the people they follow without paying a thing. The plans: ' + PRICE_NOTE
+
+const AI_CREATE =
+  'Add your photos or clips, then type or simply say what happened. AI Create comes back with a title, a story with section headings, a caption for every photo, a category and a place. AI Draft and AI Interview hand you the draft to polish before it goes out, and Quick Publish posts it straight away. AI Create is part of Pro and the free trial.'
+
+const SMART_IMPORT =
+  'Smart Import takes up to 300 photos at once and sorts them into albums by time and place. The time and place of each photo are read on your device, and only those details, never the pictures, are sent to group them. Your photos upload when you pick an album to turn into a story. Smart Import is part of Pro and the free trial.'
+
+const START_CTA = { cta: [{ text: 'Start free', href: '/login?signup=true', primary: true }, { text: 'Why Our Family Socials', href: '/alternatives' }] }
 
 // The home page sections that are rendered twice: once into static HTML by
 // scripts/prerender.mjs (what crawlers and AI engines read) and once by
@@ -51,13 +99,13 @@ export const HOME_SHARED_BLOCKS = [
       ul: [
         '**Follow family members** - see what your family is up to in a chronological feed, with no algorithm hiding posts. Never miss a birthday party, graduation, vacation or Sunday dinner.',
         '**Rich event pages** - photo galleries with lightbox viewing, rich text for the full story, comments and likes from family, and every detail that makes a trip worth remembering.',
-        '**Interactive maps and timeline** - see every trip on an interactive world map, follow multi-location journey maps, and browse a timeline organised by year. Filter by person, place or date.',
+        '**Interactive maps and timeline** - see every trip on an interactive world map, follow multi-location journey maps, and browse a timeline organized by year. Filter by person, category or date.',
         '**GPS extraction from photos** - Our Family Socials reads the location data already stored in your photos and suggests the places you visited.',
         '**Video support** - add video clips alongside photos, with a built-in trimmer.',
-        '**AI Create (beta)** - upload a batch of photos and AI groups them, asks a few questions and drafts the story for you to edit. Available on a paid plan or during the free trial.',
+        '**AI Create** - add your photos, type or say what happened, and AI Create drafts the story, the headings and a caption for every photo. Part of Pro and the free trial.',
         '**Family trees** - a visual family tree built from relationships both people have confirmed.',
         '**Tag profiles** - tag children, older relatives or pets who do not have an account yet; they can claim the profile later.',
-        '**Audience controls** - choose who sees each event, from Public down to a custom group such as "close family only" or Private, just for you.'
+        '**Audience controls** - choose who opens each event, from Public down to a Custom Group such as "close family only" or Private, just for you.'
       ]
     },
     { h2: 'How it works' },
@@ -122,13 +170,13 @@ const home = {
       ul: [
         '[Features](/features) - everything Our Family Socials does, in one list.',
         '[Pricing](/pricing) - the free plan, Pro and Lifetime.',
-        '[FAQ](/faq) - 30 questions about privacy, events, billing and sharing.',
+        '[FAQ](/faq) - answers about privacy, events, billing and sharing.',
         '[About](/about) - why this exists and who it is for.',
-        '[Private family sharing app alternatives](/alternatives) - an honest look at the other options.',
-        '[Our Family Socials vs private Facebook groups](/compare/facebook-groups)',
-        '[Our Family Socials vs Tinybeans](/compare/tinybeans)',
-        '[Our Family Socials vs FamilyAlbum](/compare/familyalbum)',
-        '[Our Family Socials vs a private Instagram account](/compare/private-instagram)',
+        '[Why Our Family Socials](/alternatives) - why families are moving here.',
+        '[Coming from a private Facebook group](/compare/facebook-groups)',
+        '[Coming from Tinybeans](/compare/tinybeans)',
+        '[Coming from FamilyAlbum](/compare/familyalbum)',
+        '[Coming from a private Instagram account](/compare/private-instagram)',
         '[How to share kids\' photos privately with family](/compare/how-to-share-photos-privately)'
       ]
     },
@@ -140,92 +188,86 @@ const features = {
   path: '/features',
   title: 'Features - Our Family Socials',
   description:
-    'Every feature of Our Family Socials: private event pages, a chronological family feed, interactive journey maps, GPS photo extraction and family trees.',
+    'Every feature of Our Family Socials: private event pages, a chronological family feed, interactive journey maps, GPS photo extraction, AI Create and family trees.',
   h1: 'Our Family Socials features',
   lede:
-    'Our Family Socials is a private family social network, and these are the features it ships with today. Everything below is live in the product; anything still being built is marked as such.',
+    'Our Family Socials is a private family social network built around the story: the long version of a trip, a birthday or a Sunday dinner, with your words, your photos, your clips and a map, opened by exactly the people you choose. Here is everything that comes with it, live today.',
   breadcrumb: 'Features',
   blocks: [
     { h2: 'A private, chronological family feed' },
     {
       p:
-        'Follow the family members and close friends you care about. Their events appear in a feed ordered by time, not by an engagement algorithm, so a quiet post about a grandparent\'s birthday is just as visible as a three-week holiday. Following is request-based: every follow request is yours to accept or decline.'
+        'Follow the family members and close friends you care about. Their events appear in a feed in date order, never ranked, so a quiet post about a grandparent\'s birthday sits right next to a three-week vacation. Following is request-based: every follow request is yours to accept or decline.'
     },
     {
       ul: [
-        'Chronological feed with no algorithmic ranking',
+        'A feed in date order, with nothing ranked',
         'Follow requests you accept or decline',
-        'Likes and comments from the people you have approved',
-        'Notifications for major life events',
+        'Likes, ten reactions and nested replies from the people you have approved',
+        'Email when someone asks to follow you, comments on your story or posts a new one',
         'Email invitations so you can bring relatives in directly'
       ]
     },
     { h2: 'Rich event pages instead of single posts' },
     {
       p:
-        'The core unit in Our Family Socials is an event, not a post. An event is a trip, a birthday, a graduation or a Sunday dinner, with everything that belongs to it in one place.'
+        'The heart of Our Family Socials is the event, which we also call a story. An event is a trip, a birthday, a graduation or a Sunday dinner, with everything that belongs to it in one place.'
     },
     {
       ul: [
-        'Photo galleries with full-screen lightbox viewing',
-        'A rich text editor for the story behind the photos',
-        'Video clips, with a built-in trimmer before upload',
-        'Multiple locations per event, for road trips and multi-stop holidays',
+        'Photo galleries that open full screen, with a slideshow and zoom',
+        'A rich text editor for the story behind the photos, with headings that build a contents list',
+        'Video clips right in the story, with a built-in trimmer to pick the best moment',
+        'Multiple locations per event, for road trips and multi-stop vacations',
         'Dates, categories and tagged family members',
-        'Drafts that only you can see, and a trash that holds deleted events for 30 days'
+        'Drafts that only you can see, and a trash you can restore events from'
       ]
     },
     { h2: 'Maps, journeys and timeline' },
     {
       p:
-        'Because every event can carry locations, your family history becomes something you can browse geographically as well as chronologically.'
+        'Because every event can carry locations, your family history becomes something you can browse by place as well as by date.'
     },
     {
       ul: [
-        'An interactive world map with a marker for every event you have access to',
-        'Journey maps that connect the stops of a single multi-location trip',
-        'A timeline view grouped by year',
-        'Filters by person, place, category and date',
+        'An interactive world map with a pin for every event you can open',
+        'Journey maps that connect the stops of a single multi-location trip, in order',
+        'A timeline view grouped by year, and a calendar view',
+        'Filters by person, category and date range',
         'Automatic GPS extraction from photo metadata, so locations are suggested for you'
       ]
     },
-    { h2: 'AI Create (beta)' },
-    {
-      p:
-        'AI Create helps with the part most people never get round to: writing the story. You upload a batch of photos, it groups them into a coherent album, asks you a few questions about the trip, and drafts a description you can edit. It is a beta feature, it can make mistakes, and you always review the draft before publishing. AI Create requires an active paid plan or an active free trial.'
-    },
+    { h2: 'AI Create' },
+    { p: AI_CREATE },
+    { h2: 'Smart Import' },
+    { p: SMART_IMPORT },
     { h2: 'Family trees and relationships' },
     {
       p:
-        'You can record how people are actually related - sister, dad, cousin - and both people have to confirm the relationship before it counts. Confirmed relationships build an interactive family tree. For relatives who are not on the platform (young children, older relatives, even pets) you can create a tag profile, tag them in events, and let them claim the profile if they join later.'
+        'You can record how people are actually related - sister, dad, cousin - and both people confirm the relationship. Confirmed relationships build an interactive family tree. For relatives who are not on Our Family Socials yet (young children, older relatives, even pets) you can create a tag profile, tag them in events, and let them claim the profile when they join.'
     },
     { h2: 'Audience and privacy controls' },
     { p: AUDIENCE_NOTE },
     {
       ul: [
-        'Five audience settings per event: Followers (the default), Close Family, a custom group, Private, or Public',
-        'Public events are readable by anyone with the link, signed in or not - they are the one setting that is not family-only',
-        'Private share links let someone view one specific event without an account, and nothing else',
-        'Follow requests are approved by you, and verified relationships need both people to confirm',
+        'Five audience settings per event: Followers (the default), Close Family, a Custom Group, Private, or Public',
+        'Public events open for anyone with the link, signed in or not, for the stories you want to share widely',
+        'Private share links open one specific event for someone without an account, for 1 to 5 days',
+        'Follow requests are approved by you, and verified relationships are confirmed by both people',
         'No advertising anywhere in the product, and no selling of your data'
       ]
     },
     { p: FEED_NOTE },
-    { h2: 'Works on the device you already have' },
+    { h2: 'On every phone, tablet and computer' },
     {
       p:
-        'Our Family Socials is a progressive web app. It runs in the browser on phones, tablets and computers, and on most phones you can add it to your home screen so it opens like a native app. There is no App Store or Google Play download to wait for.'
-    },
-    { h2: 'Coming soon' },
-    {
-      p:
-        'Printed photo books from an event are advertised on the home page as coming soon. They are not available yet, so do not pick Our Family Socials for printing today.'
+        'Our Family Socials runs in the browser on phones, tablets and computers. Add it to your phone\'s home screen today and it opens just like an app, and our iPhone app is on the way.'
     },
     { h2: 'What it costs' },
     { p: PRICE_NOTE },
     { p: PLAN_RULES },
     { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'See pricing', href: '/pricing' }] },
-    { p: 'See also: [FAQ](/faq), [about Our Family Socials](/about) and [private family sharing alternatives](/alternatives).' }
+    { p: 'See also: [FAQ](/faq), [about Our Family Socials](/about) and [why families are moving to Our Family Socials](/alternatives).' }
   ]
 }
 
@@ -236,16 +278,16 @@ const pricing = {
     'Our Family Socials pricing: free to view forever, Pro at $9/month billed annually or $12/month, and Lifetime at $294 once. 30-day free trial on all plans.',
   h1: 'Simple, transparent pricing',
   lede:
-    'Our Family Socials is free to view forever, and paid when you want to create events beyond the 5 you can publish during your trial. Start for free, upgrade when you need more.',
+    'Readers are free, forever. Storytellers start with a 30-day Pro trial, no card needed, and pick Pro or Lifetime to keep publishing. ' + JOIN_LINE,
   breadcrumb: 'Pricing',
   blocks: [
     { p: PLAN_RULES },
     { h2: 'Free to View - $0/forever' },
-    { p: 'Perfect for family viewers.' },
+    { p: 'For the whole family of readers.' },
     {
       ul: [
-        '**View-only once your trial ends** - creating an event needs an active trial or subscription',
-        'View the events you have access to',
+        '**Read, like and comment, free forever**',
+        'Open the events of the people you follow, and every Public event',
         'Like and comment',
         'Follow family members',
         'Interactive maps & timeline',
@@ -253,7 +295,7 @@ const pricing = {
       ]
     },
     { h2: 'Pro - $9/month billed annually, or $12/month billed monthly' },
-    { p: 'Most popular. Billed annually at $108/year, or monthly at $12/month.' },
+    { p: 'For storytellers. Billed annually at $108/year, or monthly at $12/month.' },
     {
       ul: [
         '**Create unlimited events**',
@@ -261,7 +303,8 @@ const pricing = {
         'Journey mapping',
         'GPS extraction from photos',
         'Privacy controls',
-        'Rich text editor'
+        'Rich text editor',
+        'AI Create and Smart Import'
       ]
     },
     { h2: 'Lifetime - $294 once' },
@@ -282,15 +325,15 @@ const pricing = {
       faq: [
         {
           q: 'How does the free trial work?',
-          a: 'Sign up and get Pro features for 30 days, with no credit card required. You can publish up to 5 events during the trial. If you subscribe within the first 5 days, you get an extra month free (60 days total).'
+          a: 'Sign up and get Pro for 30 days, with no credit card required, and publish up to 5 events. Subscribe to Pro during the trial and the days you have left are added on before your first renewal. Subscribe within your first 5 days and we add an extra 30 days free on top.'
         },
         {
           q: 'What happens when my trial ends?',
-          a: EXPIRED_VIEWING + ' You cannot create new events until you subscribe.'
+          a: EXPIRED_VIEWING + ' Pick Pro or Lifetime whenever you are ready, and you are publishing again straight away.'
         },
         {
           q: 'Can I cancel anytime?',
-          a: 'Yes! Cancel your subscription anytime with no questions asked. You\'ll keep access until the end of your billing period.'
+          a: 'Yes. Cancel your subscription anytime, with no questions asked. Every event you have published stays right where it is, and you can pick up again whenever you like.'
         },
         {
           q: 'What payment methods do you accept?',
@@ -310,23 +353,23 @@ const about = {
     'Our Family Socials is a private, ad-free social network built for families to share life events, photos and memories. Read why it exists and who it is for.',
   h1: 'About Our Family Socials',
   lede:
-    'Our Family Socials is a private, ad-free social network designed specifically for families to share life events, photos and memories together. Unlike public social media platforms, a new event goes to the family you have approved rather than to the open internet, and there are no algorithms deciding what you see.',
+    'Our Family Socials is a private, ad-free social network made for families to share life events, photos and memories together. A new event goes to the family you have approved, you choose the audience for every one, and the feed is in date order with nothing ranked. ' + JOIN_LINE,
   breadcrumb: 'About',
   blocks: [
     { h2: 'Why it exists' },
     {
       p:
-        'We built this platform because existing social networks were not designed for families. They are cluttered with ads, algorithms hide your posts, and your family photos end up mixed with everything else in an endless scroll. Our Family Socials gives families a dedicated space to preserve memories the way they deserve.'
+        'We built Our Family Socials for our own family: one place where the long version of our lives could live, from the road trip to the school play, shared with the people who already know the kids\' names. It gives every family a space of its own to keep their memories the way they deserve, and to come back to them for years.'
     },
-    { h2: 'Why we are different' },
+    { h2: 'What makes it ours' },
     {
       ul: [
-        '**You choose the audience** - a new event goes to the followers you have approved, and you can set any event to Close Family, a custom group such as "close family only", Private (just you) or Public (anyone with the link).',
-        '**No ads, ever** - we will never sell your data or show you ads. Your family memories are not a product to be monetised.',
+        '**You choose the audience** - a new event goes to the followers you have approved, and you can set any event to Close Family, a Custom Group such as "close family only", Private (just you) or Public (anyone with the link).',
+        '**No ads, ever** - we will never sell your data or show you ads. Your family memories are not a product to be monetized.',
         '**Rich event pages** - photo galleries, detailed stories, multiple locations and GPS-tagged journey maps.',
-        '**Interactive maps and timeline** - see your family\'s adventures on an interactive world map, and watch years of memories unfold chronologically.',
-        '**AI Create (beta)** - let AI help draft an event description from your photos, then edit it yourself.',
-        '**Built for families** - made by a family, for families. We use this app ourselves to stay connected with our own loved ones.'
+        '**Interactive maps and timeline** - see your family\'s adventures on an interactive world map, and watch years of memories unfold in order.',
+        '**AI Create** - add your photos, type or say what happened, and AI drafts the story for you to make your own.',
+        '**Built for families** - made by a family, for families. We use Our Family Socials ourselves to stay close to our own loved ones.'
       ]
     },
     { h2: 'How it works' },
@@ -335,24 +378,24 @@ const about = {
         '**Create an account** - sign up for free at ourfamilysocials.com. You get a 30-day Pro trial automatically, with up to 5 published events during it.',
         '**Follow your family** - send follow requests to family members. Once they accept, you see each other\'s events.',
         '**Share life events** - create event pages with photos, stories, locations and dates. Choose the audience for each event.',
-        '**Stay connected** - view your family\'s events in the feed, on the map or in the timeline. Comment, like and engage.'
+        '**Stay connected** - view your family\'s events in the feed, on the map or in the timeline. Comment, like and cheer each other on.'
       ]
     },
     { h2: 'Who it is for' },
     {
       ul: [
-        '**Parents** wanting to share kids\' milestones with grandparents',
-        '**Extended families** staying connected across distance',
-        '**Travellers** documenting vacations with rich photo albums and maps',
-        '**Anyone** tired of public social media and looking for a private alternative',
-        '**Families** who value privacy and want to preserve memories without ads'
+        '**Parents** sharing kids\' milestones with grandparents',
+        '**Extended families** staying close across any distance',
+        '**Travelers** telling the story of every trip with photo albums and maps',
+        '**Anyone** who wants to share their life privately with the people who matter',
+        '**Families** who value privacy and want to keep their memories ad-free'
       ]
     },
     { h2: 'Pricing' },
     { p: PRICE_NOTE },
     { p: PLAN_RULES },
     { cta: [{ text: 'Sign up free', href: '/login?signup=true', primary: true }, { text: 'View pricing details', href: '/pricing' }] },
-    { p: 'See also: [features](/features), the [FAQ](/faq) and [how we compare to the alternatives](/alternatives).' }
+    { p: 'See also: [features](/features), the [FAQ](/faq) and [why families are moving to Our Family Socials](/alternatives).' }
   ]
 }
 
@@ -363,7 +406,7 @@ const faq = {
     'Answers to common questions about Our Family Socials: what it is, who can see your events, what the free plan includes, what Pro costs, and how sharing works.',
   h1: 'Our Family Socials FAQ',
   lede:
-    'Frequently asked questions about Our Family Socials, a private social network for families. If your question is not answered here, email ' + 'support@ourfamilysocials.com.',
+    'Frequently asked questions about Our Family Socials, a private social network for families. Anything else you would like to know, just email ' + 'support@ourfamilysocials.com.',
   breadcrumb: 'FAQ',
   isFaqPage: true,
   blocks: [
@@ -377,73 +420,42 @@ const compareFacebookGroups = {
   path: '/compare/facebook-groups',
   title: 'Our Family Socials vs private Facebook groups',
   description:
-    'Private Facebook groups vs Our Family Socials for family photo sharing: cost, privacy, feed order, organisation, and where Facebook is still better.',
-  h1: 'Our Family Socials vs private Facebook groups',
+    'Coming from a private Facebook group? Our Family Socials gives your family whole stories, five audiences, journey maps, a feed in date order and no ads.',
+  h1: 'Coming from a private Facebook group? Welcome to Our Family Socials.',
   lede:
-    'A private Facebook group is the default way most families share photos, and Our Family Socials is a purpose-built private family network. This page compares the two fairly so you can pick the right one. Facts about Facebook are general and taken from Meta\'s own documentation as of October 2026 - check [facebook.com](https://www.facebook.com/) for current details.',
-  breadcrumb: 'vs private Facebook groups',
+    JOIN_LINE + ' Bring your family group with you, and give every trip, birthday and Sunday dinner the room it deserves: a whole story, opened by exactly the people you pick.',
+  breadcrumb: 'Coming from a private Facebook group',
   updated: LAST_UPDATED,
   blocks: [
-    { h2: 'The short answer' },
+    { h2: 'Every moment gets its own story' },
     {
       p:
-        'Use a private Facebook group if every relative is already on Facebook, you want it to cost nothing, and you mainly want a chat-and-photos stream. Use Our Family Socials if you want family memories kept off an advertising platform, organised into event pages with maps and a timeline, and visible in the order they were posted.'
+        'On Our Family Socials, each moment gets a page of its own: your writing, a gallery of captioned photos, video clips, the dates, and a journey map of everywhere you went. Add a few headings and the page builds a contents list for you, and every story ends with a gallery of everything that opens full screen as a slideshow. ' + STORY_NAME_NOTE
     },
-    { h2: 'Where private Facebook groups are stronger' },
+    { h2: 'You decide who opens each story' },
+    {
+      p:
+        'Every story carries its own audience, so the bath-time video and the big family reunion can go to different people. Choose from five:'
+    },
+    AUDIENCE_LIST,
+    { p: SHARE_LINK },
+    { h2: 'A feed in date order, with no ads' },
+    { p: NO_ADS },
+    { h2: 'Your family on a map and a timeline' },
+    { p: MAP_AND_TIMELINE },
+    { h2: 'Bringing the family over' },
     {
       ul: [
-        '**No cost.** Facebook groups are free to create and use. Our Family Socials charges for creating unlimited events.',
-        '**Everyone is already there.** No relative has to sign up for a new service, and most already know how groups work.',
-        '**More general-purpose tools.** Group chat, polls, RSVP-style events and a much larger ecosystem of features.',
-        '**Native iOS and Android apps** with years of polish; Our Family Socials is a progressive web app you add to your home screen.'
+        '**Invite by email.** Send relatives an invitation straight from Our Family Socials, and you are connected as soon as they sign up with it.',
+        '**Readers are free, forever.** Grandparents and cousins read, like and comment without paying a thing.',
+        '**On every phone.** Add Our Family Socials to your phone\'s home screen today, and our iPhone app is on the way.',
+        '**Room for everyone.** Tag the kids, the grandparents and even the dog, with or without an account; they can claim their profile later. Confirmed relationships build your family tree.'
       ]
     },
-    { h2: 'Key differences' },
-    {
-      compare: {
-        aLabel: 'Private Facebook group',
-        bLabel: 'Our Family Socials',
-        rows: [
-          {
-            h: 'Platform and business model',
-            a: 'Runs on Meta\'s advertising platform, which is funded by ads and subject to Meta\'s policy changes.',
-            b: 'A separate, subscription-funded platform. No advertising in the product and no selling of your data.'
-          },
-          {
-            h: 'Feed order',
-            a: 'Facebook ranks what you see algorithmically, so posts in a group may not appear chronologically and can be missed.',
-            b: 'Strictly chronological. Every event from the people you follow appears in the order it was shared.'
-          },
-          {
-            h: 'Organisation',
-            a: 'Posts live in one long scroll. Finding last year\'s holiday album means scrolling or searching.',
-            b: 'Events organised by date, location, person and category, with timeline and map views.'
-          },
-          {
-            h: 'Location features',
-            a: 'Basic location tagging on a post.',
-            b: 'Interactive world map, multi-stop journey maps, and automatic GPS extraction from photo metadata.'
-          },
-          {
-            h: 'Page depth',
-            a: 'A post with a caption and an album.',
-            b: 'An event page with a rich text story, galleries, videos, multiple locations, dates and tagged family members.'
-          },
-          {
-            h: 'Account requirements',
-            a: 'Every member needs a Facebook account.',
-            b: 'Sign-up with an email address, or view a single event through a private share link with no account at all.'
-          }
-        ]
-      }
-    },
     { h2: 'What it costs' },
-    {
-      p:
-        'A Facebook group costs nothing. Our Family Socials is free to view forever, and paid when you want to create unlimited events: ' + PRICE_NOTE
-    },
-    { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'Compare the alternatives', href: '/alternatives' }] },
-    { p: 'See also: [vs Tinybeans](/compare/tinybeans), [vs FamilyAlbum](/compare/familyalbum), [vs a private Instagram account](/compare/private-instagram).' }
+    { p: READERS_FREE },
+    START_CTA,
+    { p: 'See also: [coming from Tinybeans](/compare/tinybeans), [coming from FamilyAlbum](/compare/familyalbum), [coming from a private Instagram account](/compare/private-instagram).' }
   ]
 }
 
@@ -451,69 +463,40 @@ const compareTinybeans = {
   path: '/compare/tinybeans',
   title: 'Our Family Socials vs Tinybeans',
   description:
-    'Tinybeans vs Our Family Socials: how a baby and toddler journal differs from a whole-family event network, and the cases where Tinybeans wins.',
-  h1: 'Our Family Socials vs Tinybeans',
+    'Coming from Tinybeans? Keep every milestone and give the whole family a place for their stories, on one timeline and one map that grow up with your kids.',
+  h1: 'Coming from Tinybeans? Welcome to Our Family Socials.',
   lede:
-    'Tinybeans is a private photo-sharing app built around young children, and Our Family Socials is a private social network for a whole family\'s events. They overlap, but they are aimed at different jobs. Details about Tinybeans below are general and taken from [tinybeans.com](https://tinybeans.com/) as of October 2026; check their site for current features and prices.',
-  breadcrumb: 'vs Tinybeans',
+    JOIN_LINE + ' Keep sharing every first step and first day of school, and give the rest of the family a place for their stories too, all on one timeline that grows up with your kids.',
+  breadcrumb: 'Coming from Tinybeans',
   updated: LAST_UPDATED,
   blocks: [
-    { h2: 'The short answer' },
+    { h2: 'Every milestone gets a whole story' },
     {
       p:
-        'Choose Tinybeans if your main need is a private day-by-day journal of a baby or young child, shared with a small circle, from a polished mobile app. Choose Our Family Socials if you want one private space for the whole family\'s events - kids\' milestones but also holidays, anniversaries, reunions and grandparents\' birthdays - organised on a map and a timeline.'
-      },
-    { h2: 'Where Tinybeans is stronger' },
-    {
-      ul: [
-        '**Native iOS and Android apps**, where Our Family Socials is a progressive web app you install from the browser.',
-        '**Purpose-built for the baby and toddler years**, including milestone tracking and a daily journal format that fits that stage well.',
-        '**Printed photo books are available today.** Photo books in Our Family Socials are advertised as coming soon and are not available yet.',
-        '**A large library of parenting articles** published alongside the app.',
-        '**A much longer track record** and a far bigger existing user base.'
-      ]
+        'A story on Our Family Socials is the long version: what happened, in your words, with a gallery of captioned photos, video clips, the dates and the places. Give each story up to two categories from Birthdays, Anniversaries, Vacations, Family Gatherings, Holidays, Projects, Daily Life and Milestones, or make your own, and every first tooth and every birthday party is easy to find again. ' + STORY_NAME_NOTE
     },
-    { h2: 'Key differences' },
+    { h2: 'Room for the whole family' },
     {
-      compare: {
-        aLabel: 'Tinybeans',
-        bLabel: 'Our Family Socials',
-        rows: [
-          {
-            h: 'Who the content is about',
-            a: 'Primarily a child: a private journal of a baby or young child shared with invited loved ones.',
-            b: 'The whole family: kids\' milestones, holidays, weddings, reunions, Sunday dinners, grandparents\' birthdays.'
-          },
-          {
-            h: 'Unit of content',
-            a: 'Dated photo and video entries in a journal, organised by day and month.',
-            b: 'Event pages: a trip or celebration with a story, galleries, videos, dates and several locations.'
-          },
-          {
-            h: 'Maps',
-            a: 'Not a focus of the product.',
-            b: 'Interactive world map, multi-stop journey maps, and GPS extraction from photo metadata.'
-          },
-          {
-            h: 'Network shape',
-            a: 'An invited audience for your own journal.',
-            b: 'A follow graph across the extended family, plus confirmed relationships and a family tree.'
-          },
-          {
-            h: 'Platform',
-            a: 'Native mobile apps plus a web view.',
-            b: 'Progressive web app on phone, tablet and desktop; installable to the home screen.'
-          }
-        ]
-      }
+      p:
+        'Grandparents, aunts, uncles and cousins follow each other and tell their own stories, so the family\'s year is all in one place: the kids\' milestones, Grandpa\'s seventieth, the cousins\' camping trip. Tag the children with a profile of their own that they can claim when they are older, and confirm how everyone is related to build your family tree.'
     },
+    { h2: 'You decide who opens each story' },
+    {
+      p:
+        'Every story has its own audience. Send the first-day-of-school photos to Close Family and the soccer final to all your followers. Choose from five:'
+    },
+    AUDIENCE_LIST,
+    { p: SHARE_LINK },
+    { h2: 'Look back on every year' },
+    { p: MAP_AND_TIMELINE },
+    { h2: 'Easy to make, even on a busy day' },
+    { p: AI_CREATE },
+    { h2: 'No ads, nothing ranked' },
+    { p: NO_ADS },
     { h2: 'What it costs' },
-    {
-      p:
-        'Tinybeans offers a free tier and a paid Tinybeans+ subscription; see [tinybeans.com](https://tinybeans.com/) for current pricing, which we deliberately do not quote here because it changes. Our Family Socials: ' + PRICE_NOTE
-    },
-    { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'Compare the alternatives', href: '/alternatives' }] },
-    { p: 'See also: [vs FamilyAlbum](/compare/familyalbum), [vs private Facebook groups](/compare/facebook-groups).' }
+    { p: READERS_FREE },
+    START_CTA,
+    { p: 'See also: [coming from FamilyAlbum](/compare/familyalbum), [coming from a private Facebook group](/compare/facebook-groups).' }
   ]
 }
 
@@ -521,73 +504,37 @@ const compareFamilyAlbum = {
   path: '/compare/familyalbum',
   title: 'Our Family Socials vs FamilyAlbum',
   description:
-    'FamilyAlbum vs Our Family Socials: free unlimited photo storage and prints versus private event pages, journey maps and a whole-family network.',
-  h1: 'Our Family Socials vs FamilyAlbum',
+    'Coming from FamilyAlbum? Turn your family photos into stories with Smart Import and AI Create, map every trip, and choose who opens each one.',
+  h1: 'Coming from FamilyAlbum? Welcome to Our Family Socials.',
   lede:
-    'FamilyAlbum is a free, invite-only photo and video sharing app built around a child\'s album, and Our Family Socials is a private social network built around whole-family events. If you mainly need somewhere free to put a lot of photos, FamilyAlbum is hard to beat; if you want each trip told as a story on a map, this is where Our Family Socials fits. Details about FamilyAlbum are general and taken from [family-album.com](https://family-album.com/) as of October 2026.',
-  breadcrumb: 'vs FamilyAlbum',
+    JOIN_LINE + ' Bring your photos and turn them into stories: the trip, the party and the ordinary Tuesday, written up, captioned and mapped, for exactly the people you choose.',
+  breadcrumb: 'Coming from FamilyAlbum',
   updated: LAST_UPDATED,
   blocks: [
-    { h2: 'The short answer' },
+    { h2: 'From camera roll to stories, fast' },
+    { p: SMART_IMPORT },
+    { h2: 'Let AI write the first draft' },
+    { p: AI_CREATE },
+    { h2: 'Photos that look their best' },
     {
       p:
-        'Choose FamilyAlbum if free unlimited photo and video storage, automatic month-by-month organisation and cheap prints are what you want. Choose Our Family Socials if you want rich event pages with written stories, an interactive map of everywhere your family has been, a timeline by year, and a follow graph across the extended family rather than one child\'s album.'
+        'Every story ends with a gallery of everything in it, opening full screen with a slideshow and zoom. Each photo carries its own caption, iPhone HEIC photos are welcome, and video clips sit right in the story next to the photos. Family can answer with ten reactions on any photo or comment, and replies nest three levels deep. ' + STORY_NAME_NOTE
     },
-    { h2: 'Where FamilyAlbum is stronger' },
+    { h2: 'Every photo knows where it was taken' },
+    { p: MAP_AND_TIMELINE },
+    { h2: 'You decide who opens each story' },
     {
-      ul: [
-        '**Free unlimited storage.** FamilyAlbum advertises free, unlimited photo and video uploads on its website; Our Family Socials needs a paid plan to create unlimited events.',
-        '**Free monthly prints.** FamilyAlbum advertises 11 free photo prints a month for each family member, plus photobooks. Our Family Socials does not print anything yet.',
-        '**Native iOS and Android apps.** Our Family Socials is a progressive web app.',
-        '**Zero-effort organisation.** Uploads are sorted into a month-by-month album automatically, which is less work than writing an event page.'
-      ]
+      p:
+        'Every story carries its own audience, so you can share the beach day with all your followers and keep the birthday video for close family. Choose from five:'
     },
-    { h2: 'Key differences' },
-    {
-      compare: {
-        aLabel: 'FamilyAlbum',
-        bLabel: 'Our Family Socials',
-        rows: [
-          {
-            h: 'What it is built around',
-            a: 'An album of a child\'s photos and videos, shared with invited family, auto-sorted by month.',
-            b: 'Events: a trip, celebration or milestone belonging to anyone in the family, with the story attached.'
-          },
-          {
-            h: 'Storytelling',
-            a: 'Comments and reactions on photos, with captions.',
-            b: 'A rich text editor per event, so the context, route and detail live with the photos.'
-          },
-          {
-            h: 'Maps and places',
-            a: 'Not a focus of the product.',
-            b: 'Interactive world map, multi-stop journey maps, automatic GPS extraction from photo metadata, and filters by place.'
-          },
-          {
-            h: 'Who is in it',
-            a: 'You invite viewers to your album.',
-            b: 'Extended family follow each other, confirm real relationships, and get a shared family tree.'
-          },
-          {
-            h: 'Prints',
-            a: 'Prints and photobooks are a core, available part of the product.',
-            b: 'Photo books are advertised as coming soon and are not available yet.'
-          },
-          {
-            h: 'Business model',
-            a: 'Free with a Premium tier and print sales; see their site for current terms.',
-            b: 'Subscription-funded, no advertising in the product, no selling of your data.'
-          }
-        ]
-      }
-    },
+    AUDIENCE_LIST,
+    { p: SHARE_LINK },
+    { h2: 'No ads, nothing ranked' },
+    { p: NO_ADS },
     { h2: 'What it costs' },
-    {
-      p:
-        'FamilyAlbum\'s website advertises the core app as free with unlimited storage, alongside a Premium tier and paid prints - check [family-album.com](https://family-album.com/) for current terms. Our Family Socials: ' + PRICE_NOTE
-    },
-    { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'Compare the alternatives', href: '/alternatives' }] },
-    { p: 'See also: [vs Tinybeans](/compare/tinybeans), [vs private Facebook groups](/compare/facebook-groups).' }
+    { p: READERS_FREE },
+    START_CTA,
+    { p: 'See also: [coming from Tinybeans](/compare/tinybeans), [coming from a private Facebook group](/compare/facebook-groups).' }
   ]
 }
 
@@ -595,75 +542,38 @@ const comparePrivateInstagram = {
   path: '/compare/private-instagram',
   title: 'Our Family Socials vs a private Instagram account',
   description:
-    'Using a private Instagram account for family photos versus a private family social network. Honest comparison of privacy, organisation, feed order and cost.',
-  h1: 'Our Family Socials vs a private Instagram account',
+    'Coming from a private Instagram account? Tell the long version: whole family stories with photos, clips and a map, opened by the audience you pick.',
+  h1: 'Coming from a private Instagram account? Welcome to Our Family Socials.',
   lede:
-    'Many families use a private ("finsta"-style) Instagram account, or a private group photo app such as Cluster, to share pictures with relatives only. Our Family Socials is a private family social network built for the same job. This page compares them fairly. Facts about Instagram are general, from Meta\'s own documentation as of October 2026 - see [instagram.com](https://www.instagram.com/) for current details.',
-  breadcrumb: 'vs a private Instagram account',
+    JOIN_LINE + ' Keep the people you trust, and give them the long version: a whole story for every trip and celebration, with your words, your photos, your clips and the map, opened by exactly the audience you pick.',
+  breadcrumb: 'Coming from a private Instagram account',
   updated: LAST_UPDATED,
   blocks: [
-    { h2: 'The short answer' },
+    { h2: 'Tell the long version' },
     {
       p:
-        'A private Instagram account is free, instant, and already installed on everyone\'s phone. Our Family Socials costs money to post but keeps family memories off an advertising platform and organises them into event pages, a map and a timeline you can still browse in ten years.'
+        'A story here has room for the whole day. Write it with headings, bold, italic, links and lists; drop photos and video clips in between the paragraphs, each with its own caption; and mark the places on the map as you go. The page builds a contents list from your headings and finishes with a gallery of everything. ' + STORY_NAME_NOTE
     },
-    { h2: 'Where a private Instagram account is stronger' },
-    {
-      ul: [
-        '**Free, and already on every phone.** No relative needs a new account or a new app.',
-        '**Native apps, Stories, Reels and DMs** - a much broader set of ways to share a moment.',
-        '**Excellent camera and editing tools** built into the app.',
-        '**Instant.** Posting takes seconds, where writing an event page takes a few minutes.'
-      ]
-    },
-    { h2: 'Key differences' },
-    {
-      compare: {
-        aLabel: 'Private Instagram account',
-        bLabel: 'Our Family Socials',
-        rows: [
-          {
-            h: 'What "private" means',
-            a: 'Only approved followers see your posts, but the account still sits on Meta\'s advertising platform and is governed by its terms.',
-            b: 'Per-event audience settings - Followers by default, down to Private or up to Public - on a separate, subscription-funded platform, with no advertising in the product and no data selling.'
-          },
-          {
-            h: 'Feed order',
-            a: 'Algorithmically ranked and mixed with suggested content, so a family post can be missed.',
-            b: 'Chronological, and only from the family members you follow.'
-          },
-          {
-            h: 'Organisation over years',
-            a: 'A grid of individual posts. Finding one trip means scrolling back through everything.',
-            b: 'Event pages grouped by date, place, person and category, with a map and a year-by-year timeline.'
-          },
-          {
-            h: 'Depth per memory',
-            a: 'Caption plus up to a fixed number of photos per post.',
-            b: 'A full event page: rich text story, galleries, videos, multiple locations and tagged people.'
-          },
-          {
-            h: 'Sharing outside the circle',
-            a: 'Followers only, or you make the whole account public.',
-            b: 'A private link can share one single event with someone who has no account, without exposing anything else.'
-          },
-          {
-            h: 'Relationships',
-            a: 'A flat follower list.',
-            b: 'Confirmed family relationships, tag profiles for relatives without accounts, and a family tree.'
-          }
-        ]
-      }
-    },
-    { h2: 'What about Cluster?' },
+    { h2: 'An audience for every story' },
     {
       p:
-        'Cluster is another well-known private group photo-sharing app in this category. We have deliberately not listed its current features or pricing here because we have not verified them recently - check [cluster.co](https://cluster.co/) directly if you are considering it.'
+        'Privacy here is set story by story. Share the vacation with all your followers, the new baby with close family, and the marathon with your running friends. Choose from five:'
     },
+    AUDIENCE_LIST,
+    { p: SHARE_LINK },
+    { h2: 'Conversation, family style' },
+    {
+      p:
+        'Family can like the story, answer any photo or comment with one of ten reactions, and reply in threads that nest three levels deep. Email lets you know when someone comments on your story, asks to follow you, or posts a new story of their own.'
+    },
+    { h2: 'In date order, with no ads' },
+    { p: NO_ADS },
+    { h2: 'A map and a timeline to come back to' },
+    { p: MAP_AND_TIMELINE },
     { h2: 'What it costs' },
-    { p: 'Instagram is free. Our Family Socials: ' + PRICE_NOTE },
-    { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'Compare the alternatives', href: '/alternatives' }] },
-    { p: 'See also: [vs private Facebook groups](/compare/facebook-groups), [how to share kids\' photos privately](/compare/how-to-share-photos-privately).' }
+    { p: READERS_FREE },
+    START_CTA,
+    { p: 'See also: [coming from a private Facebook group](/compare/facebook-groups), [how to share kids\' photos privately](/compare/how-to-share-photos-privately).' }
   ]
 }
 
@@ -671,179 +581,107 @@ const howToSharePhotos = {
   path: '/compare/how-to-share-photos-privately',
   title: "How to share kids' photos privately with family",
   description:
-    "How to share children's photos with family without public social media: cloud albums, group chats, child photo apps, private family networks.",
+    "How to share children's photos with family privately: what to look for, and how to do it step by step on Our Family Socials, a private family social network.",
   h1: "How to share kids' photos privately with family",
   lede:
-    'If you do not want your children\'s photos on public social media but grandparents still want to see them, you have four realistic options: a shared cloud album, a private group chat, a private photo app, or a private family social network. This guide explains what each is good at and how to choose.',
+    'Grandparents want to see every first tooth and every school play, and you want those photos kept inside the family. Here is what to look for in a private way to share, and how to do it step by step on Our Family Socials. ' + JOIN_LINE,
   breadcrumb: "How to share kids' photos privately",
   updated: LAST_UPDATED,
   blocks: [
     { h2: 'What to look for' },
     {
       ul: [
-        '**Private by default** - content should be invisible until you deliberately share it',
-        '**Audience control** - choose exactly who sees each photo or album',
-        '**No ad targeting** - your family photos should not be feeding an advertising profile',
-        '**Easy for grandparents** - simple enough for relatives who are not comfortable with new apps',
-        '**Organised by occasion** - so a trip stays together instead of dissolving into a camera roll',
-        '**Durable** - you want to still be able to find this in ten years'
+        '**You choose the audience** - every photo and every story should go to exactly the people you pick. On Our Family Socials, each story has one of five audiences, from Private to Public.',
+        '**A new story starts with family** - on Our Family Socials a new story goes to the followers you have approved, never to the open internet.',
+        '**No ad targeting** - your family photos should never feed an advertising profile. Our Family Socials has no ads and never sells your data.',
+        '**Easy for grandparents** - readers are free forever, sign-up takes an email address, and a share link opens one story with no account at all.',
+        '**Organized by occasion** - a trip should stay together as one story, with its words, photos, clips and map.',
+        '**Easy to find in ten years** - a timeline by year, a calendar and a world map of every story keep everything findable.'
       ]
     },
-    { h2: 'Option 1: a shared cloud album' },
+    { h2: 'How to do it on Our Family Socials' },
     {
-      p:
-        'Apple Shared Albums, Google Photos shared albums and similar features let you invite specific people to an album. They are free with the storage you already pay for, and almost everyone can open a link.'
-    },
-    {
-      ul: [
-        '**Good for:** bulk photos, zero extra cost, no new app for relatives.',
-        '**Weak at:** writing the story, organising by occasion over years, and keeping everything in one place when half the family is on iPhone and half on Android.'
+      ol: [
+        '**Start free.** Create an account at ourfamilysocials.com. Your 30-day Pro trial starts right away, no card needed.',
+        '**Invite the family.** Send grandparents, aunts and uncles an email invitation; you are connected as soon as they sign up with it. Reading is free for them, forever.',
+        '**Add the photos, then just talk.** Pick your photos and clips, type or say what happened, and AI Create drafts the story with a caption for every photo. Or write it yourself.',
+        '**Choose who opens it.** Pick Private, a Custom Group, Close Family, Followers or Public for each story.',
+        '**Share a link with anyone else.** A share link opens that one story for someone without an account, for 1 to 5 days.'
       ]
     },
-    { h2: 'Option 2: a private group chat' },
-    {
-      p:
-        'WhatsApp, Signal or iMessage group chats are the lowest-friction option: everyone is already there and photos arrive instantly.'
-    },
-    {
-      ul: [
-        '**Good for:** immediacy and conversation.',
-        '**Weak at:** archiving. Photos get compressed, scroll away, and are effectively unfindable a year later.'
-      ]
-    },
-    { h2: 'Option 3: a private photo app for children' },
-    {
-      p:
-        'Apps like [FamilyAlbum](https://family-album.com/) and [Tinybeans](https://tinybeans.com/) are built for exactly this: a private, invite-only album of a baby or young child, with native mobile apps and printing options.'
-    },
-    {
-      ul: [
-        '**Good for:** the baby and toddler years, free or cheap storage, prints and photo books.',
-        '**Weak at:** growing with the family. They are centred on a child rather than on holidays, reunions and the rest of the family\'s life. See our [FamilyAlbum comparison](/compare/familyalbum) and [Tinybeans comparison](/compare/tinybeans).'
-      ]
-    },
-    { h2: 'Option 4: a private family social network' },
-    {
-      p:
-        'A private family social network such as **Our Family Socials** gives you the social part - a feed, comments, likes, following - without the public part. Each memory becomes an event page with a story, a gallery, dates and locations; relatives follow each other; and each event carries an audience setting, from your approved followers down to just you, or Public if you want a link anyone can open.'
-    },
-    {
-      ul: [
-        '**Good for:** an ongoing, organised family record across all ages, with maps, a timeline and real context around the photos.',
-        '**Weak at:** being free. Viewing is free forever, but creating unlimited events needs a paid plan, and relatives do need to create an account (or open a single-event private link).'
-      ]
-    },
+    { h2: 'The five audiences' },
+    AUDIENCE_LIST,
     { h2: 'Getting grandparents on board' },
     {
       ul: [
-        '**Sign-up is just an email and password**, and viewing accounts are free forever.',
-        '**Private share links** let you send one event to someone who refuses to sign up for anything.',
-        '**It works on any device** - phone, tablet or computer - through the browser, with no app store download.',
-        '**Email invitations** mean you can add a relative directly rather than explaining how to search for you.'
+        '**Sign-up takes an email address**, and reading is free forever.',
+        '**Private share links** send one story to someone who would rather not sign up for anything.',
+        '**It works on any device** - phone, tablet or computer - right in the browser. Add it to the home screen today, and our iPhone app is on the way.',
+        '**Email invitations** bring a relative straight in, with no searching for your name.'
       ]
     },
-    { h2: 'How to choose' },
-    {
-      p:
-        'If you want the cheapest possible dump of photos, use a shared cloud album. If you want conversation, use a group chat. If your child is under three and you want prints, use a dedicated child photo app. If you want a private family record that still makes sense in a decade - organised by event, place and person - use a private family social network.'
-    },
-    { cta: [{ text: 'Try Our Family Socials free', href: '/login?signup=true', primary: true }, { text: 'See all alternatives', href: '/alternatives' }] }
+    { h2: 'Keep it organized for years' },
+    { p: MAP_AND_TIMELINE },
+    { p: NO_ADS },
+    { h2: 'What it costs' },
+    { p: READERS_FREE },
+    { cta: [{ text: 'Try Our Family Socials free', href: '/login?signup=true', primary: true }, { text: 'Why Our Family Socials', href: '/alternatives' }] }
   ]
 }
 
 const alternatives = {
   path: '/alternatives',
-  title: 'Best private family sharing apps (honest comparison)',
+  title: 'Why Our Family Socials - compare private family sharing',
   description:
-    'An honest look at private family sharing apps - FamilyAlbum, Tinybeans, private Facebook groups, private Instagram, cloud albums - and where each one wins.',
-  h1: 'Private family sharing apps: the honest comparison',
+    'Why families are moving to Our Family Socials: long family stories, five audiences, journey maps and a timeline, no ads, nothing ranked, and readers are free.',
+  h1: WHY_HEAD,
   lede:
-    'If you are looking for a private place to share family photos and life events, these are the realistic options as of October 2026, what each is genuinely best at, and where Our Family Socials fits. Our Family Socials is our own product, so we have been explicit about the cases where you should pick something else. Competitor details are general and taken from each company\'s own website on the date above.',
-  breadcrumb: 'Alternatives',
+    JOIN_LINE + ' Our Family Socials is a private, ad-free family social network built around the story: the long version of a trip, a birthday or an ordinary Tuesday, with your words, captioned photos, video and a journey map, opened by exactly the people you choose.',
+  breadcrumb: 'Why Our Family Socials',
   updated: LAST_UPDATED,
   blocks: [
-    { h2: 'Our Family Socials - best for whole-family events on a map and timeline' },
+    { h2: 'A whole story for every moment' },
     {
       p:
-        '[Our Family Socials](/) is a private, ad-free social network for families. Its unit of content is an event - a trip, a wedding, a graduation, a Sunday dinner - with a written story, photo galleries, videos, dates and multiple locations. Events appear in a chronological feed from the family members you follow, on an interactive world map, and in a timeline by year. Relationships are confirmed by both people and build a family tree.'
+        'A story is a page of its own for something that happened: what you did, in your words, with a gallery of captioned photos, video clips right where they belong, the dates and the places. Add a few headings and the page builds its own contents list. Short on time? Add the photos, say what happened, and AI Create writes the first draft. ' + STORY_NAME_NOTE
     },
-    {
-      ul: [
-        '**Pick it if:** you want the whole family\'s memories in one private, organised archive, with places and stories attached, and you are happy to pay so there are no ads.',
-        '**Pick something else if:** you need free unlimited photo storage, printed photo books today, or native App Store and Google Play apps. Our Family Socials is a progressive web app, and photo books are still coming soon.',
-        '**Cost:** ' + PRICE_NOTE
-      ]
-    },
-    { h2: 'FamilyAlbum - best for free unlimited storage and cheap prints' },
-    {
-      p:
-        '[FamilyAlbum](https://family-album.com/) is an invite-only photo and video sharing app centred on a child\'s album. Its website advertises free unlimited uploads, automatic month-by-month organisation and 11 free prints a month per family member, plus photobooks and a Premium tier.'
-    },
-    {
-      ul: [
-        '**Pick it if:** cost and volume matter most, you want prints, and your focus is one child.',
-        '**Pick something else if:** you want holidays, reunions and the whole extended family on a map and timeline rather than one album. See the [full comparison](/compare/familyalbum).'
-      ]
-    },
-    { h2: 'Tinybeans - best for a baby and toddler journal' },
+    { h2: 'You decide who opens it' },
+    { p: 'Every story carries its own audience. Choose from five:' },
+    AUDIENCE_LIST,
+    { p: SHARE_LINK },
+    { h2: 'Every trip on a map, every year on a timeline' },
+    { p: MAP_AND_TIMELINE },
+    { h2: 'No ads. Nothing ranked.' },
+    { p: NO_ADS },
+    { h2: 'Readers are free' },
+    { p: READERS_FREE },
+    { h2: 'Coming from somewhere else?' },
+    { h3: 'Coming from a private Facebook group?' },
     {
       p:
-        '[Tinybeans](https://tinybeans.com/) is a private photo-sharing app for parents, organised as a dated journal of a young child and shared with an invited circle. It has native mobile apps, photo books, a paid Tinybeans+ tier and a large parenting content library.'
+        'Bring the group with you. Everyone you invite reads for free, every story goes to exactly the audience you pick, and the feed runs in date order with no ads. [See what your group gets here](/compare/facebook-groups).'
     },
-    {
-      ul: [
-        '**Pick it if:** your main need is the day-by-day record of a baby or young child, from a polished mobile app.',
-        '**Pick something else if:** you want one place that still works when the children are teenagers and the grandparents are posting too. See the [full comparison](/compare/tinybeans).'
-      ]
-    },
-    { h2: 'A private Facebook group - best if nobody will install anything new' },
+    { h3: 'Coming from Tinybeans?' },
     {
       p:
-        'A private group on [Facebook](https://www.facebook.com/) is free, and most relatives already have an account. It is the lowest-friction option by a wide margin.'
+        'Keep every milestone, and make room for the whole family. Grandparents, aunts and cousins tell their stories too, on one timeline and one map that grow up with your kids. [See what your family gets here](/compare/tinybeans).'
     },
-    {
-      ul: [
-        '**Pick it if:** cost is zero-tolerance and the family will not adopt a new service.',
-        '**Pick something else if:** you do not want family memories on an advertising platform, or you are tired of an algorithm deciding which posts relatives see. See the [full comparison](/compare/facebook-groups).'
-      ]
-    },
-    { h2: 'A private Instagram account (or Cluster) - best for instant, casual sharing' },
+    { h3: 'Coming from FamilyAlbum?' },
     {
       p:
-        'A private [Instagram](https://www.instagram.com/) account restricts posts to approved followers, and apps like [Cluster](https://cluster.co/) offer private group photo sharing. Both are free and fast.'
+        'Turn the photos into stories. Smart Import sorts a big batch into albums by time and place, AI Create writes it up from a few words, and every trip gets its own journey map. [See what your photos get here](/compare/familyalbum).'
     },
-    {
-      ul: [
-        '**Pick it if:** you want to post in seconds from an app you already use.',
-        '**Pick something else if:** you want to find a specific trip years later, or keep the archive off an ad platform. See the [full comparison](/compare/private-instagram).'
-      ]
-    },
-    { h2: 'Shared cloud albums - best for cheap bulk storage' },
+    { h3: 'Coming from a private Instagram account?' },
     {
       p:
-        'Apple Shared Albums and Google Photos shared albums let you invite specific people into an album using storage you already pay for.'
+        'Tell the long version. A story has room for all the writing, photos and clips the day deserves, and you choose who opens each one, story by story. [See what your stories get here](/compare/private-instagram).'
     },
+    { h3: 'Sharing photos of the kids with grandparents?' },
     {
-      ul: [
-        '**Pick it if:** you just need a lot of photos somewhere private, cheaply.',
-        '**Pick something else if:** you want the story, the places and the family conversation around the photos. See our [guide to private photo sharing](/compare/how-to-share-photos-privately).'
-      ]
+      p:
+        'Here is what to look for, and how to do it step by step. [Read the guide to sharing kids\' photos privately](/compare/how-to-share-photos-privately).'
     },
-    { h2: 'Summary' },
-    {
-      compare: {
-        aLabel: 'If this matters most',
-        bLabel: 'Pick',
-        rows: [
-          { h: 'Free unlimited photo storage and prints', a: 'Cost and volume', b: 'FamilyAlbum' },
-          { h: 'A daily journal of a young child', a: 'One child, mobile-first', b: 'Tinybeans' },
-          { h: 'Nobody will install anything new', a: 'Zero friction', b: 'A private Facebook group' },
-          { h: 'Posting in seconds from an existing app', a: 'Speed and casualness', b: 'A private Instagram account' },
-          { h: 'A whole-family archive of events, places and stories, with no ads', a: 'Organisation and privacy', b: 'Our Family Socials' }
-        ]
-      }
-    },
-    { cta: [{ text: 'Start your free trial', href: '/login?signup=true', primary: true }, { text: 'See all features', href: '/features' }] }
+    { cta: [{ text: 'Start free', href: '/login?signup=true', primary: true }, { text: 'See all features', href: '/features' }] }
   ]
 }
 
@@ -884,7 +722,7 @@ export const NOT_FOUND_PAGE = {
         '[Features](/features) - everything it does',
         '[Pricing](/pricing) - the free plan, Pro and Lifetime',
         '[FAQ](/faq) - privacy, events, billing and sharing',
-        '[Private family sharing apps compared](/alternatives)',
+        '[Why Our Family Socials](/alternatives)',
         '[Contact us](/contact)'
       ]
     }
