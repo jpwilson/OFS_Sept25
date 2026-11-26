@@ -1,5 +1,7 @@
 # Photo books: decisions (26 November 2026)
 
+> **Paused on 26 November 2026 at the owner's request**, after the layout engine's first pass (`frontend/src/daylight/book/engine/`, committed, with tests and saved layouts; nothing imports it). He wants the landing page and the app's new look out first, with no backend, Supabase or Vercel changes; selling books needs all three. Resume from "Phase one packages" below: PREVIEW, PDF and BUILDER are not started.
+
 The owner: "I actually want you to build out the photo book functionality. Find the best photo book companies in the US and then we should be able to integrate with their software so we offer photo books."
 
 Two planners researched print partners and planned this independently. They reached the same partner, the same prices, the same constraint and the same phase one. This file records the decisions.
