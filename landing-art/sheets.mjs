@@ -14,7 +14,7 @@ const OUT = join(ART, 'sheets')
 const M = JSON.parse(readFileSync(join(ROOT, 'frontend', 'src', 'landing', 'art', 'manifest.json'), 'utf8'))
 const MAXW = 2000
 
-const WASHES = { tide: '#19CFC7', fizz: '#FF62C4', zest: '#FF8A1F', azure: '#3AA8FF', lime: '#C6F135' }
+const WASHES = { tide: '#19CFC7', fizz: '#FF62C4', zest: '#FF8A1F', azure: '#3AA8FF', lime: '#C6F135', violet: '#A98BFF', sun: '#FFD43B' }
 const KITCHEN = ['r-kitchen-before', 'r-kitchen-gutted', 'r-kitchen-fitted', 'r-kitchen-done']
 
 const file = (id) => join(PUBLIC, M[id].src)
@@ -71,8 +71,10 @@ async function detail() {
 }
 
 async function photos() {
-  const sets = ['kitchen', 'race', 'coast', 'year', 'trip']
+  const sets = ['coast', 'wedding', 'maui', 'kitchen', 'race', 'year', 'trip']
   for (const s of sets) await grid(`photos-${s}.jpg`, ids((a, id) => id.startsWith(`photo-${s}-`)), '#FFFFFF', 3, 640)
+  let n = 1
+  for (const c of chunk(ids((a, id) => id.startsWith('photo-tetons-')).sort(), 6)) await grid(`photos-tetons-${n++}.jpg`, c, '#FFFFFF', 3, 640)
   await grid('photos-covers.jpg', ids((a, id) => id.startsWith('cover-')), '#FFFFFF', 3, 640)
 }
 

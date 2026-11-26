@@ -2,9 +2,9 @@
 // Shapes follow backend/app/schemas and backend/app/api, plus the extra fields the
 // frontend reads. Returning undefined means "no fixture": the capture run logs it and fails.
 import { USERS, ME, FOLLOWER_KEYS, CLOSE_FAMILY, FOLLOWING_KEYS, RUN_CLUB, BISCUIT } from './cast.mjs';
-import { STORIES, COAST_STOPS } from './stories.mjs';
+import { STORIES } from './stories.mjs';
 import { COMMENTS, likesFor, PHOTO_REACTIONS, tagsFor } from './comments.mjs';
-import { img, VIDEO_RACE } from './media.mjs';
+import { img, VIDEO_RACE, VIDEO_WEDDING } from './media.mjs';
 
 const T = '2026-08-17T19:30:00Z';
 
@@ -23,15 +23,16 @@ export function meResponse(theme = 'light', viewer = 'maya') {
 
 // ------------------------------------------------------------------ events
 function mediaFor(s) {
-  return s.images.map(([id, caption], i) => {
+  return s.images.map(([id, caption, where], i) => {
     const isVideo = id === 'video';
-    const url = isVideo ? VIDEO_RACE : id === 'cover' ? img(...s.cover) : img(id);
-    const stop = s.stops?.find((st) => st.photo === id || (id === 'cover' && st.photo.startsWith('cover-')));
+    const url = isVideo ? (s.key === 'wedding' ? VIDEO_WEDDING : VIDEO_RACE) : id === 'cover' ? img(...s.cover) : img(id);
+    // each photo's own place and time (the Tetons), else the stop it illustrates
+    const stop = where || s.stops?.find((st) => st.photo === id || (id === 'cover' && st.photo.startsWith('cover-')));
     return {
       id: s.id * 100 + i, event_id: s.id, image_url: url, caption, latitude: stop?.lat ?? null, longitude: stop?.lng ?? null,
       timestamp: stop?.ts ?? null, order_index: i, alt_text: caption, width: 1448, height: 1086, file_size: null,
       media_type: isVideo ? 'video' : 'image', duration_seconds: isVideo ? 6 : null,
-      video_thumbnail_url: isVideo ? img('photo-race-video') : null, processing_status: 'ready',
+      video_thumbnail_url: isVideo ? img(s.key === 'wedding' ? 'photo-wedding-speech' : 'photo-race-video') : null, processing_status: 'ready',
       original_size: null, compressed_size: null, created_at: s.created_at, updated_at: s.created_at,
       __key: id,
     };
@@ -94,7 +95,7 @@ function groupFull() {
 // Maya's confirmed relationships, for the family tree.
 const REL = [
   ['tom', 'husband', 'wife'], ['ivy', 'daughter', 'mother'], ['leo', 'son', 'mother'], ['joe', 'father', 'daughter'],
-  ['ruth', 'mother-in-law', 'daughter-in-law'], ['marcus', 'brother', 'sister'], ['kate', 'sister-in-law', 'sister-in-law'], ['finn', 'nephew', 'aunt'],
+  ['ruth', 'mother-in-law', 'daughter-in-law'], ['kate', 'sister-in-law', 'sister-in-law'], ['marcus', 'brother-in-law', 'sister-in-law'], ['finn', 'nephew', 'aunt'],
 ];
 const relRow = ([k, mine, theirs], i) => ({
   id: 900 + i, other_user_id: USERS[k].id, other_user_username: USERS[k].username, other_user_display_name: USERS[k].full_name, other_user_full_name: USERS[k].full_name,
@@ -105,34 +106,36 @@ const biscuitFull = () => ({ ...BISCUIT, birth_date: null, is_merged: false, mer
 
 // ------------------------------------------------------------------ AI + import
 export const KITCHEN_UPLOADS = ['photo-kitchen-done', 'photo-kitchen-before', 'photo-kitchen-sledge', 'photo-kitchen-camping', 'photo-kitchen-tiling', 'photo-kitchen-paint'];
-export const VOICE_NOTE = "So this is the kitchen. We ripped the whole thing out in February, the old orange pine one, Tom did the first cupboard with a hammer and it basically fell off on its own. Then six weeks on a camping stove in the living room, pizza on the floor on Fridays. I did the tiles, the kids painted the doors green, Leo got paint on his nose. And the first morning it was finished we made pancakes and ate them standing up.";
+export const VOICE_NOTE = "So this is the kitchen. We tore the whole thing out in February, the old orange pine one, Tom did the first cabinet with a sledgehammer and the door basically fell off on its own. Then six weeks on a camping stove in the living room, pizza on the floor on Fridays. I did the tile, the kids painted the cabinet doors green, Leo got paint on his nose. And the first morning it was done we made pancakes and ate them standing up.";
 
 function aiKitchen(state) {
   const urls = state.uploaded?.length ? state.uploaded : KITCHEN_UPLOADS.map((id) => img(id));
   const at = (i) => urls[i] || urls[0];
   const caps = [
     'The finished kitchen, and the first pancakes.', 'Before: the orange pine kitchen on its last night.', 'Tom takes the first swing.',
-    'Pizza on the living-room floor, camping-stove weeks.', 'Laying the patterned floor tiles.', 'Sage green cupboard doors, and one green nose.',
+    'Pizza on the living room floor, camping-stove weeks.', 'Laying the patterned floor tile.', 'Sage green cabinet doors, and one green nose.',
   ];
   const html = [
     '<h1>Before</h1>', '<p>For six years we said we would do something about the orange pine kitchen. This February, we finally did.</p>', `<img src="${at(1)}">`,
-    '<h1>The rip-out</h1>', '<p>Tom took the first swing at the cupboards, and the first door gave up before the hammer even landed. By the end of the weekend the room was bare plaster and one surprised pipe.</p>', `<img src="${at(2)}">`,
+    '<h1>The rip-out</h1>', '<p>Tom took the first swing at the cabinets, and the first door gave up before the sledgehammer even landed. By the end of the weekend the room was bare drywall and one surprised pipe.</p>', `<img src="${at(2)}">`,
     '<h1>Living on a camping stove</h1>', '<h2>Pizza Fridays</h2>', '<p>For six weeks we cooked on a camping stove in the living room. Fridays were pizza on the floor, which the children now want to keep.</p>', `<img src="${at(3)}">`,
-    '<h1>Tiles and paint</h1>', '<p>Maya laid the patterned floor tiles herself. Ivy and Leo painted the cupboard doors sage green, and Leo painted his nose to match.</p>', `<img src="${at(4)}">`, `<img src="${at(5)}">`,
-    '<h1>The first pancakes</h1>', '<p>On the first morning in the finished kitchen we made pancakes and ate them standing round the island.</p>', `<img src="${at(0)}">`,
+    '<h1>Tile and paint</h1>', '<p>Maya laid the patterned floor tile herself. Ivy and Leo painted the cabinet doors sage green, and Leo painted his nose to match.</p>', `<img src="${at(4)}">`, `<img src="${at(5)}">`,
+    '<h1>The first pancakes</h1>', '<p>On the first morning in the finished kitchen we made pancakes and ate them standing around the island.</p>', `<img src="${at(0)}">`,
   ].join('');
   return {
-    suggested_title: 'Six weeks without a kitchen', story_html: html, suggested_category: 'Project', location_name: 'Bristol, England',
+    suggested_title: 'Six weeks without a kitchen', story_html: html, suggested_category: 'Project', location_name: 'Madison, Wisconsin',
     original_text: VOICE_NOTE, photo_captions: caps.map((caption, i) => ({ image_url: at(i), caption })),
   };
 }
 
 // Smart Import: files are dropped in this order (see scenes.mjs) and clustered as the server would.
+const TETON_PICK = ['photo-tetons-01', 'photo-tetons-04', 'photo-tetons-08', 'photo-tetons-13', 'photo-tetons-19', 'photo-tetons-23', 'photo-tetons-27', 'photo-tetons-30'];
 export const IMPORT_ORDER = [
-  'photo-coast-harbour', 'photo-coast-cliff', 'photo-coast-van', 'photo-coast-mine', 'photo-coast-beach', 'photo-coast-theatre',
-  'photo-race-start', 'photo-race-mile20', 'photo-race-kids', 'photo-race-finish', 'photo-race-video', 'photo-race-hug', 'photo-race-chips',
+  ...TETON_PICK,
+  'photo-coast-cliff', 'photo-coast-harbour', 'photo-coast-van', 'photo-coast-summit', 'photo-coast-pond', 'photo-coast-beach',
+  'photo-wedding-ready', 'photo-wedding-aisle', 'photo-wedding-vows', 'photo-wedding-confetti', 'photo-wedding-family', 'photo-wedding-dance', 'photo-wedding-sparklers',
+  'photo-maui-beach', 'photo-maui-snorkel', 'photo-maui-shave-ice', 'photo-maui-sunrise',
   'photo-kitchen-tiling', 'photo-kitchen-paint', 'photo-kitchen-done', 'photo-kitchen-camping',
-  'photo-year-birthday', 'photo-year-rocket', 'photo-year-gala',
   'photo-kitchen-before', 'photo-kitchen-sledge',
   'photo-year-school', 'photo-year-halloween', 'photo-year-joe70',
 ];
@@ -142,23 +145,36 @@ const album = (ids, o) => ({
   start_ts: o.start, end_ts: o.end, days: o.chapters.length, centroid: o.centroid, geo_frac: o.centroid ? 1.0 : 0, confidence: o.confidence,
   is_trip: o.trip, title_hint: o.hint, cover_photo_id: ix(o.cover)[0],
 });
+const PLACES = {
+  jackson: { latitude: 43.4799, longitude: -110.7624, name: 'Jackson, Teton County, Wyoming, United States', address: { town: 'Jackson', county: 'Teton County', state: 'Wyoming', country: 'United States' } },
+  barharbor: { latitude: 44.3876, longitude: -68.2039, name: 'Bar Harbor, Hancock County, Maine, United States', address: { town: 'Bar Harbor', county: 'Hancock County', state: 'Maine', country: 'United States' } },
+  highland: { latitude: 41.7004, longitude: -73.921, name: 'Highland, Ulster County, New York, United States', address: { hamlet: 'Highland', village: 'Highland', county: 'Ulster County', state: 'New York', country: 'United States' } },
+  lahaina: { latitude: 20.926, longitude: -156.695, name: "Ka'anapali, Lahaina, Maui County, Hawaii, United States", address: { town: 'Lahaina', county: 'Maui County', state: 'Hawaii', country: 'United States' } },
+  madison: { latitude: 43.0731, longitude: -89.4012, name: 'Madison, Dane County, Wisconsin, United States', address: { city: 'Madison', county: 'Dane County', state: 'Wisconsin', country: 'United States' } },
+};
+const ctr = (k) => ({ latitude: PLACES[k].latitude, longitude: PLACES[k].longitude });
+const tDays = ['2026-06-14', '2026-06-15', '2026-06-16', '2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20'];
 const CLUSTER = {
   albums: [
-    album(['photo-coast-harbour', 'photo-coast-cliff', 'photo-coast-van', 'photo-coast-mine', 'photo-coast-beach', 'photo-coast-theatre'], {
-      start: '2026-08-08T16:20:00', end: '2026-08-14T20:10:00', centroid: { latitude: 50.1653, longitude: -5.672 }, confidence: 'high', trip: true, hint: '6 days in {place}', cover: 'photo-coast-cliff',
-      chapters: [['2026-08-08', ['photo-coast-harbour']], ['2026-08-09', ['photo-coast-cliff']], ['2026-08-10', ['photo-coast-van']], ['2026-08-11', ['photo-coast-mine']], ['2026-08-13', ['photo-coast-beach']], ['2026-08-14', ['photo-coast-theatre']]],
+    album(TETON_PICK, {
+      start: '2026-06-14T17:40:00', end: '2026-06-20T18:30:00', centroid: ctr('jackson'), confidence: 'high', trip: true, hint: '7 days in {place}', cover: 'photo-tetons-30',
+      chapters: [[tDays[0], ['photo-tetons-01']], [tDays[1], ['photo-tetons-04']], [tDays[2], ['photo-tetons-08']], [tDays[3], ['photo-tetons-13']], [tDays[4], ['photo-tetons-19']], [tDays[5], ['photo-tetons-23']], [tDays[6], ['photo-tetons-27', 'photo-tetons-30']]],
     }),
-    album(['photo-race-start', 'photo-race-mile20', 'photo-race-kids', 'photo-race-finish', 'photo-race-video', 'photo-race-hug', 'photo-race-chips'], {
-      start: '2026-04-26T08:31:00', end: '2026-04-26T15:02:00', centroid: { latitude: 51.4769, longitude: -0.0005 }, confidence: 'high', trip: true, hint: 'Day trip to {place}', cover: 'photo-race-finish',
-      chapters: [['2026-04-26', ['photo-race-start', 'photo-race-mile20', 'photo-race-kids', 'photo-race-finish', 'photo-race-video', 'photo-race-hug', 'photo-race-chips']]],
+    album(['photo-coast-cliff', 'photo-coast-harbour', 'photo-coast-van', 'photo-coast-summit', 'photo-coast-pond', 'photo-coast-beach'], {
+      start: '2026-08-08T16:20:00', end: '2026-08-14T18:10:00', centroid: ctr('barharbor'), confidence: 'high', trip: true, hint: '6 days in {place}', cover: 'photo-coast-cliff',
+      chapters: [['2026-08-08', ['photo-coast-cliff']], ['2026-08-09', ['photo-coast-harbour']], ['2026-08-10', ['photo-coast-van']], ['2026-08-12', ['photo-coast-summit']], ['2026-08-13', ['photo-coast-pond']], ['2026-08-14', ['photo-coast-beach']]],
+    }),
+    album(['photo-wedding-ready', 'photo-wedding-aisle', 'photo-wedding-vows', 'photo-wedding-confetti', 'photo-wedding-family', 'photo-wedding-dance', 'photo-wedding-sparklers'], {
+      start: '2026-05-16T10:05:00', end: '2026-05-17T00:40:00', centroid: ctr('highland'), confidence: 'high', trip: true, hint: 'Weekend in {place}', cover: 'photo-wedding-confetti',
+      chapters: [['2026-05-16', ['photo-wedding-ready', 'photo-wedding-aisle', 'photo-wedding-vows', 'photo-wedding-confetti', 'photo-wedding-family', 'photo-wedding-dance']], ['2026-05-17', ['photo-wedding-sparklers']]],
+    }),
+    album(['photo-maui-beach', 'photo-maui-snorkel', 'photo-maui-shave-ice', 'photo-maui-sunrise'], {
+      start: '2026-03-22T10:00:00', end: '2026-03-27T06:40:00', centroid: ctr('lahaina'), confidence: 'high', trip: true, hint: '4 days in {place}', cover: 'photo-maui-beach',
+      chapters: [['2026-03-22', ['photo-maui-beach']], ['2026-03-24', ['photo-maui-snorkel']], ['2026-03-25', ['photo-maui-shave-ice']], ['2026-03-27', ['photo-maui-sunrise']]],
     }),
     album(['photo-kitchen-tiling', 'photo-kitchen-paint', 'photo-kitchen-done', 'photo-kitchen-camping'], {
-      start: '2026-03-07T10:12:00', end: '2026-03-08T09:40:00', centroid: { latitude: 51.4645, longitude: -2.5826 }, confidence: 'medium', trip: false, hint: 'Weekend in {place}', cover: 'photo-kitchen-done',
+      start: '2026-03-07T10:12:00', end: '2026-03-08T09:40:00', centroid: ctr('madison'), confidence: 'medium', trip: false, hint: 'Weekend in {place}', cover: 'photo-kitchen-done',
       chapters: [['2026-03-07', ['photo-kitchen-tiling', 'photo-kitchen-paint', 'photo-kitchen-camping']], ['2026-03-08', ['photo-kitchen-done']]],
-    }),
-    album(['photo-year-birthday', 'photo-year-rocket', 'photo-year-gala'], {
-      start: '2026-10-17T14:05:00', end: '2026-10-17T17:30:00', centroid: { latitude: 51.4645, longitude: -2.5826 }, confidence: 'medium', trip: false, hint: 'Saturday afternoon in {place}', cover: 'photo-year-birthday',
-      chapters: [['2026-10-17', ['photo-year-birthday', 'photo-year-rocket', 'photo-year-gala']]],
     }),
     album(['photo-kitchen-before', 'photo-kitchen-sledge'], {
       start: '2026-02-01T09:15:00', end: '2026-02-01T11:02:00', centroid: null, confidence: 'low', trip: false, hint: 'Sunday morning', cover: 'photo-kitchen-before',
@@ -169,17 +185,9 @@ const CLUSTER = {
 };
 
 function geocode(lat, lng) {
-  const places = [
-    [50.1653, -5.672, { name: 'St Ives, Cornwall, England, United Kingdom', address: { town: 'St Ives', county: 'Cornwall', country: 'United Kingdom' } }],
-    [51.4769, -0.0005, { name: 'Greenwich, London, England, United Kingdom', address: { suburb: 'Greenwich', city: 'London', country: 'United Kingdom' } }],
-    [51.4645, -2.5826, { name: 'Bristol, England', address: { city: 'Bristol', country: 'United Kingdom' } }],
-  ];
-  let best = places[0], d = Infinity;
-  for (const p of places) { const dd = (p[0] - lat) ** 2 + (p[1] - lng) ** 2; if (dd < d) { d = dd; best = p; } }
-  // SmartImport names the coast album after the town; prefer the town over the suburb for London.
-  const a = { ...best[2].address };
-  if (a.suburb && a.city) delete a.city;
-  return { name: best[2].name, latitude: lat, longitude: lng, type: 'city', place_id: 1000 + Math.round(lat * 10), address: a };
+  let best = PLACES.madison, d = Infinity;
+  for (const p of Object.values(PLACES)) { const dd = (p.latitude - lat) ** 2 + (p.longitude - lng) ** 2; if (dd < d) { d = dd; best = p; } }
+  return { name: best.name, latitude: lat, longitude: lng, type: 'town', place_id: 1000 + Math.round(Math.abs(lat) * 10), address: { ...best.address } };
 }
 
 // ------------------------------------------------------------------ router
@@ -210,7 +218,7 @@ export async function answer(req, u, state) {
   if (m === 'GET' && p === '/events') return STORIES.map(eventListItem);
   if (m === 'GET' && p === '/events/drafts') return [];
   if (m === 'GET' && p === '/events/trash') return [];
-  if (m === 'GET' && p === '/events/me/last-location') return { location_name: 'Bristol, England', latitude: 51.4645, longitude: -2.5826 };
+  if (m === 'GET' && p === '/events/me/last-location') return { location_name: 'Madison, Wisconsin', latitude: 51.4645, longitude: -2.5826 };
   if (m === 'GET' && is(/^\/events\/([^/]+)$/)) { const s = findStory(r[1]); return s ? eventFull(s) : { __http: 404, body: { detail: 'Event not found' } }; }
   if (m === 'GET' && is(/^\/events\/(\d+)\/comments$/)) return COMMENTS[r[1]] || [];
   if (m === 'GET' && is(/^\/events\/(\d+)\/likes$/)) { const { all, ...l } = likesFor(Number(r[1]), viewerKey); return l; }
@@ -251,7 +259,7 @@ export async function answer(req, u, state) {
   if (m === 'GET' && is(/^\/relationships\/with\/(\d+)$/)) { const i = REL.findIndex(([k]) => USERS[k].id === Number(r[1])); return i >= 0 ? relRow(REL[i], i) : { __http: 404, body: { detail: 'none' } }; }
   if (m === 'GET' && p === '/tag-profiles/mine') return [biscuitFull()];
   if (m === 'GET' && is(/^\/tag-profiles\/(\d+)$/)) return biscuitFull();
-  if (m === 'GET' && is(/^\/tag-profiles\/(\d+)\/events$/)) return [STORIES[2]].map(eventListItem);
+  if (m === 'GET' && is(/^\/tag-profiles\/(\d+)\/events$/)) return STORIES.filter((x) => x.key === 'coast').map(eventListItem);
   if (m === 'GET' && is(/^\/tag-profiles\/(\d+)\/relationships$/)) return biscuitFull().relationships;
   if (m === 'GET' && p === '/search/taggable') return [];
 
