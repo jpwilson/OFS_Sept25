@@ -1,0 +1,1605 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 106,
+  "slug": "two-weeks-in-galway",
+  "title": "Two weeks in Galway"
+ },
+ "title": "Two weeks in Galway",
+ "product": {
+  "id": "hc-10x8",
+  "sku": "BKPH_HCIW_STD_10.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "10 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 720,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-10600": {
+   "src": "__ORIGIN__/landing/img/photo-trip-joe.e9bb5256.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Outside the pub on the harbor. Rain, then sun, then rain."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1603.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1495.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1603.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   },
+   "spine": {
+    "x": 792,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 811.152,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 756,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 811.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "front": {
+    "x": 847.152,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "spine": {
+    "x": 796.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-10600",
+   "ppi": 168
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 871.99,
+    "y": 86.5,
+    "w": 639.32,
+    "h": 484.5,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 869.49,
+    "y": 84,
+    "w": 639.32,
+    "h": 484.5,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-10600",
+    "x": 879.49,
+    "y": 94,
+    "w": 619.32,
+    "h": 464.5,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1448,
+     "h": 1086
+    },
+    "ppi": 168,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 1052.02,
+    "y": 618.5,
+    "text": "Two weeks in Galway",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 274.26,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 1133.9,
+    "y": 642,
+    "text": "APRIL 6 – 20, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 110.5,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 277.29,
+    "y": 266.96,
+    "text": "Looking for my mother’s street, and finding the",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 273.43
+   },
+   {
+    "type": "text",
+    "x": 372.23,
+    "y": 285.96,
+    "text": "music instead.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 83.54
+   },
+   {
+    "type": "circle",
+    "cx": 352.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 357.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 363.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 373.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 417.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 397.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 396.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 399.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 441.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Two weeks in Galway",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 366.88,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "APRIL 6 – 20, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 110.5,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "GALWAY, IRELAND",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 91.9,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "Looking for my mother’s street, and finding the music instead.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 304.14
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY JOE RUSSO",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 122.9,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "galway",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Galway",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 109.05,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "Two weeks in the west of Ireland, where my mother’s people",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.18
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "came from. I found the street. I found the church. I did not find",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.76
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "a single person who had heard of us, but every one of them",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 290.06
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "bought me a drink anyway.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 134.16
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 267.6,
+     "text": "The harbor here is all painted fronts, red and blue and yellow,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.21
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 282.6,
+     "text": "and the music starts in the afternoon and does not stop.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 275.12
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 315.54,
+     "text": "The weather",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 86.42
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 330.6,
+     "text": "It rained every day, and then the sun came out every day,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 279.87
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 345.6,
+     "text": "sometimes in the same ten minutes. Ivy, I have brought you a",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.28
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 360.6,
+     "text": "sweater. It is the itchiest thing I have ever owned. You will love",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.34
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 375.6,
+     "text": "it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 10.93
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 11,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10600"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10600",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Outside the pub on the harbor. Rain, then sun, then rain.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 219.88
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 297.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 303.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 309.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 320.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 368.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 346.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 344.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 348.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 393.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 259.4,
+     "y": 524.4,
+     "text": "Made from “Two weeks in Galway”, a story by Joe Russo.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 210.19
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "galway",
+   "kind": "chapter",
+   "title": "Galway",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 2
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 3,
+   "lastPage": 3
+  }
+ ],
+ "notices": [
+  {
+   "code": "slim",
+   "message": "This story makes a slim book. Add another story, or give each photo its own page."
+  }
+ ],
+ "edits": {
+  "size": "hc-10x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 163,
+  "measure": 319,
+  "contentBox": {
+   "w": 639,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}

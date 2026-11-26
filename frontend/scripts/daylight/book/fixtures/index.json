@@ -1,0 +1,504 @@
+[
+ {
+  "file": "six-weeks-without-a-kitchen.hc-8x8.json",
+  "story": "Six weeks without a kitchen",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 3,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "six-weeks-without-a-kitchen.hc-10x8.json",
+  "story": "Six weeks without a kitchen",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 3,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "dads-first-marathon.hc-8x8.json",
+  "story": "Dad's first marathon",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 2,
+   "people": 1,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "slim",
+   "videos"
+  ],
+  "problems": []
+ },
+ {
+  "file": "dads-first-marathon.hc-10x8.json",
+  "story": "Dad's first marathon",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 2,
+   "people": 1,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "slim",
+   "videos"
+  ],
+  "problems": []
+ },
+ {
+  "file": "a-week-on-the-maine-coast.hc-8x8.json",
+  "story": "A week on the Maine coast",
+  "size": "hc-8x8",
+  "pages": 22,
+  "templates": {
+   "colophon": 1,
+   "framed": 6,
+   "map": 1,
+   "opener": 3,
+   "opener-text": 3,
+   "text": 7,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [],
+  "problems": []
+ },
+ {
+  "file": "a-week-on-the-maine-coast.hc-10x8.json",
+  "story": "A week on the Maine coast",
+  "size": "hc-10x8",
+  "pages": 22,
+  "templates": {
+   "colophon": 1,
+   "framed": 6,
+   "map": 1,
+   "opener": 3,
+   "opener-text": 3,
+   "text": 7,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [],
+  "problems": []
+ },
+ {
+  "file": "ivy-turns-nine.hc-8x8.json",
+  "story": "Ivy turns nine",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 10,
+   "colophon": 1,
+   "framed": 2,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "photo-text": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "ivy-turns-nine.hc-10x8.json",
+  "story": "Ivy turns nine",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 10,
+   "colophon": 1,
+   "framed": 2,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "photo-text": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "grandpa-joe-at-seventy.hc-8x8.json",
+  "story": "Grandpa Joe at seventy",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 14,
+   "colophon": 1,
+   "framed": 2,
+   "opener-text": 2,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "grandpa-joe-at-seventy.hc-10x8.json",
+  "story": "Grandpa Joe at seventy",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 14,
+   "colophon": 1,
+   "framed": 2,
+   "opener-text": 2,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "two-weeks-in-galway.hc-8x8.json",
+  "story": "Two weeks in Galway",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 210,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "two-weeks-in-galway.hc-10x8.json",
+  "story": "Two weeks in Galway",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 163,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "our-honeymoon-on-the-amalfi-coast.hc-8x8.json",
+  "story": "Our honeymoon on the Amalfi coast",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 210,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "our-honeymoon-on-the-amalfi-coast.hc-10x8.json",
+  "story": "Our honeymoon on the Amalfi coast",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 163,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "north-to-alaska.hc-8x8.json",
+  "story": "North to Alaska",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 210,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "north-to-alaska.hc-10x8.json",
+  "story": "North to Alaska",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 16,
+   "colophon": 1,
+   "framed": 1,
+   "opener-text": 1,
+   "title": 1
+  },
+  "minPpi": 163,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "seven-days-in-the-tetons.hc-8x8.json",
+  "story": "Seven days in the Tetons",
+  "size": "hc-8x8",
+  "pages": 36,
+  "templates": {
+   "colophon": 1,
+   "framed": 12,
+   "map": 1,
+   "opener": 3,
+   "opener-text": 4,
+   "pair-stagger": 2,
+   "text-photo": 12,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [],
+  "problems": []
+ },
+ {
+  "file": "seven-days-in-the-tetons.hc-10x8.json",
+  "story": "Seven days in the Tetons",
+  "size": "hc-10x8",
+  "pages": 40,
+  "templates": {
+   "colophon": 1,
+   "framed": 15,
+   "map": 1,
+   "opener": 5,
+   "opener-text": 2,
+   "pair-stagger": 1,
+   "text-photo": 14,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [],
+  "problems": []
+ },
+ {
+  "file": "spring-break-in-maui.hc-8x8.json",
+  "story": "Spring break in Maui",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "blank": 8,
+   "colophon": 1,
+   "framed": 5,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "spring-break-in-maui.hc-10x8.json",
+  "story": "Spring break in Maui",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "blank": 8,
+   "colophon": 1,
+   "framed": 5,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "slim"
+  ],
+  "problems": []
+ },
+ {
+  "file": "kate-and-marcus-get-married.hc-8x8.json",
+  "story": "Kate and Marcus get married",
+  "size": "hc-8x8",
+  "pages": 20,
+  "templates": {
+   "colophon": 1,
+   "framed": 8,
+   "opener": 1,
+   "opener-text": 4,
+   "people": 1,
+   "text": 4,
+   "title": 1
+  },
+  "minPpi": 174,
+  "cover": "framed",
+  "notices": [
+   "videos"
+  ],
+  "problems": []
+ },
+ {
+  "file": "kate-and-marcus-get-married.hc-10x8.json",
+  "story": "Kate and Marcus get married",
+  "size": "hc-10x8",
+  "pages": 20,
+  "templates": {
+   "colophon": 1,
+   "framed": 8,
+   "opener": 1,
+   "opener-text": 4,
+   "people": 1,
+   "text": 4,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "videos"
+  ],
+  "problems": []
+ },
+ {
+  "file": "synthetic-9100.hc-8x8.json",
+  "story": "Every shape there is",
+  "size": "hc-8x8",
+  "pages": 26,
+  "templates": {
+   "colophon": 1,
+   "framed": 6,
+   "full-bleed": 2,
+   "opener": 2,
+   "opener-text": 3,
+   "pair-side": 2,
+   "pair-stack": 1,
+   "photo-text": 1,
+   "text": 6,
+   "title": 1,
+   "trio": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "held-small"
+  ],
+  "problems": []
+ },
+ {
+  "file": "synthetic-9100.hc-10x8.json",
+  "story": "Every shape there is",
+  "size": "hc-10x8",
+  "pages": 24,
+  "templates": {
+   "colophon": 1,
+   "framed": 7,
+   "full-bleed": 1,
+   "grid": 1,
+   "opener": 1,
+   "opener-text": 4,
+   "pair-side": 2,
+   "photo-text": 1,
+   "text": 4,
+   "text-photo": 1,
+   "title": 1
+  },
+  "minPpi": 150,
+  "cover": "framed",
+  "notices": [
+   "held-small",
+   "held-small",
+   "held-small"
+  ],
+  "problems": []
+ }
+]

@@ -1,0 +1,2690 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 101,
+  "slug": "six-weeks-without-a-kitchen",
+  "title": "Six weeks without a kitchen"
+ },
+ "title": "Six weeks without a kitchen",
+ "product": {
+  "id": "hc-10x8",
+  "sku": "BKPH_HCIW_STD_10.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "10 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 720,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-10100": {
+   "src": "__ORIGIN__/landing/img/cover-kitchen.8242b75b.webp",
+   "px": {
+    "w": 1200,
+    "h": 750
+   },
+   "sizeFrom": "measured",
+   "caption": "Week six. The first pancakes, standing up, because we had not bought the stools yet."
+  },
+  "img-10101": {
+   "src": "__ORIGIN__/landing/img/photo-kitchen-before.1c071e13.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "The night before. Goodbye, orange."
+  },
+  "img-10102": {
+   "src": "__ORIGIN__/landing/img/photo-kitchen-sledge.8b2ff954.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Tom and the cabinet that fell off by itself."
+  },
+  "img-10103": {
+   "src": "__ORIGIN__/landing/img/photo-kitchen-camping.a1481a46.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Pizza Friday on the living room floor, week three."
+  },
+  "img-10104": {
+   "src": "__ORIGIN__/landing/img/photo-kitchen-tiling.213ba92e.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Day two of tiling. Still speaking to the tile, just."
+  },
+  "img-10105": {
+   "src": "__ORIGIN__/landing/img/photo-kitchen-paint.d35aa290.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Sage green, two coats, one nose."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1603.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1495.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1603.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   },
+   "spine": {
+    "x": 792,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 811.152,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 756,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 811.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "front": {
+    "x": 847.152,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "spine": {
+    "x": 796.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-10100",
+   "ppi": 150
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 893.65,
+    "y": 86.5,
+    "w": 596,
+    "h": 380,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 891.15,
+    "y": 84,
+    "w": 596,
+    "h": 380,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-10100",
+    "x": 901.15,
+    "y": 94,
+    "w": 576,
+    "h": 360,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1200,
+     "h": 750
+    },
+    "ppi": 150,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 1009.74,
+    "y": 514,
+    "text": "Six weeks without a kitchen",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 358.82,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 1106,
+    "y": 537.5,
+    "text": "FEBRUARY 1 – MARCH 14, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 166.3,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 268.73,
+    "y": 257.46,
+    "text": "We took the kitchen down to the studs in February",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 290.54
+   },
+   {
+    "type": "text",
+    "x": 290.14,
+    "y": 276.46,
+    "text": "and lived on a camping stove until the first",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 247.72
+   },
+   {
+    "type": "text",
+    "x": 384.67,
+    "y": 295.46,
+    "text": "pancakes.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 58.66
+   },
+   {
+    "type": "circle",
+    "cx": 352.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 357.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 363.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 373.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 417.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 397.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 396.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 399.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 441.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Six weeks without a kitchen",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 480.16,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 90,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 105,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 120,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "FEBRUARY 1 – MARCH 14, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 166.3,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "MADISON, WISCONSIN",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 110.5,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "We took the kitchen down to the studs in February and lived on a",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 316.46
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 352.16,
+     "text": "camping stove until the first pancakes.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 190.71
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY MAYA HARTLEY",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 141.5,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "before",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Before",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 99.7,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "Our kitchen was orange. Not a fun orange. A tired, eighties,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 293.98
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "knotty-pine orange, with a drawer that came out in your hand",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.97
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "and an oven door you had to hold shut with your hip. We said we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.98
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "would do something about it every January for six years.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.07
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 267.6,
+     "text": "This January we did. Six weeks, the contractor said. He was",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 295.51
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 282.6,
+     "text": "right, which nobody believed at the time.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 204.57
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 6,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "before",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10101"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10101",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "The night before. Goodbye, orange.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 138.52
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "before",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "I took this the night before demo day so we would remember.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.75
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "We will not be framing it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 126.99
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "4",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 2,
+    "ends": true
+   }
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "demo-day",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFDDF2",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.28,
+     "y": 82.92,
+     "text": "02",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.43
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "Demo day",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 198.92,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "demo-day",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "Tom insisted on doing the first cabinet himself. He bought",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 289.64
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "safety goggles specially. He made a short speech. Then he swung",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.52
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "the sledgehammer and the cabinet door, which had been",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.58
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 101.1,
+     "text": "hanging on by one hinge since 2019, simply fell off before he hit",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 116.1,
+     "text": "it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 10.93
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 138.6,
+     "text": "He hit the cabinet anyway. You can see the dust.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 236.03
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "6",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 6,
+    "ends": true
+   }
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "demo-day",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10102"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10102",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Tom and the cabinet that fell off by itself.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 163.24
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "7",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "demo-day",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "By the end of the first weekend the room was a shell: bare",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 284.38
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "drywall, a pipe sticking out of the wall, and a square of linoleum",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.77
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "under where the fridge had been that was still its original color.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.32
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 101.1,
+     "text": "It was yellow. Who knew.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 126.46
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "living-on-a-camping-stove",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#F1FBD0",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.14,
+     "y": 82.92,
+     "text": "03",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.72
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "Living on a camping stove",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 503.27,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "living-on-a-camping-stove",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "For four weeks we cooked on a two-burner camping stove on the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.44
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "living room floor. We ate a lot of pasta. We ate a lot of things",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.46
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "that started out as pasta and were then called something else.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.24
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 119.04,
+     "text": "Pizza Fridays",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 91.7
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 134.1,
+     "text": "Fridays were takeout pizza on a picnic blanket in front of the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.17
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 149.1,
+     "text": "TV, and by week three the kids were asking if we could keep",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 295.49
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 164.1,
+     "text": "doing it when the kitchen was finished. We said no. We have",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.56
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 179.1,
+     "text": "done it twice since.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 94.78
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "10",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 8,
+    "ends": true
+   }
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "living-on-a-camping-stove",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10103"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10103",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Pizza Friday on the living room floor, week three.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 192.02
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "11",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "tile-and-paint",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#FFE5CC"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.59,
+     "y": 66.62,
+     "text": "04",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Tile and paint",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 193.83,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "I laid the floor tile myself, which I would like noted. Patterned,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.73
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "blue and white, the ones I had been looking at for about four",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.55
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "years. It took two full days and one evening where I sat on the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.87
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "floor and told the tile exactly what I thought of it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 244.72
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "tile-and-paint",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10104"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10104",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Day two of tiling. Still speaking to the tile, just.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 182.37
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "13",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "tile-and-paint",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "The kids were in charge of painting the cabinet doors. Sage",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 291.91
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "green. Two coats, out on the deck on the only dry weekend in",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "February. Leo was very careful and very slow and somehow still",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.23
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 101.1,
+     "text": "got paint on his nose, his ear and the dog.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 204.35
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "14",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "tile-and-paint",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10105"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10105",
+     "x": 84.19,
+     "y": 64.36,
+     "w": 578.62,
+     "h": 433.98,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 180,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 84.19,
+     "y": 511.14,
+     "text": "Sage green, two coats, one nose.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 129.74
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "15",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-first-pancakes",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#ECE5FF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.9,
+     "y": 66.62,
+     "text": "05",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.2
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The first pancakes",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 271.69,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "Six weeks to the day, the contractor put on the last handle, ran",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.19
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "the faucet for us like a magician, and left. We stood in the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 283.28
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "doorway for a bit, not quite sure we were allowed in.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 259.08
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 252.6,
+     "text": "Then Ivy asked for pancakes, and that settled it. Tom made the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.86
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 267.6,
+     "text": "first batch on the new stove. The first one stuck, as the first one",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.09
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 282.6,
+     "text": "always does. Nobody minded. We ate standing up around the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.57
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 297.6,
+     "text": "island because we had not bought the stools yet, and it was the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.02
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 312.6,
+     "text": "best breakfast we have had in that house.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 203.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 335.1,
+     "text": "The drawer still works. We check most days.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 219.78
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 9,
+    "ends": true
+   }
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10100"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10100",
+     "x": 85.79,
+     "y": 95.58,
+     "w": 575.42,
+     "h": 359.64,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 750
+     },
+     "ppi": 150,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 85.79,
+     "y": 468.02,
+     "text": "Week six. The first pancakes, standing up, because we had not bought the stools yet.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 336.78
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "17",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 45,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 180.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 178.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 160.74,
+     "y": 246.36,
+     "text": "MH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 35.52
+    },
+    {
+     "type": "text",
+     "x": 146.1,
+     "y": 293.4,
+     "text": "Maya Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 64.8
+    },
+    {
+     "type": "circle",
+     "cx": 304.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 302.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 288.7,
+     "y": 246.36,
+     "text": "TH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 27.59
+    },
+    {
+     "type": "text",
+     "x": 273.3,
+     "y": 293.4,
+     "text": "Tom Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 58.4
+    },
+    {
+     "type": "circle",
+     "cx": 428.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 426.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 415.61,
+     "y": 246.36,
+     "text": "IH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 21.78
+    },
+    {
+     "type": "text",
+     "x": 400.26,
+     "y": 293.4,
+     "text": "Ivy Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 52.49
+    },
+    {
+     "type": "circle",
+     "cx": 552.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 550.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 537.44,
+     "y": 246.36,
+     "text": "LH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 26.12
+    },
+    {
+     "type": "text",
+     "x": 523.01,
+     "y": 293.4,
+     "text": "Leo Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 54.99
+    },
+    {
+     "type": "circle",
+     "cx": 297.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 303.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 309.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 320.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 368.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 346.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 344.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 348.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 393.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 240.92,
+     "y": 524.4,
+     "text": "Made from “Six weeks without a kitchen”, a story by Maya Hartley.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 247.15
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "before",
+   "kind": "chapter",
+   "title": "Before",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 4
+  },
+  {
+   "id": "demo-day",
+   "kind": "chapter",
+   "title": "Demo day",
+   "label": null,
+   "firstPage": 5,
+   "lastPage": 8
+  },
+  {
+   "id": "living-on-a-camping-stove",
+   "kind": "chapter",
+   "title": "Living on a camping stove",
+   "label": null,
+   "firstPage": 9,
+   "lastPage": 11
+  },
+  {
+   "id": "tile-and-paint",
+   "kind": "chapter",
+   "title": "Tile and paint",
+   "label": null,
+   "firstPage": 12,
+   "lastPage": 15
+  },
+  {
+   "id": "the-first-pancakes",
+   "kind": "chapter",
+   "title": "The first pancakes",
+   "label": null,
+   "firstPage": 16,
+   "lastPage": 16
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 17,
+   "lastPage": 17
+  }
+ ],
+ "notices": [
+  {
+   "code": "slim",
+   "message": "This story makes a slim book. Add another story, or give each photo its own page."
+  }
+ ],
+ "edits": {
+  "size": "hc-10x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 3,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 150,
+  "measure": 319,
+  "contentBox": {
+   "w": 639,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}

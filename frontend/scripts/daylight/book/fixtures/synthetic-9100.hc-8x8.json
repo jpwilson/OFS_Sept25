@@ -1,0 +1,4947 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 9100,
+  "slug": "synthetic-9100",
+  "title": "Every shape there is"
+ },
+ "title": "Every shape there is",
+ "product": {
+  "id": "hc-8x8",
+  "sku": "BKPH_HCIW_STD_8.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "8 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 576,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 26,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-910000": {
+   "src": "https://example.invalid/p/910000.jpg",
+   "px": {
+    "w": 1080,
+    "h": 1440
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 1, 1080 by 1440."
+  },
+  "img-910001": {
+   "src": "https://example.invalid/p/910001.jpg",
+   "px": {
+    "w": 1080,
+    "h": 1440
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 2, 1080 by 1440."
+  },
+  "img-910002": {
+   "src": "https://example.invalid/p/910002.jpg",
+   "px": {
+    "w": 1200,
+    "h": 1600
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 3, 1200 by 1600."
+  },
+  "img-910003": {
+   "src": "https://example.invalid/p/910003.jpg",
+   "px": {
+    "w": 900,
+    "h": 1200
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 4, 900 by 1200."
+  },
+  "img-910004": {
+   "src": "https://example.invalid/p/910004.jpg",
+   "px": {
+    "w": 543,
+    "h": 911
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 5, 543 by 911."
+  },
+  "img-910005": {
+   "src": "https://example.invalid/p/910005.jpg",
+   "px": {
+    "w": 640,
+    "h": 480
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 6, 640 by 480."
+  },
+  "img-910006": {
+   "src": "https://example.invalid/p/910006.jpg",
+   "px": {
+    "w": 500,
+    "h": 500
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 7, 500 by 500."
+  },
+  "img-910007": {
+   "src": "https://example.invalid/p/910007.jpg",
+   "px": {
+    "w": 3000,
+    "h": 760
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 8, 3000 by 760."
+  },
+  "img-910008": {
+   "src": "https://example.invalid/p/910008.jpg",
+   "px": {
+    "w": 1800,
+    "h": 1200
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 9, 1800 by 1200."
+  },
+  "img-910009": {
+   "src": "https://example.invalid/p/910009.jpg",
+   "px": {
+    "w": 1800,
+    "h": 1200
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 10, 1800 by 1200."
+  },
+  "img-910010": {
+   "src": "https://example.invalid/p/910010.jpg",
+   "px": {
+    "w": 2400,
+    "h": 1350
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 11, 2400 by 1350."
+  },
+  "img-910011": {
+   "src": "https://example.invalid/p/910011.jpg",
+   "px": {
+    "w": 2400,
+    "h": 2400
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 12, 2400 by 2400."
+  },
+  "img-910012": {
+   "src": "https://example.invalid/p/910012.jpg",
+   "px": {
+    "w": 3000,
+    "h": 2000
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 13, 3000 by 2000."
+  },
+  "img-910013": {
+   "src": "https://example.invalid/p/910013.jpg",
+   "px": {
+    "w": 1500,
+    "h": 1500
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 14, 1500 by 1500."
+  },
+  "img-910014": {
+   "src": "https://example.invalid/p/910014.jpg",
+   "px": {
+    "w": 1500,
+    "h": 1500
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 15, 1500 by 1500."
+  },
+  "img-910015": {
+   "src": "https://example.invalid/p/910015.jpg",
+   "px": {
+    "w": 1500,
+    "h": 1500
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 16, 1500 by 1500."
+  },
+  "img-910016": {
+   "src": "https://example.invalid/p/910016.jpg",
+   "px": {
+    "w": 1500,
+    "h": 1500
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 17, 1500 by 1500."
+  },
+  "img-910017": {
+   "src": "https://example.invalid/p/910017.jpg",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Photo 18, 1448 by 1086."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1315.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1207.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1315.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   },
+   "spine": {
+    "x": 648,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 667.152,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 612,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 667.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "front": {
+    "x": 703.152,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "spine": {
+    "x": 652.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-910000",
+   "ppi": 223
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 791.46,
+    "y": 86.5,
+    "w": 368.38,
+    "h": 484.5,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 788.96,
+    "y": 84,
+    "w": 368.38,
+    "h": 484.5,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-910000",
+    "x": 798.96,
+    "y": 94,
+    "w": 348.38,
+    "h": 464.5,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1080,
+     "h": 1440
+    },
+    "ppi": 223,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 842.75,
+    "y": 618.5,
+    "text": "Every shape there is",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 260.8,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 917.9,
+    "y": 642,
+    "text": "JUNE 14 – 16, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 110.5,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 278.92,
+    "y": 276.46,
+    "text": "Made up for the tests.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 126.17
+   },
+   {
+    "type": "circle",
+    "cx": 280.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 285.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 291.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 301.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 345.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 325.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 324.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 327.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 369.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Every shape there is",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 349,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 90,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 105,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 120,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "JUNE 14 – 16, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 110.5,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 322.16,
+     "text": "Made up for the tests.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 106.76
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY TEST AUTHOR",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 135.3,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "portraits",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Portraits",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 130.78,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "We children somebody the all the the drove argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "of light dog out about the while. Came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 290.84
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "cooler the until over through and and we children somebody the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 245.1,
+     "text": "all the the. Argued opened ridge of light dog out about the while",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.95
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 260.1,
+     "text": "it came slept early breakfast cooler the until. Through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.11
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 275.1,
+     "text": "we children somebody the all the the drove argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.18
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 290.1,
+     "text": "of light dog out.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 78.69
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 312.6,
+     "text": "Came slept early breakfast cooler the until over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.06
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 327.6,
+     "text": "and we children somebody the all the the. Argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 342.6,
+     "text": "of light dog out about the while it came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 294.99
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 357.6,
+     "text": "cooler the until. Through and and we children somebody the all",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.09
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 372.6,
+     "text": "the the drove argued opened ridge of light dog out. The while it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.46
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 387.6,
+     "text": "came slept early breakfast cooler the until over through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.04
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 402.6,
+     "text": "we children somebody the.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 133.85
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 14,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "portraits",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910000"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910000",
+     "x": 121.47,
+     "y": 45,
+     "w": 360.06,
+     "h": 480.08,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1440
+     },
+     "ppi": 215,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 121.47,
+     "y": 537.88,
+     "text": "Photo 1, 1080 by 1440.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 85.26
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "photos",
+   "template": "pair-side",
+   "section": "portraits",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910001",
+    "img-910002"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910001",
+     "x": 45,
+     "y": 111.39,
+     "w": 241.5,
+     "h": 322,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1440
+     },
+     "ppi": 321,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 446.19,
+     "text": "Photo 2, 1080 by 1440.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 87.7
+    },
+    {
+     "type": "image",
+     "ref": "img-910002",
+     "x": 298.5,
+     "y": 111.39,
+     "w": 241.5,
+     "h": 322,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 1600
+     },
+     "ppi": 357,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 298.5,
+     "y": 446.19,
+     "text": "Photo 3, 1200 by 1600.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 87.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "4",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "portraits",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910003"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910003",
+     "x": 121.68,
+     "y": 45.23,
+     "w": 359.64,
+     "h": 479.52,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 900,
+      "h": 1200
+     },
+     "ppi": 180,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 121.68,
+     "y": 537.55,
+     "text": "Photo 4, 900 by 1200.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 85.14
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "5",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "small-ones",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#FFDDF2"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 66.62,
+     "text": "02",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Small ones",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 160.16,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "Ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 276.59
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "breakfast cooler the until over through. And we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.89
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "somebody the all the the drove argued opened ridge of light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.6
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 245.1,
+     "text": "out about the. It came slept early breakfast cooler the until over",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.39
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 260.1,
+     "text": "through and and we children somebody the all the. Drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 285.17
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 275.1,
+     "text": "argued opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 290.1,
+     "text": "slept early breakfast cooler the.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 155.51
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 312.6,
+     "text": "And we children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.02
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 327.6,
+     "text": "ridge of light dog out about the. It came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.13
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 342.6,
+     "text": "cooler the until over through and and we children somebody the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 357.6,
+     "text": "all the. Drove argued opened ridge of light dog out about the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.48
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 372.6,
+     "text": "while it came slept early breakfast cooler the. Over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 387.6,
+     "text": "and we children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.07
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 402.6,
+     "text": "ridge of light dog.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 87.98
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 14,
+    "ends": true
+   }
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "small-ones",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910004"
+   ],
+   "items": [
+    {
+     "type": "rect",
+     "x": 162.31,
+     "y": 55.58,
+     "w": 278.38,
+     "h": 454.88,
+     "fill": "#F4F7FB",
+     "stroke": "#D9DBE0",
+     "strokeWidth": 0.75
+    },
+    {
+     "type": "image",
+     "ref": "img-910004",
+     "x": 171.31,
+     "y": 64.58,
+     "w": 260.38,
+     "h": 436.88,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 543,
+      "h": 911
+     },
+     "ppi": 150,
+     "frame": "mat",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 171.31,
+     "y": 523.26,
+     "text": "Photo 5, 543 by 911.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 76.17
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "7",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "photos",
+   "template": "pair-side",
+   "section": "small-ones",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910005",
+    "img-910006"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910005",
+     "x": 62.5,
+     "y": 165.99,
+     "w": 255.99,
+     "h": 192,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 640,
+      "h": 480
+     },
+     "ppi": 180,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 62.5,
+     "y": 370.79,
+     "text": "Photo 6, 640 by 480.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 82.66
+    },
+    {
+     "type": "image",
+     "ref": "img-910006",
+     "x": 330.5,
+     "y": 165.99,
+     "w": 192,
+     "h": 192,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 500,
+      "h": 500
+     },
+     "ppi": 187,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 385.98,
+     "y": 370.79,
+     "text": "Photo 7, 500 by 500.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 81.04
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "wide",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#F1FBD0",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.14,
+     "y": 82.92,
+     "text": "03",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.72
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "Wide",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 101.65,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "wide",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "Slept early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.53
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "children somebody the all the the drove. Opened ridge of light",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.14
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "dog out about the while it came slept early breakfast cooler the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "until over. And and we children somebody the all the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.22
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 116.1,
+     "text": "argued opened ridge of light dog out about. While it came slept",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.08
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 131.1,
+     "text": "early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 278.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 146.1,
+     "text": "children somebody the all.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 132.33
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 168.6,
+     "text": "Opened ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.61
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 183.6,
+     "text": "breakfast cooler the until over. And and we children somebody",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.62
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 198.6,
+     "text": "the all the the drove argued opened ridge of light dog out about.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.6
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 213.6,
+     "text": "While it came slept early breakfast cooler the until over through",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.51
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 228.6,
+     "text": "and and we children somebody the all. The drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.52
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 243.6,
+     "text": "opened ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.68
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 258.6,
+     "text": "breakfast cooler.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 83.16
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "10",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 14,
+    "ends": true
+   }
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "photos",
+   "template": "pair-stack",
+   "section": "wide",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910007",
+    "img-910008"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910007",
+     "x": 58.48,
+     "y": 45,
+     "w": 486.03,
+     "h": 123.13,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 3000,
+      "h": 760
+     },
+     "ppi": 444,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 58.48,
+     "y": 180.93,
+     "text": "Photo 8, 3000 by 760.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 87.23
+    },
+    {
+     "type": "image",
+     "ref": "img-910008",
+     "x": 58.48,
+     "y": 201.05,
+     "w": 486.03,
+     "h": 324.02,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1800,
+      "h": 1200
+     },
+     "ppi": 266,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 58.48,
+     "y": 537.87,
+     "text": "Photo 9, 1800 by 1200.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 88.08
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "11",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "wide",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910009"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910009",
+     "x": 45,
+     "y": 108.03,
+     "w": 495,
+     "h": 330,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1800,
+      "h": 1200
+     },
+     "ppi": 261,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 450.83,
+     "text": "Photo 10, 1800 by 1200.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 90.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "12",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "photo-text",
+   "template": "photo-text",
+   "section": "wide",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910010"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910010",
+     "x": 54,
+     "y": 45,
+     "w": 495,
+     "h": 278.43,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 2400,
+      "h": 1350
+     },
+     "ppi": 349,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.23,
+     "text": "Photo 11, 2400 by 1350.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 89.47
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 491.1,
+     "text": "The all the the drove argued opened ridge of light dog out about",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.51
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 506.1,
+     "text": "the while it came slept. Breakfast cooler the until over through",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.62
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 521.1,
+     "text": "and and we children somebody the all the the drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.3
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 536.1,
+     "text": "opened.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 40.13
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "13",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "squares-and-big",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#FFE5CC"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.59,
+     "y": 66.62,
+     "text": "04",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Squares and big",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 236.17,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "We children somebody the all the the drove argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "of light dog out about the while. Came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 290.84
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "cooler the until over through and and we children somebody the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 245.1,
+     "text": "all the the. Argued opened ridge of light dog out about the while",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.95
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 260.1,
+     "text": "it came slept early breakfast cooler the until. Through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.11
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 275.1,
+     "text": "we children somebody the all the the drove argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.18
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 290.1,
+     "text": "of light dog out.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 78.69
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 312.6,
+     "text": "Came slept early breakfast cooler the until over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.06
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 327.6,
+     "text": "and we children somebody the all the the. Argued opened ridge",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 342.6,
+     "text": "of light dog out about the while it came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 294.99
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 357.6,
+     "text": "cooler the until. Through and and we children somebody the all",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.09
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 372.6,
+     "text": "the the drove argued opened ridge of light dog out. The while it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.46
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 387.6,
+     "text": "came slept early breakfast cooler the until over through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.04
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 402.6,
+     "text": "we children somebody the.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 133.85
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 14,
+    "ends": true
+   }
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "photos",
+   "template": "full-bleed",
+   "section": "squares-and-big",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [
+    "img-910011"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910011",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 594,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 2400,
+      "h": 2400
+     },
+     "ppi": 290,
+     "fit": "bleed",
+     "floor": 150
+    },
+    {
+     "type": "rect",
+     "x": 46,
+     "y": 507.08,
+     "w": 260,
+     "h": 24.93,
+     "fill": "#FFFFFF",
+     "r": 3,
+     "stroke": "#101B3B",
+     "strokeWidth": 0.75
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 521.88,
+     "text": "Photo 12, 2400 by 2400.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 94.54
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "photos",
+   "template": "trio",
+   "section": "squares-and-big",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910012",
+    "img-910013",
+    "img-910014"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910012",
+     "x": 98.29,
+     "y": 45,
+     "w": 388.41,
+     "h": 258.94,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 3000,
+      "h": 2000
+     },
+     "ppi": 556,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 98.29,
+     "y": 316.74,
+     "text": "Photo 13, 3000 by 2000.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 95.88
+    },
+    {
+     "type": "image",
+     "ref": "img-910013",
+     "x": 98.29,
+     "y": 336.87,
+     "w": 188.21,
+     "h": 188.21,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1500,
+      "h": 1500
+     },
+     "ppi": 573,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 147.28,
+     "y": 537.87,
+     "text": "Photo 14, 1500 by 1500.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 90.24
+    },
+    {
+     "type": "image",
+     "ref": "img-910014",
+     "x": 298.5,
+     "y": 336.87,
+     "w": 188.21,
+     "h": 188.21,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1500,
+      "h": 1500
+     },
+     "ppi": 573,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 347.46,
+     "y": 537.87,
+     "text": "Photo 15, 1500 by 1500.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 90.29
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "16",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "squares-and-big",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910015"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910015",
+     "x": 61.46,
+     "y": 45,
+     "w": 480.08,
+     "h": 480.08,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1500,
+      "h": 1500
+     },
+     "ppi": 224,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 61.46,
+     "y": 537.88,
+     "text": "Photo 16, 1500 by 1500.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 90.69
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "17",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "photos",
+   "template": "full-bleed",
+   "section": "squares-and-big",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [
+    "img-910016"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910016",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 594,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1500,
+      "h": 1500
+     },
+     "ppi": 181,
+     "fit": "bleed",
+     "floor": 180
+    },
+    {
+     "type": "rect",
+     "x": 37,
+     "y": 507.08,
+     "w": 260,
+     "h": 24.93,
+     "fill": "#FFFFFF",
+     "r": 3,
+     "stroke": "#101B3B",
+     "strokeWidth": 0.75
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 521.88,
+     "text": "Photo 17, 1500 by 1500.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 88.89
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#ECE5FF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.12,
+     "y": 82.92,
+     "text": "05",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.77
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "Talk",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 78.74,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "Ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 276.59
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "breakfast cooler the until over through. And we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.89
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "somebody the all the the drove argued opened ridge of light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.6
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "out about the. It came slept early breakfast cooler the until over",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.39
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 116.1,
+     "text": "through and and we children somebody the all the. Drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 285.17
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 131.1,
+     "text": "argued opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 146.1,
+     "text": "slept early breakfast cooler the. Over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 283.62
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 161.1,
+     "text": "children somebody the all the the drove argued opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.08
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 176.1,
+     "text": "light dog. About the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.69
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 191.1,
+     "text": "the until over through and and we children somebody.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 269.47
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 213.6,
+     "text": "And we children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.02
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 228.6,
+     "text": "ridge of light dog out about the. It came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.13
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 243.6,
+     "text": "cooler the until over through and and we children somebody the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 258.6,
+     "text": "all the. Drove argued opened ridge of light dog out about the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.48
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 273.6,
+     "text": "while it came slept early breakfast cooler the. Over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 288.6,
+     "text": "and we children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.07
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 303.6,
+     "text": "ridge of light dog. About the while it came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.94
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 318.6,
+     "text": "cooler the until over through and and we children somebody.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.63
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 333.6,
+     "text": "All the the drove argued opened ridge of light dog out about the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.16
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 348.6,
+     "text": "while it came slept early.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 121.93
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 371.1,
+     "text": "It came slept early breakfast cooler the until over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 386.1,
+     "text": "and we children somebody the all the. Drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.44
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 401.1,
+     "text": "ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 273.95
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 416.1,
+     "text": "breakfast cooler the. Over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 275.03
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 431.1,
+     "text": "somebody the all the the drove argued opened ridge of light dog.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.1
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 446.1,
+     "text": "About the while it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.35
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 461.1,
+     "text": "over through and and we children somebody. All the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.09
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 476.1,
+     "text": "argued opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 491.1,
+     "text": "slept early. Cooler the until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.22
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 506.1,
+     "text": "somebody the all the the drove argued opened ridge.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 259.5
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "20",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 30,
+    "ends": false
+   }
+  },
+  {
+   "index": 20,
+   "number": 21,
+   "side": "right",
+   "kind": "text",
+   "template": "text",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 142,
+     "y": 56.1,
+     "text": "Drove argued opened ridge of light dog out about the while it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.37
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 71.1,
+     "text": "came slept early breakfast cooler the. Over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.08
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 86.1,
+     "text": "children somebody the all the the drove argued opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.08
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 101.1,
+     "text": "light dog. About the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.69
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 116.1,
+     "text": "the until over through and and we children somebody. All the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 131.1,
+     "text": "the drove argued opened ridge of light dog out about the while it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.39
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 146.1,
+     "text": "came slept early. Cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 289.03
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 161.1,
+     "text": "children somebody the all the the drove argued opened ridge.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.15
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 176.1,
+     "text": "Light dog out about the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 319
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 191.1,
+     "text": "the until over through and and.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 156.53
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 213.6,
+     "text": "Over through and and we children somebody the all the the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 294.3
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 228.6,
+     "text": "drove argued opened ridge of light dog. About the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.04
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 243.6,
+     "text": "slept early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.99
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 258.6,
+     "text": "children somebody. All the the drove argued opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.01
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 273.6,
+     "text": "light dog out about the while it came slept early. Cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.73
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 288.6,
+     "text": "over through and and we children somebody the all the the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.43
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 303.6,
+     "text": "drove argued opened ridge. Light dog out about the while it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.96
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 318.6,
+     "text": "came slept early breakfast cooler the until over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.07
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 333.6,
+     "text": "and. Children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.21
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 348.6,
+     "text": "ridge of light dog out about the while it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 195.73
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 371.1,
+     "text": "About the while it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.35
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 386.1,
+     "text": "over through and and we children somebody. All the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.09
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 401.1,
+     "text": "argued opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.45
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 416.1,
+     "text": "slept early. Cooler the until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.22
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 431.1,
+     "text": "somebody the all the the drove argued opened ridge. Light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.85
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 446.1,
+     "text": "out about the while it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.98
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 461.1,
+     "text": "over through and and. Children somebody the all the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.3
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 476.1,
+     "text": "argued opened ridge of light dog out about the while it. Slept",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.18
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 491.1,
+     "text": "early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 278.83
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 506.1,
+     "text": "children somebody the all the the drove.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 200.32
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "21",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 30,
+    "to": 60,
+    "ends": false
+   }
+  },
+  {
+   "index": 21,
+   "number": 22,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "All the the drove argued opened ridge of light dog out about the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.16
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "while it came slept early. Cooler the until over through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.38
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "we children somebody the all the the drove argued opened",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 289.1
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "ridge. Light dog out about the while it came slept early breakfast",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.32
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 116.1,
+     "text": "cooler the until over through and and. Children somebody the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.9
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 131.1,
+     "text": "all the the drove argued opened ridge of light dog out about the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.1
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 146.1,
+     "text": "while it. Slept early breakfast cooler the until over through and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.4
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 161.1,
+     "text": "and we children somebody the all the the drove. Opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.78
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 176.1,
+     "text": "light dog out about the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 191.1,
+     "text": "the until over.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 70.56
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 213.6,
+     "text": "Cooler the until over through and and we children somebody",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.23
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 228.6,
+     "text": "the all the the drove argued opened ridge. Light dog out about",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.35
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 243.6,
+     "text": "the while it came slept early breakfast cooler the until over",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 290.03
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 258.6,
+     "text": "through and and. Children somebody the all the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 287.94
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 273.6,
+     "text": "argued opened ridge of light dog out about the while it. Slept",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.18
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 288.6,
+     "text": "early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 278.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 303.6,
+     "text": "children somebody the all the the drove. Opened ridge of light",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.14
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 318.6,
+     "text": "dog out about the while it came slept early breakfast cooler the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.76
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 333.6,
+     "text": "until over. And and we children somebody the all the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.22
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 348.6,
+     "text": "argued opened ridge of light dog out about.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 213.03
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 371.1,
+     "text": "Light dog out about the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 319
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 386.1,
+     "text": "the until over through and and. Children somebody the all the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.22
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 401.1,
+     "text": "the drove argued opened ridge of light dog out about the while",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.86
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 416.1,
+     "text": "it. Slept early breakfast cooler the until over through and and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.14
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 431.1,
+     "text": "we children somebody the all the the drove. Opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.81
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 446.1,
+     "text": "light dog out about the while it came slept early breakfast cooler",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 461.1,
+     "text": "the until over. And and we children somebody the all the the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.17
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 476.1,
+     "text": "drove argued opened ridge of light dog out about. While it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.64
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 491.1,
+     "text": "slept early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.99
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 506.1,
+     "text": "children somebody the all.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 132.33
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "22",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 60,
+    "to": 90,
+    "ends": false
+   }
+  },
+  {
+   "index": 22,
+   "number": 23,
+   "side": "right",
+   "kind": "text",
+   "template": "text",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 142,
+     "y": 56.1,
+     "text": "Children somebody the all the the drove argued opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.15
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 71.1,
+     "text": "light dog out about the while it. Slept early breakfast cooler the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.07
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 86.1,
+     "text": "until over through and and we children somebody the all the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.39
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 101.1,
+     "text": "the drove. Opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.17
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 116.1,
+     "text": "slept early breakfast cooler the until over. And and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.06
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 131.1,
+     "text": "somebody the all the the drove argued opened ridge of light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.6
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 146.1,
+     "text": "out about. While it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.44
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 161.1,
+     "text": "over through and and we children somebody the all. The drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.38
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 176.1,
+     "text": "argued opened ridge of light dog out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.45
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 191.1,
+     "text": "slept early breakfast cooler.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 136.41
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 213.6,
+     "text": "Slept early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.53
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 228.6,
+     "text": "children somebody the all the the drove. Opened ridge of light",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.14
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 243.6,
+     "text": "dog out about the while it came slept early breakfast cooler the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.76
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 258.6,
+     "text": "until over. And and we children somebody the all the the drove",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.22
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 273.6,
+     "text": "argued opened ridge of light dog out about. While it came slept",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.08
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 288.6,
+     "text": "early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 278.83
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 303.6,
+     "text": "children somebody the all. The drove argued opened ridge of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 301.3
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 318.6,
+     "text": "light dog out about the while it came slept early breakfast cooler.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.8
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 333.6,
+     "text": "Until over through and and we children somebody the all the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.03
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 348.6,
+     "text": "the drove argued opened ridge of light.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 192.71
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 371.1,
+     "text": "Opened ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.61
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 386.1,
+     "text": "breakfast cooler the until over. And and we children somebody",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.62
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 401.1,
+     "text": "the all the the drove argued opened ridge of light dog out about.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.6
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 416.1,
+     "text": "While it came slept early breakfast cooler the until over through",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.51
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 431.1,
+     "text": "and and we children somebody the all. The drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.52
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 446.1,
+     "text": "opened ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.68
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 461.1,
+     "text": "breakfast cooler. Until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 282.33
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 476.1,
+     "text": "somebody the all the the drove argued opened ridge of light. Out",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.34
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 491.1,
+     "text": "about the while it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.18
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 506.1,
+     "text": "over through and and we children.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 172.28
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "23",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 90,
+    "to": 120,
+    "ends": false
+   }
+  },
+  {
+   "index": 23,
+   "number": 24,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "And and we children somebody the all the the drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 294.25
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "opened ridge of light dog out about. While it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.14
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "breakfast cooler the until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.4
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "somebody the all. The drove argued opened ridge of light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.82
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 116.1,
+     "text": "out about the while it came slept early breakfast cooler. Until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.91
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 131.1,
+     "text": "over through and and we children somebody the all the the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.43
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 146.1,
+     "text": "drove argued opened ridge of light. Out about the while it came",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.12
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 161.1,
+     "text": "slept early breakfast cooler the until over through and and we",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.99
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 176.1,
+     "text": "children. The all the the drove argued opened ridge of light dog",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.35
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 191.1,
+     "text": "out about the while it came slept.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 163.78
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 213.6,
+     "text": "While it came slept early breakfast cooler the until over through",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.51
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 228.6,
+     "text": "and and we children somebody the all. The drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.52
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 243.6,
+     "text": "opened ridge of light dog out about the while it came slept early",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.68
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 258.6,
+     "text": "breakfast cooler. Until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 282.33
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 273.6,
+     "text": "somebody the all the the drove argued opened ridge of light. Out",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.34
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 288.6,
+     "text": "about the while it came slept early breakfast cooler the until",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.18
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 303.6,
+     "text": "over through and and we children. The all the the drove argued",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.27
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 318.6,
+     "text": "opened ridge of light dog out about the while it came slept.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 289.1
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 333.6,
+     "text": "Breakfast cooler the until over through and and we children",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.07
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 348.6,
+     "text": "somebody the all the the drove argued opened.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 231.51
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "24",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 120,
+    "to": 140,
+    "ends": true
+   }
+  },
+  {
+   "index": 24,
+   "number": 25,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "talk",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-910017"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-910017",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Photo 18, 1448 by 1086.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 90.66
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "25",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 25,
+   "number": 26,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 45,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 232.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 230.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 217.58,
+     "y": 246.36,
+     "text": "TA",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 25.84
+    },
+    {
+     "type": "text",
+     "x": 202.66,
+     "y": 293.4,
+     "text": "Test Author",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 55.69
+    },
+    {
+     "type": "circle",
+     "cx": 356.5,
+     "cy": 241.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 354.5,
+     "cy": 239.4,
+     "r": 34,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 339.65,
+     "y": 246.36,
+     "text": "AK",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 29.7
+    },
+    {
+     "type": "text",
+     "x": 341.98,
+     "y": 293.4,
+     "text": "A Kid",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 25.04
+    },
+    {
+     "type": "circle",
+     "cx": 225.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 231.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 237.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 248.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 296.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 274.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 272.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 276.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 321.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 186.79,
+     "y": 524.4,
+     "text": "Made from “Every shape there is”, a story by Test Author.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 211.42
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "portraits",
+   "kind": "chapter",
+   "title": "Portraits",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 5
+  },
+  {
+   "id": "small-ones",
+   "kind": "chapter",
+   "title": "Small ones",
+   "label": null,
+   "firstPage": 6,
+   "lastPage": 8
+  },
+  {
+   "id": "wide",
+   "kind": "chapter",
+   "title": "Wide",
+   "label": null,
+   "firstPage": 9,
+   "lastPage": 13
+  },
+  {
+   "id": "squares-and-big",
+   "kind": "chapter",
+   "title": "Squares and big",
+   "label": null,
+   "firstPage": 14,
+   "lastPage": 18
+  },
+  {
+   "id": "talk",
+   "kind": "chapter",
+   "title": "Talk",
+   "label": null,
+   "firstPage": 19,
+   "lastPage": 25
+  }
+ ],
+ "notices": [
+  {
+   "code": "held-small",
+   "photoId": "img-910004",
+   "page": 7,
+   "message": "This photo is small, so we've kept it small in the book."
+  }
+ ],
+ "edits": {
+  "size": "hc-8x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "colophon": 1,
+   "framed": 6,
+   "full-bleed": 2,
+   "opener": 2,
+   "opener-text": 3,
+   "pair-side": 2,
+   "pair-stack": 1,
+   "photo-text": 1,
+   "text": 6,
+   "title": 1,
+   "trio": 1
+  },
+  "minPpi": 150,
+  "measure": 319,
+  "contentBox": {
+   "w": 495,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}
