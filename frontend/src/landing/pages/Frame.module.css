@@ -1,0 +1,62 @@
+/* The frame around a story marketing page (owner: pages). Sets the page-head variables the
+   page stylesheets in css/ read. Everything is scoped under .frame (which also carries .ofsl). */
+
+.frame {
+  /* clip both axes: the page head paints its wash outwards from inside narrow boxes */
+  overflow: clip;
+  min-height: 100svh;
+  --ph-top: clamp(36px, 5vw, 64px);
+  --ph-floor: 44px;
+  --ph-art-h: clamp(300px, 30vw, 460px);
+  --ph-ar: 0.4;
+  --ph-ax: 0.5;
+  --ph-size-body: 18px;
+}
+/* A head with only a line or two of copy gets a shorter cut-out. */
+.frame[data-art-small] {
+  --ph-art-h: clamp(240px, 22vw, 330px);
+}
+/* The landing nav is fixed over the top of the page: clear it. */
+.frame[data-nav] {
+  --ph-top: clamp(124px, 12vw, 150px);
+}
+.wash {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.page {
+  flex: 1 0 auto;
+  position: relative;
+}
+
+@media (max-width: 1023px) {
+  .frame {
+    --ph-art-h: clamp(220px, 34vw, 300px);
+  }
+  .frame[data-art-small] {
+    --ph-art-h: 240px;
+  }
+}
+@media (max-width: 640px) {
+  .frame {
+    --ph-floor: 34px;
+    --ph-art-h: 190px;
+    --ph-size-body: 16px;
+  }
+  .frame[data-art-small] {
+    --ph-art-h: 170px;
+  }
+  .frame[data-nav] {
+    --ph-top: 112px;
+  }
+}
+
+/* Touch: the landing footer's links get full 44px rows on these pages. */
+@media (pointer: coarse) {
+  .frame footer nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

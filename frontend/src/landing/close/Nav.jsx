@@ -27,7 +27,8 @@ function MenuIcon() {
   )
 }
 
-export function Nav() {
+/** base: prefix for the section links ('/' on the other marketing pages, so they lead to the landing's sections). */
+export function Nav({ base = '' }) {
   const bar = useRef(null)
   const menuBtn = useRef(null)
   const closeBtn = useRef(null)
@@ -83,7 +84,7 @@ export function Nav() {
           <ul className={s.links}>
             {NAV.links.map((l) => (
               <li key={l.id}>
-                <a href={`#${l.id}`} onClick={(e) => glide(e, l.id)}>
+                <a href={`${base}#${l.id}`} onClick={(e) => glide(e, l.id)}>
                   {l.label}
                 </a>
               </li>
@@ -131,7 +132,7 @@ export function Nav() {
         <ol className={s.sheetLinks}>
           {NAV.links.map((l, i) => (
             <li key={l.id} style={{ '--i': i }}>
-              <a href={`#${l.id}`} onClick={(e) => glide(e, l.id, () => setOpen(false))}>
+              <a href={`${base}#${l.id}`} onClick={(e) => glide(e, l.id, () => setOpen(false))}>
                 <span className={s.chip} aria-hidden="true" />
                 <span className={s.linkText}>{l.label}</span>
                 <Icon name="arrow" size={22} />

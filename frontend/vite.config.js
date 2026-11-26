@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { fileURLToPath } from 'node:url'
 import { resolveVariant } from './scripts/landing/variant.mjs'
+import { storyPages } from './scripts/landing/story-pages.mjs'
 
 // Which landing page this build serves: 'classic' (today's) or 'story' (the rebuild).
 // See scripts/landing/variant.mjs and landing.config.json.
@@ -35,6 +37,9 @@ export default defineConfig({
   },
   plugins: [
     landingVariantHtml(),
+    // Story variant only: the marketing pages in the landing's look (scripts/landing/story-pages.mjs).
+    // Not registered at all in a classic build, so a classic build is unchanged.
+    LANDING_VARIANT === 'story' && storyPages(fileURLToPath(new URL('.', import.meta.url))),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
