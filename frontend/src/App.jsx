@@ -86,7 +86,9 @@ function RootRedirect() {
 // Component to track page views on route changes
 function PostHogPageTracker() {
   const location = useLocation()
-  const { trackPageView } = usePostHog()
+  // Hooks must be read here, at the top of the component. Calling usePostHog()
+  // inside an effect throws React error #321 and unmounts the whole app.
+  const { trackPageView, identifyUser } = usePostHog()
   const { user } = useAuth()
 
   useEffect(() => {
@@ -97,7 +99,6 @@ function PostHogPageTracker() {
   // Identify user when they log in (only use numeric ID)
   useEffect(() => {
     if (user?.id) {
-      const { identifyUser } = usePostHog()
       identifyUser(user.id)
     }
   }, [user?.id])
