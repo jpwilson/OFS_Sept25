@@ -35,3 +35,7 @@ Rejected and fixed (v1s in raw/_rejects/*.r4v1.png):
 ## Round five (blank phone screens)
 
 Edited: g-family-hero (phone removed, open wave; metrics unchanged), p-maya-phone (phone turned to show its plain back). Checked and left: p-maya-talk (phone edge-on at her mouth), p-joe-phone and p-ruth-tablet (backs face the camera); no photo shows a screen to the camera. Before versions in raw/_rejects/*.r5before.png. No rejects.
+
+## Round six (Why families love it)
+
+Landed: photo-love-grandparents, -control, -far, -easy, -timeline, -book. All passed first time; no screens face the camera; no readable text. Contact sheet sheets/photos-love.jpg.

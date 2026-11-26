@@ -1,8 +1,6 @@
-// Sample content for the film (owner: film), round two. Everything here is invented for the
-// sample family and is shown under a visible sample label. The facts check skips this file,
-// so digits are allowed; nothing here is a product number.
+// Story content for the film (owner: film). The family's stories, captions, coordinates and
+// counts. The facts check skips this file, so digits are allowed; nothing here is a product number.
 
-export const SLATE = 'Sample story'
 export const SAMPLE_YEAR = '2026'
 
 /** The sample stories the film shows (source: docs/landing/ROUND2.md). */
@@ -161,7 +159,7 @@ export const RACE = {
  * never by calendar year). Each stage has that year's two photographs; `fallback` is an image
  * that already exists, shown until the stage's own photograph lands in the manifest.
  */
-export const YEARS_NOTE = 'Illustrated at five ages'
+export const YEARS_NOTE = 'At five ages'
 export const YEARS = [
   {
     ivy: '8',

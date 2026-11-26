@@ -108,20 +108,6 @@
   gap: 0;
   touch-action: pan-y;
 }
-.small {
-  position: absolute;
-  left: var(--l-gutter);
-  right: var(--l-gutter);
-  bottom: 5px;
-  z-index: 20;
-  font-size: 10px;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.7;
-}
 
 /* ---------- the app ---------- */
 /* paper wall, tide floor: the app scene is bright, not quiet */
@@ -251,21 +237,6 @@
   flex-wrap: nowrap;
   gap: 12px;
 }
-.endNote {
-  position: absolute;
-  left: var(--l-gutter);
-  top: calc(var(--l-nav-h) + 16px);
-  z-index: 5;
-  padding: 5px 10px;
-  background: var(--l-white);
-  border: 1.5px solid var(--l-ink);
-  border-radius: 6px;
-  font-family: var(--l-font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 
 /* ---------- phone ---------- */
 @media (max-aspect-ratio: 9/10) {
@@ -299,14 +270,6 @@
     --l-aud-fs: 13px;
     --l-aud-pad: 5px;
     --l-aud-opt-px: 3px;
-  }
-  .small {
-    left: 14px;
-    right: 14px;
-    bottom: auto;
-    top: calc(100% - 88px);
-    font-size: 9px;
-    white-space: normal;
   }
   .frame {
     aspect-ratio: 0.78;
@@ -364,11 +327,6 @@
     --h: 50px;
     --px: 8px;
     --fs: 15.5px;
-  }
-  .endNote {
-    left: 14px;
-    top: calc(var(--l-nav-h) + 8px);
-    font-size: 9px;
   }
 }
 

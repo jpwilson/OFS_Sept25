@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { FOOTER } from '../content/close.js'
+import { biz } from '../content/business.js'
 import { Label, Sticker } from '../ui/index.js'
 import { Dots } from './Wordmark.jsx'
 import s from './Footer.module.css'
@@ -30,7 +31,7 @@ function useFit(ref) {
   }, [ref])
 }
 
-/** 16 · Footer: every link the site has, the small print, the fitted wordmark. */
+/** 16 · Footer: links to the pages that exist, the one line of small print, the copyright, the fitted wordmark. */
 export function Footer() {
   const word = useRef(null)
   useFit(word)
@@ -40,7 +41,7 @@ export function Footer() {
         <div className={s.lead}>
           <Dots className={s.dots} />
           <p className={s.small}>{FOOTER.small}</p>
-          <p className={s.name}>{FOOTER.name}</p>
+          <p className={s.name}>{biz('copyright')}</p>
         </div>
         <nav className={s.nav} aria-label="Footer">
           {FOOTER.groups.map((g) => (

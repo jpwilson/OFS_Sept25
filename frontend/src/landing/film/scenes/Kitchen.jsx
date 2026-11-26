@@ -2,7 +2,7 @@
 // assembles beside her while the kitchen behind her finishes itself, and two followers rise
 // to read it. Everything here is drawn at its hold; the engine plays the arrivals.
 import { HUD, KITCHEN as C } from '../../content/film.js'
-import { KITCHEN, SAMPLE_YEAR, SLATE } from '../../content/film.sample.js'
+import { KITCHEN, SAMPLE_YEAR } from '../../content/film.sample.js'
 import { ArtImg, Cutout, Icon, Sticker, cx } from '../../ui/index.js'
 import { KITCHEN as L, STAGE } from '../layout.js'
 import { Actor, Air, AudChip, Copy, Counter, Dock, Fact, Ghost, Scene, Tag } from '../parts.jsx'
@@ -162,16 +162,16 @@ export function Kitchen({ id }) {
         </Sticker>
       </Air>
 
-      <Copy k="kitchen" slate={SLATE} title={C.story.title} eyebrow={C.eyebrow} head={C.head} body={C.body} headSize={6.9} breakAfter="reno?" bodyWidth={30} />
+      <Copy k="kitchen" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} headSize={6.9} breakAfter="reno?" bodyWidth={30} />
       <Counter k="kitchen" />
 
       <Dock f="kitchen:bl" side="bl">
-        <Fact r={C.readouts.beta} />
+        <Fact r={C.readouts.draft} />
         <Fact r={C.readouts.ways} />
       </Dock>
       <Dock f="kitchen:br" side="br">
         <AudChip f="kitchen:aud" label={HUD.whoLabel} name={C.audience.name} note={C.audience.note} />
-        <Fact r={C.readouts.perDay} />
+        <Fact r={C.readouts.returns} />
       </Dock>
     </Scene>
   )

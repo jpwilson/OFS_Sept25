@@ -6,7 +6,7 @@
 // On a phone the tree pans sideways inside its frame, starting on Maya.
 import { useEffect, useRef } from 'react'
 import { FAMILY } from '../content/proof.js'
-import { Head, Label, Cutout, GhostWord, Icon, Reveal, SHOT_CAPTION } from '../ui/index.js'
+import { Head, Label, Cutout, GhostWord, Icon, Reveal } from '../ui/index.js'
 import { CropShot } from './CropShot.jsx'
 import { cx } from '../ui/cx.js'
 import s from './Family.module.css'
@@ -56,7 +56,7 @@ function Tree() {
       </div>
       <figcaption className={s.cap}>
         <span className={s.panHint}>{F.panHint} · </span>
-        {F.tree.caption} {SHOT_CAPTION}
+        {F.tree.caption}
       </figcaption>
     </figure>
   )
@@ -121,7 +121,7 @@ export function Family() {
                 </span>
                 <CropShot id={F.groups.shot} alt={F.groups.altClub} crop={CLUB} cropM={CLUB} caption={false} className={s.club} width={520} />
                 <figcaption className={s.cap}>
-                  {F.groups.caption} {SHOT_CAPTION}
+                  {F.groups.caption}
                 </figcaption>
               </figure>
             </Reveal>

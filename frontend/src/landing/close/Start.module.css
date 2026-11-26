@@ -28,15 +28,6 @@
   width: 100%;
   box-shadow: var(--l-shadow-lg);
 }
-.plateNote {
-  margin-top: 16px;
-  text-align: right;
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 .card {
   grid-column: 1 / span 5;
   grid-row: 1;
@@ -127,12 +118,6 @@
   .head {
     font-size: clamp(56px, 8vw, 72px);
   }
-  .plateNote {
-    margin: 0 0 0 auto;
-    position: absolute;
-    right: 8px;
-    top: -34px;
-  }
 }
 
 /* Phone: the portrait photograph, then the card */
@@ -149,9 +134,6 @@
   .plate {
     width: min(100%, 460px);
     margin-inline: auto;
-  }
-  .plateNote {
-    text-align: center;
   }
   .card {
     margin-top: 12px;

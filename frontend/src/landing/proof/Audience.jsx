@@ -11,7 +11,7 @@
 import { useRef } from 'react'
 import { AUDIENCE, AUDIENCE_COLUMNS, AUDIENCE_MATRIX, AUDIENCE_STEPS, CELL_TEXT, LINEUP } from '../content/proof.js'
 import { person } from '../content/cast.js'
-import { Head, Label, AudienceSwitch, AUDIENCES, Cutout, GhostWord, Icon, Reveal, Stage } from '../ui/index.js'
+import { Head, Label, AudienceSwitch, AUDIENCES, Cutout, GhostWord, Icon, Stage } from '../ui/index.js'
 import { maybeArt } from '../art/manifest.js'
 import { clamp, remap } from '../lib/math.js'
 import { cx } from '../ui/cx.js'
@@ -262,28 +262,6 @@ export function Audience() {
               </ul>
             </div>
           ))}
-        </div>
-
-        <p className={s.note}>{AU.note}</p>
-
-        <div className={s.worth}>
-          <h3 className={s.worthHead}>{AU.worthHead}</h3>
-          <ul className={s.worthCards}>
-            {AU.worth.map((w, i) => (
-              <Reveal as="li" key={w.title} className={s.worthCard} i={i}>
-                <span className={s.worthIcon} aria-hidden="true">
-                  {i === 0 ? <Icon name="people" size={22} /> : i === 1 ? <PIcon name="card" size={22} /> : <PIcon name="key" size={22} />}
-                </span>
-                <h4 className={s.worthTitle}>{w.title}</h4>
-                <p>{w.text}</p>
-              </Reveal>
-            ))}
-          </ul>
-          <ul className={s.facts}>
-            {AU.facts.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

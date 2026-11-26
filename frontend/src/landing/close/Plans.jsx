@@ -96,7 +96,6 @@ export function Plans() {
         <div className={s.duo}>
           <Who who={PLANS.reader} k="free" cls={s.reader} />
           <Who who={PLANS.writer} k="pro-month-yearly" cls={s.writer} />
-          <p className={s.duoCap}>Sample family</p>
         </div>
       </div>
 
@@ -179,7 +178,7 @@ export function Plans() {
           <ul className={s.rules}>
             {PLANS.rules.map((r, i) => (
               <li key={r}>
-                <Icon name={i === 0 ? 'heart' : 'lock'} size={20} />
+                <Icon name={i === 0 ? 'heart' : 'people'} size={20} />
                 {r}
               </li>
             ))}

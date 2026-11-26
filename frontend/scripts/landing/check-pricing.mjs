@@ -1,18 +1,15 @@
 #!/usr/bin/env node
-// Pricing and comparison tripwire for the story landing (owner: close).
+// Pricing tripwire for the story landing (owner: close).
 //
 //   node scripts/landing/check-pricing.mjs [path/to/index.html]     (default: dist/index.html)
 //   node scripts/landing/check-pricing.mjs --source-only            (skip the html checks)
 //
 // Fails (exit 1) when:
-//   1. Source: any of the four comparison "short answers" in src/landing/content/close.js no
-//      longer matches, character for character, the paragraph after { h2: 'The short answer' }
-//      on that page in src/content/marketing.js.
-//   2. Source: PRICES (content/facts.js) disagrees with PRICING in src/content/site.js.
-//   3. Built html: the #lp-plans section is missing, or an element marked data-price or
+//   1. Source: PRICES (content/facts.js) disagrees with PRICING in src/content/site.js.
+//   2. Built html: the #lp-plans section is missing, or an element marked data-price or
 //      data-math shows a value other than the one computed from site.js, or any dollar
 //      amount or percentage printed in the section is not one of those values.
-//   4. Built html: a copied short answer is not in the page.
+// (Round four: the comparison cards no longer copy marketing.js, so they are not checked.)
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -28,25 +25,9 @@ const errors = []
 const fail = (m) => errors.push(m)
 
 const { PRICING } = await load('src/content/site.js')
-const { PAGES } = await load('src/content/marketing.js')
 const { PRICES } = await load('src/landing/content/facts.js')
-const { COMPARE } = await load('src/landing/content/close.js')
 
-// ---------------------------------------------------------------- 1. short answers
-
-for (const card of COMPARE.cards) {
-  const page = PAGES.find((p) => p.path === card.path)
-  if (!page) {
-    fail(`compare: no page ${card.path} in marketing.js`)
-    continue
-  }
-  const i = page.blocks.findIndex((b) => b.h2 === 'The short answer')
-  const p = i >= 0 ? page.blocks[i + 1]?.p : null
-  if (!p) fail(`compare: ${card.path} has no "The short answer" paragraph in marketing.js`)
-  else if (p !== card.short) fail(`compare: the short answer for ${card.path} in content/close.js no longer matches marketing.js. Copy it again, exactly.`)
-}
-
-// ---------------------------------------------------------------- 2. prices vs site.js
+// ---------------------------------------------------------------- prices vs site.js
 
 const $ = (n) => `$${n}`
 const num = (s) => Number(String(s).replace(/[^0-9.]/g, ''))
@@ -77,7 +58,7 @@ const MATH = {
 }
 const saved = $(monthlyYear - num(PRICING.proAnnual.billed))
 
-// ---------------------------------------------------------------- 3, 4. the built page
+// ---------------------------------------------------------------- the built page
 
 const decode = (s) =>
   s
@@ -135,13 +116,6 @@ if (!sourceOnly) {
         if (!allowed.has(v)) fail(`html: plans section prints "${v}", which is not a price from site.js or arithmetic on them`)
       }
     }
-    // The Compare cards set each short answer as two <span>s of one paragraph (where they
-    // win, where we fit), so inline span tags are dropped before looking for the text.
-    const page = decode(html.replace(/<\/?span\b[^>]*>/g, ''))
-    for (const card of COMPARE.cards) {
-      if (!page.includes(card.short)) fail(`html: the short answer for ${card.path} is not in the page`)
-      if (!html.includes(`href="${card.path}"`)) fail(`html: no plain link to ${card.path}`)
-    }
   }
 }
 
@@ -153,5 +127,5 @@ if (errors.length) {
 console.log(
   `check-pricing: ok. ${Object.entries(EXPECT)
     .map(([k, v]) => `${k} ${v}`)
-    .join(', ')}; ${COMPARE.cards.length} short answers match marketing.js${checkedHtml ? `; checked ${htmlPath}` : '; html not checked'}`,
+    .join(', ')}${checkedHtml ? `; checked ${htmlPath}` : '; html not checked'}`,
 )

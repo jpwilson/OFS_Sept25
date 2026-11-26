@@ -1,6 +1,6 @@
-// Explain package sample content (owner: explain). Made up for the illustration; every
-// piece of it appears on the page under a visible SAMPLE label. Product numbers never live
-// here: they come from facts.js / explain.facts.js through fact().
+// Explain package story content (owner: explain): the family's photos, titles and dates.
+// The facts check skips this file. Product numbers never live here: they come from
+// facts.js / explain.facts.js through fact().
 
 /** Difference: the generic social post drawn in CSS. */
 export const POST_SAMPLE = {

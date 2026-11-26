@@ -297,22 +297,6 @@
   color: var(--l-ink);
 }
 
-/* one tiny line at the very bottom edge */
-.small {
-  position: absolute;
-  left: var(--l-gutter);
-  right: var(--l-gutter);
-  bottom: 5px;
-  z-index: 20;
-  font-size: 10px;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--l-ink);
-  opacity: 0.7;
-}
 
 /* ---------- the first paint with script on opens on Private (see crowd.module.css) ----------
    The server renders the switch on Followers (the no-script state). Where the script is about
@@ -484,14 +468,6 @@
     letter-spacing: 0.06em;
     white-space: normal;
   }
-  .small {
-    left: 14px;
-    right: 14px;
-    bottom: 6px;
-    font-size: 9.5px;
-    line-height: 1.26;
-    white-space: normal;
-  }
   /* as a poster the full group stands under the sub line, so it stands a little smaller */
   :global([data-mode='poster']) .hero .group {
     --cam: 0.74;
@@ -606,12 +582,6 @@
     bottom: 64px;
     font-size: 11px;
     letter-spacing: 0.08em;
-  }
-  .small {
-    left: 32px;
-    right: 32px;
-    bottom: 18px;
-    font-size: 11px;
   }
   :global([data-mode='poster']) .hero .group {
     --cam: 0.88;

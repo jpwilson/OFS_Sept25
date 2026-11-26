@@ -297,39 +297,6 @@
   }
 }
 
-/* ================= limits ================= */
-.limits {
-  margin-top: clamp(44px, 5vw, 72px);
-}
-.limitRow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-.limit {
-  display: grid;
-  gap: 6px;
-  align-content: start;
-  padding: 16px 18px 18px;
-  background: var(--l-white);
-  border: var(--l-keyline);
-  border-radius: var(--l-r-readout);
-  box-shadow: var(--l-shadow);
-}
-.limit dt {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--l-mute);
-}
-.limit dd {
-  margin: 0;
-  font-family: var(--l-font-display);
-  font-weight: 800;
-  font-size: clamp(20px, 1.7vw, 24px);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-}
-
 /* ================= write it yourself ================= */
 .write {
   margin-top: clamp(64px, 8vw, 120px);
@@ -441,9 +408,6 @@
   .details {
     grid-template-columns: minmax(0, 1fr);
   }
-  .limitRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .write {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -498,9 +462,6 @@
   .mode {
     padding: 14px 16px 16px;
     column-gap: 12px;
-  }
-  .limitRow {
-    grid-template-columns: minmax(0, 1fr);
   }
   .write {
     padding: 22px 18px;

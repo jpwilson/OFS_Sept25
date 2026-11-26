@@ -1,5 +1,5 @@
-// proof package sample content (owner: proof). Sample data with digits lives here; the
-// facts check skips *.sample.js. Everything here is shown under a visible sample label.
+// proof package story content (owner: proof). The family's data with digits lives here; the
+// facts check skips *.sample.js.
 // Stops and coordinates are ROUND2.md's (also the capture fixtures), so the drawn route and the
 // real journey-map capture agree.
 

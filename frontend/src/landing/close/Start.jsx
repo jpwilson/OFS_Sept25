@@ -5,7 +5,7 @@ import { Button, Head, Label, Print, Section } from '../ui/index.js'
 import { biz } from '../content/business.js'
 import s from './Start.module.css'
 
-/** 15 · Start with one story. The whole sample family as one big print, the offer on a card over it. */
+/** 15 · Start with one story. The whole family as one big print, the offer on a card over it. */
 export function Start() {
   return (
     <Section id="lp-start" wash="tide" floor className={s.band}>
@@ -13,7 +13,6 @@ export function Start() {
         <div className={s.plate}>
           <Print id={START.plate} alt={START.plateAlt} tilt={1.5} className={s.printD} sizes="(max-width: 1240px) 70vw, 860px" />
           <Print id={START.plateM} alt={START.plateAlt} tilt={1.5} className={s.printM} sizes="92vw" />
-          <p className={s.plateNote}>{START.plateNote}</p>
         </div>
         <div className={s.card}>
           <Label strong dot className={s.eyebrow}>

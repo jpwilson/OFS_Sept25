@@ -7,7 +7,7 @@
 // through :has(), resting on Followers.
 import { art } from '../../art/manifest.js'
 import { HERO as C } from '../../content/film.js'
-import { ArtImg, AUDIENCES, AudienceSwitch, Button, SHOT_CAPTION, cx } from '../../ui/index.js'
+import { ArtImg, AUDIENCES, AudienceSwitch, Button, cx } from '../../ui/index.js'
 import { HERO as L, STAGE } from '../layout.js'
 import { Actor, Air, HeadWords, Scene, Tag } from '../parts.jsx'
 import s from '../stage.module.css'
@@ -61,7 +61,7 @@ export function Hero() {
             </span>
             {i === 2 ? (
               <figcaption className={h.cardCap}>
-                {C.albums.caption} {SHOT_CAPTION}
+                {C.albums.caption}
               </figcaption>
             ) : null}
           </figure>
@@ -154,9 +154,6 @@ export function Hero() {
         <AudienceSwitch name="ofsl-film-audience" label={C.switchLabel} hideLabel size="lg" className={h.switch} />
       </div>
 
-      <p className={h.small} data-f="hero:small">
-        {C.smallPrint}
-      </p>
     </Scene>
   )
 }

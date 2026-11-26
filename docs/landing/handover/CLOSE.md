@@ -91,3 +91,20 @@ Every section now opens on a poster: the claim in display type (52-116px desktop
 Band shots: `frontend/shots/band-{m,tp,tl,d}.jpg` (band and final card side by side).
 
 Sheets: `frontend/shots/close3-{m,tp,tl,d}/sheet.jpg` (`/?only=close`). (The older `vision-*` sheets show a removed experiment; ignore them.)
+
+## Round four (26 November 2026, afternoon): ROUND4.md, the voice rule
+
+Say what it does, in the positive; never volunteer a limitation or a competitor's strength; no "sample family" labels.
+
+- **Limits is gone.** In its slot: **`Love`** (`close/Love.jsx`, `#lp-love`, white): kicker "Why families love it", head "Why families [love] it." with Nana Ruth and Grandpa Joe waving, then six cards (tide, fizz, zest repeating) each with a large `photo-love-*` photograph (stand-in `photo-year-*` per card via `hasArt` until an id is in the manifest), the display line and sentence from ROUND4 §2. Card 6 (photo books) must not go live before photo books can be ordered.
+- **Testimonials**: `content/testimonials.js` exports `TESTIMONIALS = []` (`{ name, role, quote, photo, src }`, real members only, never invented). Entries render as quote cards leading `Love`. Dev-only layout proof: `/?testimonials=fixture` loads `close/dev/testimonials.fixture.js` (two obvious placeholders) behind `import.meta.env.DEV`, so it never ships. Sheet: `frontend/shots/close4-fixture/sheet.jpg`.
+- **Compare → "Why Our Family Socials"** (`#lp-compare`, azure, Marcus stays): head `whyHead` and line `whyLine` from `business.js`; four "Coming from…?" cards that say only what you get here, each linking to its compare page; two link cards (the privacy guide, `/alternatives` titled "Why Our Family Socials"). `check-pricing.mjs` no longer checks these cards against `marketing.js`; it checks prices only.
+- **Questions**: head "FAQ"; answers reworded positively and kept true ("Is there an app?" per ROUND4 §4; stopping a plan leads with what stays yours).
+- **Plans**: same terms, worded as what you get ("As many stories as you like", "Free for as long as you like", the two rules rewritten, the saving as "keep $36"); no warnings.
+- **Footer**: five columns (Product, Compare, Company with `/blog`, Legal, Account), no "Alternatives" and no "vs" links, "Photos on this page are illustrative.", and the copyright from `business.js`.
+- Every "Sample family" / "AI-generated illustration" caption is removed (Plans, Start, Compare, Milestone); alt texts no longer say "sample family".
+- `business.js` gained `whyHead`, `whyLine`, `copyright`; `biz()` fills `{membersWords}` inside head objects too.
+
+For F0 (shared files, not edited): `content/routes.js` still has `SECTION_IDS.limits: 'lp-limits'` (should become `love: 'lp-love'`) and has no `blog` route (the footer uses the literal `/blog`, an existing App route); `dev/Only.jsx` lists `'Limits'` for `?only=close` (should be `'Love'`, and `'Milestone'` could be added); `content/common.js` `SMALL_PRINT` is no longer used by close.
+
+Sheets: `frontend/shots/close4-{m,tp,tl,d}/sheet.jpg` (the changed sections, from the full page).

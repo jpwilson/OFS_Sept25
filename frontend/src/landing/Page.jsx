@@ -9,7 +9,7 @@ import './styles/base.css'
 import { Film } from './film/index.js'
 import { Difference, How, Create, Import } from './explain/index.js'
 import { Anatomy, Places, Views, Audience, Family } from './proof/index.js'
-import { Nav, Limits, Compare, Plans, Questions, Start, Footer, Milestone } from './close/index.js'
+import { Nav, Love, Compare, Plans, Questions, Start, Footer, Milestone } from './close/index.js'
 import { OLD_HASHES, ROUTES } from './content/routes.js'
 import { BRAND } from './content/common.js'
 import { startScroll, scrollToId } from './lib/scroll.js'
@@ -56,7 +56,7 @@ export function PageBody() {
         <Views />
         <Audience />
         <Family />
-        <Limits />
+        <Love />
         <Compare />
         <Plans />
         <Questions />

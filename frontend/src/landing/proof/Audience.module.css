@@ -630,96 +630,6 @@ tr:last-child .keyCol {
   border-top: 2px dashed var(--l-ink);
 }
 
-.note {
-  justify-self: start;
-  max-width: 70ch;
-  padding: 14px 18px;
-  background: var(--l-white);
-  border: var(--l-keyline);
-  border-radius: var(--l-r-readout);
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 1.45;
-}
-
-/* ---------- worth knowing ---------- */
-.worth {
-  display: grid;
-  gap: 20px;
-  padding-top: 8px;
-}
-.worthHead {
-  font-family: var(--l-font-display);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 86;
-  font-size: clamp(30px, 3.2vw, 44px);
-  letter-spacing: -0.03em;
-}
-.worthCards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-.worthCard {
-  display: grid;
-  align-content: start;
-  gap: 12px;
-  padding: 22px 22px 26px;
-  background: var(--l-white);
-  border: var(--l-keyline);
-  border-radius: var(--l-r-card);
-  box-shadow: var(--l-shadow);
-}
-.worthCard:nth-child(3) {
-  background: var(--l-lime);
-}
-.worthIcon {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border: var(--l-keyline);
-  border-radius: 12px;
-  background: var(--l-white);
-}
-.worthTitle {
-  font-family: var(--l-font-display);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 86;
-  font-size: clamp(26px, 2.2vw, 32px);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.worthCard p {
-  font-size: 18px;
-  line-height: 1.5;
-}
-.facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 40px;
-  border-top: 2px solid var(--l-ink);
-}
-.facts li {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(16, 27, 59, 0.25);
-  font-size: 18px;
-  line-height: 1.45;
-}
-.facts li::before {
-  content: '';
-  flex: none;
-  width: 10px;
-  height: 10px;
-  margin-top: 8px;
-  background: var(--l-ink);
-  border-radius: 2px;
-  transform: rotate(45deg);
-}
-
-/* ================= tablet landscape and small desktops ================= */
 @media (max-width: 1240px) {
   .badgeName {
     font-size: 14px;
@@ -846,13 +756,6 @@ tr:last-child .keyCol {
     font-size: 13px;
     padding: 4px 8px;
   }
-  .worthCards,
-  .facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .note,
-  .facts li,
-  .worthCard p,
   .matrixLede {
     font-size: 16px;
   }

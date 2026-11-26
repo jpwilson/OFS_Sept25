@@ -275,7 +275,7 @@ export function Glyph({ name, size = 16 }) {
   )
 }
 
-/** A phone holding a real capture (its children fill the screen). caption: printed before the mandatory line. */
+/** A phone holding a real capture (its children fill the screen). caption: its own caption, or SHOT_CAPTION. */
 export function Phone({ children, caption, className }) {
   return (
     <figure className={cx(s.phone, className)}>
@@ -284,7 +284,7 @@ export function Phone({ children, caption, className }) {
         <span className={s.phoneNotch} aria-hidden="true" />
       </span>
       <figcaption>
-        {caption} {SHOT_CAPTION}
+        {caption || SHOT_CAPTION}
       </figcaption>
     </figure>
   )

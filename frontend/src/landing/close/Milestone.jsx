@@ -18,11 +18,10 @@ export function Milestone() {
           <Head id="lp-milestone-h" {...biz('milestoneHead')} className={s.head} />
           <p className={s.line}>{biz('milestoneLine')}</p>
         </div>
-        <figure className={s.scene}>
+        <div className={s.scene}>
           <Cutout id={MILESTONE.prop} className={s.balloons} sizes="220px" />
           <Cutout id={MILESTONE.people} alt={MILESTONE.peopleAlt} shadow className={s.family} sizes="(max-width: 640px) 80vw, 520px" />
-          <figcaption className={s.note}>{MILESTONE.note}</figcaption>
-        </figure>
+        </div>
       </div>
     </Section>
   )

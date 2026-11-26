@@ -3,8 +3,8 @@
 //   App   the portrait becomes a print and the real feed opens from it, with two readers.
 //   End   the year's last photograph, full bleed, with the closing line and the two buttons.
 import { art as getArt } from '../../art/manifest.js'
-import { APP as A, END as E, HERO, OURS as C } from '../../content/film.js'
-import { ArtImg, AudienceSwitch, Button, SHOT_CAPTION, Shot, cx } from '../../ui/index.js'
+import { APP as A, END as E, OURS as C } from '../../content/film.js'
+import { ArtImg, AudienceSwitch, Button, Shot, cx } from '../../ui/index.js'
 import { APP as LA, OURS as L, STAGE } from '../layout.js'
 import { Actor, Air, Copy, Ghost, HeadWords, Scene, Tag } from '../parts.jsx'
 import cr from './crowd.module.css'
@@ -77,7 +77,6 @@ export function Ours({ id }) {
           <b>{C.switchLabel}</b>
         </p>
       </div>
-      <p className={f.small}>{HERO.smallPrint}</p>
     </Scene>
   )
 }
@@ -116,7 +115,7 @@ export function App({ id }) {
             <ArtImg id="ui-feed-m" alt="" className={f.feedM} sizes="(max-aspect-ratio: 9/10) 30vh, 1px" />
           </span>
           <figcaption>
-            {A.feed.caption} {SHOT_CAPTION}
+            {A.feed.caption}
           </figcaption>
         </figure>
       </Air>
@@ -135,9 +134,6 @@ export function End() {
         {d.missing ? null : <img className={f.plateD} src={d.src} width={d.w} height={d.h} alt={E.plateAlt} loading="lazy" decoding="async" draggable={false} />}
         {m.missing ? null : <img className={f.plateM} src={m.src} width={m.w} height={m.h} alt="" loading="lazy" decoding="async" draggable={false} />}
       </div>
-      <p className={f.endNote} data-f="end:note">
-        {E.note}
-      </p>
       {/* the print's wide bottom border carries the closing line */}
       <div className={f.endBand} data-f="end:band">
         <h2 className={cx('l-head', f.endH)}>

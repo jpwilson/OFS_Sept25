@@ -83,7 +83,7 @@ function Detail({ part, onClose, returnTo }) {
           <PartMedia part={part} />
         </div>
         <PartText part={part} n={pad2(i + 1)} id="lp-anatomy-detail" />
-        <p className={s.cap}>{part.print ? 'Sample photo.' : SHOT_CAPTION}</p>
+        {part.print ? null : <p className={s.cap}>{SHOT_CAPTION}</p>}
       </div>
     </div>
   )

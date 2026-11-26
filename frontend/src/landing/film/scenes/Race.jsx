@@ -2,7 +2,7 @@
 // family cheering behind the barrier, the photos and the clip of the last mile, and the one
 // group this story went to: the Run club, named on a card and standing under it.
 import { RACE as C } from '../../content/film.js'
-import { RACE as RS, SLATE } from '../../content/film.sample.js'
+import { RACE as RS } from '../../content/film.sample.js'
 import { Icon, Shot } from '../../ui/index.js'
 import { RACE as L, STAGE } from '../layout.js'
 import { Actor, Air, Avatar, Copy, Counter, Dock, Fact, Ghost, Photo, Scene } from '../parts.jsx'
@@ -78,7 +78,7 @@ export function Race({ id }) {
         </div>
       </Air>
 
-      <Copy k="race" slate={SLATE} title={C.story.title} eyebrow={C.eyebrow} head={C.head} body={C.body} wide={51} headSize={6.9} breakAfter="start" />
+      <Copy k="race" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} wide={51} headSize={6.9} breakAfter="start" />
       <Counter k="race" />
 
       <Dock f="race:bl" side="bl">

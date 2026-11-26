@@ -8,7 +8,7 @@
 //           the stories near home grouped, and the relatives' own trips.
 import { art as getArt, hasArt } from '../../art/manifest.js'
 import { COAST as C, HUD, TETONS as TC, WORLD as W } from '../../content/film.js'
-import { COAST as CS, SLATE, TETONS as TS, WORLD_CARDS, WORLD_CLUSTER, WORLD_TRIPS } from '../../content/film.sample.js'
+import { COAST as CS, TETONS as TS, WORLD_CARDS, WORLD_CLUSTER, WORLD_TRIPS } from '../../content/film.sample.js'
 import { ArtImg, Cutout, Icon, Shot, cx } from '../../ui/index.js'
 import { COAST as L, STAGE, TETONS as LT, WORLD as LW, WORLD_VIEW } from '../layout.js'
 import { Actor, Air, AudChip, Copy, Counter, Dock, Fact, Ghost, Phone, Photo, Scene, Tag } from '../parts.jsx'
@@ -62,7 +62,7 @@ export function Coast({ id }) {
         <Shot id="ui-story-journey" alt={C.journey.alt} caption={C.journey.caption} sizes="(max-aspect-ratio: 9/10) 20vh, 24vw" />
       </Air>
 
-      <Copy k="coast" slate={SLATE} title={C.story.title} eyebrow={C.eyebrow} head={C.head} body={C.body} />
+      <Copy k="coast" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} />
       <Counter k="coast" />
 
       <Dock f="coast:bl" side="bl">
@@ -152,7 +152,7 @@ export function Tetons({ id }) {
         <Shot id="ui-story-tetons-journey" alt={TC.journey.alt} caption={TC.journey.caption} sizes="(max-aspect-ratio: 9/10) 20vh, 24vw" />
       </Air>
 
-      <Copy k="tetons" slate={SLATE} title={TC.story.title} eyebrow={TC.eyebrow} head={TC.head} body={TC.body} bodyWidth={25} />
+      <Copy k="tetons" slate={TC.story.title} title={TC.story.place} eyebrow={TC.eyebrow} head={TC.head} body={TC.body} bodyWidth={25} />
       <Counter k="tetons" />
 
       <Dock f="tetons:bl" side="bl">

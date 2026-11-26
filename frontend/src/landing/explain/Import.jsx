@@ -111,7 +111,6 @@ function CanvasBox({ fixed, sceneRef, onShuffle, children, className }) {
       <div ref={box} className={s.canvasWrap}>
         <canvas ref={canvas} className={s.canvas} aria-hidden="true" />
       </div>
-      <span className={s.stageLabel}>{I.stageLabel}</span>
       {onShuffle ? (
         <Button size="md" variant="ghost" className={s.shuffle} onClick={() => onShuffle(scene.current)}>
           {I.shuffle}
@@ -154,7 +153,6 @@ function Picker() {
           <span>{fill(I.picker.button, IMPORT_PICKED)}</span>
         </p>
       </div>
-      <span className={s.stageLabel}>{I.stageLabel}</span>
     </div>
   )
 }
@@ -280,7 +278,6 @@ function Captures() {
           {c.label}
         </Label>
         <p className="l-lede">{I.lede}</p>
-        <p className={cx('l-small', s.sampleNote)}>{I.sampleNote}</p>
       </div>
       <div className={s.capsRow}>
         <Shot id={c.drop.id} alt={c.drop.alt} caption={c.drop.caption} className={s.cap1} sizes="(max-width: 760px) 92vw, 480px" />

@@ -2,13 +2,12 @@ import { ArtImg } from './ArtImg.jsx'
 import { cx } from './cx.js'
 import s from './Shot.module.css'
 
-export const SHOT_CAPTION = 'Real interface. Sample family.'
+export const SHOT_CAPTION = 'The real app.'
 
 /**
- * A real-interface capture (manifest kind 'ui') in a keylined frame, with the mandatory
- * caption. caption: a string is printed before the mandatory line; false hides the caption
+ * A real-interface capture (manifest kind 'ui') in a keylined frame. caption: a string is
+ * printed as the caption; left out, the caption is SHOT_CAPTION; false hides it.
  * Parts: data-part="frame|caption|caption-own".
- * (only when several shots share one caption nearby).
  */
 export function Shot({ id, alt, caption, className, style, priority, sizes }) {
   return (
@@ -18,8 +17,7 @@ export function Shot({ id, alt, caption, className, style, priority, sizes }) {
       </span>
       {caption === false ? null : (
         <figcaption className={s.caption} data-part="caption">
-          {typeof caption === 'string' && caption ? <span className={s.own} data-part="caption-own">{caption} </span> : null}
-          {SHOT_CAPTION}
+          {typeof caption === 'string' && caption ? <span className={s.own} data-part="caption-own">{caption}</span> : SHOT_CAPTION}
         </figcaption>
       )}
     </figure>

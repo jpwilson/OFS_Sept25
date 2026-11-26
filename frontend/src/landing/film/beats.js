@@ -176,7 +176,7 @@ function hero(e, S) {
   words.op(1 - c)
   // on portrait screens and on a tablet on its side the sub line shares the stage with the crowd, so it steps aside
   const subOut = e.phone || e.W <= 1300 ? w(S, B.subOut) : 0
-  for (const name of ['hero:sub', 'hero:cta', 'hero:small', 'hero:can', 'hero:note', 'hero:console']) {
+  for (const name of ['hero:sub', 'hero:cta', 'hero:can', 'hero:note', 'hero:console']) {
     const n = e.n(name)
     const o = name === 'hero:sub' ? (1 - subOut) * (1 - c * 1.25) : 1 - c * 1.25
     n.show(o > 0.001)
@@ -901,7 +901,6 @@ function end(e, S) {
   band.tf(c >= 1 ? '' : `translate3d(0,${f1((1 - easeOutCubic(c)) * 100)}%,0)`)
   e.headline('end', win(S, B.copy[0] + 6, B.copy[1] + 8))
   e.fadeUp('end:card', win(S, B.copy[0] + 10, B.copy[1] + 8), 20)
-  e.fadeUp('end:note', win(S, B.copy[0] + 14, B.copy[1] + 10), 10)
 }
 
 

@@ -123,8 +123,7 @@ export class ImportScene {
     if (!w || !h) return
     const n = this.thumbs.length
     const pad = Math.max(12, Math.min(w, h) * 0.05)
-    const top = w < 520 ? 34 : 18 // clear the stage label
-    const area = { x: pad, y: pad + top, w: w - pad * 2, h: h - pad * 2 - top }
+    const area = { x: pad, y: pad, w: w - pad * 2, h: h - pad * 2 }
     this.area = area
     // leave room for the tray and the legend under the flow
     this.foot = w < 520 ? 58 : 30
@@ -146,8 +145,7 @@ export class ImportScene {
   pickerLayout() {
     const { w, h, thumbs } = this
     const narrow = w < 520
-    // on a narrow canvas the canvas is the phone: it uses the whole box (the stage label
-    // sits over the top of the grid like a sticker)
+    // on a narrow canvas the canvas is the phone: it uses the whole box
     const area = narrow ? { x: 6, y: 6, w: w - 12, h: h - 12 } : this.area
     const ph = area.h
     const pw = narrow ? area.w : Math.min(area.w * 0.62, ph * 0.64)

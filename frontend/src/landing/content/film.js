@@ -4,7 +4,6 @@
 import { fact, factList } from './facts.js'
 import { ROUTES, SECTION_IDS } from './routes.js'
 import { COUNTS, RUN_CLUB, person } from './cast.js'
-import { SMALL_PRINT } from './common.js'
 import { STORY, TETONS_COPY } from './film.sample.js'
 
 /** Anchor ids inside the film. `trips` is the hero's "See how it works" target. */
@@ -42,9 +41,8 @@ export const HERO = {
     custom: { name: 'Custom Group', word: 'custom group', value: COUNTS.runClub, unit: `in ${RUN_CLUB.name}`, line: 'A Custom Group is a named list you build from people you follow.' },
     public: { name: 'Public', word: 'public', value: 'Anyone', unit: 'with the link', line: 'Public opens for anyone with the link, signed in or not.' },
   },
-  albums: { alt: 'A feed card for one of the sample family stories', caption: 'Their albums.' },
+  albums: { alt: 'A feed card for one of the family’s stories', caption: 'Their albums.' },
   anyone: 'Anyone with the link',
-  smallPrint: SMALL_PRINT,
 }
 
 // ---------------------------------------------------------------------------------------
@@ -63,7 +61,7 @@ export const COAST = {
   body: "Your photos already know where. The place and time are read from each one, and every stop lands on the trip's own map.",
   ghost: 'events',
   start: 'Start',
-  journey: { alt: 'The journey map of the sample Maine coast story: numbered stops joined by a dashed line', caption: 'The journey map.' },
+  journey: { alt: 'The journey map of the Maine coast story: numbered stops joined by a dashed line', caption: 'The journey map.' },
   readouts: {
     gps: { label: 'GPS · in your browser', value: 'From the photo', note: 'read before upload' },
     layers: { label: 'Map layers', value: fact('mapLayers'), note: list(layers) },
@@ -79,7 +77,7 @@ export const TETONS = {
   body: TETONS_COPY.body,
   ghost: 'tetons',
   day: 'Day',
-  journey: { alt: 'The journey map of the sample Tetons story, with its numbered stops', caption: 'Its map.' },
+  journey: { alt: 'The journey map of the Tetons story, with its numbered stops', caption: 'Its map.' },
   readouts: {
     trip: { label: TETONS_COPY.tripLabel, value: TETONS_COPY.days, unit: TETONS_COPY.daysUnit, note: TETONS_COPY.tripNote },
     tap: { label: 'Tap a stop', value: 'Its photo, place and time' },
@@ -93,13 +91,16 @@ export const WORLD = {
   head: { before: "Every trip. Every event. On your family's timeline and", mark: 'map', after: '.' },
   body: 'Every story with a place is a pin on the map, and the same stories run in date order on the timeline.',
   ghost: 'world',
-  clusterTag: 'Sample · stories near home',
-  timeline: { alt: 'The timeline view in the app, showing the sample family stories in date order', caption: 'The timeline.' },
+  clusterTag: 'Stories near home',
+  timeline: { alt: 'The timeline view in the app, showing the family’s stories in date order', caption: 'The timeline.' },
   readouts: {
-    pins: { label: 'On the map', value: 'One pin per story', note: 'nearby pins group · a flat map' },
+    pins: { label: 'On the map', value: 'One pin per story', note: 'nearby pins group' },
     timeline: { label: 'On the timeline', value: 'In date order', note: 'nothing is ranked' },
   },
 }
+
+/** Video, said as what it does. */
+const VIDEO = { label: 'Video clips', value: 'Right in the story', note: 'each with its caption' }
 
 export const WEDDING = {
   id: FILM_IDS.wedding,
@@ -109,12 +110,12 @@ export const WEDDING = {
   body: "Every photo with its caption, the speeches on video, and the family's replies underneath.",
   ghost: 'wedding',
   videoTag: 'Clip',
-  lightbox: { alt: 'The gallery lightbox open on a sample wedding photo, with its caption and the reaction picker', caption: 'Full screen.' },
+  lightbox: { alt: 'The gallery lightbox open on a wedding photo, with its caption and the reaction picker', caption: 'Full screen.' },
   reactionsTag: 'On photos and on comments',
   repliesTag: `Replies nest ${fact('replyLevels')} levels`,
   readouts: {
     photos: { label: 'Photos a story · Pro', value: fact('photosPro') },
-    clip: { label: 'Clip length', value: fact('videoSeconds'), unit: 'seconds', note: 'trimmed in the editor' },
+    clip: VIDEO,
     reactions: { label: 'Reactions', value: fact('reactions') },
   },
   audience: followers,
@@ -132,13 +133,13 @@ export const KITCHEN = {
   ask: 'It can ask you questions',
   sticker: 'Drafted by AI. Yours to edit.',
   photos: 'Photos',
-  voiceTag: 'Sample voice note',
-  pageTag: 'Sample story',
+  voiceTag: 'Voice note',
+  pageTag: 'Your story',
   galleryTag: 'Gallery',
   readouts: {
-    beta: { label: 'AI Create', value: 'Beta' },
+    draft: { label: 'AI Create', value: 'Writes the first draft' },
     ways: { label: 'Modes', value: fact('aiModes'), note: list(aiModes) },
-    perDay: { label: 'AI actions a day', value: fact('aiPerDay'), note: 'on Pro or the trial' },
+    returns: { label: 'It writes', value: 'Title · headings · captions', note: 'and you edit any of it' },
   },
   audience: followers,
 }
@@ -151,7 +152,7 @@ export const RACE = {
   body: `Photos, clips of the last mile, and exactly the right crowd. This one went to the ${RUN_CLUB.name}.`,
   ghost: 'race',
   videoTag: 'Clip',
-  lightbox: { alt: 'The gallery lightbox open on a sample race photo', caption: 'Full screen.' },
+  lightbox: { alt: 'The gallery lightbox open on a race photo', caption: 'Full screen.' },
   chip: {
     label: 'Who can open it',
     name: 'Custom Group',
@@ -163,24 +164,24 @@ export const RACE = {
   },
   readouts: {
     audiences: { label: 'Audiences', value: fact('audiences'), note: 'set story by story' },
-    clip: { label: 'Clip length', value: fact('videoSeconds'), unit: 'seconds', note: 'trimmed in the editor' },
+    clip: VIDEO,
   },
 }
 
 export const YEAR = {
   id: FILM_IDS.year,
   eyebrow: 'EVERY YEAR',
-  slate: 'Sample family',
+  slate: 'Ivy and Leo',
   head: { before: "Every year's most memorable", mark: 'moments', after: '.' },
   body: 'Birthdays, holidays, first days and big wins, filed by date, person and category so you can find any of them again.',
   ghost: 'year',
   categories: factList('categories'),
   views,
-  device: { alt: 'The app on a phone, showing the sample family in each of its views', caption: 'Four views.' },
+  device: { alt: 'The app on a phone, showing the family’s stories in each of its views', caption: 'Four views.' },
   chartLabel: 'A height chart: the same two children at five ages',
   readouts: {
     views: { label: 'Views', value: fact('views'), note: list(views) },
-    categories: { label: 'Categories', value: fact('categories'), note: `up to ${fact('categoriesPerStory')} a story, plus your own` },
+    categories: { label: 'Categories', value: fact('categories'), note: 'plus any you make' },
     order: { label: 'Order', value: 'By date', note: 'nothing is ranked' },
   },
 }
@@ -206,7 +207,7 @@ export const APP = {
   head: { before: 'And this is what they', mark: 'open', after: '.' },
   body: 'The feed is in date order. Nothing is ranked. Filter it by person, category or date.',
   ghost: 'feed',
-  feed: { alt: 'The feed view in the app, showing the sample family stories', caption: 'The feed.' },
+  feed: { alt: 'The feed view in the app, showing the family’s stories', caption: 'The feed.' },
   fan: [
     { id: 'ui-story-head', alt: 'A story page: cover, title and details', label: 'A story' },
     { id: 'ui-story-journey', alt: 'A journey map with numbered stops', label: 'Its map' },
@@ -220,8 +221,7 @@ export const END = {
   line: `Free to view, forever. Free to try for ${fact('trialDays')} days. Then ${fact('priceProMonthBilledYearly')} a month, billed yearly, to keep writing.`,
   primary: { label: 'Start free', href: ROUTES.signup },
   secondary: { label: 'See the plans', href: `#${SECTION_IDS.plans}` },
-  plateAlt: 'An AI-generated illustration of the sample family and their relatives at a long garden table',
-  note: 'AI-generated illustration of the sample family.',
+  plateAlt: 'The family and their relatives at a long garden table',
 }
 
 // ---------------------------------------------------------------------------------------
@@ -239,13 +239,13 @@ export const HUD = {
     { key: 'year', label: 'Year', href: `#${FILM_IDS.year}`, wash: 'sun', scenes: ['year'] },
     { key: 'app', label: 'The app', href: `#${FILM_IDS.app}`, wash: 'paper', scenes: ['app'] },
   ],
-  filmLabel: 'One sample family, one year, told in stories',
+  filmLabel: 'One family, one year, told in stories',
 }
 
 /** For screen readers while the film is pinned: every chapter's words, in order. */
 const srHead = (h) => `${h.before} ${h.mark}${h.after}`
 export const SR = {
-  intro: 'This part of the page plays one sample family year as you scroll. Its chapters, in order:',
+  intro: 'This part of the page plays one family’s year as you scroll. Its chapters, in order:',
   chapters: [COAST, TETONS, WORLD, WEDDING, KITCHEN, RACE, YEAR, OURS, APP].map((c) => ({ head: srHead(c.head), body: c.body })).concat([{ head: srHead(END.head), body: END.line }]),
 }
 
@@ -263,16 +263,16 @@ export const SEO_BLOCKS = [
   { h2: srHead(TETONS.head) },
   { p: 'Each located photo becomes a numbered stop on the story map. Tap a stop to see its photo, place and time.' },
   { h2: srHead(WORLD.head) },
-  { p: `${WORLD.body} Nearby pins group, and the map is flat.` },
+  { p: `${WORLD.body} Nearby pins group.` },
   { h2: srHead(WEDDING.head) },
   { p: WEDDING.body },
   {
-    p: `Up to ${fact('photosPro')} photos in a story on Pro. Clips are trimmed to ${fact('videoSeconds')} seconds in the editor. ${fact('reactions')} reactions on photos and on comments. Replies nest ${fact('replyLevels')} levels.`,
+    p: `Up to ${fact('photosPro')} photos in a story on Pro. Video clips sit right in the story, each with its caption. ${fact('reactions')} reactions on photos and on comments. Replies nest ${fact('replyLevels')} levels.`,
   },
   { h2: srHead(KITCHEN.head) },
   { p: KITCHEN.body },
   {
-    p: `AI Create is in beta. Photos alone are enough to start; a few typed words or a voice note are optional, and AI Interview asks follow-up questions. It has ${fact('aiModes')} modes: ${aiModes.join(', ')}, with ${fact('aiPerDay')} AI actions a day on Pro or the trial.`,
+    p: `AI Create writes the first draft: the title, the headings and a caption for every photo. Photos alone are enough to start; add a few typed words or a voice note, or let AI Interview ask you a few questions. It has ${fact('aiModes')} modes: ${aiModes.join(', ')}.`,
   },
   { h2: srHead(RACE.head) },
   { p: `Every story has its own audience. ${RACE.chip.note}` },
@@ -281,5 +281,4 @@ export const SEO_BLOCKS = [
   { p: `${fact('views')} views of the same stories: ${views.join(', ')}. The categories are ${YEAR.categories.join(', ')}. The feed is ordered by date and nothing is ranked.` },
   { h2: srHead(END.head) },
   { p: END.line },
-  { p: SMALL_PRINT },
 ]

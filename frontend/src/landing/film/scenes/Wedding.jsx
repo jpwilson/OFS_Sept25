@@ -2,7 +2,7 @@
 // with captions, the speeches as a clip, the real lightbox, the family dressed up, and the
 // replies underneath.
 import { HUD, WEDDING as C } from '../../content/film.js'
-import { SLATE, WEDDING as WS } from '../../content/film.sample.js'
+import { WEDDING as WS } from '../../content/film.sample.js'
 import { ArtImg, Icon, Shot, cx } from '../../ui/index.js'
 import { STAGE, WEDDING as L } from '../layout.js'
 import { Actor, Air, AudChip, Avatar, Copy, Counter, Dock, Fact, Ghost, Glyph, Photo, Scene, Tag } from '../parts.jsx'
@@ -104,7 +104,7 @@ export function Wedding({ id }) {
         </Air>
       ))}
 
-      <Copy k="wedding" slate={SLATE} title={C.story.title} eyebrow={C.eyebrow} head={C.head} body={C.body} bodyWidth={24} />
+      <Copy k="wedding" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} bodyWidth={24} />
       <Counter k="wedding" />
 
       <Dock f="wedding:bl" side="bl">

@@ -3,7 +3,7 @@ import { ROUTES } from '../content/routes.js'
 import { Button, Cutout, Head, Label, Section } from '../ui/index.js'
 import s from './Questions.module.css'
 
-/** 14 · Fair questions. Native <details>, so every answer is in the static HTML. */
+/** 14 · FAQ. Native <details>, so every answer is in the static HTML. */
 export function Questions() {
   return (
     <Section id="lp-questions" wash="lime" className={s.band}>

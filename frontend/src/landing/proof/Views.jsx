@@ -62,7 +62,7 @@ function Switcher({ stageRef, pinRef }) {
         <div className={s.phones}>
           {V.reel.map((r, i) => (
             <div key={r.id} className={s.phone} data-f="phone" data-i={i} data-d={i === 0 ? 0 : 1}>
-              <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.device} width="100%" />
+              <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the family’s stories`} caption={false} className={s.device} width="100%" />
             </div>
           ))}
         </div>
@@ -89,7 +89,7 @@ function Grid() {
       <ol className={s.grid}>
         {V.reel.map((r, i) => (
           <li key={r.id} className={s.gridItem}>
-            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.gridDevice} width="100%" />
+            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the family’s stories`} caption={false} className={s.gridDevice} width="100%" />
             <div className={s.gridText}>
               <span className={s.gridNum}>
                 <PIcon name={r.id} size={20} />

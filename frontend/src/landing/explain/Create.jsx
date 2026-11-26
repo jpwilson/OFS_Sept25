@@ -2,7 +2,7 @@
 // Round three: the first screen is the head, Maya talking and the ladder from "just photos"
 // to "a few questions" in display type; the three real Quick Add screens follow as cropped,
 // numbered tiles (the Quick Add window is dark in the app, so each is cropped to the part
-// that proves the step and framed in white); modes, results and limits sit below.
+// that proves the step and framed in white); modes and results sit below.
 import { useEffect, useRef } from 'react'
 import { CREATE as C } from '../content/explain.js'
 import { Cutout, Head, Label, Reveal, Section, SHOT_CAPTION, Sticker, cx } from '../ui/index.js'
@@ -78,7 +78,7 @@ export function Create() {
         <p className={cx('l-mono', s.devCap)}>{SHOT_CAPTION}</p>
       </div>
 
-      {/* ---------- the details: modes, what comes back, the limits ---------- */}
+      {/* ---------- the details: modes and what comes back ---------- */}
       <div className={s.details}>
         <div className={s.modes}>
           <Label strong className={s.subLabel}>
@@ -114,19 +114,6 @@ export function Create() {
         </div>
       </div>
 
-      <div className={s.limits}>
-        <Label strong className={s.subLabel}>
-          {C.limitsLabel}
-        </Label>
-        <dl className={s.limitRow}>
-          {C.limits.map((l) => (
-            <div key={l.k} className={s.limit}>
-              <dt>{l.k}</dt>
-              <dd>{l.v}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
 
       {/* ---------- or write it yourself ---------- */}
       <div id="lp-create-write" className={s.write}>

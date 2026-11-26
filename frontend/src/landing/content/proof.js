@@ -27,7 +27,6 @@ export const ANATOMY = {
   prev: 'Previous part',
   next: 'Next part',
   stepOf: 'Part',
-  sample: 'Sample story, real page',
   // at: where this part sits down the tall capture ui-story-d (0 top, 1 bottom), measured on the round-three capture (1510x10061, the Maine coast story as Nana Ruth opens it; re-measure if it is re-shot). The audience is the author's setting, so it closes the tour.
   parts: [
     {
@@ -58,15 +57,12 @@ export const ANATOMY = {
       id: 'video',
       label: 'Video clips',
       print: 'photo-race-video',
-      printCaption: "Sample clip still, from Dad's first marathon",
+      printCaption: "A clip from Dad's first marathon",
       // not on this page (the Maine story has no clip): shown beside the page, never located on it
-      offPage: 'From another sample story',
+      offPage: 'From another of the family’s stories',
       side: 'right',
-      lines: ['The moment itself, moving: clips sit in the text like photos, each with a caption.', `Clips are trimmed to ${fact('videoSeconds')} seconds in the editor.`],
-      facts: [
-        { label: 'for the longest clip', value: fact('videoSeconds'), unit: 'seconds' },
-        { label: 'clips in one story', value: fact('videosPerStory') },
-      ],
+      lines: ['The moment itself, moving: clips sit in the text like photos, each with a caption.', 'Add them right in the editor, beside the photos.'],
+      facts: [{ label: 'clips in one story', value: fact('videosPerStory') }],
     },
     {
       id: 'text',
@@ -74,11 +70,8 @@ export const ANATOMY = {
       shot: 'ui-story-text',
       at: 0.42,
       side: 'left',
-      lines: ['Tell it the way you would at the dinner table, with each photo right where it happened and a caption of its own.', 'HEIC photos are accepted. Photos are stored resized, so keep your originals.'],
-      facts: [
-        { label: 'photos per story on Pro', value: fact('photosPro') },
-        { label: 'photos per story in the trial', value: fact('photosTrial') },
-      ],
+      lines: ['Tell it the way you would at the dinner table, with each photo right where it happened and a caption of its own.', 'Photos straight from an iPhone, HEIC included.'],
+      facts: [{ label: 'photos per story on Pro', value: fact('photosPro') }],
     },
     {
       id: 'journey',
@@ -121,15 +114,15 @@ export const ANATOMY = {
       shot: 'ui-privacy',
       shot2: 'ui-share',
       // the author's controls, not on a reader's page: shown beside the page, never located on it
-      offPage: 'The author’s view, not on the reader’s page',
+      offPage: 'The author’s view',
       side: 'right',
       lines: [
         `You choose who opens it, one of ${fact('audiences')} audiences per story. New stories start on ${fact('audienceDefault')}.`,
-        `A share link opens this one story without an account and ends after ${fact('shareLinkDays')}.`,
+        `A share link opens this one story for anyone you send it to, no account needed, for ${fact('shareLinkDays')}.`,
       ],
       facts: [
         { label: 'audiences to choose from', value: fact('audiences') },
-        { label: 'for a share link, then it ends', value: `${fact('shareLinkDaysMin')}–${fact('shareLinkDaysMax')}`, unit: 'days' },
+        { label: 'that a share link stays open', value: `${fact('shareLinkDaysMin')}–${fact('shareLinkDaysMax')}`, unit: 'days' },
       ],
     },
   ],
@@ -143,7 +136,7 @@ export const PLACES = {
   head: { before: 'Every vacation, every stop, on one', mark: 'map', after: '.' },
   lede: 'Back from a trip, your photos already know where you went and when. The story turns them into a route anyone can follow, and the map view puts every trip the family has taken in one place.',
   routeLabel: 'A week on the Maine coast',
-  routeSample: 'Sample route, drawn from the story’s six located photos',
+  routeSample: 'Drawn from the story’s six located photos',
   insetLabel: 'Mount Desert Island',
   stopsLabel: 'The stops, in order',
   start: 'Start',
@@ -158,7 +151,7 @@ export const PLACES = {
     { label: 'Map layers', value: fact('mapLayers'), noun: 'map layers', text: factList('mapLayers').join(', ') + '.' },
     { label: 'One pin per story', text: 'The map view shows one pin per story and groups pins that are close together. It zooms out to the whole world.' },
   ],
-  byHand: 'No location in a photo? Add the place by hand.',
+  byHand: 'Add a place to any photo.',
 }
 
 /* ------------------------------------------------------------------ 8. Views */
@@ -175,11 +168,11 @@ export const VIEWS = {
   reel: [
     { id: 'feed', name: factList('views')[0], how: 'By date', shot: 'ui-feed-m', text: 'Cards in date order, by the date posted or the date it happened. Your choice. Nothing is ranked.' },
     { id: 'calendar', name: factList('views')[1], how: 'By month', shot: 'ui-calendar', text: 'A month grid. Each story sits on the day it started.' },
-    { id: 'map', name: factList('views')[2], how: 'On the map', shot: 'ui-worldmap', text: 'A pin per story, on a flat map of the world.' },
+    { id: 'map', name: factList('views')[2], how: 'On the map', shot: 'ui-worldmap', text: 'A pin per story, on a map of the world.' },
     { id: 'timeline', name: factList('views')[3], how: 'Year by year', shot: 'ui-timeline', text: 'Stories grouped by year, newest first.' },
   ],
   browseHead: 'All the vacations. Or just the birthdays.',
-  browseLede: `Tap a category and the cards filter the way the feed does. A story can carry up to ${fact('categoriesPerStory')} categories, and you can make your own: this family made Wedding.`,
+  browseLede: `Tap a category and the cards filter the way the feed does. Give a story ${fact('categoriesPerStory')} categories, or make your own: this family made Wedding.`,
   all: 'All',
   ownNote: 'Their own',
   categories: factList('categories'),
@@ -200,7 +193,7 @@ export const AUDIENCE_COLUMNS = [
   { id: 'runclub', label: `A ${RUN_CLUB.name} member`, sub: names(RUN_CLUB.members) },
   { id: 'member', label: 'A signed-in member', sub: 'you have not approved' },
   { id: 'web', label: 'Anyone on the web', sub: 'not signed in' },
-  { id: 'share', label: 'Someone you sent a share link', sub: 'a key, not an audience', key: true },
+  { id: 'share', label: 'Someone you sent a share link', sub: 'opens that one story', key: true },
 ]
 
 export const CELL_TEXT = { open: 'Opens it', card: 'Sees the card only', none: 'Nothing' }
@@ -216,7 +209,7 @@ export const CELL_TEXT = { open: 'Opens it', card: 'Sees the card only', none: '
  * Columns: you, close, follower, runclub, member, web, share.
  * In the sample, the Run club members follow Maya but are not ticked Close Family.
  * Every row assumes the author's plan or trial is active (privacy.py:35-36, :189-204) and the
- * reader has a plan or trial (events.py:623-634, models/user.py:151-179); see AUDIENCE.note.
+ * reader has a plan or trial (events.py:623-634, models/user.py:151-179).
  */
 export const AUDIENCE_MATRIX = [
   // Private: author only (privacy.py:29-32); others denied (privacy.py:42-44); never in a feed (privacy.py:212);
@@ -299,22 +292,6 @@ export const AUDIENCE = {
   matrixHead: 'Cell by cell, the way the app decides.',
   matrixLede: 'Every setting against every kind of reader. Tap a row to light it up above.',
   openers: AUDIENCE_OPENERS,
-  note: 'A reader with no plan and no trial can open stories only from people they follow, plus any Public story.',
-  worthHead: 'Worth knowing',
-  worth: [
-    { title: 'Public means public', text: 'A Public story opens for anyone with the link, signed in or not.' },
-    { title: 'The card is not the story', text: 'The feed card (title, cover, place) of any story that is not Private is listed to signed-in members. Opening it follows the audience.' },
-    {
-      title: 'A share link is a key',
-      text: `A share link is a key you hand out yourself. It opens that one story for anyone who has the link, whatever the story's audience, without an account, and ends after ${fact('shareLinkDays')}.`,
-    },
-  ],
-  facts: [
-    'You accept or decline each follow request. Following goes one way.',
-    'You can mute someone, and their stories leave your feed.',
-    'While an author’s plan or trial is not active, other people cannot open that author’s stories in the app. A share link already made keeps working until it ends.',
-    `New stories start on ${fact('audienceDefault')}. You can change the audience by editing the story.`,
-  ],
 }
 
 /* ------------------------------------------------------------------ 10. Family */
@@ -374,8 +351,6 @@ export const SEO_BLOCKS = [
       (r) => `${r.name}: ` + AUDIENCE_COLUMNS.map((c) => `${c.label.toLowerCase()}: ${CELL_TEXT[r.cells[c.id]].toLowerCase()}`).join('; ') + '.',
     ),
   },
-  { p: AUDIENCE.note },
-  { ul: [...AUDIENCE.worth.map((w) => w.text), ...AUDIENCE.facts] },
   { h2: `${FAMILY.head.before} ${FAMILY.head.mark}${FAMILY.head.after}` },
   { ul: FAMILY.points.map((p) => `${p.title}. ${p.text}`) },
 ]

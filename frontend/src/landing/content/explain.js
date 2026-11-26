@@ -20,7 +20,7 @@ export const DIFFERENCE = {
   markStatic: 'family and close friends',
   line: "The few people who already know your kids' names.",
   peopleAlt: {
-    family: 'The illustrated sample family: Maya, Tom, Ivy, Leo and Biscuit the dog, with Nana Ruth and Grandpa Joe',
+    family: 'The family: Maya, Tom, Ivy, Leo and Biscuit the dog, with Nana Ruth and Grandpa Joe',
     friends: 'Priya and Sam, two of the family’s close friends, waving',
   },
   // Three complete claims. Numbers via fact(); the noun is set as big as the numeral.
@@ -40,7 +40,7 @@ export const DIFFERENCE = {
     head: { before: 'A post is one photo and a line. A story is the whole', mark: 'trip', after: '.' },
     post: 'A post',
     story: 'A story',
-    postLabel: 'A typical social post (illustration)',
+    postLabel: 'A typical social post',
     storyLabel: 'A story on Our Family Socials',
     storyHint: 'Drag or scroll inside the page',
     postNote: 'One photo and one line about the whole week away.',
@@ -53,9 +53,9 @@ export const DIFFERENCE = {
     { k: 'The order', v: 'By date, the day you posted or the day it happened. Nothing is ranked.' },
     { k: 'Who pays', v: 'The people who publish stories. There are no ads.' },
     { k: 'Who can follow you', v: 'People whose follow request you accept.' },
-    { k: 'Where it lives', v: 'A web app you can add to your phone’s home screen. There is no app-store app.' },
+    { k: 'Where it lives', v: 'On the web, and on your phone’s home screen, one tap away.' },
   ],
-  ruthAlt: 'Nana Ruth, an illustrated grandmother, reading the family’s story on her tablet',
+  ruthAlt: 'Nana Ruth reading the family’s story on her tablet',
 }
 
 /* ---------------------------------------------------------------- 3. How */
@@ -70,14 +70,14 @@ export const HOW = {
       title: 'Just back from a trip? Start free tonight.',
       lines: [
         `Your trial lasts ${fact('trialDays')} days and needs no card.`,
-        `Publish up to ${fact('trialStories')} stories in the trial, with up to ${fact('photosTrial')} photos or videos in each.`,
+        `Publish your first ${fact('trialStories')} stories during the trial.`,
       ],
       // Round three: each number beside its noun at the same size.
       passLabel: 'Free trial',
       pass: [`${fact('trialDays')} days free`, `${fact('trialStories')} stories to publish`, 'No card'],
       cta: 'Start free',
       person: 'p-maya-phone',
-      personAlt: 'Maya, an illustrated mom, holding up her phone',
+      personAlt: 'Maya holding up her phone',
     },
     {
       short: 'Invite family',
@@ -92,7 +92,7 @@ export const HOW = {
       // big callouts over the capture, so the point reads at a glance
       callouts: ['Close Family: one tick each', 'A group of your own'],
       person: 'p-joe-wave',
-      personAlt: 'Grandpa Joe, illustrated, waving hello',
+      personAlt: 'Grandpa Joe waving hello',
     },
     {
       short: 'Make the story',
@@ -110,7 +110,7 @@ export const HOW = {
       ],
       waysLabel: 'Three ways in',
       person: 'p-maya-talk',
-      personAlt: 'Maya, an illustrated mom, talking into her phone',
+      personAlt: 'Maya talking into her phone',
     },
     {
       short: 'They read and reply',
@@ -123,7 +123,7 @@ export const HOW = {
       shotAlt: 'Comments on a story, with a reply thread',
       badges: [`${fact('reactions')} reactions`, `Replies ${fact('replyLevels')} levels deep`],
       person: 'p-ruth-tablet',
-      personAlt: 'Nana Ruth, an illustrated grandmother, reading on her tablet',
+      personAlt: 'Nana Ruth reading on her tablet',
     },
   ],
 }
@@ -158,14 +158,7 @@ export const CREATE = {
   modesLabel: `The ${fact('aiModes')} modes`,
   backLabel: 'What comes back',
   back: ['A title', 'Section headings', 'A caption for every photo', 'A category', 'A place'],
-  limitsLabel: 'The limits, in plain sight',
-  limits: [
-    { k: 'Label', v: 'Beta' },
-    { k: 'Per day', v: `${fact('aiPerDay')} AI actions` },
-    { k: 'Needs', v: 'Pro or the trial' },
-    { k: 'Audience', v: 'Published to Followers. Change it by editing the story.' },
-  ],
-  mayaAlt: 'Maya, an illustrated mom, talking about the day into her phone',
+  mayaAlt: 'Maya talking about the day into her phone',
   write: {
     label: 'Or write it yourself',
     head: 'Want every word your own? Write it yourself.',
@@ -176,9 +169,7 @@ export const CREATE = {
       'Headings, bold, italic, links and lists.',
       'Photos and video clips inline, each with a caption.',
       'Location markers for the map.',
-      'HEIC photos from iPhones are accepted.',
-      `Clips are trimmed to ${fact('videoSeconds')} seconds in the editor.`,
-      'Photos are stored resized, so keep your originals.',
+      'Photos straight from an iPhone, HEIC included.',
     ],
   },
 }
@@ -206,7 +197,6 @@ export const IMPORT = {
   label: 'Smart Import',
   head: { before: 'Add a whole bunch of photos from your phone. Out come the vacations, the birthdays, the', mark: 'weekends', after: '.' },
   lede: `Back from a summer of trips with a phone full of photos? Choose up to ${f('importMax')} at a time. Smart Import reads when and where each was taken and sorts them into albums: the week on the coast, the weekend away, the birthday party. You pick one, and only then are its photos uploaded.`,
-  stageLabel: 'Made-up photos. Real rules.',
   // The illustrated photo picker (a plain drawing, not any phone maker's screen). {n} is
   // filled in code from the sample roll's size (explain.sample.js), never typed here.
   picker: { title: 'Your photos', selected: '{n} selected', button: 'Add {n} photos' },
@@ -226,7 +216,7 @@ export const IMPORT = {
       name: 'Pick',
       rules: [
         { text: `Choose up to ${f('importMax')} photos from your phone at once.` },
-        { text: 'The time and place of each are read on your device. No photo is uploaded yet.' },
+        { text: 'The time and place of each are read right on your device.' },
       ],
     },
     {
@@ -270,17 +260,16 @@ export const IMPORT = {
       rules: [
         { text: `A group of fewer than ${f('importMinAlbum')} photos joins a neighbor within ${f('importTinyMergeHours')} hours. One or two photos left on their own go to unsorted.` },
         { text: 'Each album gets a title hint, like “Weekend in” and the place, and a cover photo.' },
-        { text: 'You pick an album. Only its photos are uploaded, and the rest stay on your device. Smart Import needs Pro or the trial.' },
+        { text: 'You pick an album, and its photos become a story. The rest stay on your device.' },
       ],
     },
   ],
-  sampleNote: 'Sample titles and dates. The grouping follows the rules beside it.',
   captures: {
     label: 'The real thing',
     drop: { id: 'ui-import-drop', alt: 'Smart Import, the screen where you choose your photos', caption: 'Choose the photos.' },
     albums: { id: 'ui-import-albums', alt: 'Smart Import, the album cards it found', caption: 'Pick an album.' },
   },
-  kidsAlt: 'Ivy and Leo, illustrated, hugging Biscuit the dog',
+  kidsAlt: 'Ivy and Leo hugging Biscuit the dog',
 }
 
 /** Text blocks for llms-full.txt (marketing.js block format: { h2 } | { p } | { ul: [] }). */
@@ -299,7 +288,6 @@ export const SEO_BLOCKS = [
   { ul: CREATE.ladder.map((l) => `${l.name}: ${l.text}`) },
   { ul: CREATE.modes.map((m) => `${m.name}: ${m.text}`) },
   { p: `What comes back: ${CREATE.back.join(', ').toLowerCase()}.` },
-  { ul: CREATE.limits.map((l) => `${l.k}: ${l.v}`) },
   { h2: CREATE.write.head },
   { ul: CREATE.write.list },
   { h2: headText(IMPORT.head) },

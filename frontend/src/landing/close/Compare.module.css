@@ -24,8 +24,8 @@
   font-size: 13px;
 }
 .head {
-  font-size: clamp(52px, 7.4vw, 116px);
-  max-width: 14ch;
+  font-size: clamp(48px, 6.2vw, 96px);
+  max-width: 16ch;
 }
 .lede {
   max-width: 44ch;
@@ -56,18 +56,6 @@
   display: block;
   width: 100%;
   margin-bottom: 14px;
-}
-.cap {
-  position: absolute;
-  z-index: 2;
-  right: 0;
-  bottom: 4px;
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 .cards {
   display: grid;
@@ -123,27 +111,11 @@
   gap: 14px;
   padding: 22px 26px 24px;
 }
-.quote {
+.text {
   flex: 1;
-  margin: 0;
-}
-.quote p {
-  display: grid;
-  gap: 14px;
-}
-.them {
-  display: block;
-  font-family: var(--l-font-display);
-  font-weight: 700;
-  font-size: clamp(21px, 1.2vw + 8px, 25px);
-  line-height: 1.22;
-  letter-spacing: -0.01em;
-}
-.us {
-  display: block;
-  font-size: 18px;
-  line-height: 1.55;
-  color: var(--l-mute);
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 .more {
   align-self: flex-start;
@@ -246,11 +218,8 @@
   .body {
     padding-inline: 22px;
   }
-  .them {
-    font-size: 21px;
-  }
-  .us {
-    font-size: 17px;
+  .text {
+    font-size: 18px;
   }
   .linkName {
     font-size: 22px;
@@ -272,31 +241,25 @@
     grid-column: 1 / -1;
   }
   .head {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
-    align-self: end;
-    padding-bottom: 20px;
-    font-size: clamp(44px, 12.4vw, 56px);
+    font-size: clamp(42px, 11.6vw, 52px);
   }
   .stage {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
     width: 100%;
   }
   .lede {
+    grid-column: 1;
     grid-row: 3;
+    align-self: center;
   }
-  .cap {
-    display: none;
-  }
-  .body {
+    .body {
     gap: 12px;
     padding-block: 18px 16px;
   }
-  .them {
-    font-size: 20px;
-  }
-  .us {
-    font-size: 16px;
+  .text {
+    font-size: 17px;
   }
 }

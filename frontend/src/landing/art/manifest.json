@@ -772,6 +772,54 @@
     "kind": "photo",
     "alpha": false
   },
+  "photo-love-book": {
+    "src": "/landing/img/photo-love-book.55e0ec75.webp",
+    "srcM": "/landing/img/photo-love-book.55e0ec75.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-love-control": {
+    "src": "/landing/img/photo-love-control.aaa4d562.webp",
+    "srcM": "/landing/img/photo-love-control.aaa4d562.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-love-easy": {
+    "src": "/landing/img/photo-love-easy.81e205b5.webp",
+    "srcM": "/landing/img/photo-love-easy.81e205b5.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-love-far": {
+    "src": "/landing/img/photo-love-far.b691a738.webp",
+    "srcM": "/landing/img/photo-love-far.b691a738.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-love-grandparents": {
+    "src": "/landing/img/photo-love-grandparents.a3deca86.webp",
+    "srcM": "/landing/img/photo-love-grandparents.a3deca86.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-love-timeline": {
+    "src": "/landing/img/photo-love-timeline.2f840027.webp",
+    "srcM": "/landing/img/photo-love-timeline.2f840027.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
   "photo-maui-beach": {
     "src": "/landing/img/photo-maui-beach.12766639.webp",
     "srcM": "/landing/img/photo-maui-beach.12766639.m.webp",

@@ -7,7 +7,7 @@
 import { hasArt } from '../../art/manifest.js'
 import { YEAR as C } from '../../content/film.js'
 import { YEARS, YEARS_NOTE, ageLabel } from '../../content/film.sample.js'
-import { ArtImg, SHOT_CAPTION, cx } from '../../ui/index.js'
+import { ArtImg, cx } from '../../ui/index.js'
 import { STAGE, YEARS as L } from '../layout.js'
 import { Actor, Air, Copy, Counter, Dock, Fact, Ghost, Photo, Scene } from '../parts.jsx'
 import { AGES, HALF, TOP } from '../years.js'
@@ -112,7 +112,7 @@ export function Year({ id }) {
             <span className={y.notch} aria-hidden="true" />
           </span>
           <figcaption>
-            {C.device.caption} {SHOT_CAPTION}
+            {C.device.caption}
           </figcaption>
         </figure>
       </Air>

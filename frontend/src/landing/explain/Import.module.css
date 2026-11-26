@@ -72,22 +72,6 @@
   height: 100%;
   max-width: none;
 }
-.stageLabel {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 10px 5px;
-  background: var(--l-white);
-  border: var(--l-keyline);
-  border-radius: var(--l-r-sticker);
-  box-shadow: var(--l-shadow-sm);
-  transform: rotate(-2deg);
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 .shuffle {
   position: absolute;
   left: 12px;
@@ -400,10 +384,6 @@
   max-width: 46ch;
   font-size: clamp(19px, 1.6vw, 24px);
 }
-.sampleNote {
-  color: var(--l-ink);
-  opacity: 0.75;
-}
 .capsRow {
   margin-top: clamp(28px, 4vw, 48px);
   display: grid;
@@ -526,11 +506,6 @@
   .rules p {
     font-size: 16px;
     line-height: 1.36;
-  }
-  .stageLabel {
-    top: 8px;
-    left: 8px;
-    font-size: 12px;
   }
   .legend {
     right: 8px;

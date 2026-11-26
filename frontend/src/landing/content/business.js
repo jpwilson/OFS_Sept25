@@ -21,10 +21,19 @@ export const BUSINESS = {
     value: 'Join more than {membersWords} people sharing with family and close friends, privately and ad-free.',
     src: SRC,
   },
+  whyHead: { value: { before: 'Why {membersWords} people are moving to Our Family', mark: 'Socials', after: '.' }, src: SRC },
+  whyLine: {
+    value: 'Join more than {membersWords} people sharing their private moments with the people who matter to them.',
+    src: SRC,
+  },
+  copyright: { value: '© 2026 Our Family Socials. All rights reserved.', src: SRC },
 }
 
-/** A business value by id; {otherId} inside a string is filled from that entry. */
+const fill = (v) => (typeof v === 'string' ? v.replace(/\{(\w+)\}/g, (_, k) => BUSINESS[k].value) : v)
+
+/** A business value by id; {otherId} inside a string (or inside a head's parts) is filled from that entry. */
 export function biz(id) {
   const v = BUSINESS[id].value
-  return typeof v === 'string' ? v.replace(/\{(\w+)\}/g, (_, k) => BUSINESS[k].value) : v
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x)]))
+  return fill(v)
 }

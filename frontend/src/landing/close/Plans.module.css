@@ -53,16 +53,6 @@
   border: var(--l-keyline);
   border-radius: 999px;
 }
-.duoCap {
-  position: absolute;
-  right: 22px;
-  bottom: 16px;
-  font-family: var(--l-font-mono);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 .who {
   position: relative;
   z-index: 1;
@@ -535,9 +525,6 @@
   }
   .tagNote {
     font-size: 14px;
-  }
-  .duoCap {
-    display: none;
   }
   .row {
     grid-template-columns: 1fr;

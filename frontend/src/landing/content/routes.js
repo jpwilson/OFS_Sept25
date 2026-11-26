@@ -34,7 +34,7 @@ export const SECTION_IDS = {
   views: 'lp-views',
   audience: 'lp-audience',
   family: 'lp-family',
-  limits: 'lp-limits',
+  love: 'lp-love',
   compare: 'lp-compare',
   plans: 'lp-plans',
   questions: 'lp-questions',
