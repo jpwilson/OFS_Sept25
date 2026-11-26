@@ -47,12 +47,16 @@ export function buildJourney(event, parsed) {
 
   // ---- 2. photos: belong to the stop whose marker precedes them, or a stop within 500m
   const precedingStop = new Map() // media id -> stop id
+  const chapterOfMedia = new Map() // media id -> the chapter its photo sits in
   if (parsed?.blocks) {
     let last = null
     for (const b of parsed.blocks) {
       if (b.type === 'marker') last = stops.find((s) => s.anchorId === b.stop.anchorId) || last
       if (b.type === 'heading' && b.level === 1) last = null
-      if (b.type === 'media' && last) for (const it of b.items) precedingStop.set(it.id, last.id)
+      if (b.type === 'media') for (const it of b.items) {
+        if (b.chapterId) chapterOfMedia.set(it.id, b.chapterId)
+        if (last) precedingStop.set(it.id, last.id)
+      }
     }
   }
   const photoList = media.length
@@ -83,7 +87,8 @@ export function buildJourney(event, parsed) {
   for (const c of clusterStops(loose, { max: 200 })) {
     const id = `stop-${stops.length + 1}`
     const first = photos[c.ids[0]]
-    stops.push({ id, name: null, lat: c.lat, lng: c.lng, ts: c.ts || null, anchorId: null, chapterId: null, order: 20000 + first.order, kind: 'photo', source: 'photo', photoIds: c.ids })
+    const chapterId = c.ids.map((pid) => chapterOfMedia.get(pid)).find(Boolean) || null
+    stops.push({ id, name: null, lat: c.lat, lng: c.lng, ts: c.ts || null, anchorId: null, chapterId, order: 20000 + first.order, kind: 'photo', source: 'photo', photoIds: c.ids })
     for (const pid of c.ids) photos[pid].stopId = id
   }
   if (stops.length < 2) return null
@@ -94,9 +99,19 @@ export function buildJourney(event, parsed) {
   let n = 0
   for (const s of stops) s.n = s.kind === 'named' ? ++n : null
 
-  // ---- 4. days: H1 chapters when the stops sit in them, else the trip day of each stop
+  // ---- 4. days: H1 chapters when the stops sit in them, else the trip day of each stop.
+  // A photo stop outside every chapter (the cover, a gallery-only photo) does not decide
+  // this: it joins the chapter of the stop before it on the route (the next one if first).
   const chapterOf = new Map(chapters.map((c) => [c.id, c]))
-  const byChapter = stops.every((s) => s.chapterId && chapterOf.has(s.chapterId))
+  const inChapter = (s) => !!s.chapterId && chapterOf.has(s.chapterId)
+  const byChapter = stops.some(inChapter) && stops.every((s) => inChapter(s) || s.kind === 'photo')
+  if (byChapter) {
+    stops.forEach((s, i) => {
+      if (inChapter(s)) return
+      const near = [...stops.slice(0, i)].reverse().find(inChapter) || stops.slice(i + 1).find(inChapter)
+      s.chapterId = near.chapterId
+    })
+  }
   const days = []
   const dayFor = (key, make) => {
     let d = days.find((x) => x.key === key)

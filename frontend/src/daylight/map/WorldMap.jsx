@@ -18,7 +18,7 @@
 // buttons but not tab stops.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { currentLevel, dropLevel, watchFrames } from './engine.js'
+import { clearFailed, currentLevel, dropLevel, failedReason, markFailed, watchFrames } from './engine.js'
 import { createWorld } from './world.js'
 import { PlacesList } from './PlacesList.jsx'
 import { StoryPeek } from './StoryPeek.jsx'
@@ -54,7 +54,7 @@ const WHY = {
 export default function WorldMap({ events = [], selectedId = null, onSelect, hoverId = null, onHover, padding, card, faceFor, projection, onProjection, camera, onView, onSpot, controls = true, onLevel, fitKey, className }) {
   const desktop = useDesktop()
   const [level, setLevel] = useState(currentLevel)
-  const [failed, setFailed] = useState(null)
+  const [failed, setFailed] = useState(failedReason)
   const [state, setState] = useState('loading')
   const [ready, setReady] = useState(false)
   const [attempt, setAttempt] = useState(0)
@@ -137,6 +137,7 @@ export default function WorldMap({ events = [], selectedId = null, onSelect, hov
       .catch((e) => {
         if (dead) return
         console.warn('[daylight] world map unavailable:', e?.reason || e?.message)
+        markFailed(e?.reason || 'init')
         setFailed(e?.reason || 'init')
       })
     return () => {
@@ -208,7 +209,7 @@ export default function WorldMap({ events = [], selectedId = null, onSelect, hov
             <p className={s.why}>
               {WHY[failed] || WHY.init}{' '}
               {failed !== 'webgl2' ? (
-                <Button variant="quiet" size="sm" onClick={() => (setFailed(null), setAttempt((n) => n + 1))}>
+                <Button variant="quiet" size="sm" onClick={() => (clearFailed(), setFailed(null), setLevel(currentLevel()), setAttempt((n) => n + 1))}>
                   Try the map again
                 </Button>
               ) : null}

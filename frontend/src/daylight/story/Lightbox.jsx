@@ -17,7 +17,8 @@ import { Spinner } from '../ui/Spinner.jsx'
 import { cx } from '../ui/cx.js'
 import { ReactionButton } from './Reactions.jsx'
 import Comments from './Comments.jsx'
-import { placeHead, wallDay, wallTime } from './words.js'
+import { wallDayLabel, wallTime } from '../lib/format.js'
+import { placeHead } from './words.js'
 import s from './Lightbox.module.css'
 
 export default function StoryLightbox({ open, index, media, onClose, onIndex, stats, react, canReact, onSignIn, journey, me, canComment }) {
@@ -82,7 +83,7 @@ export default function StoryLightbox({ open, index, media, onClose, onIndex, st
                 <div className={s.footText}>
                   {stop?.name || when ? (
                     <p className={cx(s.where, 'a-mono')}>
-                      {[stop?.n ? `Stop ${stop.n}` : null, stop?.name ? placeHead(stop.name) : null, when ? `${wallDay(when)} · ${wallTime(when)}` : null].filter(Boolean).join(' · ')}
+                      {[stop?.n ? `Stop ${stop.n}` : null, stop?.name ? placeHead(stop.name) : null, when ? `${wallDayLabel(when, 0)} · ${wallTime(when)}` : null].filter(Boolean).join(' · ')}
                     </p>
                   ) : null}
                   {cur?.caption ? <p className={s.caption}>{cur.caption}</p> : null}

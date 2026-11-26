@@ -249,11 +249,18 @@ const SCENES = {
     page = await r.open('phone')
     await page.goto(`${args.base}/feed?view=map`, { waitUntil: 'domcontentloaded' })
     await r.idle(page, { ms: 900 })
-    await tapMarker(page, '[data-ui="map-cluster"][data-count="6"]')
+    await tapMarker(page, '[data-ui="map-cluster"]')
     await page.waitForTimeout(800)
     await r.idle(page, { ms: 1200 })
     await r.shot(page, 'cluster', 'A group tapped: the map goes in until its stories stand apart')
-    await tapMarker(page, '[data-ui="map-pin"]')
+    // the groups depend on the sample: go in again until a single story's pin shows
+    for (let i = 0; i < 3; i++) {
+      const pin = await tapMarker(page, '[data-ui="map-pin"]').then(() => true, () => false)
+      if (pin) break
+      await tapMarker(page, '[data-ui="map-cluster"]')
+      await page.waitForTimeout(800)
+      await r.idle(page, { ms: 1200 })
+    }
     await page.waitForTimeout(800)
     await r.idle(page, { ms: 1200 })
     await r.shot(page, 'pin', 'A pin tapped: the sheet rises to its card')
@@ -539,6 +546,30 @@ const SCENES = {
       await r.shot(page, 'reduced-journey', 'Reduced motion, journey: Next stop steps, jump cuts, nothing moves by itself')
       await page.context().close()
     }
+  },
+
+  /** The tile hosts do not answer: both maps fall back to the static level by themselves. */
+  async offline(r) {
+    for (const device of ['phone', 'desktop']) {
+      const page = await r.open(device)
+      await page.route(/tiles\.(openfreemap\.org|mapterhorn\.com)/, (route) => route.abort())
+      await page.goto(`${args.base}/feed?view=map`, { waitUntil: 'domcontentloaded' })
+      await page.waitForSelector('[data-ui="world-map"][data-level="static"]', { timeout: 20000 }).catch(() => r.report.errors.push(`${device}: the world map did not fall back`))
+      await page.waitForTimeout(600)
+      await r.shot(page, 'world', 'Tiles unreachable, world: the Places list, with the reason and a way to try again')
+      await page.goto(`${args.base}${TETONS}`, { waitUntil: 'domcontentloaded' })
+      await page.waitForSelector('[data-ui="story-view"], [data-ui="story-page"]', { timeout: 20000 })
+      if (device === 'phone') {
+        await page.evaluate(() => document.querySelector('[data-ui="journey-card"]').scrollIntoView({ block: 'center' }))
+        await page.getByRole('button', { name: 'Open map' }).first().tap()
+      } else await toStop(page, 'stop-4')
+      await page.waitForSelector('[data-ui="journey-map"][data-level="static"]', { timeout: 20000 }).catch(() => r.report.errors.push(`${device}: the journey map did not fall back`))
+      await page.waitForTimeout(600)
+      await r.shot(page, 'journey', 'Tiles unreachable, journey: the sketch and the stops, with the reason and a way to try again')
+      await page.context().close()
+    }
+    // a blocked tile host logs failed requests; those are the point of this scene
+    r.report.errors = r.report.errors.filter((e) => !/Failed to load resource|ERR_|AJAXError|Failed to fetch|map unavailable/i.test(e))
   },
 
   /** Keyboard: focus visible on the list, a pin's row, the map controls and the journey controls. */

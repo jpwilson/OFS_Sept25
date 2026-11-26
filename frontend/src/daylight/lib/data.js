@@ -128,6 +128,7 @@ async function loadPeople(userId) {
  * People the signed-in person follows (with their real photos) and the muted list.
  * faceFor(username, fullName) -> {username, name, avatarUrl|null}. Avatars are joined
  * client-side because list items carry no author avatar; anyone else gets initials.
+ * loaded: true once this person's lists have arrived (always true signed out).
  */
 export function usePeople() {
   const { user } = useAuth() || {}
@@ -150,7 +151,9 @@ export function usePeople() {
     people.set({ muted: muted || [] })
     return muted
   }, [])
-  return { following: s.following, faceFor, muted: s.muted, refreshMuted, me: user || null, loading: s.loading }
+  // loaded: the follow and muted lists for this person have arrived (or there is no one signed in)
+  const loaded = !user?.id || (s.fetchedFor === user.id && !s.loading)
+  return { following: s.following, faceFor, muted: s.muted, refreshMuted, me: user || null, loading: s.loading, loaded }
 }
 
 // ---------------------------------------------------------------- story

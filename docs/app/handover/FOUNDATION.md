@@ -4,7 +4,7 @@ The foundation (F0) is built and checked. This file is its handover: the rules, 
 
 ## The rules (read these first)
 
-1. **A classic build must stay byte-identical** to the baseline taken before Daylight existed (SPEC decision 2). Never edit an existing file under `src/` outside `src/daylight/`, `index.html`, `public/`, `vercel.json` or `scripts/prerender.mjs`. The seam plugin redirects six imports at build time instead. The director runs the proof at integration:
+1. **A classic build must stay byte-identical** to the baseline (SPEC decision 2). The baseline is a classic build of the landing commit last merged into `app/daylight` (now `ff62cbc`, re-recorded at integration on 2026-11-26 after proving this branch's classic build identical to it); after each landing merge, prove the same and re-record with `check-classic.mjs --write <dir> --base <commit>`. Never edit an existing file under `src/` outside `src/daylight/`, `index.html`, `public/`, `vercel.json` or `scripts/prerender.mjs`. The seam plugin redirects six imports at build time instead. The director runs the proof at integration:
    `VITE_LANDING=classic VITE_APP_LOOK=classic npm run build && node scripts/daylight/check-classic.mjs`
 2. **Edit only your own folder** (ownership below). If you need something in `ui/`, `lib/`, `shell/`, `styles/`, `dev/` or `seam/`, ask the director; do not edit it. You may ADD a file to `ui/` only if it is prefixed with your package name, but prefer your own folder.
 3. **Do not run `npm run build`.** It writes the shared `dist/`. To prove your code compiles: `VITE_APP_LOOK=daylight npx vite build --outDir /tmp/ofsa-<pkg>-dist --emptyOutDir`, then delete that folder.
@@ -53,7 +53,8 @@ useFeed({orderBy = 'event_date'|'upload_date'}) -> {events, loading, error, hasM
 //   GET /events?order_by&skip&limit=100; one request at a time; cap 500; cached per order across mounts
 //   (Back is instant; refetched in the background after 60s). loadAll() pages to the cap (calendar, map).
 //   Items are production list items: no description, images, locations, counts, second category or avatar.
-usePeople() -> {following, faceFor(username, fullName?), muted, refreshMuted, me, loading}
+usePeople() -> {following, faceFor(username, fullName?), muted, refreshMuted, me, loading, loaded}
+//   loaded: this person's follow and muted lists have arrived (always true signed out)
 //   faceFor -> {username, name, avatarUrl|null}: real photos for people you follow and you; others null (use initials)
 useStory(idOrSlug, {shareToken}) -> {event, images, locations, privacyError, error, shareContext, loading, reload}
 //   privacyError: {status:403, ...server detail (privacy_level, privacy_display, privacy_description,
@@ -78,14 +79,21 @@ shortPlace(name, parts = 2) -> "Jenny Lake, Wyoming"     // drops counties and p
 readTime(html) -> whole minutes (>= 1)
 localDay(d) toLocalISO(d) monthKey(d) monthLabel(d) "August 2026"  dayLabel(d) "Monday, June 15"
 timeLabel(d) "9:26 AM"  daySpan(start, end)  plural(n, one, many)
+// wall time AT THE PLACE: marker and photo stamps carry the place's offset; these read the clock
+// in the string and ignore it, so every reader sees the same times and days (one implementation;
+// the story page and the maps import these)
+wallParts(ts) -> {y, mo, d, h, mi, date}   wallTime(ts) "9:26 AM"   wallTripDate(ts, pivotHour = 4) -> Date
+wallTripDay(ts, pivotHour = 4) "2026-06-16"   wallDayLabel(ts, pivotHour = 4) "Tuesday, June 16"   wallMonthDay(ts) "June 16"
 
 // lib/geo.js   (pure)
 km(a, b)  isLatLng(lat, lng)  bboxOf(points) -> [minLng, minLat, maxLng, maxLat]  lngSpan(points)  centroid(points)
-greatCircle(a, b, steps) -> [[lng, lat]...]   tripDay(ts, pivotHour = 4) -> "YYYY-MM-DD"
+greatCircle(a, b, steps) -> [[lng, lat]...]   tripDay(ts, pivotHour = 4) -> "YYYY-MM-DD"   (a stamp string: wall time at the place)
 clusterStops(points, {radiusKm = 0.5, minutes = 90, max = 20}) -> [{lat, lng, ts, ids}]
 
 // lib/storyBlocks.js   (browser only: DOMParser; HTML is sanitised with utils/sanitizeHtml.js)
-parseStory(html, eventImages) -> {blocks, chapters, media, markers}
+parseStory(html, eventImages, {localMedia}) -> {blocks, chapters, media, markers}
+//  localMedia: true keeps blob: photo URLs through sanitising (the creation preview only)
+//  a paragraph holding only location markers becomes the marker block alone (no leftover chip)
 //  block: {type:'heading', level, id, text, chapterId} | {type:'html', html, chapterId}
 //       | {type:'media', items, chapterId} | {type:'marker', stop, chapterId}
 //  media item: {id, imageId, kind:'image'|'video', src, poster, caption, alt, w, h, lat, lng, ts, inBody}
@@ -100,7 +108,8 @@ buildJourney(event, parsed) -> {stops, legs, days, bbox, photos} | null     // n
 //  stop: {id, n, name, lat, lng, ts, dayIndex, photoIds, anchorId, chapterId, kind:'named'|'photo', source}
 //  leg:  {id, from, to, seq, dayIndex, km, arc}        day: {index, date, label, stopIds, chapterId, bbox}
 //  photos: {[media id]: {id, src, caption, lat, lng, ts, stopId}}
-//  Days follow H1 chapters when every stop sits in one, else the trip day (4am pivot). Order by time when every
+//  Days follow H1 chapters when every named stop sits in one (a photo stop outside every chapter, such
+//  as the cover, joins the chapter of the stop before it), else the trip day at the place (4am pivot). Order by time when every
 //  stop has one, else by place in the text. The event's own location is never a forced stop.
 stopOfPhoto(journey, mediaId) -> stop|null
 
@@ -161,7 +170,7 @@ answerSupabase(...)  setViewer(state, as)  signinPage(as, next)  fixtureFile(url
 <EmptyState wash icon before mark after title body action tone="error" as />
 <Head as size="page|story|lead|card|section" before mark after />   // one sticker word, page titles and empty states only
 <Readout label value unit note size="sm|md" />
-<Icon name size title strokeWidth />   ICON_NAMES (60)      <Spinner size />    <Stub pkg name note wash tall />
+<Icon name size title strokeWidth />   ICON_NAMES (61, with clock)      <Spinner size />    <Stub pkg name note wash tall />
 <Root>                                // .ofsa scope + html.ofsa-on; seams already wrap every page in it
 <Sticker size="md|sm">  <Label strong dot as>   // the landing's, reused unchanged
 WASHES  lockScroll()  overlayRoot()  useModal(open, ref, onClose)  cx(...)
@@ -214,11 +223,14 @@ node scripts/daylight/capture.mjs --base http://127.0.0.1:$P --out <pkg> --route
 #          --reduced   --focus N (Tab N times)   --settle ms   --scene shell|ui|spike|look
 ```
 
-It signs in through `/__fx/signin`, blocks service workers, aborts every host except the app and `tiles.openfreemap.org` / `tiles.mapterhorn.com`, writes `shots/daylight-<out>/{phone,desktop}-NN.jpg`, a labelled `sheet.jpg` (phone first) and `report.json`, and prints the hosts contacted, unanswered API routes, sideways scroll at 390, 768, 1280 and 1920, and console errors. It exits 1 on an unanswered route, a page error or sideways scroll. The fake clock is 26 November 2026, noon, America/Chicago. **Never use `--full` on a map:** resizing the viewport clears WebGL canvases. Wait on `[data-map-state="idle"]` (put that attribute on your map containers). Read the sheet as an image before you report; to see a long full-page shot, crop it (Python's PIL is installed).
+The integration walkthrough, `node scripts/daylight/walk.mjs [--base …] [--device phone|desktop|both]`, drives the whole app as the sample user (feed, a filter, calendar, timeline, the Tetons story with its map and Play, the lightbox, comments, the world map, the thirty kit photos to a published story, the profile) into `shots/daylight-walk-m/` and `daylight-walk-d/` with a contact sheet each. Shoot it from a snapshot copy of the checkout when other builders are saving into the tree (their saves hot-reload the server mid-run).
+
+capture.mjs signs in through `/__fx/signin`, blocks service workers, aborts every host except the app and `tiles.openfreemap.org` / `tiles.mapterhorn.com`, writes `shots/daylight-<out>/{phone,desktop}-NN.jpg`, a labelled `sheet.jpg` (phone first) and `report.json`, and prints the hosts contacted, unanswered API routes, sideways scroll at 390, 768, 1280 and 1920, and console errors. It exits 1 on an unanswered route, a page error or sideways scroll. The fake clock is 26 November 2026, noon, America/Chicago. **Never use `--full` on a map:** resizing the viewport clears WebGL canvases. Wait on `[data-map-state="idle"]` (put that attribute on your map containers). Read the sheet as an image before you report; to see a long full-page shot, crop it (Python's PIL is installed).
 
 ## Checks
 
 ```bash
+node --test src/daylight/lib/journey.test.js                  # wall time and journey days, read from several time zones
 node scripts/daylight/check-classic.mjs                       # after a classic build: the byte proof
 node scripts/daylight/check-bundle.mjs [--classic <dir>]      # after a Daylight build: map isolation and sizes
 node scripts/daylight/check-contract.mjs                      # the snapshot's shapes

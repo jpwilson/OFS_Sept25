@@ -7,13 +7,15 @@
 // Options:
 //   --routes a,b,c     paths to shoot (each opened after /__fx/signin?as=<as>)
 //   --as maya          who is signed in (any cast key); --signed-out to shoot as a visitor
-//   --device phone|desktop|both   default both; phone (390x844) is always shot first
+//   --device phone|desktop|both|ipad|ipad-land|all   default both; phone (390x844) is always
+//                      shot first; ipad is 820x1180, ipad-land 1180x820, all is the four
+//   --scene auth       the sign-in screens and their states (steps in src/daylight/auth/dev/scenes.mjs)
 //   --full             full-page shots       --wait <css>   wait for a selector before shooting
 //   --click <css>      click before shooting  --reduced     prefers-reduced-motion
 //   --focus N          press Tab N times and shoot the focused state
 //   --settle ms        extra wait (default 700)
-// Writes frontend/shots/daylight-<out>/{phone,desktop}-NN.jpg, sheet.jpg (phone first, then
-// desktop, labelled), report.json. Every run reports console errors, sideways scroll at
+// Writes frontend/shots/daylight-<out>/<device>-NN.jpg, sheet.jpg (phone first, labelled),
+// sheet-<device>.jpg (one per viewport), report.json. Every run reports console errors, sideways scroll at
 // 390, 768, 1280 and 1920, and the hosts contacted. Service workers are blocked; every host
 // except the app and the two tile hosts is aborted. Exits 1 if an API route had no sample
 // answer, a page threw, or anything scrolled sideways.
@@ -44,6 +46,7 @@ const SCENES = {
   ui: { routes: ['/feed?only=ui'], full: true },
   spike: { routes: ['/feed?only=spike'], wait: '[data-map-state="idle"]', settle: 4000 }, // never full-page: resizing the viewport clears WebGL canvases
   look: { custom: lookScene },
+  auth: { custom: (...a) => import('../../src/daylight/auth/dev/scenes.mjs').then((m) => m.authScene(...a)), signedOut: true },
 }
 const scene = args.scene ? SCENES[args.scene] : null
 if (args.scene && !scene) throw new Error(`unknown scene ${args.scene}; one of ${Object.keys(SCENES).join(', ')}`)
@@ -55,7 +58,14 @@ fs.mkdirSync(OUT, { recursive: true })
 const full = args.full || scene?.full
 const wait = args.wait || scene?.wait
 const settleMs = Number(args.settle !== 700 ? args.settle : scene?.settle || 700)
-const devices = args.device === 'both' ? ['phone', 'desktop'] : [args.device]
+const VIEWPORTS = {
+  phone: { width: 390, height: 844 },
+  ipad: { width: 820, height: 1180 },
+  'ipad-land': { width: 1180, height: 820 },
+  desktop: { width: 1440, height: 900 },
+}
+const devices = args.device === 'both' ? ['phone', 'desktop'] : args.device === 'all' ? Object.keys(VIEWPORTS) : [args.device]
+if (devices.some((d) => !VIEWPORTS[d])) throw new Error(`unknown device ${args.device}`)
 
 const report = { base: args.base, as: args['signed-out'] ? null : args.as, shots: [], errors: [], unanswered: [], sideways: [], hosts: {}, aborted: {} }
 const bump = (o, k) => (o[k] = (o[k] || 0) + 1)
@@ -65,11 +75,11 @@ const browser = await chromium.launch({ headless: true, args: ['--use-angle=meta
 async function newPage(device) {
   const phone = device === 'phone'
   const ctx = await browser.newContext({
-    viewport: phone ? { width: 390, height: 844 } : { width: 1440, height: 900 },
+    viewport: VIEWPORTS[device],
     // full-page shots of long pages exceed Chromium's capture limit at 2x
     deviceScaleFactor: full ? 1 : 2,
     isMobile: phone,
-    hasTouch: phone,
+    hasTouch: phone || device.startsWith('ipad'),
     serviceWorkers: 'block',
     reducedMotion: args.reduced ? 'reduce' : 'no-preference',
     locale: 'en-US',
@@ -103,7 +113,7 @@ async function newPage(device) {
     const body = await res.text().catch(() => '')
     if (body.includes('no sample answer')) report.unanswered.push(`${res.request().method()} ${u.pathname}${u.search}`)
   })
-  if (!args['signed-out']) {
+  if (!args['signed-out'] && !scene?.signedOut) {
     await page.goto(`${args.base}/__fx/signin?as=${args.as}&next=/feed`, { waitUntil: 'load' })
     await page.waitForURL((u) => new URL(u).pathname === '/feed', { timeout: 15000 })
     await page.waitForFunction(() => !!document.querySelector('[data-ui="tabbar"], button[aria-label$="your menu"]'), null, { timeout: 15000 }).catch(() => report.errors.push('sign-in did not complete'))
@@ -188,7 +198,7 @@ async function lookScene(page, device) {
 
 for (const device of devices) {
   const page = await newPage(device)
-  if (scene?.custom) await scene.custom(page, device)
+  if (scene?.custom) await scene.custom(page, device, { base: args.base, settle, shoot, sideways, report })
   else {
     for (const r of routes) {
       await page.goto(`${args.base}${r}`, { waitUntil: 'domcontentloaded' })
@@ -201,23 +211,24 @@ for (const device of devices) {
 }
 
 // ---------------------------------------------------------------- labelled contact sheet
-async function sheet() {
+async function sheet(only = null) {
   const tiles = report.shots.map((s) => ({ ...s, data: fs.readFileSync(path.join(FRONTEND, s.file)).toString('base64') }))
   const html = `<!doctype html><html><body style="margin:0;background:#F4F7FB;font:13px Menlo,monospace;color:#101B3B">
-  <div style="padding:16px 16px 4px;font-weight:700">daylight-${outName} · ${new Date().toISOString().slice(0, 16)} · ${report.shots.length} shots · phone first</div>
-  ${['phone', 'desktop'].map((d) => {
+  <div style="padding:16px 16px 4px;font-weight:700">daylight-${outName}${only ? ` · ${only} ${VIEWPORTS[only].width}x${VIEWPORTS[only].height}` : ''} · ${new Date().toISOString().slice(0, 16)} · ${report.shots.length} shots · phone first</div>
+  ${Object.keys(VIEWPORTS).filter((d) => !only || d === only).map((d) => {
     const t = tiles.filter((x) => x.device === d)
     if (!t.length) return ''
-    const w = d === 'phone' ? 260 : 560
+    const w = { phone: 260, ipad: 330, 'ipad-land': 470, desktop: 560 }[d]
     return `<div style="display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px">${t.map((x, i) => `<figure style="margin:0;width:${w}px"><div style="padding:4px 0">${d} ${String(i + 1).padStart(2, '0')} · ${x.label.replace(/</g, '&lt;')}</div><img style="width:${w}px;border:2px solid #101B3B;border-radius:8px;display:block;${full ? 'max-height:1800px;object-fit:cover;object-position:top' : ''}" src="data:image/jpeg;base64,${x.data}"></figure>`).join('')}</div>`
   }).join('')}</body></html>`
   const ctx = await browser.newContext({ viewport: { width: 1800, height: 900 }, deviceScaleFactor: 1 })
   const p = await ctx.newPage()
   await p.setContent(html, { waitUntil: 'load' })
-  await p.screenshot({ path: path.join(OUT, 'sheet.jpg'), type: 'jpeg', quality: 80, fullPage: true })
+  await p.screenshot({ path: path.join(OUT, only ? `sheet-${only}.jpg` : 'sheet.jpg'), type: 'jpeg', quality: 80, fullPage: true })
   await ctx.close()
 }
 await sheet()
+if (devices.length > 1) for (const d of devices) await sheet(d)
 await browser.close()
 
 report.errors = [...new Set(report.errors)]

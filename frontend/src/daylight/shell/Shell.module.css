@@ -178,6 +178,19 @@
   height: calc(var(--a-tab-h) + var(--a-safe-bottom));
 }
 
+/* The classic help button (FeedbackWidget's floating "?", z-index 9998 in its own module) is
+   restacked under Daylight's floating layers: every sheet, dialog, scrim and the photo
+   lightbox (250) covers it. Its own feedback panel, the slot's second child, keeps its
+   classic layer. */
+.feedbackSlot > div:first-child {
+  z-index: calc(var(--a-z-float, 200) - 10);
+}
+/* Where a map or the creation rail reaches the bottom-right corner (the world map, a story
+   with its map panel, the creation flow), the button would sit on the map's controls, its
+   stop card or Publish. There it steps aside; Send feedback and FAQ stay in the You menu. */
+:global(html.ofsa-on):has([data-ui='world-page'], [data-ui='story-page'] [data-ui='journey-map'], [data-ui='create-flow']) .feedbackSlot > div:first-child {
+  display: none;
+}
 /* FeedbackWidget's floating button shows above 768px; keep it clear of the tab bar until 900px. */
 @media (min-width: 769px) and (max-width: 899px) {
   .feedbackSlot > div:first-child {

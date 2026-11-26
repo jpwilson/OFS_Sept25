@@ -11,7 +11,8 @@ import { IconButton } from '../ui/IconButton.jsx'
 import { Button } from '../ui/Button.jsx'
 import { cx } from '../ui/cx.js'
 import { ReactionGlyph } from './Reactions.jsx'
-import { placeHead, splitChapter, wallTime } from './words.js'
+import { wallTime } from '../lib/format.js'
+import { placeHead, splitChapter } from './words.js'
 import s from './StoryBars.module.css'
 
 export function PhoneTop({ title, past, onBack }) {

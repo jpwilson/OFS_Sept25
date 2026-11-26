@@ -17,10 +17,10 @@
 // stops. The sketch is also the first paint while the live map loads.
 import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { currentLevel, preloadMapLibre } from './engine.js'
+import { clearFailed, currentLevel, failedReason, markFailed, preloadMapLibre } from './engine.js'
 import { RouteSketch, dayColor } from './RouteSketch.jsx'
 import { stopName } from './labels.js'
-import { wallTime } from './when.js'
+import { wallTime } from '../lib/format.js'
 import { Button } from '../ui/Button.jsx'
 import { IconButton } from '../ui/IconButton.jsx'
 import { overlayRoot, useModal } from '../ui/overlay.js'
@@ -100,9 +100,13 @@ function StaticJourney({ journey, activeStopId, onStopSelect, onRead, mode, why,
 
 export default function JourneyMap({ journey, activeStopId = null, onStopSelect, mode = 'panel', playing, onPlayingChange, onRead, className }) {
   const [level, setLevel] = useState(currentLevel)
-  const [failed, setFailed] = useState(null)
+  const [failed, setFailed] = useState(failedReason)
   const [attempt, setAttempt] = useState(0)
   const [liveReady, setLiveReady] = useState(false)
+  const fail = (reason) => {
+    markFailed(reason)
+    setFailed(reason)
+  }
   const [near, setNear] = useState(mode !== 'panel')
   const frame = useRef(null)
 
@@ -133,7 +137,7 @@ export default function JourneyMap({ journey, activeStopId = null, onStopSelect,
     )
   }
   if (level === 'static' || failed) {
-    return <StaticJourney journey={journey} activeStopId={activeStopId} onStopSelect={onStopSelect} onRead={onRead} mode={mode} why={failed} onRetry={() => (setFailed(null), setLiveReady(false), setAttempt((n) => n + 1))} />
+    return <StaticJourney journey={journey} activeStopId={activeStopId} onStopSelect={onStopSelect} onRead={onRead} mode={mode} why={failed} onRetry={() => (clearFailed(), setFailed(null), setLevel(currentLevel()), setLiveReady(false), setAttempt((n) => n + 1))} />
   }
   return (
     <div ref={frame} className={cx(s.jm, s[mode], className)} data-ui="journey-frame" data-mode={mode}>
@@ -143,7 +147,7 @@ export default function JourneyMap({ journey, activeStopId = null, onStopSelect,
         </div>
       ) : null}
       {near ? (
-        <Boundary key={attempt} onFail={setFailed}>
+        <Boundary key={attempt} onFail={fail}>
           <Suspense fallback={null}>
             <Live
               journey={journey}
@@ -155,7 +159,7 @@ export default function JourneyMap({ journey, activeStopId = null, onStopSelect,
               onRead={onRead}
               level={level}
               onLevel={setLevel}
-              onFail={setFailed}
+              onFail={fail}
               onReady={() => setLiveReady(true)}
             />
           </Suspense>

@@ -11,6 +11,7 @@ import ShareEventModal from '../../components/ShareEventModal.jsx'
 import { usePeople, useStory, useStoryExtras } from '../lib/data.js'
 import { apiFetch } from '../lib/http.js'
 import { useDesktop } from '../lib/capability.js'
+import { useTopOnArrival } from '../lib/scroll.js'
 import { useChrome } from '../shell/chrome.js'
 import * as MapPkg from '../map/index.js'
 import JourneyMap from '../map/JourneyMap.jsx'
@@ -39,6 +40,7 @@ export default function StoryPage({ isShareMode = false }) {
   const { user, canAccessContent = true, isExpired, isTrialExpired } = auth
   const desktop = useDesktop()
   const shareToken = isShareMode ? token : undefined
+  useTopOnArrival(isShareMode ? token : id)
   const story = useStory(isShareMode ? null : id, { shareToken })
   const extras = useStoryExtras(story.event?.id, { shareToken })
   const people = usePeople()

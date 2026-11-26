@@ -153,7 +153,11 @@ export default function FeedPage() {
     ? 'Loading stories'
     : error && !events.length
       ? 'Not loaded'
-    : `${plural(items.length, 'story', 'stories')}${hasMore ? ' so far' : ''} · ${q.order === 'posted' ? 'by the date posted' : 'by the date it happened'}`
+    : !desktop
+      ? `${plural(items.length, 'story', 'stories')}${hasMore ? ' so far' : ''}` // the order shows as a chip when it is not the default
+      : `${plural(items.length, 'story', 'stories')}${hasMore ? ' so far' : ''} · ${q.order === 'posted' ? 'by the date posted' : 'by the date it happened'}`
+  // phone: "List by" sits in the title row, so the first cover starts in the top third of the screen
+  const phoneListBy = !desktop && q.view === 'feed' && showControls && !first && events.length > 0
 
   let body
   if (error && !events.length) {
@@ -225,6 +229,18 @@ export default function FeedPage() {
           {showControls ? (
             <div className={s.controls}>
               {desktop ? <Segmented label="View" value={q.view} onChange={setView} options={VIEW_OPTIONS} /> : null}
+              {phoneListBy ? (
+                <Segmented
+                  label="List stories by"
+                  size="sm"
+                  value={q.group}
+                  onChange={(v) => set({ group: v })}
+                  options={[
+                    { value: 'month', label: 'Month' },
+                    { value: 'category', label: 'Category' },
+                  ]}
+                />
+              ) : null}
               {desktop ? (
                 <Button variant="ghost" icon="filter" onClick={() => setSheet(true)} aria-haspopup="dialog" data-ui="filter-button">
                   Filter{nFilters ? <span className={s.badge}>{nFilters}</span> : null}
@@ -269,21 +285,6 @@ export default function FeedPage() {
                 className={s.groupSeg}
               />
             ) : null}
-          </div>
-        ) : null}
-        {!desktop && q.view === 'feed' && showControls && !first && events.length ? (
-          <div className={s.listBy}>
-            <span className="a-label a-mute">List</span>
-            <Segmented
-              label="List stories"
-              size="sm"
-              value={q.group}
-              onChange={(v) => set({ group: v })}
-              options={[
-                { value: 'month', label: 'By month' },
-                { value: 'category', label: 'By category' },
-              ]}
-            />
           </div>
         ) : null}
       </header>

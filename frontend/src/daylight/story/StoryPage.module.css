@@ -32,10 +32,12 @@
   flex: 1;
   min-height: 0;
 }
-/* until the real map lands, the sketch and its stop list scroll inside the panel */
-.panel {
-  overflow: auto;
-  overscroll-behavior: contain;
+/* a story with a journey takes the room to its right on wide screens: the reading column
+   stays 680px and the map panel grows to 720px (StoryView's split layout gives it the rest) */
+@media (min-width: 900px) {
+  .wrap:has([data-layout='split']) {
+    max-width: calc(680px + 56px + 720px + 2 * var(--a-gutter));
+  }
 }
 
 /* ---- the phone journey card */

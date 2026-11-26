@@ -19,6 +19,7 @@ import { Button } from '../ui/Button.jsx'
 import { Chip } from '../ui/Chip.jsx'
 import { Dialog } from '../ui/Dialog.jsx'
 import { EmptyState } from '../ui/EmptyState.jsx'
+import { useTopOnArrival } from '../lib/scroll.js'
 import { Icon } from '../ui/Icon.jsx'
 import { IconButton } from '../ui/IconButton.jsx'
 import { Menu } from '../ui/Menu.jsx'
@@ -149,7 +150,7 @@ function PeopleSheet({ open, onClose, username, kind, me, title }) {
                     Following
                   </Button>
                 ) : u.requested ? (
-                  <span className={s.requested}>Requested</span>
+                  <span className={s.requested}><Icon name="clock" size={16} />Requested</span>
                 ) : (
                   <Button size="sm" busy={busy === u.username} onClick={() => toggle(u)}>
                     Follow
@@ -181,6 +182,7 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const { username } = useParams()
+  useTopOnArrival(username)
   const location = useLocation()
   const navigate = useNavigate()
   const [sp, setSp] = useSearchParams()
@@ -297,7 +299,7 @@ export default function ProfilePage() {
       Following
     </Button>
   ) : follow.status === 'pending' ? (
-    <Button variant="ghost" onClick={() => setConfirm({ kind: 'cancel' })} data-ui="follow-state" data-state="pending">
+    <Button variant="ghost" icon="clock" onClick={() => setConfirm({ kind: 'cancel' })} data-ui="follow-state" data-state="pending">
       Requested
     </Button>
   ) : (

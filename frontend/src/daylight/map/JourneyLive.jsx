@@ -18,7 +18,7 @@ import { MapAttribution, MapButton, MapStack } from './MapChrome.jsx'
 import { StopCard, dayTitle } from './StopCard.jsx'
 import { dayColor } from './colors.js'
 import { useSnapRow } from './useSnapRow.js'
-import { wallDayLabel, wallTime } from './when.js'
+import { wallDayLabel, wallTime } from '../lib/format.js'
 import { prefersReducedMotion } from '../lib/capability.js'
 import { plural } from '../lib/format.js'
 import { Button } from '../ui/Button.jsx'
@@ -42,8 +42,14 @@ const insetFor = (mode, w, playing) => (mode === 'sheet' ? { top: 150, bottom: 3
 function DayChips({ journey, current, focus, onPick, playing }) {
   const ref = useRef(null)
   useEffect(() => {
-    const el = ref.current?.querySelector('[aria-pressed="true"]')
-    el?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+    // scroll the chip row only: scrollIntoView would also scroll the page to the panel (on
+    // opening a story the page jumped down to it, and reading nudged the window at each day)
+    const row = ref.current
+    const el = row?.querySelector('[aria-pressed="true"]')
+    if (!row || !el) return
+    const r = row.getBoundingClientRect(), e = el.getBoundingClientRect()
+    const dx = e.left < r.left ? e.left - r.left - 8 : e.right > r.right ? e.right - r.right + 8 : 0
+    if (dx) row.scrollTo({ left: row.scrollLeft + dx, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
   }, [current, focus])
   if (journey.days.length < 2) return null
   return (

@@ -84,6 +84,60 @@ export function timeLabel(date) {
   const h = d.getHours() % 12 || 12
   return `${h}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() < 12 ? 'AM' : 'PM'}`
 }
+// ---------------------------------------------------------------- wall time at the place
+// Marker and photo timestamps carry the place's offset ("2026-06-16T10:15:00-06:00").
+// Read as instants they print in the reader's zone: an hour late for a Chicago reader of a
+// Wyoming trip, and a stop near midnight can even land on the wrong day. A stop's time is
+// the clock on the wall where it happened, so these read the clock from the string and
+// ignore the offset. Naive strings read the same either way.
+
+/** {y, mo, d, h, mi, date} read straight from the string, or null. h and mi are null for a bare date; date is that calendar day at local midnight. */
+export function wallParts(ts) {
+  if (!ts) return null
+  const m = String(ts).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
+  if (!m) return null
+  const [, y, mo, d, h, mi] = m
+  return { y: +y, mo: +mo - 1, d: +d, h: h == null ? null : +h, mi: mi == null ? null : +mi, date: new Date(+y, +mo - 1, +d) }
+}
+
+/** "9:20 AM" at the place, or '' when the stamp has no time. */
+export function wallTime(ts) {
+  const w = wallParts(ts)
+  if (!w || w.h == null) return ''
+  return `${w.h % 12 || 12}:${String(w.mi).padStart(2, '0')} ${w.h < 12 ? 'AM' : 'PM'}`
+}
+
+/**
+ * The trip day a stamp belongs to, at the place: a Date at local midnight. With the default
+ * 4am pivot a photo at 1:30am belongs to the evening before (as the server's clustering
+ * does); pass 0 for the plain calendar day.
+ */
+export function wallTripDate(ts, pivotHour = 4) {
+  const w = wallParts(ts)
+  if (!w) return null
+  const d = new Date(w.y, w.mo, w.d)
+  if (w.h != null && w.h < pivotHour) d.setDate(d.getDate() - 1)
+  return d
+}
+
+/** "2026-06-16": the trip day of a stamp at the place (see wallTripDate). */
+export function wallTripDay(ts, pivotHour = 4) {
+  const d = wallTripDate(ts, pivotHour)
+  return d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : null
+}
+
+/** "Tuesday, June 16" for the trip day of a stamp (pivotHour 0: the calendar day). */
+export function wallDayLabel(ts, pivotHour = 4) {
+  const d = wallTripDate(ts, pivotHour)
+  return d ? `${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}` : ''
+}
+
+/** "June 16": the calendar day of a stamp at the place. */
+export function wallMonthDay(ts) {
+  const w = wallParts(ts)
+  return w ? `${MONTHS[w.mo]} ${w.d}` : ''
+}
+
 /** Number of calendar days a story spans (1 for a single day). */
 export function daySpan(start, end) {
   const a = parseBackendDate(start), b = parseBackendDate(end) || a

@@ -89,12 +89,24 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.listBy {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: -2px;
+@media (max-width: 899px) {
+  /* phone: four short rows (title with List by and Filter, the views, the chips), so the
+     first cover starts in the top third of an 844px screen */
+  .page {
+    padding-top: 10px;
+  }
+  .header {
+    gap: 8px;
+  }
+  .titleRow {
+    gap: 8px;
+  }
+  .controls {
+    gap: 8px;
+  }
+  .chips {
+    padding-block: 4px;
+  }
 }
 .groupSeg {
   flex: none;

@@ -12,7 +12,7 @@ import { useChrome } from '../shell/chrome.js'
 import { parseStory } from '../lib/storyBlocks.js'
 import { buildJourney } from '../lib/journey.js'
 import StoryView from '../story/StoryView.jsx'
-import JourneyMap from '../map/JourneyMap.jsx'
+import JourneyMap, { JourneySheet } from '../map/JourneyMap.jsx'
 import { useJourneySync } from '../map/useJourneySync.js'
 import { Button } from '../ui/Button.jsx'
 import { IconButton } from '../ui/IconButton.jsx'
@@ -31,7 +31,7 @@ import { Inline, Questions, openQuestions } from './Words.jsx'
 import { SettingsRows, SettingsChips, SettingsSheet, summaries, usePeopleChoices, useGroups } from './Settings.jsx'
 import s from './CreateFlow.module.css'
 
-function Summary({ state, journey, phone, onStop, activeStopId }) {
+function Summary({ state, journey, phone, onStop, activeStopId, onOpenMap }) {
   const d = state.draft
   const located = d.photos.filter((p) => p.hasGps).length
   const undated = d.untimed.length
@@ -52,6 +52,11 @@ function Summary({ state, journey, phone, onStop, activeStopId }) {
       {phone && journey ? (
         <div className={s.strip}>
           <JourneyMap journey={journey} mode="strip" activeStopId={activeStopId} onStopSelect={onStop} />
+          {onOpenMap ? (
+            <Button variant="ghost" size="sm" icon="map" full onClick={onOpenMap} data-ui="create-open-map">
+              Open the map
+            </Button>
+          ) : null}
         </div>
       ) : null}
       {notes.length ? (
@@ -114,6 +119,8 @@ export default function CreateFlow({ maker, onLeave, leaveLabel = 'Start over', 
   const [sheet, setSheet] = useState(null)
   const [trayOpen, setTrayOpen] = useState(false)
   const [qSheet, setQSheet] = useState(false)
+  const [mapOpen, setMapOpen] = useState(false) // phone: the draft's journey on the full-screen map
+  const [mapStop, setMapStop] = useState(null)
   const [leaving, setLeaving] = useState(false)
   const mainRef = useRef(null)
   const choices = usePeopleChoices()
@@ -197,7 +204,7 @@ export default function CreateFlow({ maker, onLeave, leaveLabel = 'Start over', 
 
       <div className={s.grid}>
         <div className={s.main} ref={mainRef}>
-          <Summary state={state} journey={journey} phone={!desktop} onStop={scrollToStop} activeStopId={activeStopId} />
+          <Summary state={state} journey={journey} phone={!desktop} onStop={scrollToStop} activeStopId={activeStopId} onOpenMap={() => setMapOpen(true)} />
           <Inline state={view} maker={maker} />
           {preview}
           {desktop ? (
@@ -245,6 +252,17 @@ export default function CreateFlow({ maker, onLeave, leaveLabel = 'Start over', 
         />
       ) : null}
 
+      {!desktop && journey ? (
+        <JourneySheet
+          open={mapOpen}
+          onClose={() => { setMapOpen(false); setMapStop(null) }}
+          journey={journey}
+          activeStopId={mapStop || activeStopId}
+          onStopSelect={setMapStop}
+          onRead={(sid) => { setMapOpen(false); setTimeout(() => scrollToStop(sid), 80) }}
+          title={sum.title}
+        />
+      ) : null}
       <SettingsSheet which={sheet} onClose={() => setSheet(null)} state={state} maker={maker} urlOf={urlOf} groups={groups} choices={choices} />
       <Sheet open={qSheet} onClose={() => setQSheet(false)} title="Make it better" placement="bottom" size="full" footer={<Button full onClick={() => setQSheet(false)}>Done</Button>}>
         <p className={s.sheetLead}>All optional. Answers go into the write-up.</p>

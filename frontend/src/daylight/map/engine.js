@@ -8,6 +8,7 @@
 //        resolves when the style is in and the first tile has arrived; throws MapUnavailable
 //        {reason: 'chunk'|'webgl2'|'init'|'style'|'tiles'}
 //   currentLevel() -> 'full'|'lite'|'static'       the device level, lowered for the session
+//   markFailed(reason)  failedReason()  clearFailed()   a failed start is remembered for the tab
 //   dropLevel(to)                                  remember a lower level for this session
 //   watchFrames(map, onSlow)                       calls onSlow() when the first two seconds
 //                                                  of frames average over 40ms (PLAN 3.6)
@@ -66,6 +67,7 @@ export function currentLevel() {
   const base = mapLevel()
   if (typeof window === 'undefined') return base
   if (new URLSearchParams(window.location.search).has('maplevel')) return base
+  if (failedReason()) return 'static'
   try {
     const kept = sessionStorage.getItem(LEVEL_KEY)
     if (kept && ORDER.indexOf(kept) < ORDER.indexOf(base)) return kept
@@ -77,6 +79,33 @@ export function currentLevel() {
 export function dropLevel(to) {
   try {
     sessionStorage.setItem(LEVEL_KEY, to)
+  } catch {
+    /* private mode */
+  }
+}
+
+// A map that could not start (the chunk or the tiles did not arrive) puts every map in
+// this tab at the static level, with its reason, until the person presses "Try the map
+// again". Without this, each page that mounts a map would try, fail and flash again.
+const FAIL_KEY = 'ofs.mapfail'
+export function markFailed(reason) {
+  try {
+    sessionStorage.setItem(FAIL_KEY, reason || 'init')
+  } catch {
+    /* private mode */
+  }
+}
+export function failedReason() {
+  if (typeof window === 'undefined' || new URLSearchParams(window.location.search).has('maplevel')) return null
+  try {
+    return sessionStorage.getItem(FAIL_KEY)
+  } catch {
+    return null
+  }
+}
+export function clearFailed() {
+  try {
+    sessionStorage.removeItem(FAIL_KEY)
   } catch {
     /* private mode */
   }
@@ -167,8 +196,13 @@ export async function createMap(container, options = {}, { tileTimeoutMs = 5000 
       }
       const check = () => styled && gotTile && done()
       const timer = setTimeout(() => !gotTile && done(new MapUnavailable('tiles')), tileTimeoutMs)
+      // a tile from the network (or its cache), not one cut from a local GeoJSON source
+      const fromNetwork = (ev) => {
+        const src = ev.sourceId ? map.getSource(ev.sourceId) : ev.source
+        return !!src && src.type !== 'geojson'
+      }
       const onData = (ev) => {
-        if (ev.dataType !== 'source' || !(ev.tile || ev.coord) || ev.source?.type === 'geojson') return
+        if (ev.dataType !== 'source' || !(ev.tile || ev.coord) || ev.tile?.state === 'errored' || !fromNetwork(ev)) return
         gotTile = true
         check()
       }
@@ -177,9 +211,12 @@ export async function createMap(container, options = {}, { tileTimeoutMs = 5000 
         styled = true
         check()
       })
+      // MapLibre's 'load' also fires when every tile request has failed: a map that
+      // finished loading without one tile is a blank sheet, so that is the static level too
       map.once('load', () => {
-        styled = gotTile = true
-        check()
+        styled = true
+        if (gotTile) check()
+        else done(new MapUnavailable('tiles'))
       })
       map.on('error', (ev) => !styled && done(new MapUnavailable('style', ev?.error)))
     })

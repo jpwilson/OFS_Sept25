@@ -6,11 +6,14 @@ import { imageSrc } from '../lib/data.js'
 import { cx } from '../ui/cx.js'
 import { dayColor } from './colors.js'
 import { stopName } from './labels.js'
-import { wallDayLabel, wallTime } from './when.js'
+import { wallDayLabel, wallTime } from '../lib/format.js'
 import s from './StopCard.module.css'
 
 export const dayOf = (journey, stop) => journey.days[stop.dayIndex]
-export const dayTitle = (journey, stop) => [dayOf(journey, stop)?.label, wallDayLabel(stop.ts)].filter(Boolean).join(' · ')
+// A chapter title such as "Day 3: Jenny Lake and Inspiration Point" is already the heading
+// above; the card keeps its "Day 3" so the weekday and date fit on one line.
+const shortDay = (label) => String(label || '').match(/^Day\s+\w+(?=\s*[:.–—-])/i)?.[0] || label
+export const dayTitle = (journey, stop) => [shortDay(dayOf(journey, stop)?.label), wallDayLabel(stop.ts)].filter(Boolean).join(' · ')
 
 /** <StopCard journey stop photo={0} compact action footer />  action sits at the right of the head row */
 export function StopCard({ journey, stop, photo = 0, compact = false, action, footer, className, as: Tag = 'div', ...rest }) {

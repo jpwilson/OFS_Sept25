@@ -23,7 +23,8 @@
     gap: clamp(40px, 5vw, 72px);
   }
   .layout[data-layout='split'] {
-    grid-template-columns: minmax(0, 680px) minmax(0, 1fr);
+    /* the text grows to 680px first; the map panel takes the rest (360px at least, 720 at most through the page's width) */
+    grid-template-columns: minmax(0, 680px) minmax(360px, 1fr);
     gap: clamp(32px, 3.4vw, 56px);
   }
   .rail,

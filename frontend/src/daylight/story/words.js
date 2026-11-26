@@ -1,33 +1,10 @@
-// Small pure helpers for the story page (owner: STORY): wall-clock times, audience words,
-// comment ages, the comment tree. American English, nothing invented.
+// Small pure helpers for the story page (owner: STORY): audience words, comment ages, the
+// comment tree. Times at the place live in lib/format.js (wallTime, wallDayLabel).
+// American English, nothing invented.
+
+import { wallMonthDay } from '../lib/format.js'
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-/**
- * The time on the watch where it happened. Marker and photo timestamps carry the place's
- * offset ("2026-06-16T10:15:00-06:00"); read as an instant they would print in the
- * reader's zone (an hour off for a Chicago reader of a Wyoming trip). A stop's time is
- * the local time there, so the offset is ignored here.
- */
-export function wallDate(ts) {
-  if (!ts) return null
-  const m = String(ts).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
-  if (!m) return null
-  const [, y, mo, d, h, mi] = m
-  return { y: +y, mo: +mo - 1, d: +d, h: h == null ? null : +h, mi: mi == null ? null : +mi, date: new Date(+y, +mo - 1, +d) }
-}
-export function wallTime(ts) {
-  const w = wallDate(ts)
-  if (!w || w.h == null) return ''
-  return `${w.h % 12 || 12}:${String(w.mi).padStart(2, '0')} ${w.h < 12 ? 'AM' : 'PM'}`
-}
-/** "Tuesday, June 16" */
-export function wallDay(ts) {
-  const w = wallDate(ts)
-  return w ? `${DAYS[w.date.getDay()]}, ${MONTHS[w.mo]} ${w.d}` : ''
-}
 
 /** Who the story is shared with, in words, from privacy_level. */
 export function audienceWords(level, authorFirst, isAuthor) {
@@ -70,10 +47,7 @@ export function ago(iso, now = new Date()) {
 }
 
 /** "December 1" from a naive or offset date string. */
-export function longDay(iso) {
-  const w = wallDate(iso)
-  return w ? `${MONTHS[w.mo]} ${w.d}` : ''
-}
+export const longDay = (iso) => wallMonthDay(iso)
 
 /** Flat comments (parent_id) -> roots with replies, in the API's order. */
 export function commentTree(flat) {

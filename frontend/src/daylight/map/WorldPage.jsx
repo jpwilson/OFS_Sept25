@@ -65,12 +65,7 @@ export default function WorldPage() {
   }, [loadAll])
 
   // "People I follow and me" needs the follow list; wait for it rather than flash everyone's pins
-  const [waited, setWaited] = useState(false)
-  useEffect(() => {
-    const t = setTimeout(() => setWaited(true), 500)
-    return () => clearTimeout(t)
-  }, [])
-  const peopleReady = !people.loading && (people.following.length > 0 || waited)
+  const peopleReady = people.loaded
 
   const filters = useMemo(() => readFilters(sp), [sp])
   const scoped = useMemo(() => inScope(events, filters.who, people), [events, filters.who, people.following, people.muted, people.me])

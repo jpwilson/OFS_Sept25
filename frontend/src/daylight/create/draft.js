@@ -323,30 +323,10 @@ export function draftToEvent(draft, { author, html, captions = {}, settings = {}
 }
 
 // ---------------------------------------------------------------- the preview
-// Story HTML is sanitised with DOMPurify (utils/sanitizeHtml.js), which drops blob: URLs, so the
-// local photos are parsed under stand-in https addresses and swapped back into the parsed blocks.
-const PH = 'https://preview.invalid/ofs-photo/'
-const phUrl = (id) => `${PH}${id}.jpg`
-const PH_RE = /^https:\/\/preview\.invalid\/ofs-photo\/(p\d+)\.jpg$/
-
 /** {event, parsed, journey} for StoryView and JourneyMap, from local photos. parseStory and buildJourney are passed in (browser-only modules). */
 export function previewStory(draft, { author, html, captions, settings, urlOf, parseStory, buildJourney }) {
-  const ph = (id) => (urlOf(id) ? phUrl(id) : null)
-  const base = draftToEvent(draft, { author, html, captions, settings, urlOf: ph })
-  const real = (u) => {
-    const m = String(u || '').match(PH_RE)
-    return m ? urlOf(m[1]) : u
-  }
-  const parsed = parseStory(base.description, base.event_images)
-  const fix = (it) => ({ ...it, src: real(it.src), poster: it.poster ? real(it.poster) : it.poster })
-  parsed.media = parsed.media.map(fix)
-  parsed.blocks = parsed.blocks.map((b) => (b.type === 'media' ? { ...b, items: b.items.map(fix) } : b))
-  const event = {
-    ...base,
-    cover_image_url: real(base.cover_image_url),
-    event_images: base.event_images.map((im) => ({ ...im, image_url: real(im.image_url) })),
-  }
-  const journey = buildJourney(event, parsed)
-  if (journey?.photos) for (const k of Object.keys(journey.photos)) journey.photos[k] = { ...journey.photos[k], src: real(journey.photos[k].src) }
-  return { event, parsed, journey }
+  const event = draftToEvent(draft, { author, html, captions, settings, urlOf })
+  // the photos are still blob: URLs on this device; parseStory's localMedia keeps them through sanitising
+  const parsed = parseStory(event.description, event.event_images, { localMedia: true })
+  return { event, parsed, journey: buildJourney(event, parsed) }
 }

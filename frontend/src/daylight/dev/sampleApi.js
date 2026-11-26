@@ -6,23 +6,26 @@
 //   answer({method, path, query, body, auth}, state) -> {status, json} | undefined
 //        path is after /api/v1 ("/events/110"); undefined means "no sample answer" (the
 //        middleware logs it and returns 404, and capture.mjs fails the run)
-//   answerSupabase({method, path, query}, state) -> {status, json}     the stub auth server
+//   answerSupabase({method, path, query, body, auth}, state) -> {status, json} | {status, html}
+//        | {status, redirect}                                         the stub auth server
 //   signinPage(as, next) -> HTML for /__fx/signin?as=maya&next=/feed
+//   fixturePage({path, query}, state) -> {html} | {redirect} | null     /__fx/* pages
 //   fixtureFile(urlPath) -> {path} | {svg} | null                       /__fx/* files
 //
 // Packages extend it without editing this file: add src/daylight/<pkg>/sample.js
 // exporting answer(req, state, helpers) -> {status, json} | undefined. Extensions are asked
-// first, in package order.
+// first, in package order. The same file may export answerSupabase(req, state, helpers) and
+// fixturePage(req, state) with the same contract (the auth package's stub sign-in does).
 //
 // Special sample routes: /event/403 (audience does not include you), /event/lapsed-plan
 // (the author's plan has lapsed), /event/404, /share/tetons-share (a working share link),
 // /share/expired-share (410).
 import { toShare } from '../../../scripts/daylight/fixtures/contract.mjs'
 
-const EXTENSIONS = Object.entries(import.meta.glob('../*/sample.js', { eager: true }))
+const EXTENSIONS_ALL = Object.entries(import.meta.glob('../*/sample.js', { eager: true }))
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, m]) => m)
-  .filter((m) => typeof m.answer === 'function')
+const EXTENSIONS = EXTENSIONS_ALL.filter((m) => typeof m.answer === 'function')
 
 const clone = (x) => JSON.parse(JSON.stringify(x))
 const ok = (json) => ({ status: 200, json })
@@ -287,7 +290,13 @@ export const SB_USER = (st) => ({
   id: `00000000-0000-4000-8000-${String(st.db.users[st.viewer]?.id || 1).padStart(12, '0')}`,
   aud: 'authenticated', role: 'authenticated', email: `${st.viewer}@example.test`, app_metadata: { provider: 'email' }, user_metadata: {}, created_at: '2025-11-02T09:00:00Z',
 })
-export function answerSupabase({ method, path }, state) {
+export async function answerSupabase(req, state) {
+  for (const ext of EXTENSIONS_ALL) {
+    if (typeof ext.answerSupabase !== 'function') continue
+    const r = await ext.answerSupabase(req, state, { ok, err, clone, SB_USER })
+    if (r) return r
+  }
+  const { method, path } = req
   if (path.startsWith('/auth/v1/user')) return ok(SB_USER(state))
   if (path.startsWith('/auth/v1/token')) return ok({ access_token: 'sample.sample.sample', token_type: 'bearer', expires_in: 3600 * 24 * 365, expires_at: 4102444800, refresh_token: 'sample', user: SB_USER(state) })
   if (path.startsWith('/auth/v1/logout')) return { status: 204, json: null }
@@ -318,6 +327,16 @@ export function signinPage(as = 'maya', next = '/feed') {
   localStorage.setItem('welcome_dismissed_' + appId, 'true')
   location.replace(${JSON.stringify(safeNext)})
 </script>`
+}
+
+/** Pages under /__fx/ that a package adds (the auth package's stub inbox). */
+export async function fixturePage(req, state) {
+  for (const ext of EXTENSIONS_ALL) {
+    if (typeof ext.fixturePage !== 'function') continue
+    const r = await ext.fixturePage(req, state)
+    if (r) return r
+  }
+  return null
 }
 
 /** Files under /__fx/: avatars, the race video, raw art stand-ins, labelled photo placeholders. */

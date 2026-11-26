@@ -1,5 +1,5 @@
 // Geometry helpers shared by the journey, the draft and the maps (owner: F0). Pure.
-import { parseBackendDate } from './format.js'
+import { parseBackendDate, wallTripDay } from './format.js'
 
 const R = 6371.0088
 const rad = (d) => (d * Math.PI) / 180
@@ -54,8 +54,12 @@ export function greatCircle(a, b, steps = 32) {
 /**
  * The trip day of a moment, with the server's 4am pivot (backend photo_clustering.py:35):
  * a photo at 1:30am belongs to the evening before. Returns "YYYY-MM-DD" or null.
+ * A stamp string is read at the place (the wall clock in the string, offset ignored), so a
+ * reader in another time zone sees the same days; a Date is read in the reader's zone.
  */
 export function tripDay(ts, pivotHour = 4) {
+  const wall = ts instanceof Date ? null : wallTripDay(ts, pivotHour)
+  if (wall) return wall
   const d = parseBackendDate(ts)
   if (!d) return null
   const t = new Date(d.getTime() - pivotHour * 3600000)

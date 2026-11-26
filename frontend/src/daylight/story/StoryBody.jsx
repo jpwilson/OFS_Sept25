@@ -9,7 +9,8 @@ import { dayColor } from '../map/RouteSketch.jsx'
 import { Icon } from '../ui/Icon.jsx'
 import { cx } from '../ui/cx.js'
 import { ReactionButton, ReactionTray, useLongPress } from './Reactions.jsx'
-import { placeHead, splitChapter, stripPinEmoji, wallTime } from './words.js'
+import { wallTime } from '../lib/format.js'
+import { placeHead, splitChapter, stripPinEmoji } from './words.js'
 import s from './StoryBody.module.css'
 
 /** What a photo needs from the story around it: reactions, the lightbox, the journey. */

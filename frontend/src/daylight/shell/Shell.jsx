@@ -20,6 +20,7 @@ import { Avatar } from '../ui/Avatar.jsx'
 import { Menu, MenuList } from '../ui/Menu.jsx'
 import { Sheet } from '../ui/Sheet.jsx'
 import { setLook } from '../lib/look.js'
+import { signOutHere } from '../auth/lib/client.js'
 import { useNotificationCounts } from '../lib/data.js'
 import { useDesktop } from '../lib/capability.js'
 import { ChromeContext, STORIES_RESELECT } from './chrome.js'
@@ -59,7 +60,8 @@ function youItems({ user, isSuperuser, navigate, logout }) {
       label: 'Log out',
       icon: 'logout',
       onClick: async () => {
-        await logout()
+        // This browser only: the phone and the iPad stay signed in (docs/app/AUTH.md decision 9).
+        await signOutHere(logout)
         navigate('/')
       },
     },
@@ -139,8 +141,8 @@ export default function Shell({ override }) {
             You're viewing a demo.{' '}
             <button
               type="button"
-              onClick={() => {
-                logout()
+              onClick={async () => {
+                await signOutHere(logout)
                 navigate('/login?signup=true')
               }}
             >

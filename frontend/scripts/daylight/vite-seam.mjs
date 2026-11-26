@@ -2,8 +2,8 @@
 //
 // Added to the Vite plugin list ONLY when the app look is not 'classic' (vite.config.js),
 // so a classic build never sees it. It:
-//   1. redirects six imports made by src/App.jsx to src/daylight/seam/<Name>.jsx, and fails
-//      the build if any of the six did not happen (no existing file under src/ is edited);
+//   1. redirects twelve imports made by src/App.jsx to src/daylight/seam/<Name>.jsx, and fails
+//      the build if any of them did not happen (no existing file under src/ is edited);
 //   2. in 'daylight' builds, rewrites index.html for a light page (theme colour, status bar,
 //      a Bricolage preload);
 //   3. copies frontend/daylight-public/ into the build output (and serves it in dev);
@@ -32,6 +32,13 @@ export const SEAMS = {
   './pages/SmartImport': 'SmartImport.jsx',
   './pages/Profile': 'Profile.jsx',
   './components/Layout': 'Layout.jsx',
+  // sign-in, sign-up and the returns from Google and email links (docs/app/AUTH.md)
+  './pages/Login': 'Login.jsx',
+  './pages/AuthCallback': 'AuthCallback.jsx',
+  './pages/ResetPassword': 'ResetPassword.jsx',
+  './pages/InviteLanding': 'InviteLanding.jsx',
+  './pages/InvitedSignup': 'InvitedSignup.jsx',
+  './pages/DemoLogin': 'DemoLogin.jsx',
 }
 
 // Map chunks are large and only wanted when a map opens: never precached by the service
@@ -212,6 +219,9 @@ function installSample(server) {
         if (p === '/__fx/viewer') return sendJson(res, 200, mod.setViewer(state, url.searchParams.get('as') || 'maya'))
         if (p === '/__fx/reset') { state = mod.createState(JSON.parse(fs.readFileSync(SAMPLE, 'utf8'))); return sendJson(res, 200, { ok: true }) }
         if (p === '/__fx/log') return sendJson(res, 200, log.slice(-500))
+        state.origin = origin
+        const page = mod.fixturePage ? await mod.fixturePage({ path: p, query: Object.fromEntries(url.searchParams) }, state) : null
+        if (page) return page.redirect ? send(res, 302, '', { location: page.redirect }) : send(res, page.status || 200, page.html, { 'content-type': MIME['.html'], 'cache-control': 'no-store' })
         const file = mod.fixtureFile(p)
         if (file && file.svg) return send(res, 200, file.svg, { 'content-type': MIME['.svg'], 'cache-control': 'max-age=3600' })
         if (file && file.path && fs.existsSync(path.join(FRONTEND, file.path))) {
@@ -222,8 +232,21 @@ function installSample(server) {
         return send(res, 404, 'no fixture file')
       }
       if (isSb) {
-        const r = mod.answerSupabase({ method: req.method, path: p.replace(/^\/__sb/, ''), query: Object.fromEntries(url.searchParams) }, state)
-        return sendJson(res, r.status, r.json)
+        // the stub auth server: reads JSON and form bodies, answers JSON, HTML or a redirect
+        const raw = req.method === 'GET' || req.method === 'HEAD' ? null : await readBody(req)
+        let body = null
+        if (raw && raw.length) {
+          const t = raw.toString('utf8')
+          if ((req.headers['content-type'] || '').includes('application/x-www-form-urlencoded')) body = Object.fromEntries(new URLSearchParams(t))
+          else { try { body = JSON.parse(t) } catch { body = null } }
+        }
+        state.origin = origin
+        const r = await mod.answerSupabase({ method: req.method, path: p.replace(/^\/__sb/, ''), query: Object.fromEntries(url.searchParams), body, auth: req.headers.authorization || '' }, state)
+        log.push({ entry: `${req.method} ${p}`, status: r.status })
+        if (r.redirect) return send(res, r.status || 302, '', { location: r.redirect, 'cache-control': 'no-store' })
+        if (r.html != null) return send(res, r.status, r.html, { 'content-type': MIME['.html'], 'cache-control': 'no-store' })
+        if (r.json == null) return send(res, r.status, '')
+        return send(res, r.status, JSON.stringify(r.json), { 'content-type': 'application/json', 'x-supabase-api-version': '2024-01-01', 'access-control-expose-headers': 'x-supabase-api-version' })
       }
       const raw = req.method === 'GET' || req.method === 'HEAD' ? null : await readBody(req)
       const ctype = req.headers['content-type'] || ''

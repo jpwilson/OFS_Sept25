@@ -104,6 +104,28 @@ function tagRows(eventId, keys, by) {
   }))
 }
 
+// ---------------------------------------------------------------- no story in the future
+// The sample runs on a frozen clock (capture.mjs: 26 November 2026, noon). A landing story
+// dated after it would lead the feed as a future story, so it moves back whole years of 52
+// weeks: the weekday stays, so its words ("the second Saturday of December") stay true.
+// Every date stamp in its detail and extras moves with it. The landing fixtures are untouched.
+const SAMPLE_CLOCK = '2026-11-26T12:00:00'
+const YEAR_OF_WEEKS = 364 * 86400000
+const STAMP = /\b(\d{4})-(\d{2})-(\d{2})(?=T|"|$)/g
+const shiftStamps = (value, ms) =>
+  JSON.parse(JSON.stringify(value).replace(STAMP, (_, y, m, d) => {
+    const t = new Date(Date.UTC(+y, +m - 1, +d) - ms)
+    return `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`
+  }))
+for (const id of Object.keys(details)) {
+  const latest = [details[id].start_date, details[id].end_date, details[id].created_at].filter(Boolean).sort().pop()
+  let years = 0
+  while (latest && new Date(Date.parse(`${latest.slice(0, 19)}Z`) - years * YEAR_OF_WEEKS) > new Date(`${SAMPLE_CLOCK}Z`)) years++
+  if (!years) continue
+  details[id] = shiftStamps(details[id], years * YEAR_OF_WEEKS)
+  extras[id] = shiftStamps(extras[id], years * YEAR_OF_WEEKS)
+}
+
 const tetonEventId = Object.values(details).find((d) => /teton/i.test(`${d.slug} ${d.title}`))?.id ?? null
 
 // production order for order_by=event_date: start_date desc

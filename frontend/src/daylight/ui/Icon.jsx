@@ -141,6 +141,12 @@ const PATHS = {
       <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
     </>
   ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
   timeline: (
     <>
       <path d="M7 3.5v17" />

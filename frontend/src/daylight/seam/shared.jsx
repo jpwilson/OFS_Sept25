@@ -26,11 +26,11 @@ class PageBoundary extends Component {
           tone="error"
           icon="warning"
           title="This page did not load."
-          body="Something went wrong on our side. You can try again, or switch to the previous look for now."
+          body={this.props.fallbackBody || 'Something went wrong on our side. You can try again, or switch to the previous look for now.'}
           action={
             <>
               <Button onClick={() => this.setState({ error: null })}>Try again</Button>
-              <Button variant="ghost" onClick={() => setLook('classic')}>Use the previous look</Button>
+              <Button variant="ghost" onClick={this.props.onFallback || (() => setLook('classic'))}>{this.props.fallbackLabel || 'Use the previous look'}</Button>
             </>
           }
         />
@@ -49,12 +49,16 @@ export function PageSkeleton() {
   )
 }
 
-/** Renders a Daylight page for `pkg`, wrapped in Root, a boundary and Suspense. */
-export function DaylightPage({ pkg, name, children }) {
+/**
+ * Renders a Daylight page for `pkg`, wrapped in Root, a boundary and Suspense.
+ * fallbackLabel / fallbackBody / onFallback replace the boundary's "Use the previous look"
+ * (the sign-in pages offer "Use the previous sign-in page" instead).
+ */
+export function DaylightPage({ pkg, name, children, fallbackLabel, fallbackBody, onFallback }) {
   const only = useOnly()
   return (
     <Root>
-      <PageBoundary pkg={pkg}>
+      <PageBoundary pkg={pkg} fallbackLabel={fallbackLabel} fallbackBody={fallbackBody} onFallback={onFallback}>
         {blockedBy(only, pkg) ? (
           <div className="a-wrap" style={{ paddingBlock: 24 }}>
             <Stub pkg={pkg} name={name} note={`Hidden by ?only=${only}. Open ?only=all to see every package.`} />
