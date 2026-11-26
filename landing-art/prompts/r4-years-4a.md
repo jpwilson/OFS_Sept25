@@ -1,0 +1,4 @@
+
+SHOTS (landscape 4:3, PHOTO, opaque, snapshot look). Use sheet A for who TOM is (seven years older here, a little grey in his beard). The THIRD attached image is a cut-out of IVY at 15 (the girl on the left, red flannel shirt): match her face, hair and freckles exactly. No readable text, numbers or logos anywhere. Bright natural daylight.
+
+1. `photo-years-4a.png` — IVY (15, red flannel shirt over a white tee) sits in the DRIVER's seat, hands on the steering wheel which is clearly in front of HER, holding up a small blank card (her learner's permit, nothing readable) and grinning nervously; TOM sits in the PASSENGER seat beside her with a mock-worried face, one hand on the dashboard. Photographed from outside through the open driver's-side window, so Ivy is nearest the camera and the wheel is directly in front of her. A suburban driveway visible through the far window.

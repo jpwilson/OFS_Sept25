@@ -8,16 +8,16 @@
     "alpha": false
   },
   "cover-coast": {
-    "src": "/landing/img/cover-coast.026d1ee6.webp",
-    "srcM": "/landing/img/cover-coast.026d1ee6.m.webp",
+    "src": "/landing/img/cover-coast.ca508953.webp",
+    "srcM": "/landing/img/cover-coast.ca508953.m.webp",
     "w": 1200,
     "h": 750,
     "kind": "photo",
     "alpha": false
   },
   "cover-joe70": {
-    "src": "/landing/img/cover-joe70.3782d973.webp",
-    "srcM": "/landing/img/cover-joe70.3782d973.m.webp",
+    "src": "/landing/img/cover-joe70.0e7ae5f9.webp",
+    "srcM": "/landing/img/cover-joe70.0e7ae5f9.m.webp",
     "w": 1200,
     "h": 750,
     "kind": "photo",
@@ -56,12 +56,23 @@
     "alpha": false
   },
   "cover-wedding": {
-    "src": "/landing/img/cover-wedding.dd07e791.webp",
-    "srcM": "/landing/img/cover-wedding.dd07e791.m.webp",
+    "src": "/landing/img/cover-wedding.28409989.webp",
+    "srcM": "/landing/img/cover-wedding.28409989.m.webp",
     "w": 1200,
     "h": 750,
     "kind": "photo",
     "alpha": false
+  },
+  "g-family-beach": {
+    "src": "/landing/img/g-family-beach.01fa98d8.webp",
+    "srcM": "/landing/img/g-family-beach.01fa98d8.m.webp",
+    "w": 1103,
+    "h": 1030,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.021,
+    "ax": 0.497
   },
   "g-family-hero": {
     "src": "/landing/img/g-family-hero.90d564d6.webp",
@@ -75,8 +86,8 @@
     "ax": 0.493
   },
   "g-family-hike": {
-    "src": "/landing/img/g-family-hike.1b290d13.webp",
-    "srcM": "/landing/img/g-family-hike.1b290d13.m.webp",
+    "src": "/landing/img/g-family-hike.35a31708.webp",
+    "srcM": "/landing/img/g-family-hike.35a31708.m.webp",
     "w": 1019,
     "h": 1059,
     "kind": "group",
@@ -141,15 +152,70 @@
     "ax": 0.463
   },
   "g-wedding-couple": {
-    "src": "/landing/img/g-wedding-couple.2e81e06b.webp",
-    "srcM": "/landing/img/g-wedding-couple.2e81e06b.m.webp",
-    "w": 753,
-    "h": 1046,
+    "src": "/landing/img/g-wedding-couple.db7435a5.webp",
+    "srcM": "/landing/img/g-wedding-couple.db7435a5.m.webp",
+    "w": 805,
+    "h": 1040,
     "kind": "group",
     "alpha": true,
-    "feet": 0.98,
-    "headTop": 0.019,
-    "ax": 0.584
+    "feet": 0.981,
+    "headTop": 0.02,
+    "ax": 0.496
+  },
+  "g-years-1": {
+    "src": "/landing/img/g-years-1.f3b85f6f.webp",
+    "srcM": "/landing/img/g-years-1.f3b85f6f.m.webp",
+    "w": 543,
+    "h": 911,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.328,
+    "ax": 0.477
+  },
+  "g-years-2": {
+    "src": "/landing/img/g-years-2.1122bedc.webp",
+    "srcM": "/landing/img/g-years-2.1122bedc.m.webp",
+    "w": 543,
+    "h": 911,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.249,
+    "ax": 0.484
+  },
+  "g-years-3": {
+    "src": "/landing/img/g-years-3.897e2141.webp",
+    "srcM": "/landing/img/g-years-3.897e2141.m.webp",
+    "w": 543,
+    "h": 911,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.159,
+    "ax": 0.493
+  },
+  "g-years-4": {
+    "src": "/landing/img/g-years-4.e560111a.webp",
+    "srcM": "/landing/img/g-years-4.e560111a.m.webp",
+    "w": 543,
+    "h": 911,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.116,
+    "ax": 0.483
+  },
+  "g-years-5": {
+    "src": "/landing/img/g-years-5.6ac96167.webp",
+    "srcM": "/landing/img/g-years-5.6ac96167.m.webp",
+    "w": 543,
+    "h": 911,
+    "kind": "group",
+    "alpha": true,
+    "feet": 0.979,
+    "headTop": 0.023,
+    "ax": 0.506
   },
   "o-barrier": {
     "src": "/landing/img/o-barrier.901a4f10.webp",
@@ -435,26 +501,26 @@
     "ax": 0.546
   },
   "p-marcus-camera": {
-    "src": "/landing/img/p-marcus-camera.68fb6a90.webp",
-    "srcM": "/landing/img/p-marcus-camera.68fb6a90.m.webp",
-    "w": 506,
+    "src": "/landing/img/p-marcus-camera.978f9fef.webp",
+    "srcM": "/landing/img/p-marcus-camera.978f9fef.m.webp",
+    "w": 487,
     "h": 1400,
     "kind": "person",
     "alpha": true,
-    "feet": 0.981,
-    "headTop": 0.02,
-    "ax": 0.429
+    "feet": 0.98,
+    "headTop": 0.021,
+    "ax": 0.53
   },
   "p-marcus-wave": {
-    "src": "/landing/img/p-marcus-wave.aa7bd728.webp",
-    "srcM": "/landing/img/p-marcus-wave.aa7bd728.m.webp",
-    "w": 593,
+    "src": "/landing/img/p-marcus-wave.85d41d62.webp",
+    "srcM": "/landing/img/p-marcus-wave.85d41d62.m.webp",
+    "w": 587,
     "h": 1400,
     "kind": "person",
     "alpha": true,
-    "feet": 0.981,
-    "headTop": 0.02,
-    "ax": 0.592
+    "feet": 0.98,
+    "headTop": 0.021,
+    "ax": 0.503
   },
   "p-maya-cheer": {
     "src": "/landing/img/p-maya-cheer.1cfabfb1.webp",
@@ -619,8 +685,8 @@
     "alpha": false
   },
   "photo-coast-cliff": {
-    "src": "/landing/img/photo-coast-cliff.38a076ae.webp",
-    "srcM": "/landing/img/photo-coast-cliff.38a076ae.m.webp",
+    "src": "/landing/img/photo-coast-cliff.6ec92751.webp",
+    "srcM": "/landing/img/photo-coast-cliff.6ec92751.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1035,8 +1101,8 @@
     "alpha": false
   },
   "photo-trip-amalfi": {
-    "src": "/landing/img/photo-trip-amalfi.2c206ee6.webp",
-    "srcM": "/landing/img/photo-trip-amalfi.2c206ee6.m.webp",
+    "src": "/landing/img/photo-trip-amalfi.644d1bce.webp",
+    "srcM": "/landing/img/photo-trip-amalfi.644d1bce.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1059,8 +1125,8 @@
     "alpha": false
   },
   "photo-trip-marcus": {
-    "src": "/landing/img/photo-trip-marcus.abf963c4.webp",
-    "srcM": "/landing/img/photo-trip-marcus.abf963c4.m.webp",
+    "src": "/landing/img/photo-trip-marcus.80032792.webp",
+    "srcM": "/landing/img/photo-trip-marcus.80032792.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1075,32 +1141,32 @@
     "alpha": false
   },
   "photo-wedding-aisle": {
-    "src": "/landing/img/photo-wedding-aisle.be20f51f.webp",
-    "srcM": "/landing/img/photo-wedding-aisle.be20f51f.m.webp",
+    "src": "/landing/img/photo-wedding-aisle.33fa2a03.webp",
+    "srcM": "/landing/img/photo-wedding-aisle.33fa2a03.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
     "alpha": false
   },
   "photo-wedding-confetti": {
-    "src": "/landing/img/photo-wedding-confetti.f373b0f5.webp",
-    "srcM": "/landing/img/photo-wedding-confetti.f373b0f5.m.webp",
+    "src": "/landing/img/photo-wedding-confetti.f6a069c1.webp",
+    "srcM": "/landing/img/photo-wedding-confetti.f6a069c1.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
     "alpha": false
   },
   "photo-wedding-dance": {
-    "src": "/landing/img/photo-wedding-dance.abd2a9fc.webp",
-    "srcM": "/landing/img/photo-wedding-dance.abd2a9fc.m.webp",
+    "src": "/landing/img/photo-wedding-dance.fd299265.webp",
+    "srcM": "/landing/img/photo-wedding-dance.fd299265.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
     "alpha": false
   },
   "photo-wedding-family": {
-    "src": "/landing/img/photo-wedding-family.ddd7c722.webp",
-    "srcM": "/landing/img/photo-wedding-family.ddd7c722.m.webp",
+    "src": "/landing/img/photo-wedding-family.eb7dafb1.webp",
+    "srcM": "/landing/img/photo-wedding-family.eb7dafb1.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1115,24 +1181,24 @@
     "alpha": false
   },
   "photo-wedding-sparklers": {
-    "src": "/landing/img/photo-wedding-sparklers.52535d33.webp",
-    "srcM": "/landing/img/photo-wedding-sparklers.52535d33.m.webp",
+    "src": "/landing/img/photo-wedding-sparklers.2a81c49b.webp",
+    "srcM": "/landing/img/photo-wedding-sparklers.2a81c49b.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
     "alpha": false
   },
   "photo-wedding-speech": {
-    "src": "/landing/img/photo-wedding-speech.e7ae823e.webp",
-    "srcM": "/landing/img/photo-wedding-speech.e7ae823e.m.webp",
+    "src": "/landing/img/photo-wedding-speech.b740825e.webp",
+    "srcM": "/landing/img/photo-wedding-speech.b740825e.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
     "alpha": false
   },
   "photo-wedding-vows": {
-    "src": "/landing/img/photo-wedding-vows.88179e89.webp",
-    "srcM": "/landing/img/photo-wedding-vows.88179e89.m.webp",
+    "src": "/landing/img/photo-wedding-vows.ed384f21.webp",
+    "srcM": "/landing/img/photo-wedding-vows.ed384f21.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1163,8 +1229,8 @@
     "alpha": false
   },
   "photo-year-joe70": {
-    "src": "/landing/img/photo-year-joe70.59c9231e.webp",
-    "srcM": "/landing/img/photo-year-joe70.59c9231e.m.webp",
+    "src": "/landing/img/photo-year-joe70.72a74432.webp",
+    "srcM": "/landing/img/photo-year-joe70.72a74432.m.webp",
     "w": 1448,
     "h": 1086,
     "kind": "photo",
@@ -1186,17 +1252,81 @@
     "kind": "photo",
     "alpha": false
   },
+  "photo-years-2a": {
+    "src": "/landing/img/photo-years-2a.be72ff28.webp",
+    "srcM": "/landing/img/photo-years-2a.be72ff28.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-2b": {
+    "src": "/landing/img/photo-years-2b.2b74b7dc.webp",
+    "srcM": "/landing/img/photo-years-2b.2b74b7dc.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-3a": {
+    "src": "/landing/img/photo-years-3a.c9cf6bbc.webp",
+    "srcM": "/landing/img/photo-years-3a.c9cf6bbc.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-3b": {
+    "src": "/landing/img/photo-years-3b.5b624c61.webp",
+    "srcM": "/landing/img/photo-years-3b.5b624c61.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-4a": {
+    "src": "/landing/img/photo-years-4a.f2173674.webp",
+    "srcM": "/landing/img/photo-years-4a.f2173674.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-4b": {
+    "src": "/landing/img/photo-years-4b.c6b97b61.webp",
+    "srcM": "/landing/img/photo-years-4b.c6b97b61.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-5a": {
+    "src": "/landing/img/photo-years-5a.a94ff0b0.webp",
+    "srcM": "/landing/img/photo-years-5a.a94ff0b0.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
+  "photo-years-5b": {
+    "src": "/landing/img/photo-years-5b.ef48a0ee.webp",
+    "srcM": "/landing/img/photo-years-5b.ef48a0ee.m.webp",
+    "w": 1448,
+    "h": 1086,
+    "kind": "photo",
+    "alpha": false
+  },
   "plate-year-d": {
-    "src": "/landing/img/plate-year-d.d37b7dfe.webp",
-    "srcM": "/landing/img/plate-year-d.d37b7dfe.m.webp",
+    "src": "/landing/img/plate-year-d.3a6b2670.webp",
+    "srcM": "/landing/img/plate-year-d.3a6b2670.m.webp",
     "w": 1536,
     "h": 1024,
     "kind": "plate",
     "alpha": false
   },
   "plate-year-m": {
-    "src": "/landing/img/plate-year-m.aeec2ca6.webp",
-    "srcM": "/landing/img/plate-year-m.aeec2ca6.m.webp",
+    "src": "/landing/img/plate-year-m.072fcb8f.webp",
+    "srcM": "/landing/img/plate-year-m.072fcb8f.m.webp",
     "w": 1024,
     "h": 1536,
     "kind": "plate",
@@ -1507,8 +1637,8 @@
     "alpha": false
   },
   "ui-card-joe70": {
-    "src": "/landing/ui/ui-card-joe70.fb699abb.webp",
-    "srcM": "/landing/ui/ui-card-joe70.fb699abb.m.webp",
+    "src": "/landing/ui/ui-card-joe70.6017823b.webp",
+    "srcM": "/landing/ui/ui-card-joe70.6017823b.m.webp",
     "w": 914,
     "h": 746,
     "kind": "ui",
@@ -1547,8 +1677,8 @@
     "alpha": false
   },
   "ui-card-wedding": {
-    "src": "/landing/ui/ui-card-wedding.97387e88.webp",
-    "srcM": "/landing/ui/ui-card-wedding.97387e88.m.webp",
+    "src": "/landing/ui/ui-card-wedding.f19c8e5d.webp",
+    "srcM": "/landing/ui/ui-card-wedding.f19c8e5d.m.webp",
     "w": 916,
     "h": 748,
     "kind": "ui",
@@ -1579,24 +1709,24 @@
     "alpha": false
   },
   "ui-feed-d": {
-    "src": "/landing/ui/ui-feed-d.f61e90db.webp",
-    "srcM": "/landing/ui/ui-feed-d.f61e90db.m.webp",
+    "src": "/landing/ui/ui-feed-d.562ada5b.webp",
+    "srcM": "/landing/ui/ui-feed-d.562ada5b.m.webp",
     "w": 2880,
     "h": 3943,
     "kind": "ui",
     "alpha": false
   },
   "ui-feed-d-dark": {
-    "src": "/landing/ui/ui-feed-d-dark.292bafb5.webp",
-    "srcM": "/landing/ui/ui-feed-d-dark.292bafb5.m.webp",
+    "src": "/landing/ui/ui-feed-d-dark.4835169d.webp",
+    "srcM": "/landing/ui/ui-feed-d-dark.4835169d.m.webp",
     "w": 2880,
     "h": 3943,
     "kind": "ui",
     "alpha": false
   },
   "ui-feed-m": {
-    "src": "/landing/ui/ui-feed-m.468a983b.webp",
-    "srcM": "/landing/ui/ui-feed-m.468a983b.m.webp",
+    "src": "/landing/ui/ui-feed-m.97f20337.webp",
+    "srcM": "/landing/ui/ui-feed-m.97f20337.m.webp",
     "w": 1170,
     "h": 2532,
     "kind": "ui",
@@ -1619,8 +1749,8 @@
     "alpha": false
   },
   "ui-import-albums": {
-    "src": "/landing/ui/ui-import-albums.9355aec6.webp",
-    "srcM": "/landing/ui/ui-import-albums.9355aec6.m.webp",
+    "src": "/landing/ui/ui-import-albums.cbe26719.webp",
+    "srcM": "/landing/ui/ui-import-albums.cbe26719.m.webp",
     "w": 2248,
     "h": 1362,
     "kind": "ui",
@@ -1651,8 +1781,8 @@
     "alpha": false
   },
   "ui-lightbox-wedding": {
-    "src": "/landing/ui/ui-lightbox-wedding.29382328.webp",
-    "srcM": "/landing/ui/ui-lightbox-wedding.29382328.m.webp",
+    "src": "/landing/ui/ui-lightbox-wedding.cce62d8e.webp",
+    "srcM": "/landing/ui/ui-lightbox-wedding.cce62d8e.m.webp",
     "w": 2880,
     "h": 1800,
     "kind": "ui",
@@ -1667,8 +1797,8 @@
     "alpha": false
   },
   "ui-profile": {
-    "src": "/landing/ui/ui-profile.9d35c570.webp",
-    "srcM": "/landing/ui/ui-profile.9d35c570.m.webp",
+    "src": "/landing/ui/ui-profile.3e374f76.webp",
+    "srcM": "/landing/ui/ui-profile.3e374f76.m.webp",
     "w": 2880,
     "h": 1800,
     "kind": "ui",
@@ -1723,8 +1853,8 @@
     "alpha": false
   },
   "ui-story-d": {
-    "src": "/landing/ui/ui-story-d.bc0dc9ec.webp",
-    "srcM": "/landing/ui/ui-story-d.bc0dc9ec.m.webp",
+    "src": "/landing/ui/ui-story-d.d8c79b62.webp",
+    "srcM": "/landing/ui/ui-story-d.d8c79b62.m.webp",
     "w": 1510,
     "h": 10061,
     "kind": "ui",
@@ -1763,16 +1893,16 @@
     "alpha": false
   },
   "ui-story-race-m": {
-    "src": "/landing/ui/ui-story-race-m.dd81fdb2.webp",
-    "srcM": "/landing/ui/ui-story-race-m.dd81fdb2.m.webp",
+    "src": "/landing/ui/ui-story-race-m.b4b034c0.webp",
+    "srcM": "/landing/ui/ui-story-race-m.b4b034c0.m.webp",
     "w": 1170,
     "h": 2532,
     "kind": "ui",
     "alpha": false
   },
   "ui-story-tetons-journey": {
-    "src": "/landing/ui/ui-story-tetons-journey.850513f5.webp",
-    "srcM": "/landing/ui/ui-story-tetons-journey.850513f5.m.webp",
+    "src": "/landing/ui/ui-story-tetons-journey.797a8084.webp",
+    "srcM": "/landing/ui/ui-story-tetons-journey.797a8084.m.webp",
     "w": 2320,
     "h": 1202,
     "kind": "ui",
@@ -1803,24 +1933,24 @@
     "alpha": false
   },
   "ui-story-wedding-gallery": {
-    "src": "/landing/ui/ui-story-wedding-gallery.9d25c24c.webp",
-    "srcM": "/landing/ui/ui-story-wedding-gallery.9d25c24c.m.webp",
+    "src": "/landing/ui/ui-story-wedding-gallery.60a06273.webp",
+    "srcM": "/landing/ui/ui-story-wedding-gallery.60a06273.m.webp",
     "w": 2320,
     "h": 1636,
     "kind": "ui",
     "alpha": false
   },
   "ui-timeline": {
-    "src": "/landing/ui/ui-timeline.21e97089.webp",
-    "srcM": "/landing/ui/ui-timeline.21e97089.m.webp",
+    "src": "/landing/ui/ui-timeline.4bbd1479.webp",
+    "srcM": "/landing/ui/ui-timeline.4bbd1479.m.webp",
     "w": 1170,
     "h": 2532,
     "kind": "ui",
     "alpha": false
   },
   "ui-tree": {
-    "src": "/landing/ui/ui-tree.ba0f246e.webp",
-    "srcM": "/landing/ui/ui-tree.ba0f246e.m.webp",
+    "src": "/landing/ui/ui-tree.dbf36e5a.webp",
+    "srcM": "/landing/ui/ui-tree.dbf36e5a.m.webp",
     "w": 2880,
     "h": 1800,
     "kind": "ui",

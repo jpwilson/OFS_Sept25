@@ -14,6 +14,8 @@ const ROOT = join(ART, '..')
 const RAW = join(ART, 'raw')
 // Superseded round-one raws. Used only for an id that has no new raw yet, so the page never loses an id mid-run.
 const RAW_V1 = join(RAW, '_v1')
+const RAW_V2 = join(RAW, '_v2') // superseded round-two raws (Marcus recast)
+const RAW_V3 = join(RAW, '_v3') // superseded round-three raws (round four)
 const OUT = join(ROOT, 'frontend', 'public', 'landing', 'img')
 const MANIFEST = join(ROOT, 'frontend', 'src', 'landing', 'art', 'manifest.json')
 const URL_BASE = '/landing/img/'
@@ -21,6 +23,8 @@ const URL_BASE = '/landing/img/'
 const ALPHA_FLOOR = 8 // alpha below this is generator noise -> 0
 const MARGIN = 0.02 // transparent margin around the trimmed subject, share of its long edge
 const KITCHEN = ['r-kitchen-before', 'r-kitchen-gutted', 'r-kitchen-fitted', 'r-kitchen-done']
+// The years pairs share one crop box too, so the floor line and scale match and one can replace the next in place.
+const YEARS = ['g-years-1', 'g-years-2', 'g-years-3', 'g-years-4', 'g-years-5']
 
 // Long edge per kind: desktop, phone.
 const SIZE = {
@@ -153,12 +157,14 @@ async function main() {
     .map((f) => f.slice(0, -4))
     .filter((id) => kindOf(id))
   const fresh = new Set(pngIds(RAW))
-  const ids = [...new Set([...fresh, ...pngIds(RAW_V1)])].sort()
+  const v2 = new Set(pngIds(RAW_V2))
+  const v3 = new Set(pngIds(RAW_V3))
+  const ids = [...new Set([...fresh, ...v3, ...v2, ...pngIds(RAW_V1)])].sort()
   const fallbacks = ids.filter((id) => !fresh.has(id))
 
   const imgs = {}
   for (const id of ids) {
-    const img = await loadRgba(join(fresh.has(id) ? RAW : RAW_V1, id + '.png'))
+    const img = await loadRgba(join(fresh.has(id) ? RAW : v3.has(id) ? RAW_V3 : v2.has(id) ? RAW_V2 : RAW_V1, id + '.png'))
     img.alpha = cleanAlpha(img)
     imgs[id] = img
   }
@@ -166,6 +172,8 @@ async function main() {
   // The kitchens share one crop box so they stay registered.
   let kitchenBox = null
   for (const id of KITCHEN) if (imgs[id]?.alpha) kitchenBox = kitchenBox ? union(kitchenBox, bbox(imgs[id])) : bbox(imgs[id])
+  let yearsBox = null
+  for (const id of YEARS) if (imgs[id]?.alpha) yearsBox = yearsBox ? union(yearsBox, bbox(imgs[id])) : bbox(imgs[id])
 
   const manifest = {}
   const rows = []
@@ -176,7 +184,7 @@ async function main() {
     const [L, LM] = SIZE[kind]
     let master
     if (img.alpha) {
-      master = await trimmed(img, KITCHEN.includes(id) ? kitchenBox : bbox(img)).png().toBuffer()
+      master = await trimmed(img, KITCHEN.includes(id) ? kitchenBox : YEARS.includes(id) ? yearsBox : bbox(img)).png().toBuffer()
     } else {
       master = await sharp(img.data, { raw: { width: img.w, height: img.h, channels: 4 } }).removeAlpha().png().toBuffer()
     }

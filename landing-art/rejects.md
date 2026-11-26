@@ -18,3 +18,16 @@ Checked and passed: hands (zoom sheets), heads/feet (no subject touches the canv
 
 Superseded round-one raws are in `raw/_v1/` (the processor falls back to them only for ids with no new raw; none remain). Dropped ids `photo-coast-mine` and `photo-coast-theatre` are in `raw/_dropped/` and gone from the manifest and `img/`.
 Consistency: `sheets/consistency-household.jpg`, Maya, Tom, Ivy, Leo and Joe each from sheet A plus six sets; no drift after the Maui fix.
+
+## Round three (Marcus recast)
+
+Sheet B remade as an edit (`ref/cast-b.png`; old in `ref/cast-b-v1.png`). Regenerated under the same ids: g-wedding-couple, photo-wedding-{aisle,vows,confetti,family,speech,dance,sparklers}, p-marcus-wave, p-marcus-camera, photo-trip-amalfi, photo-trip-marcus, photo-year-joe70, plate-year-d, plate-year-m (covers cover-wedding, cover-joe70 re-derived). Superseded raws in `raw/_v2/`. No rejects: all passed first time; no leftover old Marcus in any other set. Strip: `sheets/consistency-marcus.jpg`.
+
+## Round four
+
+Landed: plate-year-d, plate-year-m (candid, family only), g-family-hike and photo-coast-cliff (Maya's backpack edited out; cover-coast re-cut), g-family-beach (new), g-years-1..5 (new, shared crop box), photo-years-2a..5b (new).
+Rejected and fixed (v1s in raw/_rejects/*.r4v1.png):
+- g-years-2, -3, -4: front-tooth gaps at 10 and 12 (owner's note); fixed as edits, same canvas, same crop box.
+- photo-years-2a, -4b: same tooth rule; fixed as edits.
+- photo-years-4a: Tom was at the wheel, not Ivy; regenerated with Ivy driving.
+- photo-years-5a, -5b: parents showed no grey at about fifty, grandparents not visibly older; fixed as ageing edits.
