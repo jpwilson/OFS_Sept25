@@ -19,11 +19,6 @@
 .full {
   display: inline-block;
 }
-.sticker {
-  box-shadow: var(--l-shadow-sm);
-  padding: 0.1em 0.22em 0.12em;
-  margin: 0 0.06em;
-}
 .short {
   display: none;
 }

@@ -11,48 +11,79 @@ import s from './Places.module.css'
 
 const P = PLACES
 
-// Project the six real coordinates into the drawing (equirectangular, scaled for latitude).
-const VB = { w: 600, h: 400, pad: 52 }
-const ROUTE = (() => {
-  const lats = COAST_STOPS.map((p) => p.lat)
-  const lngs = COAST_STOPS.map((p) => p.lng)
-  const k = Math.cos((50.13 * Math.PI) / 180)
-  const minX = Math.min(...lngs) * k
-  const maxX = Math.max(...lngs) * k
-  const minY = Math.min(...lats)
-  const maxY = Math.max(...lats)
-  const sc = Math.min((VB.w - 2 * VB.pad) / (maxX - minX), (VB.h - 2 * VB.pad) / (maxY - minY))
-  const ox = (VB.w - (maxX - minX) * sc) / 2
-  const oy = (VB.h - (maxY - minY) * sc) / 2
-  return COAST_STOPS.map((p) => ({ ...p, x: ox + (p.lng * k - minX) * sc, y: oy + (maxY - p.lat) * sc }))
-})()
+// The drawing. Maine's six stops are real coordinates (content/proof.sample.js). The first two are
+// far apart; the last four sit close together on Mount Desert Island, so the main map marks them
+// with a box and an inset draws them larger. Equirectangular, scaled for latitude.
+const VB = { w: 600, h: 400 }
+const K = Math.cos((44 * Math.PI) / 180)
+const INSET_FROM = 2 // stops 3 to 6 are drawn in the inset
 
-// Where each stop's name sits beside its pin: [dx, dy, anchor]. St Ives sits left of its pin and
-// Zennor below-right of its pin, so the two do not meet.
-const LABEL = [
-  [-26, -14, 'end'],
-  [14, 22, 'start'],
-  [24, -6, 'start'],
-  [24, -6, 'start'],
-  [24, -6, 'start'],
-  [24, -6, 'start'],
-]
+function project(pts, box, pad) {
+  const xs = pts.map((p) => p.lng * K)
+  const ys = pts.map((p) => p.lat)
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+  const sc = Math.min((box.w - 2 * pad.x) / (maxX - minX || 1), (box.h - 2 * pad.y) / (maxY - minY || 1))
+  const ox = box.x + (box.w - (maxX - minX) * sc) / 2 + (pad.dx || 0)
+  const oy = box.y + (box.h - (maxY - minY) * sc) / 2
+  return pts.map((p) => ({ ...p, x: ox + (p.lng * K - minX) * sc, y: oy + (maxY - p.lat) * sc }))
+}
 
-// A smooth line through the stops (Catmull-Rom to cubic Bezier).
-const PATH_D = (() => {
-  const pts = ROUTE
+// Catmull-Rom through the points, as cubic Beziers.
+function smooth(pts) {
   let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] || pts[i]
     const p1 = pts[i]
     const p2 = pts[i + 1]
     const p3 = pts[i + 2] || p2
-    const c1 = [p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6]
-    const c2 = [p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6]
-    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`
+    d += ` C${(p1.x + (p2.x - p0.x) / 6).toFixed(1)},${(p1.y + (p2.y - p0.y) / 6).toFixed(1)} ${(p2.x - (p3.x - p1.x) / 6).toFixed(1)},${(p2.y - (p3.y - p1.y) / 6).toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`
   }
   return d
+}
+
+const MAIN = project(COAST_STOPS, { x: 0, y: 0, w: VB.w, h: VB.h }, { x: 60, y: 70 })
+const CLUSTER = MAIN.slice(INSET_FROM)
+const CBOX = (() => {
+  const xs = CLUSTER.map((p) => p.x)
+  const ys = CLUSTER.map((p) => p.y)
+  return { x: Math.min(...xs) - 16, y: Math.min(...ys) - 16, w: Math.max(...xs) - Math.min(...xs) + 32, h: Math.max(...ys) - Math.min(...ys) + 32 }
 })()
+const IBOX = { x: 290, y: 184, w: 296, h: 206 }
+const INSET = project(COAST_STOPS.slice(INSET_FROM), { ...IBOX, y: IBOX.y + 22, h: IBOX.h - 22 }, { x: 44, y: 30, dx: -70 })
+const MAIN_D = smooth(MAIN.slice(0, INSET_FROM + 1))
+const INSET_D = smooth(INSET)
+// Where each name sits beside its pin: [dx, dy, anchor].
+const LABEL = [
+  [24, 6, 'start'],
+  [0, -44, 'middle'],
+  [24, -2, 'start'],
+  [24, -2, 'start'],
+  [24, -2, 'start'],
+  [24, -2, 'start'],
+]
+
+function Pin({ p, i, active, setActive, label }) {
+  return (
+    <g className={s.pin} data-on={i === active || undefined} style={{ '--i': i, transformOrigin: `${p.x}px ${p.y}px` }} onMouseEnter={() => setActive(i)}>
+      <ellipse cx={p.x} cy={p.y + 3} rx="13" ry="4" fill="rgba(16,27,59,.25)" />
+      <g className={s.pinBody} style={{ transformOrigin: `${p.x}px ${p.y}px` }}>
+        <circle cx={p.x} cy={p.y - 16} r="16" fill="var(--pin-fill)" stroke="var(--l-ink)" strokeWidth="3" />
+        <path d={`M${p.x - 7},${p.y - 4} L${p.x},${p.y + 2} L${p.x + 7},${p.y - 4}`} fill="var(--pin-fill)" stroke="var(--l-ink)" strokeWidth="3" strokeLinejoin="round" />
+        <text x={p.x} y={p.y - 11} textAnchor="middle" className={s.pinNum}>
+          {i + 1}
+        </text>
+      </g>
+      {label ? (
+        <text x={p.x + LABEL[i][0]} y={p.y + LABEL[i][1]} textAnchor={LABEL[i][2]} className={cx(s.pinLabel, i >= INSET_FROM && s.pinLabelInset)}>
+          {p.name}
+        </text>
+      ) : null}
+    </g>
+  )
+}
 
 function RouteMap({ active, setActive }) {
   const ref = useRef(null)
@@ -87,42 +118,39 @@ function RouteMap({ active, setActive }) {
               <path d="M40 0H0V40" fill="none" stroke="rgba(16,27,59,.08)" strokeWidth="1" />
             </pattern>
             <mask id="lp-places-draw">
-              <path className={s.drawMask} d={PATH_D} pathLength="1" fill="none" stroke="#fff" strokeWidth="14" strokeLinecap="round" />
+              <path className={s.drawMask} d={MAIN_D} pathLength="1" fill="none" stroke="#fff" strokeWidth="14" strokeLinecap="round" />
+            </mask>
+            <mask id="lp-places-draw-inset">
+              <path className={cx(s.drawMask, s.drawLate)} d={INSET_D} pathLength="1" fill="none" stroke="#fff" strokeWidth="14" strokeLinecap="round" />
             </mask>
           </defs>
           <rect width={VB.w} height={VB.h} fill="url(#lp-places-grid)" />
-          <path d={PATH_D} fill="none" stroke="var(--l-white)" strokeWidth="9" strokeLinecap="round" mask="url(#lp-places-draw)" />
-          <path d={PATH_D} fill="none" stroke="var(--l-ink)" strokeWidth="3.5" strokeDasharray="10 9" strokeLinecap="round" mask="url(#lp-places-draw)" />
+          <path d={MAIN_D} fill="none" stroke="var(--l-white)" strokeWidth="9" strokeLinecap="round" mask="url(#lp-places-draw)" />
+          <path d={MAIN_D} fill="none" stroke="var(--l-ink)" strokeWidth="3.5" strokeDasharray="10 9" strokeLinecap="round" mask="url(#lp-places-draw)" />
+          {/* the island cluster, marked on the main map and drawn larger in the inset */}
+          <rect className={s.cbox} x={CBOX.x} y={CBOX.y} width={CBOX.w} height={CBOX.h} rx="8" />
+          {CLUSTER.map((p, k) => (
+            <circle key={p.id} cx={p.x} cy={p.y} r="4" className={s.cdot} data-on={k + INSET_FROM === active || undefined} />
+          ))}
+          <path className={s.cleader} d={`M${CBOX.x + CBOX.w / 2},${CBOX.y + CBOX.h} L${IBOX.x + IBOX.w - 40},${IBOX.y}`} />
+          <g className={s.inset}>
+            <rect x={IBOX.x} y={IBOX.y} width={IBOX.w} height={IBOX.h} rx="14" className={s.ibox} />
+            <text x={IBOX.x + 14} y={IBOX.y + 22} className={s.ilabel}>
+              {P.insetLabel}
+            </text>
+            <path d={INSET_D} fill="none" stroke="var(--l-white)" strokeWidth="9" strokeLinecap="round" mask="url(#lp-places-draw-inset)" />
+            <path d={INSET_D} fill="none" stroke="var(--l-ink)" strokeWidth="3.5" strokeDasharray="10 9" strokeLinecap="round" mask="url(#lp-places-draw-inset)" />
+          </g>
           {/* start flag */}
-          <g className={s.flag} transform={`translate(${ROUTE[0].x + 16}, ${ROUTE[0].y - 50})`}>
+          <g className={s.flag} transform={`translate(${MAIN[0].x + 16}, ${MAIN[0].y - 50})`}>
             <path d="M0 0V40" stroke="var(--l-ink)" strokeWidth="3" />
             <path d="M0 1h30l-7 8 7 8H0z" fill="var(--l-lime)" stroke="var(--l-ink)" strokeWidth="2.5" strokeLinejoin="round" />
           </g>
-          {ROUTE.map((p, i) => (
-            <g
-              key={p.id}
-              className={s.pin}
-              data-on={i === active || undefined}
-              style={{ '--i': i, transformOrigin: `${p.x}px ${p.y}px` }}
-              onMouseEnter={() => setActive(i)}
-            >
-              <ellipse cx={p.x} cy={p.y + 3} rx="13" ry="4" fill="rgba(16,27,59,.25)" />
-              <g className={s.pinBody} style={{ transformOrigin: `${p.x}px ${p.y}px` }}>
-                <circle cx={p.x} cy={p.y - 16} r="16" fill="var(--pin-fill)" stroke="var(--l-ink)" strokeWidth="3" />
-                <path d={`M${p.x - 7},${p.y - 4} L${p.x},${p.y + 2} L${p.x + 7},${p.y - 4}`} fill="var(--pin-fill)" stroke="var(--l-ink)" strokeWidth="3" strokeLinejoin="round" />
-                <text x={p.x} y={p.y - 11} textAnchor="middle" className={s.pinNum}>
-                  {i + 1}
-                </text>
-              </g>
-              <text
-                x={p.x + LABEL[i][0]}
-                y={p.y + LABEL[i][1]}
-                textAnchor={LABEL[i][2]}
-                className={s.pinLabel}
-              >
-                {p.name}
-              </text>
-            </g>
+          {MAIN.slice(0, INSET_FROM).map((p, i) => (
+            <Pin key={p.id} p={p} i={i} active={active} setActive={setActive} label />
+          ))}
+          {INSET.map((p, k) => (
+            <Pin key={p.id} p={p} i={k + INSET_FROM} active={active} setActive={setActive} label />
           ))}
         </svg>
       </div>

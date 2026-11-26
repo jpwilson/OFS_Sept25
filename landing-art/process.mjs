@@ -5,13 +5,15 @@
 // Usage: cd landing-art && node process.mjs
 import sharp from 'sharp'
 import { createHash } from 'node:crypto'
-import { readdirSync, mkdirSync, writeFileSync, statSync, rmSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync, statSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ART = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(ART, '..')
 const RAW = join(ART, 'raw')
+// Superseded round-one raws. Used only for an id that has no new raw yet, so the page never loses an id mid-run.
+const RAW_V1 = join(RAW, '_v1')
 const OUT = join(ROOT, 'frontend', 'public', 'landing', 'img')
 const MANIFEST = join(ROOT, 'frontend', 'src', 'landing', 'art', 'manifest.json')
 const URL_BASE = '/landing/img/'
@@ -32,9 +34,12 @@ const SIZE = {
 
 // Story covers: 16:10 crops, 1200 wide, from these photos (with the crop anchor).
 const COVERS = {
-  'cover-kitchen': ['photo-kitchen-done', 'centre'],
-  'cover-marathon': ['photo-race-finish', 'centre'],
   'cover-coast': ['photo-coast-cliff', 'north'], // keeps Leo's head on Tom's shoulders
+  'cover-tetons': ['photo-tetons-30', 'centre'],
+  'cover-maui': ['photo-maui-beach', 'centre'],
+  'cover-wedding': ['photo-wedding-confetti', 'north'],
+  'cover-kitchen': ['photo-kitchen-done', 'centre'],
+  'cover-marathon': ['photo-race-finish', 'north'],
   'cover-birthday': ['photo-year-birthday', 'centre'],
   'cover-joe70': ['photo-year-joe70', 'north'], // keeps Joe's raised glass and head
 }
@@ -143,15 +148,17 @@ function write(id, buf, bufM, written) {
 async function main() {
   mkdirSync(OUT, { recursive: true })
   mkdirSync(dirname(MANIFEST), { recursive: true })
-  const ids = readdirSync(RAW)
+  const pngIds = (dir) => (existsSync(dir) ? readdirSync(dir) : [])
     .filter((f) => f.endsWith('.png') && !f.startsWith('_'))
     .map((f) => f.slice(0, -4))
     .filter((id) => kindOf(id))
-    .sort()
+  const fresh = new Set(pngIds(RAW))
+  const ids = [...new Set([...fresh, ...pngIds(RAW_V1)])].sort()
+  const fallbacks = ids.filter((id) => !fresh.has(id))
 
   const imgs = {}
   for (const id of ids) {
-    const img = await loadRgba(join(RAW, id + '.png'))
+    const img = await loadRgba(join(fresh.has(id) ? RAW : RAW_V1, id + '.png'))
     img.alpha = cleanAlpha(img)
     imgs[id] = img
   }
@@ -204,6 +211,9 @@ async function main() {
   // Remove stale outputs (old hashes, ids that no longer exist).
   for (const f of readdirSync(OUT)) if (f.endsWith('.webp') && !written.has(f)) rmSync(join(OUT, f))
 
+  // Merge: other builders' `kind: "ui"` entries are kept untouched. Re-read right before writing.
+  const current = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : {}
+  for (const [k, v] of Object.entries(current)) if (v.kind === 'ui') manifest[k] = v
   const sorted = Object.fromEntries(Object.keys(manifest).sort().map((k) => [k, manifest[k]]))
   writeFileSync(MANIFEST, JSON.stringify(sorted, null, 2) + '\n')
 
@@ -213,6 +223,7 @@ async function main() {
   const total = readdirSync(OUT).reduce((s, f) => s + statSync(join(OUT, f)).size, 0)
   console.log(`\n${rows.length} images, public/landing/img total ${total} bytes (${(total / 1048576).toFixed(2)} MB)`)
   if (kitchenBox) console.log('kitchen union box', kitchenBox)
+  if (fallbacks.length) console.log(`\nSTILL ON ROUND-ONE RAWS (${fallbacks.length}): ${fallbacks.join(' ')}`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })

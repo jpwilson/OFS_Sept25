@@ -3,7 +3,7 @@
 // Otherwise: the same reel as a native sideways scroller with snap points.
 import { useMemo, useRef, useState } from 'react'
 import { VIEWS } from '../content/proof.js'
-import { SAMPLE_CARDS } from '../content/proof.sample.js'
+import { SAMPLE_CARDS, OWN_CATEGORY } from '../content/proof.sample.js'
 import { Head, Label, Device, Shot, Stage, Cutout, GhostWord, Reveal, SHOT_CAPTION } from '../ui/index.js'
 import { clamp, remap } from '../lib/math.js'
 import { scrollToY } from '../lib/scroll.js'
@@ -12,7 +12,6 @@ import { usePinMode, pad2 } from './shared.jsx'
 import s from './Views.module.css'
 
 const V = VIEWS
-const OWN = '__own'
 
 function Reel({ pinned, trackRef, stageRef }) {
   const drag = useRef(null)
@@ -42,7 +41,7 @@ function Reel({ pinned, trackRef, stageRef }) {
       <ol className={s.track} ref={trackRef}>
         {V.reel.map((r, i) => (
           <li key={r.id} className={s.card} data-f="view" data-i={i}>
-            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.device} />
+            <Device id={r.shot} alt={`The ${r.name} view on a phone, showing the sample family's stories`} caption={false} className={s.device} width={pinned ? 'min(280px, 23svh)' : 'min(280px, 62vw)'} />
             <div className={s.cardText}>
               <span className={s.cardNum}>
                 {pad2(i + 1)} / {pad2(V.reel.length)}
@@ -69,7 +68,7 @@ function Browse() {
   // The feed's rule: show a story when any of its categories is selected (Feed.jsx:107-113).
   const shown = useMemo(() => (sel.length ? SAMPLE_CARDS.filter((c) => c.categories.some((k) => sel.includes(k))) : SAMPLE_CARDS), [sel])
   const sig = sel.join('|')
-  const chips = [...V.categories.map((c) => ({ id: c, label: c })), { id: OWN, label: V.ownChip }]
+  const chips = [...V.categories.map((c) => ({ id: c, label: c })), { id: OWN_CATEGORY, label: OWN_CATEGORY, own: true }]
   return (
     <>
     <div className={cx('l-wrap', s.browse)}>
@@ -82,8 +81,9 @@ function Browse() {
           {V.all}
         </button>
         {chips.map((c) => (
-          <button key={c.id} type="button" className={cx(s.chip, c.id === OWN && s.own)} aria-pressed={sel.includes(c.id)} onClick={() => toggle(c.id)}>
+          <button key={c.id} type="button" className={cx(s.chip, c.own && s.own)} aria-pressed={sel.includes(c.id)} onClick={() => toggle(c.id)}>
             {c.label}
+            {c.own ? <span className={s.ownNote}>{V.ownNote}</span> : null}
           </button>
         ))}
       </div>
@@ -107,7 +107,6 @@ function Browse() {
             </li>
           )
         })}
-        {shown.length === 0 ? <li className={s.empty}>{V.emptyOwn}</li> : null}
         <li className={s.kidsSlot} aria-hidden="true">
           <Cutout id="p-leo-school" className={s.kidM} shadow sizes="90px" />
           <Cutout id="p-ivy-trophy" className={s.kidM} shadow sizes="90px" />
@@ -166,7 +165,7 @@ export function Views() {
         <div className={cx('l-wrap', s.top)}>
           <div className={s.header}>
             <Label dot>{V.eyebrow}</Label>
-            <Head before={V.head.before} mark={V.head.mark} after={V.head.after} className={s.head} />
+            <Head size="head" before={V.head.before} mark={V.head.mark} after={V.head.after} className={s.head} />
             <p className={s.lede}>{V.lede}</p>
           </div>
           <div className={s.progress} aria-hidden="true">

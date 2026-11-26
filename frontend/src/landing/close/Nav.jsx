@@ -132,7 +132,8 @@ export function Nav() {
           {NAV.links.map((l, i) => (
             <li key={l.id} style={{ '--i': i }}>
               <a href={`#${l.id}`} onClick={(e) => glide(e, l.id, () => setOpen(false))}>
-                {l.label}
+                <span className={s.chip} aria-hidden="true" />
+                <span className={s.linkText}>{l.label}</span>
                 <Icon name="arrow" size={22} />
               </a>
             </li>

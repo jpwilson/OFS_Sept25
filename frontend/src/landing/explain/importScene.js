@@ -125,16 +125,25 @@ export class ImportScene {
     this.area = area
     // leave room for the tray and the legend under the flow
     this.foot = w < 520 ? 58 : 30
-    const T = clamp(Math.sqrt((area.w * (area.h - this.foot * 2) * 0.3) / n), 16, 46)
+    // the largest thumb size at which the trips layout (the tallest) still fits
+    let T = clamp(Math.sqrt((area.w * (area.h - this.foot * 2) * 0.3) / n), 12, 46)
+    for (; T > 12; T -= 1) {
+      this.setT(T)
+      if (this.flow(true, true).fits) break
+    }
+    this.setT(T)
+    const L = [this.pile(), this.flow(false, false), this.flow(true, false), this.flow(true, true), this.albums()]
+    this.L = L
+  }
+
+  setT(T) {
+    const { area } = this
     const g = Math.max(3, Math.round(T * 0.14))
     this.T = T
     this.g = g
     // the unsorted tray (bottom right)
     const trayW = T * 3 + g * 6
     this.tray = { x: area.x + area.w - trayW, y: area.y + area.h - T - g * 6 - 14 - this.foot, w: trayW, h: T + g * 6 + 14 }
-
-    const L = [this.pile(), this.flow(false, false), this.flow(true, false), this.flow(true, true), this.albums()]
-    this.L = L
   }
 
   pile() {
@@ -169,63 +178,80 @@ export class ImportScene {
   flow(breaks, trips) {
     const { area, T, g, thumbs } = this
     const segs = this.data.segments
+    const albums = this.data.albums
     const out = new Array(thumbs.length)
     const markers = []
     const W = area.w
     const step = T + g
     const bigGap = breaks ? Math.round(T * 0.9) : g
     const rowH = T + (breaks ? (T < 30 ? 16 : 34) : g + 6)
+    // in the trips state every trip sits on rows of its own, with room above for its label
+    const lift = T >= 30 ? 34 : 22
+    const rowY = [0]
     let x = 0
     let row = 0
-    const rowsOf = []
+    const newRow = (extra = 0) => {
+      row++
+      rowY[row] = rowY[row - 1] + rowH + extra
+      x = 0
+    }
     let j = 0
     for (let si = 0; si < segs.length; si++) {
       const seg = segs[si]
-      const joined = trips && si > 0 && seg.zone === 'away' && segs[si - 1].zone === 'away'
+      const prev = si > 0 ? segs[si - 1] : null
+      const isTrip = !!(albums[seg.album] && albums[seg.album].trip)
+      const joined = trips && prev && isTrip && prev.album === seg.album
+      const startsTrip = trips && isTrip && !joined
+      const endsTrip = trips && prev && albums[prev.album] && albums[prev.album].trip && prev.album !== seg.album
       const n = seg.photos.length
       if (si > 0) {
         const gap = joined ? Math.round(g * 3) : bigGap
         if (breaks) markers.push({ type: joined ? 'day' : seg.brk, row, x: x + gap / 2 - g / 2, seg: si })
         x += gap - g
       }
+      if (startsTrip || endsTrip) {
+        if (breaks && markers.length && markers[markers.length - 1].seg === si) markers[markers.length - 1].wrapped = true
+        if (x > bigGap || startsTrip) {
+          if (si === 0 && startsTrip) rowY[0] = lift
+          else newRow(startsTrip ? lift : 6)
+        }
+        x = 0
+      }
       const width = n * step - g
       if (x > 0 && x + width > W && width <= W) {
-        // wrap the whole word; move its marker to the end of the row before
-        x = 0
-        row++
+        // wrap the whole word; its marker would sit at the end of the row before
+        newRow()
         if (breaks && markers.length && markers[markers.length - 1].seg === si) markers[markers.length - 1].wrapped = true
       }
       for (let k = 0; k < n; k++) {
-        if (x + T > W) {
-          x = 0
-          row++
-        }
+        if (x + T > W) newRow()
         out[j] = { x: x + T / 2, row, s: T, r: 0, a: 1, z: 0 }
-        rowsOf.push(row)
         x += step
         j++
       }
     }
     const rows = row + 1
-    const blockH = rows * rowH - (rowH - T)
-    const top = area.y + Math.max(breaks ? 18 : 0, (area.h - this.foot - (this.tray.h + 12) - blockH) / 2)
+    const blockH = rowY[row] + T
+    const room = area.h - this.foot - (this.tray.h + 12)
+    const top = area.y + Math.max(breaks ? 18 : 0, (room - blockH) / 2)
     // centre each row horizontally
     const rowW = new Array(rows).fill(0)
     for (let i = 0; i < j; i++) rowW[out[i].row] = Math.max(rowW[out[i].row], out[i].x + T / 2)
     for (let i = 0; i < j; i++) {
       const o = out[i]
       o.x = area.x + (W - rowW[o.row]) / 2 + o.x
-      o.y = top + o.row * rowH + T / 2
+      o.y = top + rowY[o.row] + T / 2
     }
     for (const m of markers) {
       m.x = area.x + (W - rowW[m.row]) / 2 + m.x
-      m.y = top + m.row * rowH + T / 2
+      m.y = top + rowY[m.row] + T / 2
     }
     // undated tiles sit in the tray from state 1 on
     let u = 0
     for (; j < thumbs.length; j++) out[j] = this.trayPos(u++)
     out.markers = breaks ? markers.filter((m) => !m.wrapped) : []
     out.rowH = rowH
+    out.fits = blockH + (breaks ? 18 : 0) <= area.h - this.foot - 6
     return out
   }
 
@@ -235,7 +261,7 @@ export class ImportScene {
    */
   albums() {
     const { area, thumbs, T } = this
-    const keys = ['kitchen', 'race', 'coast', 'birthday']
+    const keys = Object.keys(this.data.albums).filter((k) => k !== 'unsorted').slice(0, 4)
     const gap = Math.max(10, Math.min(area.w, area.h) * 0.03)
     const stripH = Math.max(46, Math.min(70, T + 26))
     const gridH = area.h - stripH - gap
@@ -405,12 +431,20 @@ export class ImportScene {
     ctx.font = `500 11px ${MONO}`
     ctx.textBaseline = 'bottom'
     let prev = -2
+    let lastY = null
+    let lastEnd = -Infinity
     for (let j = 0; j < thumbs.length; j++) {
       const t = thumbs[j]
       if (t.undated || t.seg === prev) continue
       prev = t.seg
       const o = Lz[j]
-      ctx.fillText(this.data.segments[t.seg].when, o.x - T / 2, o.y - T / 2 - 4)
+      const text = this.data.segments[t.seg].when
+      const x0 = o.x - T / 2
+      // skip a date that would run into the one before it on the same row
+      if (lastY === o.y && x0 < lastEnd + 6) continue
+      ctx.fillText(text, x0, o.y - T / 2 - 4)
+      lastY = o.y
+      lastEnd = x0 + ctx.measureText(text).width
     }
     ctx.restore()
   }
@@ -444,39 +478,53 @@ export class ImportScene {
 
   drawTrip(L3, alpha) {
     const { ctx, thumbs, T, g } = this
-    // one rounded band per row the trip occupies
-    const rows = new Map()
+    const albums = this.data.albums
+    // one rounded band per row that each trip occupies
+    const bands = new Map()
     for (let j = 0; j < thumbs.length; j++) {
-      if (thumbs[j].album !== 'coast') continue
+      const al = thumbs[j].album
+      if (!albums[al] || !albums[al].trip) continue
       const o = L3[j]
-      const r = rows.get(o.y) || { x0: Infinity, x1: -Infinity, y: o.y }
+      const key = `${al}|${o.y}`
+      const r = bands.get(key) || { al, x0: Infinity, x1: -Infinity, y: o.y }
       r.x0 = Math.min(r.x0, o.x - T / 2)
       r.x1 = Math.max(r.x1, o.x + T / 2)
-      rows.set(o.y, r)
+      bands.set(key, r)
     }
+    const pad = g * 2
+    const below = T < 30 ? 6 : 12
+    const above = T >= 30 ? 16 : 0 // room for the day dates inside the band
     ctx.save()
     ctx.globalAlpha = alpha
-    let first = true
-    for (const r of rows.values()) {
-      ctx.fillStyle = ZEST
-      ctx.strokeStyle = INK
-      ctx.lineWidth = 2
-      const lift = T < 30 ? 2 : 14
-      roundRect(ctx, r.x0 - g * 2, r.y - T / 2 - g * 2 - lift, r.x1 - r.x0 + g * 4, T + g * 4 + lift + 10, 10)
-      ctx.fill()
+    ctx.strokeStyle = INK
+    ctx.lineWidth = 2
+    // outlines first, then fills, so the rows of one trip read as one shape
+    const band = (r) => roundRect(ctx, r.x0 - pad, r.y - T / 2 - pad - above, r.x1 - r.x0 + pad * 2, T + pad * 2 + below + above, 8)
+    ctx.lineWidth = 4
+    for (const r of bands.values()) {
+      band(r)
       ctx.stroke()
-      if (first && T >= 30) {
-        first = false
-        const label = `${this.data.text.trip}`.toUpperCase()
-        ctx.font = `500 11px ${MONO}`
-        const lw = ctx.measureText(label).width + 14
-        ctx.fillStyle = INK
-        roundRect(ctx, r.x0 - g * 2, r.y - T / 2 - g * 2 - 36, lw, 18, 9)
-        ctx.fill()
-        ctx.fillStyle = WHITE
-        ctx.textBaseline = 'middle'
-        ctx.fillText(label, r.x0 - g * 2 + 7, r.y - T / 2 - g * 2 - 27)
-      }
+    }
+    ctx.fillStyle = ZEST
+    for (const r of bands.values()) {
+      band(r)
+      ctx.fill()
+    }
+    // the label sits on the top edge of each trip's first band
+    const seen = new Set()
+    ctx.font = `500 11px ${MONO}`
+    ctx.textBaseline = 'middle'
+    for (const r of bands.values()) {
+      if (seen.has(r.al)) continue
+      seen.add(r.al)
+      const label = String(this.data.text[r.al] || this.data.text.trip).toUpperCase()
+      const lw = ctx.measureText(label).width + 14
+      const ly = r.y - T / 2 - pad - above - 9
+      ctx.fillStyle = INK
+      roundRect(ctx, r.x0 - pad, ly - 8, lw, 17, 8)
+      ctx.fill()
+      ctx.fillStyle = WHITE
+      ctx.fillText(label, r.x0 - pad + 7, ly + 0.5)
     }
     ctx.restore()
   }
@@ -490,7 +538,7 @@ export class ImportScene {
     for (const key of Object.keys(cards)) {
       const c = cards[key]
       const al = albums[key]
-      const isTrip = key === 'coast'
+      const isTrip = !!(al && al.trip)
       const isLoose = key === 'unsorted'
       const y = c.y + rise
       if (!isLoose) {

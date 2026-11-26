@@ -1,4 +1,10 @@
 .wrap {
+  /* Defaults read inherited values first, so a consumer can set these on any ancestor. */
+  --_h: var(--l-aud-h, 46px);
+  --_fs: var(--l-aud-fs, 15px);
+  --_pad: var(--l-aud-pad, 5px);
+  --_max: var(--l-aud-max, 680px);
+  --_opx: var(--l-aud-opt-px, 8px);
   margin: 0;
   padding: 0;
   border: 0;
@@ -16,14 +22,21 @@
   text-transform: uppercase;
   color: var(--l-ink);
 }
+.lg {
+  --_h: var(--l-aud-h, 60px);
+  --_fs: var(--l-aud-fs, 18px);
+  --_pad: var(--l-aud-pad, 6px);
+  --_max: var(--l-aud-max, 860px);
+  --_opx: var(--l-aud-opt-px, 12px);
+}
 .track {
-  --i: 3;
+  --i: 2;
   position: relative;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   width: 100%;
-  max-width: 680px;
-  padding: 5px;
+  max-width: var(--_max);
+  padding: var(--_pad);
   background: var(--l-white);
   border: var(--l-keyline);
   border-radius: var(--l-r-button);
@@ -38,10 +51,10 @@
 .thumb {
   position: absolute;
   z-index: 0;
-  top: 5px;
-  bottom: 5px;
-  left: 5px;
-  width: calc((100% - 10px) / 5);
+  top: var(--_pad);
+  bottom: var(--_pad);
+  left: var(--_pad);
+  width: calc((100% - 2 * var(--_pad)) / 5);
   border-radius: 9px;
   background: var(--l-ink);
   transform: translateX(calc(var(--i) * 100%));
@@ -52,8 +65,8 @@
   z-index: 1;
   display: grid;
   place-items: center;
-  min-height: 46px;
-  padding: 6px 8px;
+  min-height: var(--_h);
+  padding: 6px var(--_opx);
   border-radius: 9px;
   cursor: pointer;
   text-align: center;
@@ -71,7 +84,7 @@
 .text {
   position: relative;
   font-family: var(--l-font-text);
-  font-size: 15px;
+  font-size: var(--_fs);
   font-weight: 600;
   line-height: 1.1;
   color: var(--l-ink);
@@ -94,12 +107,17 @@
   box-shadow: 0 0 0 5px var(--l-white);
 }
 @media (max-width: 560px) {
-  .opt {
-    min-height: 52px;
-    padding: 4px 3px;
+  .wrap {
+    --_h: var(--l-aud-h, 52px);
+    --_fs: var(--l-aud-fs, 13px);
+    --_opx: var(--l-aud-opt-px, 3px);
   }
-  .text {
-    font-size: 13px;
+  .lg {
+    --_h: var(--l-aud-h, 60px);
+    --_fs: var(--l-aud-fs, 14px);
+  }
+  .opt {
+    padding-block: 4px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

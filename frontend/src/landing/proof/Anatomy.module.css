@@ -25,7 +25,8 @@
   max-width: 13ch;
 }
 .headCompact {
-  font-size: clamp(32px, 3.2vw, 54px) !important;
+  max-width: none;
+  font-size: clamp(30px, 2.7vw, 46px);
 }
 .lede {
   max-width: 44ch;

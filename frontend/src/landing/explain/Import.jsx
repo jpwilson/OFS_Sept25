@@ -15,7 +15,7 @@ const DATA = {
   segments: IMPORT_SEGMENTS,
   undated: IMPORT_UNDATED,
   albums: IMPORT_ALBUMS,
-  text: { unsorted: I.unsorted, trip: I.trip, away: I.away, home: I.home },
+  text: { unsorted: I.unsorted, trip: I.trip, weekend: I.weekend, away: I.away, home: I.home },
 }
 /** The progress at which state i is fully arrived. */
 const HOLD = (i) => (i === 0 ? 0 : (i + 0.6) / STATES)

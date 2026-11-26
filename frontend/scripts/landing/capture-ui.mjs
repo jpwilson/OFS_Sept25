@@ -42,7 +42,8 @@ const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers
 const APP_HOST = new URL(args.base).host;
 const TILE_RE = /^([abc]\.)?tile\.openstreetmap\.org$/;
 const SB_USER = { id: '00000000-0000-4000-8000-000000000001', aud: 'authenticated', role: 'authenticated', email: 'maya@example.test', app_metadata: { provider: 'email' }, user_metadata: {}, created_at: '2025-11-02T09:00:00Z' };
-const NOW = new Date('2027-01-12T10:00:00Z');
+// two weeks after the newest story (12 December 2026), so every visible date stays in 2026
+const NOW = new Date('2026-12-28T16:00:00Z');
 
 const log = { api: {}, unanswered: [], local: 0, tiles: 0, aborted: {}, fxFiles: 0 };
 const bump = (o, k) => { o[k] = (o[k] || 0) + 1; };
@@ -120,7 +121,7 @@ async function newPage({ phone = false, theme = 'light', state = {} } = {}) {
   }, { u: SB_USER, theme });
   await ctx.route('**/*', (r) => router(r, state));
   const page = await ctx.newPage();
-  // "now" is January 2027 so every sample date is in the past; time keeps flowing
+  // "now" is late December 2026 so every sample date is in the past; time keeps flowing
   // (Leaflet fades tiles in by elapsed time, a frozen clock leaves them invisible).
   await page.clock.install({ time: NOW });
   await page.clock.resume();
@@ -168,6 +169,9 @@ async function save(id, buf, { phone = false } = {}) {
   return { src: `/landing/ui/${name}.webp`, srcM: `/landing/ui/${name}.m.webp`, w: meta.width, h: meta.height, kind: 'ui', alpha: false };
 }
 
+// art snapshot: if the art builder rewrites photos mid-run, the captures may show stale (404) images
+const artKey = (m) => Object.entries(m).filter(([, v]) => v.kind !== 'ui').map(([k, v]) => `${k}=${v.src}`).sort().join('\n');
+const artAtStart = artKey(readManifest());
 const results = {};
 const notes = {};
 const themes = {};
@@ -212,7 +216,9 @@ if (!args.raw) {
 // contact sheet of everything captured so far (all ui-*.png under _raw)
 await buildSheet();
 
-const summary = { captured: Object.keys(results), themes, notes, missingArt: [...MISSING], requests: log };
+const artChanged = artKey(readManifest()) !== artAtStart;
+if (artChanged) console.log('WARNING: art changed in the manifest during this run; re-run once the art builder is idle');
+const summary = { artChangedDuringRun: artChanged, captured: Object.keys(results), themes, notes, missingArt: [...MISSING], requests: log };
 fs.writeFileSync(path.join(FX, 'request-log.json'), JSON.stringify(summary, null, 2));
 console.log(JSON.stringify({ themeMismatch: Object.entries(themes).filter(([, t]) => t.asked !== t.html), captured: Object.keys(results).length, unanswered: log.unanswered, aborted: log.aborted, tiles: log.tiles, missingArt: [...MISSING], notes }, null, 1));
 process.exit(log.unanswered.length ? 1 : 0);

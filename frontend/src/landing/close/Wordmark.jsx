@@ -24,11 +24,11 @@ export function Wordmark({ className, short }) {
     <span className={cx(s.mark, className)} data-short={short || undefined}>
       <Dots />
       <span className={s.full}>
-        {a} <Sticker className={s.sticker}>{b}</Sticker> {c}
+        {a} <Sticker size="sm">{b}</Sticker> {c}
       </span>
       {short ? (
         <span className={s.short} aria-hidden="true">
-          <Sticker className={s.sticker}>{NAV.short}</Sticker>
+          <Sticker size="sm">{NAV.short}</Sticker>
         </span>
       ) : null}
     </span>

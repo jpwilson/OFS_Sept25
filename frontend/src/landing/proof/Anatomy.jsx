@@ -5,9 +5,8 @@
 // Phone: a stepper, one part per step.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ANATOMY } from '../content/proof.js'
-import { Head, Label, Button, Stage, GhostWord, Icon, Missing, SHOT_CAPTION } from '../ui/index.js'
+import { Head, Label, Button, Stage, GhostWord, Icon, Missing, SHOT_CAPTION, ArtImg } from '../ui/index.js'
 import { hasArt } from '../art/manifest.js'
-import { ArtImg } from '../ui/ArtImg.jsx'
 import { clamp, lerp, remap, smoothstep, win } from '../lib/math.js'
 import { cx } from '../ui/cx.js'
 import { PartMedia, PartText } from './Parts.jsx'

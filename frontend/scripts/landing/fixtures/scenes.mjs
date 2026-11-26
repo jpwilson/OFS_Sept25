@@ -120,13 +120,18 @@ const feedScene = (id, phone, theme) => ({
   },
 });
 
-const CARDS = [['ui-card-kitchen', 'Six weeks without a kitchen'], ['ui-card-race', "Dad's first marathon"], ['ui-card-coast', 'A week on the coast path'], ['ui-card-year', 'Ivy turns nine'], ['ui-card-joe70', 'Grandpa Joe at seventy']];
+const CARDS = [
+  ['ui-card-coast', 'A week on the Maine coast'], ['ui-card-tetons', 'Seven days in the Tetons'], ['ui-card-maui', 'Spring break in Maui'],
+  ['ui-card-wedding', 'Kate and Marcus get married'], ['ui-card-kitchen', 'Six weeks without a kitchen'], ['ui-card-race', "Dad's first marathon"],
+  ['ui-card-year', 'Ivy turns nine'], ['ui-card-joe70', 'Grandpa Joe at seventy'],
+];
+const COAST = 'a-week-on-the-maine-coast';
 
 const storyParts = (theme, suffix = '') => ({
   name: `story parts ${theme}`, ids: suffix ? [`ui-story-head${suffix}`] : ['ui-story-d', 'ui-story-head', 'ui-story-toc', 'ui-story-text', 'ui-story-journey', 'ui-story-gallery', 'ui-story-comments'], theme,
   viewer: 'ruth', // a reader: Nana Ruth follows Maya and is ticked Close Family
   async run(page, { settle }) {
-    await openStory(page, settle, 'a-week-on-the-coast-path');
+    await openStory(page, settle, COAST);
     const out = {};
     out[`ui-story-head${suffix}`] = await shot(page.locator($c('heroImage')).first());
     if (suffix) return out;
@@ -140,12 +145,12 @@ const storyParts = (theme, suffix = '') => ({
     await settle(page, 800);
     await page.evaluate(() => document.querySelector('[class*="feedbackButton"], [class*="FeedbackWidget"]')?.remove());
     out['ui-story-d'] = await page.screenshot({ fullPage: true, animations: 'disabled' });
-    const toc = page.locator('nav, aside, div').filter({ has: page.getByText('View journey map') }).filter({ hasText: 'What we would do again' }).last();
+    const toc = page.locator('nav, aside, div').filter({ has: page.getByText('View journey map') }).filter({ hasText: 'The last lighthouse' }).last();
     out['ui-story-toc'] = await tallClip(page, toc, toc, 0);
-    // a section of text with an inline captioned photo: "Botallack" heading to the end of its caption paragraph
+    // a section of text with an inline captioned photo: "The top of Cadillac" heading to the end of its caption paragraph
     out['ui-story-text'] = await page.evaluate(() => {
-      const h = [...document.querySelectorAll('[class*="richContent"] h1')].find((e) => e.textContent.trim() === 'Botallack');
-      const cap = [...document.querySelectorAll('[class*="richContent"] .image-caption')].find((e) => e.textContent.startsWith('Botallack'));
+      const h = [...document.querySelectorAll('[class*="richContent"] h1')].find((e) => e.textContent.trim() === 'The top of Cadillac');
+      const cap = [...document.querySelectorAll('[class*="richContent"] .image-caption')].find((e) => e.textContent.startsWith('The top of Cadillac'));
       const end = cap.nextElementSibling || cap;
       const content = document.querySelector('[class*="richContent"]').getBoundingClientRect();
       const a = h.getBoundingClientRect(), b = end.getBoundingClientRect();
@@ -251,11 +256,11 @@ export const SCENES = [
       // fold the timeline strip so no pin hides under it, then zoom out to the whole world
       await page.locator('button[aria-label="Collapse timeline"]').click().catch(() => {});
       for (let i = 0; i < 2; i++) { await page.locator('.leaflet-control-zoom-out').click(); await page.waitForTimeout(700); }
-      if (phone) { // the world is wider than a phone: bring Europe, Funchal and the UK pins into the middle
+      if (phone) { // the world is wider than a phone: centre North America so Maui, Juneau, the Tetons and the east-coast cluster all show
         const box = await page.locator('.leaflet-container').boundingBox();
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
         await page.mouse.down();
-        await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2 - 60, { steps: 10 });
+        await page.mouse.move(box.x + box.width / 2 + 110, box.y + box.height / 2 - 20, { steps: 10 });
         await page.mouse.up();
       }
       await tiles(page, 1500);
@@ -352,9 +357,51 @@ export const SCENES = [
     },
   },
   {
+    name: 'tetons journey', ids: ['ui-story-tetons-journey'], viewer: 'ruth',
+    async run(page, { settle }) {
+      await openStory(page, settle, 'seven-days-in-the-tetons');
+      await page.locator($c('mapSection')).scrollIntoViewIfNeeded();
+      await streetLayer(page);
+      // The map opens at zoom 10 on the average of the stops, which puts the northern stops under the
+      // fade at the section's top edge. Pan once with Leaflet's own keyboard control (the fade overlay
+      // sits over the map and takes mouse drags); zooming in would no longer fit the route.
+      await page.locator(`${$c('mapSection')} .leaflet-container`).focus();
+      await page.keyboard.press('ArrowUp');
+      await page.waitForTimeout(500);
+      await page.mouse.move(2, 2);
+      await tiles(page);
+      return { 'ui-story-tetons-journey': await shot(page.locator($c('mapSection')).first()) };
+    },
+  },
+  {
+    name: 'tetons phone', ids: ['ui-story-tetons-m'], phone: true, viewer: 'ruth',
+    async run(page, { settle }) {
+      await openStory(page, settle, 'seven-days-in-the-tetons');
+      return { 'ui-story-tetons-m': await page.screenshot({ animations: 'disabled' }) };
+    },
+  },
+  {
+    name: 'wedding gallery + lightbox', ids: ['ui-story-wedding-gallery', 'ui-lightbox-wedding'], viewer: 'ruth',
+    async run(page, { settle }) {
+      await openStory(page, settle, 'kate-and-marcus-get-married');
+      await openGrid(page);
+      const out = {};
+      out['ui-story-wedding-gallery'] = await tallClip(page, page.locator($c('gallerySection')).first(), page.locator($c('gallerySection')).first(), 0);
+      // the cover is the confetti photo (cover-wedding is cropped from photo-wedding-confetti)
+      await page.locator(`${$c('gallerySection')} ${$c('gridItem')}`).first().click();
+      await page.waitForSelector('.yarl__root');
+      await settle(page, 1200);
+      await page.locator(`.yarl__toolbar ${$c('reactionContainer')}`).hover();
+      await page.waitForSelector($c('reactionPickerPortal'));
+      await page.waitForTimeout(500);
+      out['ui-lightbox-wedding'] = await page.screenshot({ animations: 'disabled' });
+      return out;
+    },
+  },
+  {
     name: 'share modal', ids: ['ui-share'],
     async run(page, { settle }) {
-      await openStory(page, settle, 'a-week-on-the-coast-path');
+      await openStory(page, settle, COAST);
       await page.locator('button', { hasText: 'Share' }).first().click();
       await page.waitForSelector($c('daysSelector'));
       await page.locator($c('dayButton')).filter({ hasText: '3 days' }).click();
@@ -392,7 +439,7 @@ export const SCENES = [
       await bgImages(page);
       await settle(page, 800);
       // the layout puts Kate's card on top of Tom's; move it aside the way a person would, by dragging
-      const kate = page.locator('.react-flow__node', { hasText: 'Kate Brennan' });
+      const kate = page.locator('.react-flow__node', { hasText: 'Kate Hartley' });
       const tom = page.locator('.react-flow__node', { hasText: 'Tom Hartley' });
       const kb = await kate.boundingBox(), tb = await tom.boundingBox();
       if (kb && tb && Math.abs(kb.x - tb.x) < tb.width) {

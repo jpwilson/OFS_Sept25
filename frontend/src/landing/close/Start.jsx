@@ -20,6 +20,7 @@ export function Start() {
           </Label>
           <Head {...START.head} className={s.head} />
           <p className={s.line}>{START.line}</p>
+          <p className={s.terms}>{START.terms}</p>
           <div className={s.actions}>
             <Button size="lg" href={ROUTES.signup} onClick={() => track('landing_cta', { where: 'start' })} arrow>
               {START.start}

@@ -34,3 +34,4 @@ export function imgSize(...ids) {
 
 export const avatar = (key) => `${ORIGIN}/__fx/avatar/${key}.webp`;
 export const VIDEO_RACE = `${ORIGIN}/__fx/video/race-final-straight.mp4`;
+export const VIDEO_WEDDING = `${ORIGIN}/__fx/video/wedding-speeches.mp4`;

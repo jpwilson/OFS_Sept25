@@ -1,0 +1,6 @@
+
+SHOTS (PLATE, opaque, studio look carried outdoors: bright midday summer daylight, crisp and colourful). Use sheet A and sheet B as the reference so these are the same people. Sheet A is the NEW household (a white American family). No text, numbers, logos or brand marks anywhere. Everyone fully and ordinarily dressed in their sheet outfits.
+
+1. `plate-year-d.png` — landscape 3:2. GRANDPA JOE's seventieth birthday in a sunny American back yard: a long table with a white cloth, food and glasses, bunting in red, yellow, navy and white strung overhead with no lettering, a hedge and fruit trees behind. The whole cast of thirteen people, everyone turned to the camera and smiling or raising a glass: GRANDPA JOE at the head of the table in the centre, NANA RUTH, MAYA, TOM, IVY and LEO (sheet A), AUNT KATE, UNCLE MARCUS, FINN, PRIYA, SAM and DEB (sheet B). BISCUIT, the small scruffy sandy terrier, knee-high, exactly as on sheet A, sitting in front of the table. Every face clearly visible, nobody hidden behind anyone.
+
+2. `plate-year-m.png` — portrait 2:3. The same scene as shot 1 recomposed for a tall frame: the same garden, table, bunting, people and outfits, everyone turned to the camera, GRANDPA JOE in the centre. BISCUIT in the foreground. Make shot 1 first and use it as the reference for this one.

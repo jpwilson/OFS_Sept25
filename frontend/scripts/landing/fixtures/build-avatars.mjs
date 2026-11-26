@@ -12,12 +12,12 @@ const sharp = require('sharp');
 // [sheet, centre x, centre y, side] in sheet pixels (1536x1024)
 const FACES = {
   biscuit: ['a', 108, 735, 150],
-  maya: ['a', 283, 182, 160],
+  maya: ['a', 280, 172, 160],
   tom: ['a', 512, 122, 160],
-  ivy: ['a', 735, 268, 150],
+  ivy: ['a', 735, 262, 150],
   leo: ['a', 920, 395, 125],
   ruth: ['a', 1095, 220, 135],
-  joe: ['a', 1340, 132, 150],
+  joe: ['a', 1335, 120, 150],
   kate: ['b', 165, 240, 105],
   marcus: ['b', 405, 222, 105],
   finn: ['b', 645, 212, 110],

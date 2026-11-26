@@ -20,6 +20,75 @@
   margin-bottom: 12px;
 }
 
+/* ---------- the ladder: photos, then words, then a voice note, then questions ---------- */
+.ladderWrap {
+  margin-top: 8px;
+}
+.ladder {
+  display: grid;
+  gap: 8px;
+}
+.rung {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'meter name'
+    'meter text';
+  column-gap: 14px;
+  align-items: center;
+  margin-left: calc(var(--k) * clamp(10px, 2.2vw, 30px));
+  padding: 12px 16px 13px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.rung:last-child {
+  background: var(--l-lime);
+}
+.rung b {
+  grid-area: name;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 21px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.rung > span:last-child {
+  grid-area: text;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.meter {
+  grid-area: meter;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 34px;
+}
+.meter i {
+  display: block;
+  width: 7px;
+  border: 2px solid var(--l-ink);
+  border-radius: 2px;
+  background: var(--l-white);
+}
+.meter i:nth-child(1) {
+  height: 12px;
+}
+.meter i:nth-child(2) {
+  height: 19px;
+}
+.meter i:nth-child(3) {
+  height: 26px;
+}
+.meter i:nth-child(4) {
+  height: 33px;
+}
+.meter i[data-on] {
+  background: var(--l-fizz);
+}
+
 /* ---------- modes ---------- */
 .modes {
   margin-top: 12px;
@@ -366,16 +435,28 @@
   .grid > .copy > :nth-child(-n + 3) {
     order: -2;
   }
+  .stage {
+    padding-bottom: 150px;
+  }
+  .stage::before {
+    height: 110px;
+    left: 0;
+    right: 0;
+  }
   .phone,
   .devCap {
-    margin-right: 22%;
+    margin-right: 0;
   }
   .phone {
-    width: 78%;
+    width: 100%;
+  }
+  .devCap {
+    justify-self: start;
   }
   .maya {
-    width: 30%;
-    right: -4%;
+    width: 96px;
+    right: 8%;
+    bottom: 22px;
   }
   .tab {
     padding: 8px 10px 9px;
@@ -386,6 +467,17 @@
   }
   .write {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  /* crop each Quick Add screen to its telling region instead of shrinking the whole window */
+  .screen {
+    aspect-ratio: 5 / 4;
+  }
+  .winImg {
+    transform: scale(var(--z, 1));
+    transform-origin: var(--ox, 50%) var(--oy, 0%);
+    object-position: var(--ox, 50%) var(--oy, 0%);
   }
 }
 @media (max-width: 420px) {
