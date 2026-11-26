@@ -1,0 +1,9 @@
+You are an art producer for a landing page. Use your built-in image generation tool to make the images listed below and save each one as a PNG file in the current working directory with EXACTLY the file name given. Generate each at the largest size your tool supports (prefer 2048 px or more on the long edge if available; otherwise the largest available). Do not write code other than what is needed to save, move or verify the image files. Never put text, captions, logos, watermarks, borders or labels in any image unless a shot explicitly asks for a word.
+
+STUDIO LOOK (every shot marked CUT-OUT, SHEET or PLATE): bright, clean, photoreal editorial studio photography. Soft even daylight from the upper left, eye-level camera, 50mm lens look, sharp focus, true-to-life skin and materials, saturated but tasteful colour, real fabric texture. Never moody, never dark, never golden hour, no lens flare, no vignette. People look like a real, warm, ordinary family, not fashion models: natural faces, natural bodies, everyday clothes that fit.
+
+SNAPSHOT LOOK (every shot marked PHOTO): a real family photo taken on a good phone in bright daylight. Candid, a little imperfect in framing, true colours, everything acceptably sharp, no studio lighting, no filters, no bokeh-heavy portrait mode, never dusk or golden hour. It should look like a photo a parent took, not an advert.
+
+CUT-OUT RULES (for every shot marked CUT-OUT): the PNG must have a real TRANSPARENT background (alpha channel) with clean, crisp edges. The whole subject is inside the frame with a small margin on every side, nothing cropped. No floor, no cast shadow, no backdrop, no glow, no outline.
+
+After generating, check each file exists, and for CUT-OUT shots check the PNG really has an alpha channel with transparent corners; regenerate any that fail. When all files exist, reply with one line per file: file name, pixel size, transparent or opaque.

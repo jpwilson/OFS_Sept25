@@ -1,0 +1,12 @@
+{
+  "name": "ofs-landing-art",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "process": "node process.mjs",
+    "sheets": "node sheets.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}

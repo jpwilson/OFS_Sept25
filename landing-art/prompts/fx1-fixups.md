@@ -1,0 +1,6 @@
+
+FIX-UPS (each shot replaces an earlier attempt; formats as stated per shot). Use sheet A and sheet B as the reference so these are the same people. No text, numbers, logos or brand marks anywhere. Everyone fully and ordinarily dressed.
+
+1. `photo-year-joe70.png` — landscape 4:3, PHOTO, opaque, snapshot look. GRANDPA JOE's seventieth birthday in a sunny summer garden, bright midday. The photo is taken from the far end of a long garden table looking along it, so EVERY face is turned toward the camera: GRANDPA JOE (sheet A) standing at the head of the table in the middle of the frame, large and clearly the centre of the picture, beaming and raising a glass; along both sides, turned toward the camera and raising their glasses: MAYA, TOM, IVY, LEO, NANA RUTH (sheet A), AUNT KATE, UNCLE MARCUS and FINN (sheet B). Nobody has their back to the camera. Bunting in red, yellow, navy and white overhead with no lettering, food and flowers on the table.
+
+2. `prop-cowbell.png` — square 1:1, CUT-OUT with a real transparent background, product shot, slight three-quarter angle, small margin on every side. A brass cowbell with a curved brass loop handle, slightly worn, exactly like a supporter's cowbell at a marathon. No text.
