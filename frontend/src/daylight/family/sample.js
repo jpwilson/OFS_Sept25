@@ -12,7 +12,17 @@
 //   POST /tag-profiles/{id}/relationships   DELETE /tag-profiles/{id}/relationships/{link id}
 // and, in the sets that add people, /users/me/following and /users/me/followers for Maya.
 //
-// and GET /users/{username}/events (a person's stories, for the person sheet).
+// and GET /users/{username}/events (a person's stories, for the person sheet), and the tag-link
+// requests: POST /tag-profiles/{id}/relationship-requests, GET /me/tag-profile-relationship-requests
+// (and /count, /sent), POST /me/tag-profile-relationship-requests/{id}/approve|reject.
+//
+// The server's rules since the security fixes (PR #13), kept here:
+//   - every route above needs sign-in except /tag-profiles/{id}/events and /users/{username}/events
+//     (FastAPI 0.109's HTTPBearer answers 403 "Not authenticated" when the header is missing);
+//   - a tag's birth_date reaches only its creator and the users linked to it;
+//   - a tag-link request is approved or rejected only by the other party: the creator for a
+//     member's request, the target for a creator's proposal (message starts "Proposed by ");
+//   - a person's stories, and a tag's, list only the stories the viewer may open (mayOpen).
 //
 // Sets: /__fx/family?set=hartley|requests|empty|large|error|lapsed|owner-shape&as=maya&next=/family-tree
 //   hartley      the default: everyone in the cast sees their own family (fixtures.js)
@@ -28,7 +38,11 @@ import { TYPES } from './kin.js'
 
 export const SETS = ['hartley', 'requests', 'empty', 'large', 'error', 'lapsed', 'owner-shape']
 const NOW = '2026-11-26T12:00:00'
-const PEOPLE_ROUTES = /^\/(relationships|tag-profiles)(\/|$)/
+const PEOPLE_ROUTES = /^\/(relationships|tag-profiles|me\/tag-profile-relationship-requests)(\/|$)/
+const OPEN_ROUTES = /^\/tag-profiles\/\d+\/events$/ // the one people route that does not need sign-in
+const NOT_SIGNED_IN = { status: 403, json: { detail: 'Not authenticated' } }
+// backend/app/api/tag_profiles.py CREATOR_PROPOSAL_PREFIX: how a creator's proposal is told apart
+export const CREATOR_PROPOSAL_PREFIX = 'Proposed by '
 
 // Someone Maya follows who does not follow her back (the Add sheet's "follow each other first").
 const JORDAN = { key: 'jordan', id: 130, name: 'Jordan Lee' }
@@ -68,6 +82,7 @@ function seed(state, set = 'hartley') {
     nextRel: 7000,
     nextTag: 300,
     nextLink: 3000,
+    nextReq: 5000,
   }
   if (set === 'requests') {
     for (const [key, p] of Object.entries(REQUESTS)) addUser(db, key, p.id, p.name)
@@ -103,6 +118,38 @@ function mutual(state, a, b) {
   if (x === 'maya') return (db.following || []).includes(y) && (db.followers || []).includes(y)
   const fam1 = Object.keys(HARTLEYS.people)
   return fam1.includes(a) && fam1.includes(b)
+}
+
+/** Does a follow b (accepted)? Maya's list is the snapshot's; for the rest, as mutual() knows it. */
+function follows(state, a, b) {
+  if (a === 'maya' && (state.db.following || []).includes(b)) return true
+  return mutual(state, a, b)
+}
+
+/**
+ * May this viewer open this story? backend/app/utils/privacy.py audience_filter, as far as the
+ * sample knows each audience. Signed out (viewer null): public only. The snapshot's list is
+ * Maya's feed, so Maya may open the stories in it; anyone else their own, public ones and the
+ * Followers stories of people they follow; Close Family, Custom Group and Private stories never
+ * (the sample does not know those audiences, so it never assumes them).
+ */
+function mayOpen(state, viewer, e) {
+  const level = e.privacy_level || state.db.details?.[e.id]?.privacy_level || 'public'
+  if (viewer && e.author_username === viewer) return true
+  if (level === 'public') return true
+  if (!viewer || level === 'private') return false
+  if (viewer === 'maya') return true
+  return level === 'followers' && follows(state, viewer, e.author_username)
+}
+
+/** A tag's birthday reaches its creator and the users linked to it (can_see_birth_date). */
+const seesBirth = (tag, viewer) => tag.by === viewer || tag.links.some((l) => l.user === viewer)
+
+/** Only the other party resolves a tag-link request (can_resolve_relationship_request). */
+function canResolve(req, tag, viewer) {
+  if (tag.by === req.user) return false
+  if (String(req.message || '').startsWith(CREATOR_PROPOSAL_PREFIX)) return viewer === req.user
+  return viewer === tag.by
 }
 
 function tagRowsFor(state, viewer) {
@@ -142,10 +189,12 @@ export function answer(req, state, { ok, err }) {
   if (m === 'GET' && (r = p.match(/^\/users\/([^/]+)\/events$/)) && !['me', 'search'].includes(r[1])) {
     if (!db.profiles[r[1]]) return err(404, 'User not found')
     const skip = Number(req.query?.skip || 0), limit = Number(req.query?.limit || 100)
-    return ok(db.list.filter((e) => e.author_username === r[1]).slice(skip, skip + limit))
+    const who = req.auth ? viewer : null
+    return ok(db.list.filter((e) => e.author_username === r[1] && mayOpen(state, who, e)).slice(skip, skip + limit))
   }
 
   if (!PEOPLE_ROUTES.test(p)) return undefined
+  if (!req.auth && !OPEN_ROUTES.test(p)) return NOT_SIGNED_IN
   const F = familyOf(state)
   const dir = dirOf(db)
   const me = db.users[viewer]
@@ -228,9 +277,26 @@ export function answer(req, state, { ok, err }) {
       // tags this package does not keep (none today): leave them to the recorded routes
       return db.routes[`${m} ${p}`] !== undefined ? undefined : err(404, 'Tag profile not found')
     }
-    if (m === 'GET' && !rest) return ok(tagRowWithUrl(tag, dir))
+    if (m === 'GET' && !rest) {
+      const row = tagRowWithUrl(tag, dir)
+      if (!seesBirth(tag, viewer)) row.birth_date = null
+      return ok(row)
+    }
     if (m === 'GET' && rest === '/relationships') return ok(tagRowWithUrl(tag, dir).relationships)
-    if (m === 'GET' && rest === '/events') return ok(db.routes[`GET ${p}`] || [])
+    if (m === 'GET' && rest === '/events') {
+      const who = req.auth ? viewer : null
+      return ok((db.routes[`GET ${p}`] || []).filter((e) => mayOpen(state, who, e)))
+    }
+    if (m === 'POST' && rest === '/relationship-requests') {
+      // a member asks to be linked to someone else's tag; the creator approves
+      if (tag.by === viewer) return err(400, 'You created this profile - use the direct relationship endpoint instead')
+      if (tag.links.some((l) => l.user === viewer)) return err(400, 'You already have a relationship with this tag profile')
+      if (F.tagRequests.some((x) => x.tag === tag.id && x.user === viewer && x.status === 'pending')) return err(400, 'You already have a pending relationship request for this profile')
+      if (String(body?.message || '').startsWith(CREATOR_PROPOSAL_PREFIX)) return err(400, `Your message cannot start with "${CREATOR_PROPOSAL_PREFIX.trim()}"`)
+      const rec = { id: F.nextReq++, tag: tag.id, user: viewer, word: body?.relationship_type, message: body?.message ?? null, status: 'pending', created_at: NOW }
+      F.tagRequests.push(rec)
+      return ok(tagSentRow(rec, tag, dir))
+    }
     if (tag.by !== viewer) return err(403, rest ? 'Only the creator can change relationships on this tag profile' : 'You can only update your own tag profiles')
     if (m === 'PUT' && !rest) {
       // production applies only the fields that are not null, and never rewrites the creator's link
@@ -253,7 +319,9 @@ export function answer(req, state, { ok, err }) {
         return ok({ id: link.id, user_id: u.id, username: u.username, display_name: u.display_name, avatar_url: u.avatar_url, relationship_type: link.word, created_at: NOW })
       }
       if (F.tagRequests.some((x) => x.tag === tag.id && x.user === userKey && x.status === 'pending')) return err(400, 'A pending relationship request already exists for this user')
-      F.tagRequests.push({ tag: tag.id, user: userKey, word: body.relationship_type, status: 'pending' })
+      // stored with the target as proposer and the creator's prefix: the target approves
+      const by = dir(viewer)
+      F.tagRequests.push({ id: F.nextReq++, tag: tag.id, user: userKey, word: body.relationship_type, message: `${CREATOR_PROPOSAL_PREFIX}${by.display_name || by.username}`, status: 'pending', created_at: NOW })
       return ok({ id: 0, user_id: u.id, username: u.username, display_name: u.display_name, avatar_url: u.avatar_url, relationship_type: `${body.relationship_type} (pending approval)`, created_at: NOW })
     }
     if (m === 'DELETE' && (r = rest.match(/^\/relationships\/(\d+)$/))) {
@@ -264,7 +332,53 @@ export function answer(req, state, { ok, err }) {
       return ok({ message: 'Relationship removed' })
     }
   }
+
+  // ------------------------------------------------------------ tag-link requests (/me/…)
+  const tagOf = (x) => F.tags.find((t) => t.id === x.tag)
+  if (m === 'GET' && (p === '/me/tag-profile-relationship-requests' || p === '/me/tag-profile-relationship-requests/count')) {
+    const mine = F.tagRequests.filter((x) => x.status === 'pending' && tagOf(x) && canResolve(x, tagOf(x), viewer)).sort((a, b) => b.created_at.localeCompare(a.created_at))
+    return ok(p.endsWith('/count') ? { count: mine.length } : mine.map((x) => tagRequestRow(x, tagOf(x), dir)))
+  }
+  if (m === 'GET' && p === '/me/tag-profile-relationship-requests/sent') {
+    // production lists the requests whose proposer is you, a creator's proposals for you among them
+    return ok(F.tagRequests.filter((x) => x.user === viewer && tagOf(x)).sort((a, b) => b.created_at.localeCompare(a.created_at)).map((x) => tagSentRow(x, tagOf(x), dir)))
+  }
+  if (m === 'POST' && (r = p.match(/^\/me\/tag-profile-relationship-requests\/(\d+)\/(approve|reject)$/))) {
+    const rec = F.tagRequests.find((x) => x.id === Number(r[1]))
+    const tag = rec && tagOf(rec)
+    if (!rec || !tag) return err(404, 'Request not found')
+    if (!canResolve(rec, tag, viewer)) return err(403, `You don't have permission to ${r[2]} this request`)
+    if (rec.status !== 'pending') return err(400, 'This request has already been processed')
+    if (r[2] === 'reject') {
+      rec.status = 'rejected'
+      return ok({ message: 'Relationship request rejected' })
+    }
+    rec.status = 'approved'
+    tag.links.push({ id: F.nextLink++, user: rec.user, word: rec.word })
+    syncRecorded(state)
+    return ok({ message: 'Relationship request approved' })
+  }
   return undefined
+}
+
+/** TagProfileRelationshipRequestResponse: a request waiting for you (the proposer is the other user). */
+function tagRequestRow(rec, tag, dir) {
+  const u = dir(rec.user)
+  return {
+    id: rec.id, tag_profile_id: tag.id, tag_profile_name: tag.name, tag_profile_photo_url: tag.photoUrl || (tag.photo ? photoUrl(tag.photo) : null),
+    proposer_id: u.id, proposer_username: u.username, proposer_display_name: u.display_name, proposer_avatar_url: u.avatar_url ?? null,
+    relationship_type: rec.word, message: rec.message, status: rec.status, created_at: rec.created_at,
+  }
+}
+
+/** TagProfileRelationshipRequestSentResponse. */
+function tagSentRow(rec, tag, dir) {
+  const c = dir(tag.by)
+  return {
+    id: rec.id, tag_profile_id: tag.id, tag_profile_name: tag.name, tag_profile_photo_url: tag.photoUrl || (tag.photo ? photoUrl(tag.photo) : null),
+    profile_creator_id: c.id, profile_creator_username: c.username, profile_creator_display_name: c.display_name,
+    relationship_type: rec.word, message: rec.message, status: rec.status, created_at: rec.created_at,
+  }
 }
 
 /** A tag row whose photo may be an uploaded URL rather than a cast avatar. */

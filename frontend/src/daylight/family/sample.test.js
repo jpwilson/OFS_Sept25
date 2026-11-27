@@ -34,7 +34,8 @@ function freshState(viewer = 'maya') {
   const me = Object.fromEntries(Object.keys(users).map((k) => [k, { ...users[k], can_access_content: true, subscription_status: 'active' }]))
   return { db: { users, profiles, me, routes: {}, following: FOLLOWING_KEYS, followers: FOLLOWER_KEYS }, viewer }
 }
-const ask = (state, method, p, body) => answer({ method, path: p, query: {}, body, auth: '' }, state, helpers)
+const ask = (state, method, p, body) => answer({ method, path: p, query: {}, body, auth: 'Bearer sample' }, state, helpers)
+const askSignedOut = (state, method, p, body) => answer({ method, path: p, query: {}, body, auth: '' }, state, helpers)
 
 test('row keys match the production schemas exactly', () => {
   assert.deepEqual(SCHEMA_KEYS.relationship, fields('user_relationship.py', 'RelationshipResponse'))
@@ -53,6 +54,12 @@ test('row keys match the production schemas exactly', () => {
   same(tags, SCHEMA_KEYS.tag)
   same(tags.flatMap((t) => t.relationships), SCHEMA_KEYS.tagLink)
   same([ask(st, 'GET', '/relationships/with/2').json], SCHEMA_KEYS.relationship)
+  // the tag-link request rows
+  const t = ask(st, 'GET', '/tag-profiles/mine').json[0]
+  ask(st, 'POST', `/tag-profiles/${t.id}/relationships`, { user_id: USERS.joe.id, relationship_type: 'pet' })
+  st.viewer = 'joe'
+  same(ask(st, 'GET', '/me/tag-profile-relationship-requests').json, fields('tag_profile.py', 'TagProfileRelationshipRequestResponse'))
+  same(ask(st, 'GET', '/me/tag-profile-relationship-requests/sent').json, fields('tag_profile.py', 'TagProfileRelationshipRequestSentResponse'))
 })
 
 test("Maya's sample: eight relationships, Biscuit linked to Maya and Tom as 'pet', 35 types", () => {
@@ -195,4 +202,60 @@ test('the owner-shape set: sign in as nate; his family, his follows, and stories
   assert.deepEqual(ask(st, 'GET', '/users/maya/events').json.map((e) => e.id), [1])
   assert.deepEqual(ask(st, 'GET', '/users/rob/events').json, [])
   assert.equal(ask(st, 'GET', '/users/nobody/events').status, 404)
+})
+
+test('the server since the security fixes: sign-in, birthdays, who resolves a request, which stories', () => {
+  const st = freshState()
+  // sign-in: every people route but a tag's stories
+  assert.equal(askSignedOut(st, 'GET', '/tag-profiles/41').status, 403)
+  assert.equal(askSignedOut(st, 'GET', '/tag-profiles/41/relationships').status, 403)
+  assert.equal(askSignedOut(st, 'GET', '/relationships').status, 403)
+  assert.equal(askSignedOut(st, 'GET', '/tag-profiles/41/events').status, 200)
+  // birthdays: the creator and linked users only
+  const bea = ask(st, 'POST', '/tag-profiles', { name: 'Bea', relationship_to_creator: 'daughter', birth_date: '2018-03-04' }).json
+  assert.equal(ask(st, 'GET', `/tag-profiles/${bea.id}`).json.birth_date, '2018-03-04', 'the creator')
+  st.viewer = 'joe'
+  assert.equal(ask(st, 'GET', `/tag-profiles/${bea.id}`).json.birth_date, null, 'not linked')
+  assert.equal(ask(st, 'GET', `/tag-profiles/${bea.id}`).json.name, 'Bea')
+  // a creator's proposal: only the target resolves it, and the creator cannot
+  st.viewer = 'maya'
+  ask(st, 'POST', `/tag-profiles/${bea.id}/relationships`, { user_id: USERS.tom.id, relationship_type: 'daughter' })
+  assert.deepEqual(ask(st, 'GET', '/me/tag-profile-relationship-requests').json, [], 'the creator does not approve her own proposal')
+  st.viewer = 'tom'
+  const [req] = ask(st, 'GET', '/me/tag-profile-relationship-requests').json
+  assert.ok(req.message.startsWith('Proposed by '))
+  assert.equal(ask(st, 'GET', '/me/tag-profile-relationship-requests/count').json.count, 1)
+  assert.equal(ask(st, 'GET', `/tag-profiles/${bea.id}`).json.birth_date, null, 'a pending link shows no birthday')
+  st.viewer = 'maya'
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${req.id}/approve`).status, 403)
+  st.viewer = 'joe'
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${req.id}/reject`).status, 403)
+  st.viewer = 'tom'
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${req.id}/approve`).json.message, 'Relationship request approved')
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${req.id}/approve`).status, 400)
+  assert.equal(ask(st, 'GET', `/tag-profiles/${bea.id}`).json.birth_date, '2018-03-04', 'linked now')
+  // a member's own request: the creator resolves it, and the creator's prefix is refused
+  st.viewer = 'joe'
+  assert.equal(ask(st, 'POST', `/tag-profiles/${bea.id}/relationship-requests`, { relationship_type: 'niece', message: 'Proposed by Maya' }).status, 400)
+  const mine = ask(st, 'POST', `/tag-profiles/${bea.id}/relationship-requests`, { relationship_type: 'niece' }).json
+  assert.equal(mine.profile_creator_username, 'maya')
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${mine.id}/approve`).status, 403, 'not your own request')
+  st.viewer = 'maya'
+  assert.equal(ask(st, 'GET', '/me/tag-profile-relationship-requests').json.length, 1)
+  assert.equal(ask(st, 'POST', `/me/tag-profile-relationship-requests/${mine.id}/reject`).json.message, 'Relationship request rejected')
+  // stories: only those the viewer may open
+  st.db.list = [
+    { id: 1, author_username: 'tom', privacy_level: 'public' },
+    { id: 2, author_username: 'tom', privacy_level: 'followers' },
+    { id: 3, author_username: 'tom', privacy_level: 'close_family' },
+    { id: 4, author_username: 'tom', privacy_level: 'private' },
+  ]
+  const ids = (res) => res.json.map((e) => e.id)
+  assert.deepEqual(ids(ask(st, 'GET', '/users/tom/events')), [1, 2, 3], "Maya's feed, never a private story")
+  assert.deepEqual(ids(askSignedOut(st, 'GET', '/users/tom/events')), [1], 'signed out: public only')
+  st.viewer = 'tom'
+  assert.deepEqual(ids(ask(st, 'GET', '/users/tom/events')), [1, 2, 3, 4], 'your own, all of them')
+  st.viewer = 'jordan'
+  familyOf(st)
+  assert.deepEqual(ids(ask(st, 'GET', '/users/tom/events')), [1], 'someone Tom has no audience for')
 })

@@ -11,7 +11,7 @@
 /* ---- the control group: on the frame's top edge, then held on screen while the tree scrolls by */
 .controls {
   position: sticky;
-  top: calc(var(--a-bar-h) + 30px);
+  top: calc(var(--a-bar-h) + var(--a-safe-top) + 30px);
   z-index: 6;
   height: 0;
   display: flex;

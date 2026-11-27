@@ -154,5 +154,8 @@ export function useFamily() {
 /** People you follow and who follow you, for the Add sheet (asked only when it opens). */
 export async function loadFollows() {
   const [following, followers] = await Promise.all([apiFetch('/users/me/following'), apiFetch('/users/me/followers')])
-  return { following: following || [], followers: followers || [] }
+  // both lists are accepted follows today; a row with another status (pending, or a request the
+  // asker withdrew, kept as 'cancelled') never counts as following
+  const accepted = (rows) => (rows || []).filter((f) => f.status == null || f.status === 'accepted')
+  return { following: accepted(following), followers: accepted(followers) }
 }

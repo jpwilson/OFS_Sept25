@@ -13,6 +13,12 @@ const MAX = 1.25
 const STEP = 1.2
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v))
 
+/** Where the shell's top bar ends: its height plus the safe area over it (a notch), else the token. */
+function topClear(el) {
+  const b = document.querySelector('[data-ui="topbar"]')?.getBoundingClientRect().bottom
+  return b > 0 ? b : parseFloat(getComputedStyle(el).getPropertyValue('--a-bar-h')) || 56
+}
+
 export function usePanZoom({ geometry: g, ready }) {
   const scrollerRef = useRef(null)
   const [frameW, setFrameW] = useState(0)
@@ -69,7 +75,7 @@ export function usePanZoom({ geometry: g, ready }) {
     if (!vertical) return
     const r = el.getBoundingClientRect()
     const py = r.top + y * z
-    const bar = parseFloat(getComputedStyle(el).getPropertyValue('--a-bar-h')) || 56
+    const bar = topClear(el)
     const bottomClear = parseFloat(getComputedStyle(el).getPropertyValue('--a-bottom-clear')) || 0
     const top = bar + 16
     const bottom = window.innerHeight - bottomClear - 16
@@ -158,7 +164,7 @@ export function usePanZoom({ geometry: g, ready }) {
       const top = r.top + item.y * z - face / 2 - 24
       const bottom = r.top + item.y * z + face / 2 + 64 * z + 16
       const cs = getComputedStyle(el)
-      const bar = parseFloat(cs.getPropertyValue('--a-bar-h')) || 56
+      const bar = topClear(el)
       const bottomClear = parseFloat(cs.getPropertyValue('--a-bottom-clear')) || 0
       if (top < bar + 8) window.scrollBy({ top: top - bar - 8, behavior: behavior() })
       else if (bottom > window.innerHeight - bottomClear - 8) window.scrollBy({ top: bottom - (window.innerHeight - bottomClear - 8), behavior: behavior() })

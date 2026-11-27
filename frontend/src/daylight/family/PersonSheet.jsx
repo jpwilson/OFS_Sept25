@@ -273,7 +273,7 @@ function Details({ p, you, structure, canWrite, busy, onUnlink }) {
   return lines.length ? <Block title="Details" ui="person-details">{lines}</Block> : null
 }
 
-/** The stories they are in: a person's own stories, or the stories a tag is tagged in. */
+/** The stories they are in that you may open: a person's own stories, or the stories a tag is tagged in. */
 function Stories({ p, you, open }) {
   const [state, setState] = useState({ key: null, list: null, failed: false })
   const key = p.kind === 'tag' ? `t:${p.tagId}` : p.username ? `u:${p.username}` : null
@@ -322,7 +322,8 @@ function Stories({ p, you, open }) {
           {allLink}
         </>
       ) : (
-        <p className="a-mute">{p.kind === 'tag' ? `Tag ${p.first} in a story and it shows here.` : you ? 'Your stories show here.' : `${possessive(p.first)} stories show here.`}</p>
+        // the server lists only the stories you may open: never claim they have none
+        <p className="a-mute">{p.kind === 'tag' ? `Tag ${p.first} in a story and it shows here.` : you ? 'Your stories show here.' : `Stories ${p.first} shares with you show here.`}</p>
       )}
     </Block>
   )
