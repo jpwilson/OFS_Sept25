@@ -1,0 +1,289 @@
+/* Story look of the data-driven marketing pages (owner: pages). */
+
+/* ---------------------------------------------------------------- head */
+
+:global(.ofsl) .head {
+  position: relative;
+  padding-top: var(--ph-top);
+  background: linear-gradient(
+    to top,
+    var(--l-ink) 0 2px,
+    var(--l-wash-deep) 2px var(--ph-floor),
+    var(--l-wash) var(--ph-floor)
+  );
+}
+.headInner {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .headInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: clamp(32px, 4vw, 72px);
+  align-items: start;
+}
+/* The words are grid items of headInner, so the phone layout can sit the buttons beside the cut-out. */
+:global(.ofsl) .words {
+  display: contents;
+}
+:global(.ofsl) .words > * {
+  grid-column: 1;
+}
+.back {
+  composes: ph-back from global;
+}
+:global(.ofsl) .back {
+  justify-self: start;
+}
+.title {
+  composes: ph-title from global;
+}
+:global(.ofsl) .title {
+  max-width: 17ch;
+}
+.lede {
+  composes: ph-lede from global;
+}
+:global(.ofsl) .lede {
+  max-width: 50ch;
+}
+:global(.ofsl) .lede a {
+  text-decoration-thickness: 2px;
+}
+:global(.ofsl) .ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 16px;
+}
+:global(.ofsl) .head .ctas {
+  margin-top: clamp(26px, 3vw, 40px);
+}
+.updated {
+  composes: ph-mono from global;
+}
+:global(.ofsl) .updated {
+  margin-top: 22px;
+  padding-bottom: calc(var(--ph-floor) + clamp(36px, 4.4vw, 60px));
+}
+:global(.ofsl) .art {
+  grid-column: 2;
+  grid-row: 1 / span 6;
+  align-self: end;
+  width: calc(var(--ph-art-h) * var(--ph-ar));
+  /* feet on the floor */
+  margin-bottom: calc(var(--ph-floor) * 0.5);
+}
+:global(.ofsl) .cutout {
+  display: block;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------- body */
+
+:global(.ofsl) .body {
+  counter-reset: sheet;
+  display: grid;
+  gap: clamp(20px, 2.4vw, 32px);
+  padding-block: clamp(48px, 7vw, 112px);
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(16, 27, 59, 0.12) 1px, transparent 1.4px) 0 0 / 22px 22px;
+  padding-inline: max(var(--l-gutter), calc((100% - var(--l-max)) / 2));
+}
+.sheet {
+  composes: ph-card from global;
+}
+:global(.ofsl) .sheet {
+  counter-increment: sheet;
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: 20px clamp(32px, 5vw, 80px);
+  padding: clamp(28px, 4vw, 56px);
+}
+.h2 {
+  composes: ph-h2 from global;
+}
+:global(.ofsl) .h2 {
+  align-self: start;
+}
+:global(.ofsl) .sheet:nth-child(5n + 1) {
+  --c: var(--l-tide);
+}
+:global(.ofsl) .sheet:nth-child(5n + 2) {
+  --c: var(--l-zest);
+}
+:global(.ofsl) .sheet:nth-child(5n + 3) {
+  --c: var(--l-lime);
+}
+:global(.ofsl) .sheet:nth-child(5n + 4) {
+  --c: var(--l-fizz);
+}
+:global(.ofsl) .sheet:nth-child(5n + 5) {
+  --c: var(--l-azure);
+}
+:global(.ofsl) .h2::before {
+  content: counter(sheet, decimal-leading-zero);
+  display: table;
+  margin-bottom: 16px;
+  padding: 4px 8px 3px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--c, var(--l-tide));
+  box-shadow: 2px 2px 0 var(--l-ink);
+  color: var(--l-ink);
+  transform: rotate(-3deg);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: var(--l-track-label);
+}
+:global(.ofsl) .flow {
+  grid-column: 2;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  min-width: 0;
+}
+:global(.ofsl) .sheet > .flow:only-child {
+  grid-column: 1 / -1;
+}
+:global(.ofsl) .p {
+  max-width: 66ch;
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+}
+.h3 {
+  composes: ph-h3 from global;
+}
+.ticks {
+  composes: ph-ticks from global;
+}
+:global(.ofsl) .flow > .ctas {
+  margin-top: 8px;
+}
+
+/* numbered steps on wash stickers */
+:global(.ofsl) .steps {
+  counter-reset: step;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+:global(.ofsl) .steps > li {
+  counter-increment: step;
+  position: relative;
+  min-height: 36px;
+  padding: 4px 0 0 52px;
+  line-height: 1.55;
+}
+:global(.ofsl) .steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: var(--l-keyline);
+  border-radius: 10px;
+  background: var(--l-wash);
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  transform: rotate(-3deg);
+}
+
+/* cards: h3 runs (Coming from ...?) and question pairs */
+:global(.ofsl) .cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  margin-block: 6px;
+}
+:global(.ofsl) .tile {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.tileHead {
+  composes: ph-h3 from global;
+}
+:global(.ofsl) .tileHead {
+  padding: 16px 20px 14px;
+  background: var(--l-wash);
+  border-bottom: var(--l-keyline);
+}
+:global(.ofsl) .tileBody {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px 22px;
+}
+:global(.ofsl) .tileBody .p {
+  font-size: 17px;
+}
+.qa {
+  composes: ph-card from global;
+}
+:global(.ofsl) .qa {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 22px 24px;
+}
+
+/* ---------------------------------------------------------------- iPad portrait and phones */
+
+@media (max-width: 1023px) {
+  :global(.ofsl) .sheet {
+    grid-template-columns: 1fr;
+  }
+  :global(.ofsl) .flow {
+    grid-column: 1;
+  }
+}
+@media (max-width: 640px) {
+  /* phone: words full width, then the buttons beside the cut-out on the floor */
+  :global(.ofsl) .headInner {
+    column-gap: 12px;
+  }
+  :global(.ofsl) .words > * {
+    grid-column: 1 / -1;
+  }
+  :global(.ofsl) .head .ctas {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 26px;
+  }
+  /* the last row: the date at the left, the cut-out on the floor at the right */
+  :global(.ofsl) .updated {
+    grid-row: 5;
+    grid-column: 1;
+    align-self: end;
+    padding-bottom: calc(var(--ph-floor) + 22px);
+  }
+  :global(.ofsl) .art {
+    grid-row: 5;
+    grid-column: 2;
+    margin-top: 12px;
+    max-width: 52vw;
+  }
+  :global(.ofsl) .title {
+    max-width: none;
+  }
+  :global(.ofsl) .sheet {
+    padding: 24px 20px 28px;
+  }
+  :global(.ofsl) .cards {
+    grid-template-columns: 1fr;
+  }
+}

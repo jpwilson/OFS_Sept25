@@ -1,0 +1,112 @@
+/* Member quotes under the Why head: three across on desktop, two on iPad portrait, a
+   swipeable row on the phone. */
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2vw, 28px);
+  margin-bottom: clamp(36px, 4.5vw, 64px);
+}
+.item {
+  display: flex;
+}
+.card {
+  flex: 1;
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  padding: 26px 26px 24px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.photo {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  overflow: hidden;
+  border: var(--l-keyline);
+  border-radius: 50%;
+  background: var(--l-tide);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 38px;
+  line-height: 1;
+}
+.photo[data-i='1'] {
+  background: var(--l-fizz);
+}
+.photo[data-i='2'] {
+  background: var(--l-zest);
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.quote {
+  margin: 0;
+}
+.quote p {
+  font-family: var(--l-font-story);
+  font-size: clamp(18px, 0.6vw + 12px, 21px);
+  line-height: 1.55;
+}
+.quote p::before {
+  content: '“';
+}
+.quote p::after {
+  content: '”';
+}
+.who {
+  display: grid;
+  gap: 2px;
+  padding-top: 14px;
+  border-top: 2px solid var(--l-ink);
+}
+.name {
+  font-weight: 700;
+  font-size: 18px;
+}
+.role {
+  font-size: 16px;
+  color: var(--l-mute);
+}
+
+@media (max-width: 1023px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phone: a row you swipe, each card most of the screen wide, the next one peeking in */
+@media (max-width: 640px) {
+  .list {
+    display: flex;
+    gap: 14px;
+    margin-inline: calc(-1 * var(--l-gutter));
+    padding: 4px var(--l-gutter) 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--l-gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .list::-webkit-scrollbar {
+    display: none;
+  }
+  .item {
+    flex: 0 0 84%;
+    scroll-snap-align: start;
+  }
+  .card {
+    padding: 22px 20px 20px;
+  }
+  .photo {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
+  }
+}

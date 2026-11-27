@@ -42,6 +42,34 @@
   max-width: 12ch;
   font-size: clamp(40px, 6vw, 92px);
 }
+.sub {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(24px, 2.6vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+/* Biscuit, drawn in the tree's style */
+.tagCard {
+  display: inline-grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 20px 26px 18px;
+  background: var(--l-paper);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  rotate: -1.5deg;
+}
+.noAccount {
+  padding: 4px 12px;
+  border: 2px dashed var(--l-ink);
+  border-radius: var(--l-r-pill);
+  background: var(--l-white);
+  font-weight: 700;
+  font-size: 15px;
+}
 .leadText {
   display: grid;
   gap: 18px;
@@ -127,30 +155,8 @@
 .treeStage {
   position: relative;
   z-index: 2;
-}
-.treeFig {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-.pan {
-  overflow: hidden;
-  border: var(--l-keyline);
-  border-radius: var(--l-r-card);
-  background: var(--l-white);
-  box-shadow: var(--l-shadow-lg);
-}
-.pan:focus-visible {
-  outline: 3px solid var(--l-ink);
-  outline-offset: 3px;
-}
-.treeShot :global(span) {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-.panHint {
-  display: none;
+  width: min(100%, 1120px);
+  justify-self: center;
 }
 
 /* ---------- the floor: the kids, then the two beats ---------- */
@@ -248,10 +254,6 @@
   gap: 18px;
   justify-items: start;
 }
-.biscuitShot {
-  width: min(100%, 340px);
-  transform: rotate(-2deg);
-}
 .profileShot {
   width: 100%;
 }
@@ -324,19 +326,6 @@
   }
   .pointText {
     font-size: 16px;
-  }
-  /* the tree pans: wide enough to read every card, starting on Maya */
-  .pan {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-  }
-  .treeShot {
-    width: 1040px;
-    max-width: none;
-  }
-  .panHint {
-    display: inline;
   }
   .beat {
     grid-template-columns: minmax(0, 1fr);

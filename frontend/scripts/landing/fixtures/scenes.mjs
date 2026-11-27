@@ -122,7 +122,7 @@ const feedScene = (id, phone, theme) => ({
 
 const CARDS = [
   ['ui-card-coast', 'A week on the Maine coast'], ['ui-card-tetons', 'Seven days in the Tetons'], ['ui-card-maui', 'Spring break in Maui'],
-  ['ui-card-wedding', 'Kate and Marcus get married'], ['ui-card-kitchen', 'Six weeks without a kitchen'], ['ui-card-race', "Dad's first marathon"],
+  ['ui-card-wedding', 'Kate and James get married'], ['ui-card-kitchen', 'Six weeks without a kitchen'], ['ui-card-race', "Dad's first marathon"],
   ['ui-card-year', 'Ivy turns nine'], ['ui-card-joe70', 'Grandpa Joe at seventy'],
 ];
 const COAST = 'a-week-on-the-maine-coast';
@@ -383,7 +383,7 @@ export const SCENES = [
   {
     name: 'wedding gallery + lightbox', ids: ['ui-story-wedding-gallery', 'ui-lightbox-wedding'], viewer: 'ruth',
     async run(page, { settle }) {
-      await openStory(page, settle, 'kate-and-marcus-get-married');
+      await openStory(page, settle, 'kate-and-james-get-married');
       await openGrid(page);
       const out = {};
       out['ui-story-wedding-gallery'] = await tallClip(page, page.locator($c('gallerySection')).first(), page.locator($c('gallerySection')).first(), 0);

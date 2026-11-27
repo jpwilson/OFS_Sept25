@@ -22,14 +22,17 @@
 // React landing rendered to a string (dist-ssr/entry-server.mjs) and hydrated on the
 // client; see storyHome() below.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { NOT_FOUND_PAGE, PAGES } from '../src/content/marketing.js'
 import { buildHead, renderBody, renderText, countWords } from '../src/content/renderStatic.js'
 import { resolveVariant } from './landing/variant.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DIST = join(__dirname, '../dist')
+// OFS_DIST / OFS_DIST_SSR: prerender a build written somewhere other than dist/ (used to
+// verify a scratch build without touching the shared dist/). Default: dist/ and dist-ssr/.
+const DIST = process.env.OFS_DIST ? resolve(process.env.OFS_DIST) : join(__dirname, '../dist')
+const DIST_SSR = process.env.OFS_DIST_SSR ? resolve(process.env.OFS_DIST_SSR) : join(__dirname, '../dist-ssr')
 
 // Minimal on-brand styling for the pre-hydration / no-JavaScript view. The
 // React app replaces this markup as soon as it mounts.
@@ -44,6 +47,25 @@ const SHELL_STYLE = `<style>
 .prerender-shell table{border-collapse:collapse;width:100%;margin:1rem 0}
 .prerender-shell th,.prerender-shell td{border:1px solid #1F2937;padding:.6rem;text-align:left;vertical-align:top}
 .prerender-shell footer{margin-top:3rem;border-top:1px solid #1F2937;padding-top:1.5rem}
+</style>`
+
+// Story variant: the same shell in the landing's light look (paper ground, ink text, the
+// page head on a wash), so the first paint before the app mounts matches the story pages
+// (src/landing/pages). The classic variant keeps SHELL_STYLE above, byte for byte.
+const STORY_SHELL_STYLE = `<style>
+html,body{background:#F4F7FB}
+.prerender-shell{max-width:900px;margin:0 auto;padding:1.25rem 1.25rem 3rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:18px;line-height:1.6;color:#101B3B;background:#F4F7FB}
+.prerender-shell nav{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:.25rem 1rem;align-items:center;padding:.75rem 1.25rem;background:#fff;border:2px solid #101B3B;border-radius:999px;box-shadow:4px 4px 0 #101B3B}
+.prerender-shell nav a{font-weight:600;text-decoration:none;color:#101B3B}
+.prerender-shell main{padding-top:1.5rem}
+.prerender-shell h1{font-size:clamp(2.4rem,6vw,4.5rem);line-height:.98;letter-spacing:-.03em;font-weight:800;color:#101B3B;margin:1rem 0;padding:1.5rem 0 1rem;box-shadow:0 0 0 100vmax #19CFC7;clip-path:inset(-100vmax -100vmax 0 -100vmax);background:#19CFC7}
+.prerender-shell h2{font-size:1.75rem;line-height:1.1;letter-spacing:-.02em;font-weight:800;color:#101B3B;margin:2.25rem 0 .75rem}
+.prerender-shell h3{font-size:1.2rem;font-weight:700;color:#101B3B;margin:1.5rem 0 .5rem}
+.prerender-shell p,.prerender-shell li{color:#101B3B}
+.prerender-shell a{color:#101B3B;text-decoration-thickness:2px;text-underline-offset:.18em}
+.prerender-shell table{border-collapse:collapse;width:100%;margin:1rem 0;background:#fff}
+.prerender-shell th,.prerender-shell td{border:2px solid #101B3B;padding:.6rem;text-align:left;vertical-align:top}
+.prerender-shell footer{margin-top:3rem;border-top:2px solid #101B3B;padding-top:1.5rem}
 </style>`
 
 const NOSCRIPT =
@@ -117,7 +139,7 @@ if (VARIANT === 'story') {
   // the app set everywhere else (so app routes never wait on the landing stylesheet).
   baseHtml = baseHtml.replace(ASSETS_MARK, () => JSON.stringify(assets))
 
-  const ssrEntry = join(__dirname, '../dist-ssr/entry-server.mjs')
+  const ssrEntry = join(DIST_SSR, 'entry-server.mjs')
   if (!existsSync(ssrEntry)) throw new Error('prerender: dist-ssr/entry-server.mjs missing (scripts/landing/build-ssr.mjs)')
   const { render } = await import(pathToFileURL(ssrEntry).href)
   const { storyHome } = await import('../src/landing/content/seo.js')
@@ -163,7 +185,7 @@ for (const page of [...PAGES, NOT_FOUND_PAGE]) {
   const body = renderBody(page)
   const html = page.path === '/' && storyHomeHtml ? storyHomeHtml : baseHtml
     .replace(SEO_BLOCK, buildHead(page))
-    .replace('<!-- SEO:BODY -->', SHELL_STYLE + body)
+    .replace('<!-- SEO:BODY -->', (VARIANT === 'story' ? STORY_SHELL_STYLE : SHELL_STYLE) + body)
     .replace('</body>', `${NOSCRIPT}</body>`)
 
   const out = outputPathFor(page.path)

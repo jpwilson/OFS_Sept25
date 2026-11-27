@@ -1,4 +1,4 @@
-// 04 WEDDING: "Kate and Marcus get married". The couple under the flower arch, a gallery wall
+// 04 WEDDING: "Kate and James get married". The couple under the flower arch, a gallery wall
 // with captions, the speeches as a clip, the real lightbox, the family dressed up, and the
 // replies underneath.
 import { HUD, WEDDING as C } from '../../content/film.js'

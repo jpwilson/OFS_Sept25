@@ -24,9 +24,9 @@ Write for someone who has just come back from a trip, or is planning a wedding, 
 
 ## The sample family (replaces SPEC's section)
 
-They are American. Household: **Maya** 38 (the mom), **Tom** 40, **Ivy** 9, **Leo** 5, **Biscuit** the terrier. Grandparents: **Nana Ruth** 68 (Tom's mother), **Grandpa Joe** 71 (Maya's father). **Aunt Kate** 43 (Tom's sister), **Uncle Marcus** 44 (Kate's husband; recast on 2026-11-26 at the owner's request, so sheet B was remade: `landing-art/ref/cast-b.png` is the new one), **Finn** 14 (Kate's son). Friends: **Priya** 37, **Sam** 41, **Deb** 56. The new character sheet is `landing-art/ref/cast-a.png`.
+They are American. Household: **Maya** 38 (the mom), **Tom** 40, **Ivy** 9, **Leo** 5, **Biscuit** the terrier. Grandparents: **Nana Ruth** 68 (Tom's mother), **Grandpa Joe** 71 (Maya's father). **Aunt Kate** 43 (Tom's sister), **Uncle James** 44 (Kate's husband; recast on 2026-11-26 at the owner's request, so sheet B was remade: `landing-art/ref/cast-b.png` is the new one), **Finn** 14 (Kate's son). Friends: **Priya** 37, **Sam** 41, **Deb** 56. The new character sheet is `landing-art/ref/cast-a.png`.
 
-Followers are the eight non-household people. Close Family is Ruth, Joe, Kate, Marcus. The Custom Group "Run club" is Sam, Priya, Deb. Counts stay computed from `content/cast.js`; update its notes (Marcus is Kate's husband).
+Followers are the eight non-household people. Close Family is Ruth, Joe, Kate, James. The Custom Group "Run club" is Sam, Priya, Deb. Counts stay computed from `content/cast.js`; update its notes (James is Kate's husband).
 
 Sample stories, in page order:
 
@@ -35,13 +35,13 @@ Sample stories, in page order:
 | A week on the Maine coast | August | Vacations | Followers | Maya |
 | Seven days in the Tetons | June | Vacations | Followers | Tom |
 | Spring break in Maui | March | Vacations | Followers | Maya |
-| Kate and Marcus get married | May | Wedding (their own category) | Followers | Maya |
+| Kate and James get married | May | Wedding (their own category) | Followers | Maya |
 | Six weeks without a kitchen | February | Projects | Followers | Maya |
 | Dad's first marathon | October | Milestones | Custom Group: Run club | Tom |
 | Ivy turns nine | November | Birthdays | Close Family | Maya |
 | Grandpa Joe at seventy | December | Family Gatherings | Followers | Tom |
 
-Relatives' own stories for the world map: Nana Ruth, an Alaska cruise (Juneau); Grandpa Joe, Galway, Ireland; Kate and Marcus, their honeymoon on the Amalfi coast.
+Relatives' own stories for the world map: Nana Ruth, an Alaska cruise (Juneau); Grandpa Joe, Galway, Ireland; Kate and James, their honeymoon on the Amalfi coast.
 
 Stops, with real coordinates (also the fixture data):
 - **Maine coast:** Portland Head Light 43.6231, -70.2079 · Camden harbor 44.2098, -69.0648 · Bar Harbor 44.3876, -68.2039 · Cadillac Mountain 44.3527, -68.2251 · Jordan Pond 44.3200, -68.2540 · Bass Harbor Head Light 44.2220, -68.3373.
@@ -93,7 +93,7 @@ The switch shows the same five options in the same order, follows the scroll, an
 
 **02 Tetons, the new scene.** The family in hiking gear centre (`g-family-tetons`); behind them the mountain range rises (`o-teton-range`); the family car with a roof box rolls in (`o-suv-roofbox`); a canoe, a moose at the tree line, a cabin. Along the floor a route with thirteen numbered stops grouped into seven day-chips (`DAY 1` to `DAY 7`): as you scroll, the day chip advances, that day's stops light and its prints pop (`photo-tetons-*`), so the chapter plays the trip day by day. The real journey-map capture of this story (`ui-story-tetons-journey`) lands at the hold. Readouts: days and stops (sample); `TAP A STOP · ITS PHOTO, PLACE AND TIME` (verified: a tap opens a card with that stop's photo, number, place, date and time; it does not scroll the story, so never say it does); map layers from its fact. Grandparents rise to read it.
 
-**04 Wedding.** Kate and Marcus centre (`g-wedding-couple`) under a flower arch (`o-wedding-arch`); the gallery wall assembles from `photo-wedding-*` with captions; a video tile of the speeches fills its ring; the real lightbox capture lands; the family arrives dressed up (`g-family-wedding`, `p-ruth-hanky`, `p-joe-toast`, `p-finn-suit`); reaction badges and two comment cards. Props: cake, bouquet, confetti, champagne flutes. Readouts as READ had: photos per story, clip length, reactions, replies.
+**04 Wedding.** Kate and James centre (`g-wedding-couple`) under a flower arch (`o-wedding-arch`); the gallery wall assembles from `photo-wedding-*` with captions; a video tile of the speeches fills its ring; the real lightbox capture lands; the family arrives dressed up (`g-family-wedding`, `p-ruth-hanky`, `p-joe-toast`, `p-finn-suit`); reaction badges and two comment cards. Props: cake, bouquet, confetti, champagne flutes. Readouts as READ had: photos per story, clip length, reactions, replies.
 
 **05 Kitchen.** Add one more beat to the creation story, because the owner asked for it: three small chips land in turn beside the voice note, `JUST PHOTOS`, `PHOTOS + A FEW WORDS`, `PHOTOS + A VOICE NOTE`, and then `IT CAN ASK YOU QUESTIONS`. True statement behind it: AI Create needs photos or a description, so photos alone are enough; typed or spoken words are optional; AI Interview asks follow-up questions.
 

@@ -1,6 +1,7 @@
 import { COMPARE } from '../content/close.js'
 import { biz } from '../content/business.js'
 import { Cutout, Head, Icon, Label, Reveal, Section } from '../ui/index.js'
+import { Testimonials } from './Testimonials.jsx'
 import s from './Compare.module.css'
 
 /** One "Coming from…?" card: only what you get here. */
@@ -41,6 +42,8 @@ export function Compare() {
           <Cutout id={COMPARE.person} alt={COMPARE.personAlt} shadow className={s.person} sizes="(max-width: 640px) 36vw, 220px" />
         </figure>
       </div>
+
+      <Testimonials />
 
       <ul className={s.cards}>
         {COMPARE.cards.map((c, i) => (

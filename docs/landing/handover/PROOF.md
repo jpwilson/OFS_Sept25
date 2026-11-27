@@ -65,6 +65,20 @@ Brief: `ROUND3.md` section 3 (five-second test, no claim on a small label, readi
 - `shared.jsx`: `usePinMode` also takes a media-query string; `scrollStageTo(el, t)`; drawn icons for the four views.
 - Checked: `check-facts` passes; scratch `vite build` passes; each section server-renders (`renderToString`) with complete copy; no sideways scroll at the four viewports; reduced-motion pass shows every section complete and static.
 
+## Round five (26 Nov 2026)
+
+- **No "card only" anywhere.** The line-up dims anyone who does not open the story (name tag, no tick). The matrix prints "Opens it" or a quiet empty cell (screen readers hear "Does not open it"). The `card` state stays in `AUDIENCE_MATRIX` because it is what the code does, but it is never printed. The readout lines say only who opens it.
+- **Marcus is now James** on the page: `shortName()` in `content/proof.js` maps the `marcus` id to "James" until `cast.js` (F0) is renamed. Art ids (`p-marcus-*`) are unchanged. The Views wedding card reads "Kate and James get married".
+- **Family:** the head is "Grow your family [tree]." with the sub line "It knows who is who." The screenshot tree is replaced by `proof/FamilyTree.jsx`, a tree drawn in the page and the reference design for the app's tree:
+  - Generations are rows; couples (Maya and Tom, Kate and James) are joined by a line. Joe drops to Maya, Ruth's line splits to Tom and Kate, and Ivy, Leo and Biscuit hang from Maya and Tom's join. Finn hangs from Kate and James's join; ROUND2 calls him only Kate's son, so check this against the cast before the app copies it.
+  - Each face is round with an ink keyline, the first name is in display type, and the relation to Maya is a mono label. Maya wears a "You" sticker, Biscuit has a dashed outline and a "Tag" label, and there is one dashed "Add a relative". Two confirmed ticks mark the line from Joe to Maya and the line between Maya and Tom.
+  - Lines are ink with rounded elbows over a wash-coloured branch, on a paper ground in a keylined frame.
+  - It grows as it comes into view: the couple first, then the parents, then the children, then the rest. The prerender and reduced motion show it complete. Script arms the growth only if the tree is still below the fold.
+  - Phone: the same tree in taller rows, with no relation labels and nobody dropped.
+  - Faces are the fixture avatar crops, copied into `proof/avatars/` (`james.webp` is the recast `marcus.webp`).
+- The Biscuit tag card under the tree is drawn in the tree's style (`TreePerson`). The Sharing-page crop was re-checked on the re-shot capture with James in it, and the crop still fits.
+- Sheets: `frontend/shots/proof5-{m,tp,tl,d}/sheet.jpg` (the audience at each of the five settings, the matrix, then the family). The tree on its own is in `frontend/shots/proof5-tree/`.
+
 ## Checks
 
 Look at your own sheets before reporting: each band at 1440x900 and 390x844 (use `/?only=proof`), the pinned stages at six progress points each, every interactive state (each matrix row, each category chip, each Anatomy tag open, both Places views), 768 for the matrix, 1920 once, and a reduced-motion pass (pinned stages become stacked content; nothing hidden). Keyboard-only pass of the matrix, the chips and the Anatomy tags. Captures or art may be missing when you start: build against the ids and re-shoot when they land.

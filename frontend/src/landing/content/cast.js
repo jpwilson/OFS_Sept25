@@ -13,7 +13,7 @@ export const CAST = [
   { id: 'ruth', name: 'Nana Ruth', short: 'Ruth', age: 68, role: "Tom's mother", group: 'grandparent', relation: 'Grandmother', art: 'p-ruth' },
   { id: 'joe', name: 'Grandpa Joe', short: 'Joe', age: 71, role: "Maya's father", group: 'grandparent', relation: 'Grandfather', art: 'p-joe' },
   { id: 'kate', name: 'Aunt Kate', short: 'Kate', age: 43, role: "Tom's sister", group: 'relative', relation: 'Aunt', art: 'p-kate' },
-  { id: 'marcus', name: 'Uncle Marcus', short: 'Marcus', age: 35, role: "Maya's brother", group: 'relative', relation: 'Uncle', art: 'p-marcus' },
+  { id: 'marcus', name: 'Uncle James', short: 'James', age: 44, role: "Kate's husband", group: 'relative', relation: 'Uncle', art: 'p-marcus' },
   { id: 'finn', name: 'Finn', short: 'Finn', age: 14, role: "Kate's son", group: 'relative', relation: 'Cousin', art: 'p-finn' },
   { id: 'priya', name: 'Priya', short: 'Priya', age: 37, role: 'friend', group: 'friend', relation: 'Friend', art: 'p-priya' },
   { id: 'sam', name: 'Sam', short: 'Sam', age: 41, role: 'friend', group: 'friend', relation: 'Friend', art: 'p-sam' },

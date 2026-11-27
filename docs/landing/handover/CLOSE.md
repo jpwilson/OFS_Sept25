@@ -108,3 +108,11 @@ Say what it does, in the positive; never volunteer a limitation or a competitor'
 For F0 (shared files, not edited): `content/routes.js` still has `SECTION_IDS.limits: 'lp-limits'` (should become `love: 'lp-love'`) and has no `blog` route (the footer uses the literal `/blog`, an existing App route); `dev/Only.jsx` lists `'Limits'` for `?only=close` (should be `'Love'`, and `'Milestone'` could be added); `content/common.js` `SMALL_PRINT` is no longer used by close.
 
 Sheets: `frontend/shots/close4-{m,tp,tl,d}/sheet.jpg` (the changed sections, from the full page).
+
+## Round five (26 November 2026)
+
+- Why head is the owner's exact wording, from `business.js` `whyHead`: "Why millions have moved to Our Family [Socials]." Three lines on every viewport (phone included). The join line under it is unchanged.
+- **Testimonials moved under the Why head** (`close/Testimonials.jsx`, mounted by `Compare.jsx` between the head and the "Coming from…?" cards): round photo (or a large initial in tide, fizz or zest), the quote in the story face (Literata), first name and a few words about them. Three across on desktop and iPad landscape, two on iPad portrait, a swipeable snap row on the phone with the next card peeking in. Empty list renders nothing and the section closes up. "Why families love it" now holds only its six reason cards.
+- The dev fixture (`close/dev/testimonials.fixture.js`, `/?testimonials=fixture`, dev only, never in a build) now has six obvious placeholders.
+- Uncle Marcus is Uncle James in visible text and alt (`p-marcus-camera` id unchanged).
+- Shots: `frontend/shots/close5-testimonials-d.jpg`, `close5-testimonials-m.jpg` (fixture), `close5-empty.jpg` (empty list; phone, iPad portrait, iPad landscape, desktop).

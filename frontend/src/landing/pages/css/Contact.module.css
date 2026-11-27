@@ -1,0 +1,169 @@
+/* Story look for src/pages/Contact.jsx (owner: pages). Same class names as
+   src/pages/Contact.module.css; swapped in by scripts/landing/story-pages.mjs (story only). */
+
+.container {
+  composes: ph-page from global;
+}
+/* The page's own logo bar: shown to signed-in members (no landing nav for them here). */
+.header {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .header {
+  position: relative;
+  z-index: 1;
+  padding-top: 20px;
+}
+:global(.ofsl[data-nav]) .header {
+  display: none;
+}
+.logo {
+  composes: ph-back from global;
+}
+:global(.ofsl) .logo {
+  margin: 0;
+}
+.content {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .content {
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+.intro {
+  composes: ph-band ph-top from global;
+}
+:global(.ofsl) .intro h1 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-size: clamp(44px, 6.2vw, 96px);
+  max-width: 16ch;
+  color: var(--l-ink);
+  text-wrap: balance;
+  margin: 0;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+:global(.ofsl) .intro p {
+  max-width: 44ch;
+  margin: clamp(18px, 2vw, 26px) 0 0;
+  font-size: clamp(18px, 1vw + 12px, 22px);
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--l-ink);
+}
+
+:global(.ofsl) .formWrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+  padding-top: clamp(40px, 5vw, 80px);
+}
+.form {
+  composes: ph-card-lg from global;
+}
+:global(.ofsl) .form {
+  display: grid;
+  gap: 20px;
+  padding: clamp(24px, 3.4vw, 44px);
+}
+:global(.ofsl) .formGroup {
+  display: grid;
+  gap: 8px;
+}
+:global(.ofsl) .formGroup label {
+  font-weight: 700;
+  font-size: 16px;
+}
+:global(.ofsl) .formGroup input,
+:global(.ofsl) .formGroup textarea {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.4;
+  transition: box-shadow var(--l-dur-hover) ease;
+}
+:global(.ofsl) .formGroup textarea {
+  resize: vertical;
+  min-height: 160px;
+}
+:global(.ofsl) .formGroup input::placeholder,
+:global(.ofsl) .formGroup textarea::placeholder {
+  color: var(--l-mute);
+}
+:global(.ofsl) .formGroup input:focus,
+:global(.ofsl) .formGroup textarea:focus {
+  outline: none;
+  box-shadow: var(--l-shadow-sm);
+  background: #fffdf2;
+}
+.submitButton {
+  composes: ph-btn ph-btn-solid from global;
+}
+:global(.ofsl) .submitButton {
+  width: 100%;
+  margin-top: 4px;
+}
+:global(.ofsl) .submitButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.contactInfo {
+  composes: ph-card from global;
+}
+:global(.ofsl) .contactInfo {
+  display: grid;
+  gap: 14px;
+  padding: clamp(24px, 3vw, 36px);
+  background: var(--l-sun);
+}
+:global(.ofsl) .contactInfo h3 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: clamp(26px, 2.4vw, 34px);
+  margin-bottom: 4px;
+}
+:global(.ofsl) .infoItem {
+  display: grid;
+  gap: 2px;
+  padding: 12px 0 0;
+  border-top: 2px solid var(--l-ink);
+  font-size: 17px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+:global(.ofsl) .infoItem strong {
+  font-weight: 700;
+}
+
+:global(.ofsl) .actions {
+  padding-top: clamp(32px, 4vw, 56px);
+}
+.backButton {
+  composes: ph-btn ph-btn-ghost from global;
+}
+
+@media (max-width: 1023px) {
+  :global(.ofsl) .formWrapper {
+    grid-template-columns: 1fr;
+  }
+}

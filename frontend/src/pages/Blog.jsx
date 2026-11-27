@@ -3,7 +3,7 @@ import styles from './Blog.module.css'
 const posts = [
   {
     date: 'February 2025',
-    title: 'AI Assist (Beta)',
+    title: 'AI Assist',
     description: 'Create events faster with AI! Upload your photos, optionally describe what happened (type or use voice), and let AI write the story. AI Assist analyzes your photos, reads GPS and timestamp data, and generates a complete event with captions. Available to Pro and trial users.'
   },
   {

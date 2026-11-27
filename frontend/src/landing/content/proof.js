@@ -3,8 +3,14 @@
 import { fact, factList } from './facts.js'
 import { AUDIENCE_OPENERS, CLOSE_FAMILY, COUNTS, RUN_CLUB, person } from './cast.js'
 
+/**
+ * A person's first name as the page prints it. Uncle Marcus was renamed James (round five);
+ * cast.js still says Marcus, so the page says James here until it changes there. Art ids stay.
+ */
+export const shortName = (id) => (id === 'marcus' ? 'James' : person(id).short)
+
 const names = (ids) => {
-  const n = ids.map((id) => person(id).short)
+  const n = ids.map(shortName)
   return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}` : n.join('')
 }
 
@@ -196,7 +202,10 @@ export const AUDIENCE_COLUMNS = [
   { id: 'share', label: 'Someone you sent a share link', sub: 'opens that one story', key: true },
 ]
 
-export const CELL_TEXT = { open: 'Opens it', card: 'Sees the card only', none: 'Nothing' }
+// The page says who opens a story, and only that: every other cell is a quiet, empty cell.
+// ('card' stays in the data below because it is what the code does; it is never printed.)
+export const CELL_TEXT = { open: 'Opens it', card: '', none: '' }
+export const CELL_SR = 'Does not open it'
 
 /**
  * The matrix. Verified against the code (the code governs):
@@ -252,22 +261,22 @@ export const AUDIENCE_STEPS = {
   Private: {
     story: 'Her own albums',
     who: 'Only Maya opens it.',
-    more: 'Nobody else is shown even the card. A share link she makes herself is the one way in.',
+    more: 'Her own albums, just for her. A share link she makes herself opens it for whoever she sends it to.',
   },
   'Close Family': {
     story: 'The birthday',
     who: `${names(CLOSE_FAMILY)} open it.`,
-    more: 'The followers Maya ticked as Close Family. Her other followers are shown the card only.',
+    more: 'The followers Maya ticked as Close Family.',
   },
   Followers: {
     story: 'The vacation',
     who: `All ${COUNTS.followers} of Maya’s followers open it.`,
-    more: 'Friends and family whose follow request she accepted. Other signed-in members are shown the card only.',
+    more: 'Friends and family whose follow request she accepted.',
   },
   'Custom Group': {
     story: 'The race',
     who: `${names(RUN_CLUB.members)} open it.`,
-    more: `The ${RUN_CLUB.name}, a list Maya made. Everyone else signed in is shown the card only.`,
+    more: `The ${RUN_CLUB.name}, a list Maya made.`,
   },
   Public: {
     story: 'An open story',
@@ -286,7 +295,6 @@ export const AUDIENCE = {
   colHead: 'Who is asking',
   you: 'You',
   anyone: 'Anyone with the link',
-  cardOnly: 'Card only',
   opens: 'Opens it',
   scrollHint: 'Scroll to change the setting',
   matrixHead: 'Cell by cell, the way the app decides.',
@@ -299,20 +307,44 @@ export const AUDIENCE = {
 export const FAMILY = {
   id: 'lp-family',
   eyebrow: 'Family tree and tag profiles',
-  head: { before: 'It knows who is', mark: 'who', after: '.' },
+  head: { before: 'Grow your family', mark: 'tree', after: '.' },
+  sub: 'It knows who is who.',
   lede: 'Tags and relationships turn a pile of stories into a family: who is in each one, who is related to whom, and who should be reading.',
-  tree: { shot: 'ui-tree', alt: 'The family tree built from confirmed relationships, with Maya, Tom, the children and grandparents', caption: 'Family tree.' },
+  /**
+   * The drawn tree (Maya's view). Relations from docs/landing/ROUND2.md: Grandpa Joe is Maya's
+   * father; Nana Ruth is the mother of Tom and of Kate; Maya and Tom are a couple with Ivy and Leo;
+   * Kate and James are a couple; Finn is Kate's son; Biscuit is the dog, a tag profile. Joe and
+   * Ruth are not a couple. `rel` is each person's relation to Maya.
+   */
+  tree: {
+    label: 'Maya’s family tree',
+    people: [
+      { id: 'joe', rel: 'Father' },
+      { id: 'ruth', name: 'Ruth', rel: 'Mother-in-law' },
+      { id: 'maya', rel: 'You', you: true },
+      { id: 'tom', rel: 'Husband' },
+      { id: 'kate', rel: 'Sister-in-law' },
+      { id: 'marcus', rel: 'Brother-in-law' },
+      { id: 'ivy', rel: 'Daughter' },
+      { id: 'leo', rel: 'Son' },
+      { id: 'biscuit', rel: 'Pet', tag: true },
+      { id: 'finn', rel: 'Nephew' },
+    ],
+    you: 'You',
+    tagLabel: 'Tag',
+    add: 'Add a relative',
+    confirmed: 'Confirmed',
+  },
   groups: {
     shot: 'ui-groups',
     alt: 'The Sharing page: followers with Close Family ticks, and the Run club group',
     altNames: 'Maya’s followers by name',
-    altTicks: 'The Close Family switch for each follower: on for Ruth, Joe, Kate and Marcus',
+    altTicks: `The Close Family switch for each follower: on for ${names(CLOSE_FAMILY)}`,
     altClub: 'The Run club group, with Sam, Priya and Deb',
     caption: 'Sharing page, the name and Close Family columns.',
   },
   profile: { shot: 'ui-profile', alt: "Maya's profile page with her stories", caption: 'Profile.' },
-  biscuit: { alt: 'Biscuit in the family tree: a dashed card marked Tag, for a pet with no account', caption: 'Biscuit in the tree.' },
-  panHint: 'Drag to see the whole tree',
+  tagCard: { name: 'Biscuit', rel: 'Pet', tag: 'Tag', noAccount: 'No account needed' },
   points: [
     { id: 'tree', title: 'Confirmed relationships build the tree', text: 'Say how you are related and the other person confirms it. Confirmed relationships build the family tree.' },
     { id: 'tag', title: 'Tag people with no account', text: 'A child, a grandparent, a pet. Tag them anyway. They can claim the profile later.' },
@@ -321,13 +353,7 @@ export const FAMILY = {
   demo: {
     a: 'Maya',
     b: 'Grandpa Joe',
-    rel: 'Daughter · Father',
     confirmed: 'Confirmed',
-    tagName: 'Biscuit',
-    tagNote: 'No account',
-    claim: 'Claim this profile',
-    close: 'Close Family',
-    group: RUN_CLUB.name,
   },
   dogTag: 'Biscuit · tag profile, no account',
   ghost: 'family',
@@ -348,9 +374,10 @@ export const SEO_BLOCKS = [
   { h2: `${AUDIENCE.head.before} ${AUDIENCE.head.mark}${AUDIENCE.head.after}` },
   {
     ul: AUDIENCE_MATRIX.map(
-      (r) => `${r.name}: ` + AUDIENCE_COLUMNS.map((c) => `${c.label.toLowerCase()}: ${CELL_TEXT[r.cells[c.id]].toLowerCase()}`).join('; ') + '.',
+      (r) => `${r.name}: opens for ` + AUDIENCE_COLUMNS.filter((c) => r.cells[c.id] === 'open').map((c) => c.label.toLowerCase()).join('; ') + '.',
     ),
   },
   { h2: `${FAMILY.head.before} ${FAMILY.head.mark}${FAMILY.head.after}` },
+  { p: FAMILY.sub },
   { ul: FAMILY.points.map((p) => `${p.title}. ${p.text}`) },
 ]

@@ -1,5 +1,5 @@
 // The sample family from docs/landing/ROUND2.md (American; home is Madison, Wisconsin). All invented.
-// Ruth is Tom's mother, Joe is Maya's father, Kate is Tom's sister, Marcus is Kate's husband, Finn is Kate's son.
+// Ruth is Tom's mother, Joe is Maya's father, Kate is Tom's sister, James is Kate's husband, Finn is Kate's son.
 import { avatar } from './media.mjs';
 
 const mk = (id, username, full_name, key, bio, extra = {}) => ({
@@ -14,8 +14,8 @@ export const USERS = {
   leo: mk(4, 'leo', 'Leo Hartley', 'leo', 'Five and a half. Dinosaurs.'),
   ruth: mk(5, 'ruth', 'Ruth Hartley', 'ruth', 'Nana to Ivy, Leo and Finn. Gardens, crosswords, boats.'),
   joe: mk(6, 'joe', 'Joe Russo', 'joe', 'Grandpa Joe. Seventy and still the best dancer at the party.'),
-  kate: mk(7, 'kate', 'Kate Hartley', 'kate', 'Hiking, tea, Finn, and now Marcus.'),
-  marcus: mk(8, 'marcus', 'Marcus Reed', 'marcus', 'Uncle Marcus. Usually behind a camera.'),
+  kate: mk(7, 'kate', 'Kate Hartley', 'kate', 'Hiking, tea, Finn, and now James.'),
+  marcus: mk(8, 'james', 'James Reed', 'marcus', 'Uncle James. Usually behind a camera.'),
   finn: mk(9, 'finn', 'Finn Hartley', 'finn', ''),
   priya: mk(10, 'priya', 'Priya Nair', 'priya', 'Run club. Slow on hills, fast on cake.'),
   sam: mk(11, 'sam', 'Sam Lin', 'sam', 'Run club. Pacer, cheerleader, French fry enthusiast.'),
@@ -24,7 +24,7 @@ export const USERS = {
 
 export const ME = USERS.maya;
 
-// Maya's followers: the eight non-household people. Close Family: Ruth, Joe, Kate, Marcus.
+// Maya's followers: the eight non-household people. Close Family: Ruth, Joe, Kate, James.
 export const FOLLOWER_KEYS = ['ruth', 'joe', 'kate', 'marcus', 'finn', 'priya', 'sam', 'deb'];
 export const CLOSE_FAMILY = new Set(['ruth', 'joe', 'kate', 'marcus']);
 // Maya follows her family and friends (household included).

@@ -21,7 +21,8 @@ export const BUSINESS = {
     value: 'Join more than {membersWords} people sharing with family and close friends, privately and ad-free.',
     src: SRC,
   },
-  whyHead: { value: { before: 'Why {membersWords} people are moving to Our Family', mark: 'Socials', after: '.' }, src: SRC },
+  // Owner's exact wording, 2026-11-26 (round five).
+  whyHead: { value: { before: 'Why millions have moved to Our Family', mark: 'Socials', after: '.' }, src: SRC },
   whyLine: {
     value: 'Join more than {membersWords} people sharing their private moments with the people who matter to them.',
     src: SRC,

@@ -17,8 +17,9 @@
   align-content: start;
   justify-items: start;
 }
-.dots {
-  width: 64px;
+.pin {
+  height: 56px;
+  margin-block: 0;
 }
 .small {
   max-width: 44ch;

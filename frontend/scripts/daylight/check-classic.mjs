@@ -27,9 +27,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 const FRONTEND = path.resolve(HERE, '../..')
 const REPO = path.resolve(FRONTEND, '..')
 const MANIFEST = path.join(HERE, 'classic-baseline.json')
-// The landing commit last merged into app/daylight (ff62cbc, merged as a2258e5); the baseline
+// The landing commit last merged into app/daylight (3879ce5, the journey-pin logo); the baseline
 // manifest is a classic build of it. Re-record both after the next landing merge. Override with --base.
-const BASE_COMMIT = 'ff62cbc'
+const BASE_COMMIT = '3879ce5'
 const FORBIDDEN = /ofsa|maplibre|daylight/
 
 const args = { candidate: path.join(FRONTEND, 'dist'), baseline: MANIFEST, base: BASE_COMMIT, write: null }

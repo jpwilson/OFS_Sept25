@@ -11,6 +11,7 @@
 //     src:   'email consent, 2026-12-01',  // where and when they agreed to be quoted
 //   }
 //
-// While this list is empty, the "Why families love it" section (close/Love.jsx) is carried by
-// its six reason cards alone. Entries here render as quote cards leading the section.
+// Entries render as testimonial cards under the "Why Our Family Socials" head
+// (close/Testimonials.jsx, mounted by close/Compare.jsx). While the list is empty nothing
+// renders and the section closes up.
 export const TESTIMONIALS = []

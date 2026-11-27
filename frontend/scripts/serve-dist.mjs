@@ -9,11 +9,12 @@
 // back as a 200 copy of the home page.
 import { createServer } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'
-import { dirname, extname, join, normalize } from 'node:path'
+import { dirname, extname, join, normalize, resolve as resolvePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = dirname(fileURLToPath(import.meta.url))
-const DIST = join(ROOT, '../dist')
+// OFS_DIST serves a build written somewhere other than dist/.
+const DIST = process.env.OFS_DIST ? resolvePath(process.env.OFS_DIST) : join(ROOT, '../dist')
 const port = Number(process.argv[2] || 4173)
 
 const { rewrites = [] } = JSON.parse(readFileSync(join(ROOT, '../vercel.json'), 'utf-8'))

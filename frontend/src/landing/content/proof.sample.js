@@ -18,7 +18,7 @@ export const SAMPLE_CARDS = [
   { id: 'coast', shot: 'ui-card-coast', title: 'A week on the Maine coast', when: 'Aug 2026', by: 'Maya', categories: ['Vacations'] },
   { id: 'tetons', shot: 'ui-card-tetons', title: 'Seven days in the Tetons', when: 'Jun 2026', by: 'Tom', categories: ['Vacations'] },
   { id: 'maui', shot: 'ui-card-maui', title: 'Spring break in Maui', when: 'Mar 2026', by: 'Maya', categories: ['Vacations'] },
-  { id: 'wedding', shot: 'ui-card-wedding', title: 'Kate and Marcus get married', when: 'May 2026', by: 'Maya', categories: ['Wedding'] },
+  { id: 'wedding', shot: 'ui-card-wedding', title: 'Kate and James get married', when: 'May 2026', by: 'Maya', categories: ['Wedding'] },
   { id: 'kitchen', shot: 'ui-card-kitchen', title: 'Six weeks without a kitchen', when: 'Feb 2026', by: 'Maya', categories: ['Projects'] },
   { id: 'marathon', shot: 'ui-card-race', title: "Dad's first marathon", when: 'Oct 2026', by: 'Tom', categories: ['Milestones'] },
   { id: 'ivy', shot: 'ui-card-year', title: 'Ivy turns nine', when: 'Nov 2026', by: 'Maya', categories: ['Birthdays'] },

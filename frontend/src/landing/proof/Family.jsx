@@ -1,13 +1,13 @@
-// 10. Family (lp-family): the family tree and tag profiles. (owner: proof)
-// Lead: the real family tree, large enough to read every name, with Ivy, Leo and Biscuit in
-// front of it (Biscuit is in the tree as a tag profile). Then two beats, each proved by a
-// capture cropped to the part that proves it: tag people with no account (Biscuit's tree card,
-// a profile), and ticks and groups do the sharing (the Close Family column, the Run club).
-// On a phone the tree pans sideways inside its frame, starting on Maya.
-import { useEffect, useRef } from 'react'
+// 10. Family (lp-family): grow your family tree. (owner: proof)
+// Lead: the family tree drawn in the page (FamilyTree.jsx), growing one generation at a time as
+// it comes into view, with Ivy, Leo and Biscuit kneeling at the horizon beneath it. Then two
+// beats: tag people with no account (Biscuit drawn in the tree's style, and a profile capture),
+// and ticks and groups do the sharing (the Sharing page's name and Close Family columns, the
+// Run club card).
 import { FAMILY } from '../content/proof.js'
-import { Head, Label, Cutout, GhostWord, Icon, Reveal } from '../ui/index.js'
+import { Head, Label, Cutout, GhostWord, Icon, Reveal, SHOT_CAPTION } from '../ui/index.js'
 import { CropShot } from './CropShot.jsx'
+import { FamilyTree, TreePerson } from './FamilyTree.jsx'
 import { cx } from '../ui/cx.js'
 import s from './Family.module.css'
 
@@ -15,10 +15,8 @@ const F = FAMILY
 const D = F.demo
 const POINT = Object.fromEntries(F.points.map((p) => [p.id, p]))
 
-// Crops, as fractions of each capture (measured on the round-three captures).
-const TREE = { x: 0.08, y: 0.42, w: 0.88, h: 0.46 } // every card in the tree
-const MAYA_AT = 0.61 // Maya's card, across the tree crop
-const BISCUIT = { x: 0.525, y: 0.735, w: 0.175, h: 0.13 } // Biscuit's dashed TAG card
+// Capture crops, as fractions of each capture (measured on the round-three captures;
+// re-measure when the Sharing page is re-shot).
 const NAMES = { x: 0.03, y: 0.1, w: 0.18, h: 0.49 } // Sharing page: the name column
 const TICKS = { x: 0.74, y: 0.1, w: 0.1, h: 0.49 } // ...and the Close Family column, same rows
 const CLUB = { x: 0.035, y: 0.72, w: 0.37, h: 0.22 } // the Run club card
@@ -41,28 +39,8 @@ function Confirmed() {
   )
 }
 
-/** The tree, panning sideways on a phone and starting on Maya. */
-function Tree() {
-  const panRef = useRef(null)
-  useEffect(() => {
-    const el = panRef.current
-    if (!el || el.scrollWidth <= el.clientWidth) return
-    el.scrollLeft = MAYA_AT * el.scrollWidth - el.clientWidth / 2
-  }, [])
-  return (
-    <figure className={s.treeFig}>
-      <div className={s.pan} ref={panRef} tabIndex={0} aria-label={F.tree.alt}>
-        <CropShot id={F.tree.shot} alt={F.tree.alt} crop={TREE} cropM={TREE} caption={false} className={s.treeShot} width={1240} />
-      </div>
-      <figcaption className={s.cap}>
-        <span className={s.panHint}>{F.panHint} · </span>
-        {F.tree.caption}
-      </figcaption>
-    </figure>
-  )
-}
-
 export function Family() {
+  const T = F.tagCard
   return (
     <section id={F.id} data-wash="fizz" className={s.section}>
       <GhostWord className={s.ghost}>{F.ghost}</GhostWord>
@@ -71,6 +49,7 @@ export function Family() {
           <div className={s.header}>
             <Label dot>{F.eyebrow}</Label>
             <Head before={F.head.before} mark={F.head.mark} after={F.head.after} className={s.head} />
+            <p className={s.sub}>{F.sub}</p>
           </div>
           <div className={s.leadText}>
             <p className={s.lede}>{F.lede}</p>
@@ -82,9 +61,9 @@ export function Family() {
           </div>
         </div>
 
-        <Reveal className={s.treeStage}>
-          <Tree />
-        </Reveal>
+        <div className={s.treeStage}>
+          <FamilyTree />
+        </div>
       </div>
 
       {/* the floor: Ivy, Leo and Biscuit kneel at the horizon; the two beats stand on it */}
@@ -104,7 +83,10 @@ export function Family() {
                 <p className={s.pointText}>{POINT.tag.text}</p>
               </div>
               <div className={s.beatShots}>
-                <CropShot id={F.tree.shot} alt={F.biscuit.alt} crop={BISCUIT} cropM={BISCUIT} caption={F.biscuit.caption} className={s.biscuitShot} width={360} />
+                <div className={s.tagCard}>
+                  <TreePerson id="biscuit" name={T.name} rel={T.rel} tag={T.tag} />
+                  <span className={s.noAccount}>{T.noAccount}</span>
+                </div>
                 <CropShot id={F.profile.shot} alt={F.profile.alt} crop={PROFILE} cropM={PROFILE_M} caption={F.profile.caption} className={s.profileShot} width={560} />
               </div>
             </Reveal>
@@ -121,7 +103,7 @@ export function Family() {
                 </span>
                 <CropShot id={F.groups.shot} alt={F.groups.altClub} crop={CLUB} cropM={CLUB} caption={false} className={s.club} width={520} />
                 <figcaption className={s.cap}>
-                  {F.groups.caption}
+                  {F.groups.caption} {SHOT_CAPTION}
                 </figcaption>
               </figure>
             </Reveal>

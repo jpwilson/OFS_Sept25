@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { fileURLToPath } from 'node:url'
 import { resolveVariant } from './scripts/landing/variant.mjs'
 import { resolveAppLook } from './scripts/daylight/variant.mjs'
 import { daylightSeam, daylightPwaOptions } from './scripts/daylight/vite-seam.mjs'
+import { storyPages } from './scripts/landing/story-pages.mjs'
 
 // Which landing page this build serves: 'classic' (today's) or 'story' (the rebuild).
 // See scripts/landing/variant.mjs and landing.config.json.
@@ -45,6 +47,9 @@ export default defineConfig({
   plugins: [
     landingVariantHtml(),
     ...(APP_LOOK === 'classic' ? [] : [daylightSeam({ look: APP_LOOK })]),
+    // Story variant only: the marketing pages in the landing's look (scripts/landing/story-pages.mjs).
+    // Not registered at all in a classic build, so a classic build is unchanged.
+    LANDING_VARIANT === 'story' && storyPages(fileURLToPath(new URL('.', import.meta.url))),
     react(),
     VitePWA(daylightPwaOptions(APP_LOOK, {
       registerType: 'autoUpdate',
@@ -53,8 +58,8 @@ export default defineConfig({
         name: 'Our Family Socials',
         short_name: 'OFS',
         description: 'A private social network for families to share memories, photos, and life events together.',
-        theme_color: '#000000',
-        background_color: '#000000',
+        theme_color: '#101B3B',
+        background_color: '#101B3B',
         display: 'standalone',
         scope: '/',
         start_url: '/',
