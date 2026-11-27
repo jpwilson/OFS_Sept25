@@ -8,6 +8,7 @@
 //   createProfile({ handle, name, invite }) -> user        never creates twice
 //   readInvite(token) -> validate-invite's answer          inviteLink() -> { token, invite_url }
 //   legacyLogin(email, password) -> { access_token, user } (the old endpoint)
+import posthog from 'posthog-js'
 import { apiFetch, HttpError } from '../../lib/http.js'
 import { supabase, currentSession } from './client.js'
 import { alternatives, checkHandle } from './handle.js'
@@ -77,6 +78,11 @@ export async function createProfile({ handle, name, invite }) {
   if (name) await apiFetch('/users/me/profile', { method: 'PUT', body: { full_name: name } }).catch(() => null)
   // Tells AuthContext (USER_UPDATED) to load the new profile.
   await supabase.auth.updateUser({ data: { username: handle, display_name: name } }).catch(() => null)
+  // The sign-up event the old pages sent (AuthContext), so new members still show in
+  // analytics: the member's id and how they joined, nothing personal.
+  if (posthog.__loaded) {
+    posthog.capture('signed_up', { user_id: user?.id, method: s.user?.app_metadata?.provider || 'email', invited: !!invite })
+  }
   return user
 }
 
