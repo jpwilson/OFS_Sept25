@@ -1,7 +1,10 @@
-// Someone without an account: a name, the word you use, a birthday and a photo if you like
-// (owner: FAMILY). Creates or edits a tag profile. The birthday puts brothers, sisters and
-// children in age order (arrange.js orderSiblings); the API sets or changes one, never clears it. The photo is cropped round with the existing
-// components/ImageCropper and uploaded with apiService.uploadImage, as the classic modal does.
+// Someone without an account: a name, the word you use, a birthday and a photo if you like,
+// and under "More about {first}" a birthplace and when they died (owner: FAMILY). Creates or
+// edits a tag profile. The birthday puts brothers, sisters and children in age order
+// (arrange.js orderSiblings); a year is enough (PartialDate). Every field can be cleared: the
+// PUT applies what is sent and an explicit null clears it (docs/app/FAMILY-NOTES.md). The photo
+// is cropped round with the existing components/ImageCropper and uploaded with
+// apiService.uploadImage, as the classic modal does.
 import { lazy, Suspense, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import apiService from '../../services/api.js'
@@ -9,22 +12,27 @@ import { Button } from '../ui/Button.jsx'
 import { Chip } from '../ui/Chip.jsx'
 import { Field } from '../ui/Field.jsx'
 import { Icon } from '../ui/Icon.jsx'
+import { fromPartial, toPartial, todayYmd } from './dates.js'
 import { TYPE_GROUPS, capitalise, normalise } from './kin.js'
+import PartialDate from './PartialDate.jsx'
 import { Face } from './Person.jsx'
 import s from './Sheets.module.css'
 
 const ImageCropper = lazy(() => import('../../components/ImageCropper.jsx'))
 const FIRST_WORDS = ['daughter', 'son', 'child', 'pet', 'grandmother', 'grandfather']
 const ALL = new Set(TYPE_GROUPS.flatMap((g) => g.words))
-const DAY = /^\d{4}-\d{2}-\d{2}$/
-const today = () => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+/** A partial date from the form, or {error}; null-safe for nothing filled in. */
+function readDate(parts, what) {
+  const d = toPartial(parts)
+  if (d.error) return d
+  if (d.ymd && d.ymd > todayYmd()) return { error: `Choose a ${what} up to today.` }
+  return d
 }
 
 /**
- * <TagForm initial={{name, word, photoUrl, birth}} onSubmit busy error submitLabel />
- * onSubmit({name, word, photoUrl, birthDate}) -> Promise
+ * <TagForm initial={{name, word, photoUrl, birth: {ymd, precision}, birthplace, died: {ymd, precision}}} onSubmit busy error submitLabel />
+ * onSubmit({name, word, photoUrl, birth: {ymd, precision}, birthplace, died: {ymd, precision}}) -> Promise
  */
 export default function TagForm({ initial = {}, onSubmit, busy, error, submitLabel = 'Add to your tree', id = 'tag-form' }) {
   const [name, setName] = useState(initial.name || '')
@@ -34,7 +42,11 @@ export default function TagForm({ initial = {}, onSubmit, busy, error, submitLab
   const [own, setOwn] = useState(known ? '' : startWord)
   const [more, setMore] = useState(!known || (startWord && !FIRST_WORDS.includes(startWord)))
   const [photoUrl, setPhotoUrl] = useState(initial.photoUrl || '')
-  const [birth, setBirth] = useState(initial.birth || '')
+  const [birth, setBirth] = useState(() => fromPartial(initial.birth?.ymd, initial.birth?.precision))
+  const [birthplace, setBirthplace] = useState(initial.birthplace || '')
+  const [died, setDied] = useState(() => fromPartial(initial.died?.ymd, initial.died?.precision))
+  const [about, setAbout] = useState(!!(initial.birthplace || initial.died?.ymd))
+  const [dateErrors, setDateErrors] = useState({})
   const [crop, setCrop] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [photoError, setPhotoError] = useState('')
@@ -74,8 +86,14 @@ export default function TagForm({ initial = {}, onSubmit, busy, error, submitLab
   const submit = (e) => {
     e.preventDefault()
     if (!name.trim() || busy || uploading) return
-    onSubmit({ name: name.trim(), word: chosen || null, photoUrl: photoUrl || null, birthDate: DAY.test(birth) ? birth : null })
+    const b = readDate(birth, 'birthday')
+    const d = readDate(died, 'date')
+    setDateErrors({ birth: b.error, died: d.error })
+    if (d.error) setAbout(true)
+    if (b.error || d.error) return
+    onSubmit({ name: name.trim(), word: chosen || null, photoUrl: photoUrl || null, birth: b, birthplace: birthplace.trim() || null, died: d })
   }
+  const first = name.trim().split(/\s+/)[0]
 
   return (
     <form className={s.form} onSubmit={submit} id={id} data-ui="tag-form" noValidate>
@@ -117,9 +135,36 @@ export default function TagForm({ initial = {}, onSubmit, busy, error, submitLab
           </button>
         )}
       </div>
-      <Field label="Birthday" optional hint="Brothers, sisters and children stand oldest first when birthdays are known.">
-        <input type="date" value={birth} onChange={(e) => setBirth(e.target.value)} max={today()} data-ui="tag-birthday" />
-      </Field>
+      <PartialDate
+        legend="Birthday"
+        optional
+        hint="A year is enough. Brothers, sisters and children stand oldest first when birthdays are known."
+        value={birth}
+        onChange={(v) => { setBirth(v); setDateErrors((x) => ({ ...x, birth: null })) }}
+        error={dateErrors.birth}
+        ui="tag-birthday"
+      />
+      <div className={s.section} style={{ marginTop: 0 }} data-ui="tag-more-about">
+        <button type="button" className={s.moreWords} onClick={() => setAbout((o) => !o)} aria-expanded={about}>
+          More about {first || 'them'} <Icon name={about ? 'chevron-up' : 'chevron-down'} size={16} />
+        </button>
+        {about ? (
+          <>
+            <Field label="Birthplace" optional>
+              <input type="text" value={birthplace} onChange={(e) => setBirthplace(e.target.value)} maxLength={120} autoComplete="off" placeholder="Town or city" data-ui="tag-birthplace" />
+            </Field>
+            <PartialDate
+              legend="Died"
+              optional
+              hint="Leave it empty if they are with us."
+              value={died}
+              onChange={(v) => { setDied(v); setDateErrors((x) => ({ ...x, died: null })) }}
+              error={dateErrors.died}
+              ui="tag-died"
+            />
+          </>
+        ) : null}
+      </div>
       <div className={s.section} style={{ marginTop: 0 }}>
         <span className={s.sectionHead}>Photo</span>
         <div className={s.photoRow}>

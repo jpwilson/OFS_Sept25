@@ -59,6 +59,24 @@ async function load(userId, { quiet = false } = {}) {
 
 const markFresh = (id) => set((s) => ({ fresh: new Set([...s.fresh, id]) }))
 
+/**
+ * The tag profile body from TagForm's values {name, word, photoUrl, birth, birthplace, died}
+ * (birth and died are partial dates {ymd, precision}, docs/app/FAMILY-NOTES.md). A birth date's
+ * precision is null for a full day, as the server keeps it; an empty field is null, which clears.
+ */
+function tagBody({ name, word, photoUrl, birth, birthplace, died }) {
+  return {
+    name,
+    relationship_to_creator: word || null,
+    photo_url: photoUrl || null,
+    birth_date: birth?.ymd || null,
+    birth_date_precision: birth?.ymd && birth.precision && birth.precision !== 'day' ? birth.precision : null,
+    birthplace: String(birthplace || '').trim() || null,
+    died_on: died?.ymd || null,
+    died_on_precision: died?.ymd ? died.precision || 'day' : null,
+  }
+}
+
 /** Writes. Each throws HttpError on refusal (the sheet shows the server's words). */
 const actions = {
   async propose(otherUser, mine, theirs) {
@@ -89,21 +107,25 @@ const actions = {
     await apiFetch(`/relationships/${id}`, { method: 'DELETE' })
     set((s) => ({ relationships: s.relationships.filter((x) => x.id !== id) }))
   },
-  async createTag({ name, word, photoUrl, birthDate }) {
-    const t = await apiFetch('/tag-profiles', { method: 'POST', body: { name, relationship_to_creator: word || null, photo_url: photoUrl || null, birth_date: birthDate || null } })
+  async createTag(values) {
+    const t = await apiFetch('/tag-profiles', { method: 'POST', body: tagBody(values) })
     set((s) => ({ tags: [...s.tags.filter((x) => x.id !== t.id), t] }))
     markFresh(`t:${t.id}`)
     return t
   },
-  async updateTag(id, { name, word, photoUrl, birthDate }) {
-    const body = {}
-    if (name != null) body.name = name
-    if (word != null) body.relationship_to_creator = word
-    if (photoUrl != null) body.photo_url = photoUrl
-    if (birthDate) body.birth_date = birthDate // PUT ignores null: a birthday is set or changed, not cleared
-    const t = await apiFetch(`/tag-profiles/${id}`, { method: 'PUT', body })
+  /** Every field is sent: the PUT applies what is sent, and an explicit null clears it. */
+  async updateTag(id, values) {
+    const t = await apiFetch(`/tag-profiles/${id}`, { method: 'PUT', body: tagBody(values) })
     set((s) => ({ tags: s.tags.map((x) => (x.id === id ? t : x)) }))
     return t
+  },
+  /**
+   * Your own birthday, birthplace and who sees them (PUT /users/me/family-details: only the
+   * fields sent; null clears). Returns {birth_date, birthplace, birth_date_visibility}; the
+   * caller hands them to useAuth().updateUser so the tree re-sorts at once.
+   */
+  async saveBirthday(fields) {
+    return apiFetch('/users/me/family-details', { method: 'PUT', body: fields })
   },
   /** Links a tag to one of your relatives. {pending: true} when they must approve it first. */
   async linkTag(id, userId, word) {
