@@ -76,6 +76,24 @@ const ALLOW = [
     why: "The hero's readout changes with the audience: the old value slides up and out of the plate as the new one slides in, passing its corner label for a moment. At rest the value sits clear of the label.",
   },
   {
+    at: /^film:app$/,
+    a: /^span\.tag$/,
+    b: /^(img\.feedM|img\.feedD|span\.frame)$/,
+    why: 'The app chapter in motion: the other screens fan out from behind the feed, their tags with them. At rest every tag sits clear of the feed.',
+  },
+  {
+    at: /^film:ours$/,
+    a: /^(b|i)$/,
+    b: /^span\.storyTag$/,
+    why: 'The finale in motion: the five story tags pop in one at a time onto a tight stack, each passing over the one below as it lands.',
+  },
+  {
+    at: /^lp-create$/,
+    a: /^(span\.label|li)$/,
+    b: /^li$/,
+    why: "What comes back: the five results drop in like stickers as the section arrives, tumbling past their label and each other before they land in a row.",
+  },
+  {
     at: /^film:year$/,
     a: /^figcaption$/,
     b: /^img\.photoImg$/,
@@ -275,7 +293,8 @@ async function measure({ minOpacity }) {
       if (r.width < 4 || r.height < 4 || r.bottom <= 0 || r.top >= H || r.right <= 0 || r.left >= W) continue
       const c = clipped(el, r)
       if (!c) continue
-      leaves.push({ el, blk: el.closest(BLOCK) || el, r: c, text: text.slice(0, 48), scene: el.closest('[data-scene]') })
+      // h: the line's full height, so a line cut by the screen's edge is not judged by its sliver
+      leaves.push({ el, blk: el.closest(BLOCK) || el, r: c, h: r.height, text: text.slice(0, 48), scene: el.closest('[data-scene]') })
     }
   }
 
@@ -295,7 +314,8 @@ async function measure({ minOpacity }) {
           const stack = document.elementsFromPoint(x, y)
           let verdict = 'visible'
           for (const e of stack) {
-            if (e === L.el || L.el.contains(e) || e.contains(L.el)) break
+            // the text itself, or another part of the same heading or paragraph (a headline's sticker)
+            if (e === L.el || L.el.contains(e) || e.contains(L.el) || L.blk.contains(e)) break
             if (!(await solid(e, x, y))) continue
             if (isFixed(e) && !isFixed(L.el)) verdict = 'hidden'
             else {
@@ -333,9 +353,11 @@ async function measure({ minOpacity }) {
       const b = seen[j]
       if (a.blk === b.blk || a.blk.contains(b.blk) || b.blk.contains(a.blk)) continue
       if (a.scene && b.scene && a.scene !== b.scene) continue
+      // a fixed bar (the nav) passes over the page as it scrolls
+      if (isFixed(a.el) !== isFixed(b.el)) continue
       const ix = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left)
       const iy = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top)
-      if (ix > 4 && iy > Math.min(a.r.height, b.r.height) * 0.3) {
+      if (ix > 4 && iy > Math.min(a.h, b.h) * 0.3) {
         found.push({ kind: 'text', a: name(a.blk), at: where(a.el), ta: a.text, b: name(b.blk), tb: b.text, ra: a.r, rb: b.r })
       }
     }
