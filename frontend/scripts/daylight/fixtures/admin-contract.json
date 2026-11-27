@@ -1,0 +1,195 @@
+{
+  "members": [
+    "members",
+    "page",
+    "page_size",
+    "sources",
+    "total"
+  ],
+  "members.members[]": [
+    "avatar_url",
+    "display_name",
+    "email",
+    "email_confirmed",
+    "id",
+    "invited_by",
+    "is_superuser",
+    "joined_at",
+    "last_active_at",
+    "last_sign_in_at",
+    "method",
+    "plan",
+    "published",
+    "stories",
+    "username"
+  ],
+  "members.members[].invited_by": [
+    "display_name",
+    "id",
+    "username"
+  ],
+  "members.members[].plan": [
+    "state",
+    "status",
+    "tier",
+    "trial_ends_at"
+  ],
+  "members.sources": [
+    "auth"
+  ],
+  "overview": [
+    "activity",
+    "end",
+    "funnel",
+    "generated_at",
+    "interval",
+    "range",
+    "signins",
+    "signups",
+    "sources",
+    "start",
+    "tz"
+  ],
+  "overview.activity": [
+    "active_24h",
+    "active_30d",
+    "active_7d",
+    "last_login_latest",
+    "last_login_rows",
+    "members",
+    "signed_in_24h",
+    "signed_in_7d"
+  ],
+  "overview.funnel": [
+    "by_method",
+    "steps",
+    "unfinished"
+  ],
+  "overview.funnel.by_method": [
+    "email",
+    "google"
+  ],
+  "overview.funnel.by_method.email": [
+    "accounts",
+    "confirmed",
+    "profiles",
+    "with_published",
+    "with_story"
+  ],
+  "overview.funnel.by_method.google": [
+    "accounts",
+    "confirmed",
+    "profiles",
+    "with_published",
+    "with_story"
+  ],
+  "overview.funnel.steps": [
+    "accounts",
+    "confirmed",
+    "profiles",
+    "with_published",
+    "with_story"
+  ],
+  "overview.signins": [
+    "note",
+    "series",
+    "totals"
+  ],
+  "overview.signins.series[]": [
+    "active",
+    "email",
+    "google",
+    "members",
+    "partial",
+    "signins",
+    "t"
+  ],
+  "overview.signins.totals": [
+    "active",
+    "members",
+    "signins"
+  ],
+  "overview.signups": [
+    "series",
+    "totals"
+  ],
+  "overview.signups.series[]": [
+    "email",
+    "google",
+    "invited",
+    "organic",
+    "other",
+    "partial",
+    "profiles",
+    "started",
+    "t"
+  ],
+  "overview.signups.totals": [
+    "email",
+    "google",
+    "invited",
+    "organic",
+    "other",
+    "profiles",
+    "started"
+  ],
+  "overview.sources": [
+    "auth",
+    "signins"
+  ],
+  "unfinished": [
+    "accounts",
+    "available"
+  ],
+  "unfinished.accounts[]": [
+    "confirmed",
+    "created_at",
+    "email",
+    "method"
+  ],
+  "visitors:failed": [
+    "configured",
+    "error",
+    "ok"
+  ],
+  "visitors:not_configured": [
+    "configured",
+    "links",
+    "missing"
+  ],
+  "visitors:not_configured.links": [
+    "posthog",
+    "vercel_analytics"
+  ],
+  "visitors:ok": [
+    "cached_at",
+    "configured",
+    "interval",
+    "ok",
+    "referrers",
+    "series",
+    "totals",
+    "utm_sources"
+  ],
+  "visitors:ok.referrers[]": [
+    "domain",
+    "label",
+    "visitors"
+  ],
+  "visitors:ok.series[]": [
+    "pageviews",
+    "partial",
+    "t",
+    "visitors"
+  ],
+  "visitors:ok.totals": [
+    "landing_cta",
+    "pageviews",
+    "signed_up",
+    "visitors"
+  ],
+  "visitors:ok.utm_sources[]": [
+    "source",
+    "visitors"
+  ]
+}
