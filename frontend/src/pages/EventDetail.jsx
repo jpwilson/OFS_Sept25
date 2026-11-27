@@ -381,7 +381,7 @@ function EventDetail({ isShareMode = false }) {
       if (mediaIds.length === 0) return
 
       try {
-        const stats = await apiService.getBatchMediaStats(mediaIds)
+        const stats = await apiService.getBatchMediaStats(mediaIds, isShareMode ? token : null)
         const statsMap = {}
         stats.forEach(stat => {
           statsMap[stat.media_id] = {
@@ -1628,6 +1628,7 @@ function EventDetail({ isShareMode = false }) {
             onLightboxChange={setLightboxState}
             enableEngagement={true}
             showCaptions={true}
+            shareToken={isShareMode ? token : null}
           />
         </div>
       )}

@@ -35,10 +35,9 @@ def like_event(
     db: Session = Depends(get_db)
 ):
     """Like an event"""
-    # Check if event exists
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+    # Check the event exists and the user may open it
+    from ..utils.privacy import get_viewable_event_or_404
+    get_viewable_event_or_404(event_id, current_user, db)
 
     # Check if already liked
     existing_like = db.query(Like).filter(
