@@ -8,7 +8,6 @@ from ..models.event import Event
 from ..models.follow import Follow
 from ..models.custom_group import CustomGroupMember
 from ..models.user import User
-from ..models.event_tag import EventTag
 
 
 def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
@@ -25,11 +24,20 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     Subscription rules:
     - Authors can ALWAYS see their own events (even if expired - reminds them what they have)
     - If author's subscription expired, others cannot see their events
+
+    Drafts and trashed events are visible to their author only.
+
+    filter_events_by_privacy() must stay in step with this function: a list
+    may never include an event this function refuses.
     """
     # Author can ALWAYS view their own events (even with expired subscription)
     # This reminds them of what they have and motivates resubscription
     if viewer and event.author_id == viewer.id:
         return True
+
+    # Drafts and trashed events are for the author only
+    if not event.is_published or event.is_deleted:
+        return False
 
     # For others viewing: check if author's subscription is active
     if not is_user_subscription_active(event.author):
@@ -75,23 +83,10 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
             CustomGroupMember.group_id == event.custom_group_id,
             CustomGroupMember.user_id == viewer.id
         ).first()
-        if member:
-            return True
+        return member is not None
 
-    # Check if viewer follows someone who is tagged in this event
-    # This applies to all privacy levels except private
-    if event.privacy_level != "private":
-        tagged_followed = db.query(EventTag).join(
-            Follow,
-            (Follow.following_id == EventTag.tagged_user_id) &
-            (Follow.follower_id == viewer.id) &
-            (Follow.status == "accepted")
-        ).filter(
-            EventTag.event_id == event.id,
-            EventTag.status == "accepted"
-        ).first()
-        if tagged_followed:
-            return True
+    # Being tagged, or following someone who is tagged, never widens the
+    # audience: Close Family and Custom Group stories are for that audience only.
 
     # Default: deny access
     return False
@@ -305,19 +300,9 @@ def filter_events_by_privacy(
         (Event.custom_group_id.in_(group_ids))
     )
 
-    # Add events where a followed user is tagged (with accepted tag)
-    # This allows viewers to see events where someone they follow is tagged
-    tagged_events = db.query(EventTag.event_id).filter(
-        EventTag.tagged_user_id.in_(
-            db.query(Follow.following_id).filter(
-                Follow.follower_id == viewer.id,
-                Follow.status == "accepted"
-            )
-        ),
-        EventTag.status == "accepted"
-    ).subquery()
-
-    conditions.append(Event.id.in_(tagged_events))
+    # No "someone you follow is tagged" condition: can_view_event() does not
+    # grant access that way, so a list must not show those events either
+    # (it used to, which leaked Private, Close Family and Custom Group stories).
 
     # Apply all conditions with OR (using distinct to avoid duplicates)
     return query.filter(or_(*conditions)).distinct()
