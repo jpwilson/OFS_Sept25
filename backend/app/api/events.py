@@ -11,6 +11,7 @@ from ..models.content_block import ContentBlock
 from ..models.event_location import EventLocation
 from ..models.event_image import EventImage
 from ..models.follow import Follow
+from ..models.custom_group import CustomGroupMember
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
 from ..utils.location_validator import validate_location_count, extract_location_markers
 from ..utils.slug import generate_unique_slug
@@ -108,6 +109,48 @@ def sync_event_images(event_id: int, html_content: str, db: Session):
     db.commit()
 
 router = APIRouter(prefix="/events", tags=["events"])
+
+
+def get_new_event_email_recipients(event: Event, db: Session) -> List[User]:
+    """Followers who should get the "new story" email for this event.
+
+    Only people who may open the story: nobody for Private, close family
+    followers for Close Family, group members for Custom Group, all accepted
+    followers for Followers and Public. Each person's email settings (master
+    toggle, new-story toggle, per-author toggle) are respected.
+    """
+    level = event.privacy_level or "public"
+
+    query = db.query(Follow).filter(
+        Follow.following_id == event.author_id,
+        Follow.status == "accepted"
+    )
+
+    if level == "close_family":
+        query = query.filter(Follow.is_close_family == True)
+    elif level == "custom_group":
+        if not event.custom_group_id:
+            return []
+        member_ids = db.query(CustomGroupMember.user_id).filter(
+            CustomGroupMember.group_id == event.custom_group_id
+        )
+        query = query.filter(Follow.follower_id.in_(member_ids))
+    elif level not in ("public", "followers"):
+        # Private (or unknown): nobody else may open it
+        return []
+
+    recipients = []
+    for follow in query.all():
+        follower = follow.follower
+        should_notify = (
+            (follower.email_notifications_enabled is None or follower.email_notifications_enabled) and
+            (follower.notify_new_event_from_followed is None or follower.notify_new_event_from_followed) and
+            (follow.notify_new_events is None or follow.notify_new_events)
+        )
+        if should_notify and follower.email:
+            recipients.append(follower)
+    return recipients
+
 
 def build_event_dict(event):
     """Helper to build event dict without SQLAlchemy internals"""
@@ -424,37 +467,23 @@ def create_event(
         sync_event_images(event.id, event.description, db)
         db.refresh(event)
 
-    # Send notification to followers if event is published
+    # Send notification to the followers who may open this event, if published
     if is_published:
         try:
-            # Get all followers of the current user who have notifications enabled
-            followers = db.query(Follow).filter(
-                Follow.following_id == current_user.id,
-                Follow.status == "accepted"
-            ).all()
-
             author_name = current_user.display_name or current_user.full_name or current_user.username
             event_url = f"https://www.ourfamilysocials.com/event/{event.id}"
 
-            for follow in followers:
-                follower = follow.follower
-                # Check if follower wants notifications
-                should_notify = (
-                    (follower.email_notifications_enabled is None or follower.email_notifications_enabled) and
-                    (follower.notify_new_event_from_followed is None or follower.notify_new_event_from_followed)
+            for follower in get_new_event_email_recipients(event, db):
+                background_tasks.add_task(
+                    send_new_event_notification_email,
+                    to_email=follower.email,
+                    follower_username=follower.display_name or follower.username,
+                    author_name=author_name,
+                    event_title=event.title,
+                    event_url=event_url,
+                    cover_image_url=event.cover_image_url
                 )
-
-                if should_notify and follower.email:
-                    background_tasks.add_task(
-                        send_new_event_notification_email,
-                        to_email=follower.email,
-                        follower_username=follower.display_name or follower.username,
-                        author_name=author_name,
-                        event_title=event.title,
-                        event_url=event_url,
-                        cover_image_url=event.cover_image_url
-                    )
-                    print(f"📧 Queued new event notification for user {follower.id}")
+                print(f"📧 Queued new event notification for user {follower.id}")
         except Exception as e:
             print(f"⚠️ Failed to queue follower notifications: {e}")
             # Don't fail event creation if notifications fail
@@ -589,6 +618,11 @@ def get_event(
         ).filter(Event.slug == event_identifier).first()
 
     if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    # Drafts and trashed events exist only for their author
+    is_author = current_user is not None and event.author_id == current_user.id
+    if not is_author and (not event.is_published or event.is_deleted):
         raise HTTPException(status_code=404, detail="Event not found")
 
     # Check privacy permissions
@@ -949,10 +983,10 @@ def add_like(
     db: Session = Depends(get_db)
 ):
     from ..models.like import Like
+    from ..utils.privacy import get_viewable_event_or_404
 
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+    # Only people who may open the event can like it
+    get_viewable_event_or_404(event_id, current_user, db)
 
     # Check if already liked
     existing_like = db.query(Like).filter(
