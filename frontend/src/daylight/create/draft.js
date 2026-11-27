@@ -17,7 +17,7 @@
 //   skipped: files that are not photos (clips, documents), by name
 import ExifReader from 'exifreader'
 import { centroid, isLatLng, km, tripDay } from '../lib/geo.js'
-import { parseBackendDate, dayLabel } from '../lib/format.js'
+import { parseBackendDate, dayLabel, wallParts, wallTime } from '../lib/format.js'
 
 const HEAD_BYTES = 256 * 1024 // EXIF sits in the first segment of a JPEG; HEIC may need the whole file
 const MAX_META_BYTES = 40 * 1024 * 1024
@@ -193,7 +193,14 @@ export function workingTitle(draft, area) {
   return area ? `${count} days in ${area}` : `${count} days in ${MONTHS[s.getMonth()]}`
 }
 
-const stopName = (s) => s.name || `Stop ${s.n}`
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+/** "Tue 9:30 AM": when a stop happened, at the place. What a stop is called until its place has a name. */
+export function whenName(ts) {
+  const w = wallParts(ts)
+  if (!w || w.h == null) return null
+  return `${WEEKDAYS[w.date.getDay()]} ${wallTime(ts)}`
+}
+const stopName = (s) => s.name || whenName(s.ts) || `Stop ${s.n}`
 
 /** "Day 3: Jenny Lake, Hidden Falls and Inspiration Point" once places are named, else "Day 3 · Tuesday, June 16". */
 export function dayTitle(draft, day) {
@@ -263,6 +270,21 @@ export function markerSpan({ name, lat, lng, ts }) {
   return `<span data-location-marker="" data-location-name="${esc(name)}" data-latitude="${lat}" data-longitude="${lng}" data-timestamp="${esc(ts || '')}" data-place-id="" class="location-marker">📍 ${esc(name)}</span>`
 }
 export const markerFor = (s) => `<p>${markerSpan({ name: stopName(s), lat: s.lat.toFixed(6), lng: s.lng.toFixed(6), ts: s.ts })}</p>`
+
+const MARKER_RE = /<span data-location-marker="" data-location-name="[^"]*" data-latitude="([^"]+)" data-longitude="([^"]+)"[^>]*>[^<]*<\/span>/g
+/**
+ * The stops' current names in HTML written earlier (a write-up that arrived while places were
+ * still being named keeps the names they had then). Markers are matched by their coordinates,
+ * which markerFor writes from the stop itself.
+ */
+export function renameMarkers(html, stops) {
+  if (!html || !stops?.length) return html
+  const byPlace = new Map(stops.map((s) => [`${s.lat.toFixed(6)},${s.lng.toFixed(6)}`, s]))
+  return html.replace(MARKER_RE, (m, lat, lng) => {
+    const s = byPlace.get(`${lat},${lng}`)
+    return s ? markerSpan({ name: stopName(s), lat, lng, ts: s.ts }) : m
+  })
+}
 
 /** The src a photo carries inside the draft's own HTML, replaced by resolvePhotos before anyone sees it. */
 export const photoToken = (id) => `ofs-photo:${id}`

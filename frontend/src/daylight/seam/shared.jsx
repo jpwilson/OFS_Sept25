@@ -2,7 +2,9 @@
 // useLook(), isolates packages with ?only=, and catches a Daylight page that throws so a
 // real user is never left on a blank screen.
 import { Component, Suspense } from 'react'
+import { useLocation } from 'react-router-dom'
 import { setLook } from '../lib/look.js'
+import { authWashFor } from '../auth/lib/wash.js'
 import { useOnly, blockedBy } from '../dev/only.js'
 import { Root } from '../ui/Root.jsx'
 import { Stub } from '../ui/Stub.jsx'
@@ -49,6 +51,12 @@ export function PageSkeleton() {
   )
 }
 
+/** A sign-in page still loading: its own wash fills the screen (never a grey skeleton). */
+function AuthLoading() {
+  const loc = useLocation()
+  return <div data-wash={authWashFor(loc.pathname, loc.search)} style={{ minHeight: '100svh', background: 'var(--a-wash)' }} aria-busy="true" />
+}
+
 /**
  * Renders a Daylight page for `pkg`, wrapped in Root, a boundary and Suspense.
  * fallbackLabel / fallbackBody / onFallback replace the boundary's "Use the previous look"
@@ -64,7 +72,7 @@ export function DaylightPage({ pkg, name, children, fallbackLabel, fallbackBody,
             <Stub pkg={pkg} name={name} note={`Hidden by ?only=${only}. Open ?only=all to see every package.`} />
           </div>
         ) : (
-          <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+          <Suspense fallback={pkg === 'auth' ? <AuthLoading /> : <PageSkeleton />}>{children}</Suspense>
         )}
       </PageBoundary>
     </Root>

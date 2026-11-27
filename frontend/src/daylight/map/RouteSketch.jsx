@@ -27,13 +27,14 @@ function projector(points, w, h, pad) {
   return (lng, lat) => [ox + (lng * k - x0) * sc, h - (oy + (lat - y0) * sc)]
 }
 
-export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, height = 360, labels = 'named', className }) {
+export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, height = 360, labels = 'named', mini = false, className }) {
   const uid = useId().replace(/:/g, '')
   const geo = useMemo(() => {
     if (!journey?.stops?.length) return null
     const small = width < 480
-    const R = small ? 11 : 13
-    const pad = small ? 30 : 40
+    // mini: a thumbnail of the route (the creation flow's summary): plain discs, no numbers or names
+    const R = mini ? 6.5 : small ? 11 : 13
+    const pad = mini ? 16 : small ? 30 : 40
     const lines = journey.legs.map((l) => ({ leg: l, line: legLine(journey, l) }))
     // fit the curves as well as the stops, so a bowed leg never leaves the paper
     const P = projector([...journey.stops.map((st) => [st.lng, st.lat]), ...lines.flatMap((x) => x.line)], width, height, pad)
@@ -87,7 +88,7 @@ export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, 
       }
     }
     return { pts, legs, labelsAt, R, fs }
-  }, [journey, width, height, labels])
+  }, [journey, width, height, labels, mini])
   if (!geo) return null
   const named = journey.stops.filter((st) => st.kind === 'named')
   const { R, fs } = geo
@@ -101,10 +102,10 @@ export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, 
       <rect width={width} height={height} fill={COLOR.paper} />
       <rect width={width} height={height} fill={`url(#g${uid})`} />
       {geo.legs.map((l) => (
-        <path key={`c${l.id}`} d={l.d} fill="none" stroke={COLOR.ink} strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path key={`c${l.id}`} d={l.d} fill="none" stroke={COLOR.ink} strokeWidth={mini ? 5.6 : 7.5} strokeLinecap="round" strokeLinejoin="round" />
       ))}
       {geo.legs.map((l) => (
-        <path key={l.id} d={l.d} fill="none" stroke={dayColor(l.dayIndex)} strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path key={l.id} d={l.d} fill="none" stroke={dayColor(l.dayIndex)} strokeWidth={mini ? 3 : 3.6} strokeLinecap="round" strokeLinejoin="round" />
       ))}
       {journey.stops.map((st) => {
         const [x, y] = geo.pts[st.id]
@@ -115,9 +116,9 @@ export function RouteSketch({ journey, activeStopId, onStopSelect, width = 640, 
         const body = (
           <>
             {isNamed && active ? <circle cx={x + 2} cy={y + 3} r={r} fill={COLOR.ink} /> : null}
-            <circle cx={x} cy={y} r={r} fill={isNamed ? (active ? COLOR.ink : COLOR.white) : dayColor(st.dayIndex)} stroke={COLOR.ink} strokeWidth="2" />
-            {isNamed && !active ? <circle cx={x} cy={y} r={r - 2.6} fill="none" stroke={dayColor(st.dayIndex)} strokeWidth="2.6" /> : null}
-            {st.n != null ? (
+            <circle cx={x} cy={y} r={r} fill={isNamed ? (active ? COLOR.ink : mini ? dayColor(st.dayIndex) : COLOR.white) : dayColor(st.dayIndex)} stroke={COLOR.ink} strokeWidth="2" />
+            {isNamed && !active && !mini ? <circle cx={x} cy={y} r={r - 2.6} fill="none" stroke={dayColor(st.dayIndex)} strokeWidth="2.6" /> : null}
+            {st.n != null && !mini ? (
               <text x={x} y={y + (R > 11 ? 4.2 : 3.8)} textAnchor="middle" fontFamily={FONT.mono} fontSize={R > 11 ? 11.5 : 10.5} fontWeight="500" fill={active ? COLOR.white : COLOR.ink}>
                 {st.n}
               </text>

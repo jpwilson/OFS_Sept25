@@ -45,6 +45,16 @@ export function storyPin(event) {
   return b
 }
 
+/** A pin moved off its place to stand apart (an opened group): a short line back to the place, and a dot on it. */
+export function fanLeg(pin, [dx, dy]) {
+  const len = Math.hypot(dx, dy)
+  if (len < 4) return
+  const leg = el('span', s.leg, { 'aria-hidden': 'true' })
+  leg.style.setProperty('--len', `${Math.round(len)}px`)
+  leg.style.setProperty('--ang', `${Math.atan2(-dy, -dx)}rad`)
+  pin.prepend(leg)
+}
+
 /** `lead` is the story drawn in front (the selected one when it is in this group). */
 export function clusterPin(cluster, lead) {
   const events = cluster.members.map((m) => m.event)

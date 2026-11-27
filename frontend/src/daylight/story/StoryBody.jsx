@@ -69,6 +69,8 @@ function StopHeader({ marker, stop, active, onShow }) {
   const head = placeHead(name)
   const rest = name.slice(head.length).replace(/^,\s*/, '')
   const time = wallTime(marker.ts || stop?.ts)
+  // a draft's stop that has no place name yet is called by its time ("Tue 9:30 AM"): say it once
+  const showTime = time && !name.includes(time)
   return (
     <div className={cx(s.stop, active && s.stopActive)} id={marker.anchorId} data-stop-id={stop?.id} data-ui="stop-header" style={stop ? { '--day': dayColor(stop.dayIndex) } : undefined}>
       <span className={cx(s.stopN, 'a-mono')} aria-hidden="true">
@@ -80,7 +82,7 @@ function StopHeader({ marker, stop, active, onShow }) {
           {head}
           {rest ? <span className={s.stopRest}> {rest}</span> : null}
         </span>
-        {time ? <span className={cx(s.stopTime, 'a-mono')}>{time}</span> : null}
+        {showTime ? <span className={cx(s.stopTime, 'a-mono')}>{time}</span> : null}
       </span>
       {stop && onShow ? (
         <button type="button" className={s.stopShow} onClick={() => onShow(stop.id)} aria-label={`Show ${head} on the map`}>

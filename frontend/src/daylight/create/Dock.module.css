@@ -12,6 +12,7 @@
   margin: 0;
   font-weight: 700;
   font-size: 15px;
+  text-wrap: pretty;
 }
 .row {
   display: flex;
@@ -266,19 +267,42 @@
   appearance: none;
   flex: 1;
   min-width: 0;
-  min-height: 48px;
-  padding: 0 16px;
+  min-height: 52px;
+  padding: 6px 14px 6px 16px;
   border-radius: var(--a-r-pill);
-  border: 1.5px solid var(--a-line-strong);
-  background: var(--a-paper);
-  color: var(--a-mute);
+  border: 1.5px solid var(--a-ink);
+  background: var(--a-fizz-tint);
+  color: var(--a-ink);
   font: inherit;
-  font-size: 15px;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  cursor: text;
+}
+.pillLead,
+.pillSub {
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: text;
+}
+.pillLead {
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.pillSub {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--a-ink);
+  opacity: 0.78;
+}
+/* before anything has been said: the mic carries a ring, the one thing to try */
+.micInvite {
+  box-shadow: 0 0 0 6px var(--a-fizz-tint), var(--a-shadow-sm);
 }
 .publish {
   flex: none;

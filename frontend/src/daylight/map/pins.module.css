@@ -110,6 +110,42 @@
   }
 }
 
+/* an opened group: a pin moved off its place keeps a short line back to it, with a dot on the place */
+.leg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--len);
+  height: 2.5px;
+  margin-top: -1.25px;
+  background: var(--a-ink);
+  border-radius: 2px;
+  transform-origin: 0 50%;
+  transform: rotate(var(--ang));
+  pointer-events: none;
+  animation: legIn 320ms var(--a-ease) both;
+}
+.leg::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--a-azure);
+  border: 2px solid var(--a-ink);
+}
+.leg + .body {
+  z-index: 1;
+}
+@keyframes legIn {
+  from {
+    width: 0;
+  }
+}
+
 /* the element the selected story's card hangs from (desktop) */
 .anchor {
   position: absolute;

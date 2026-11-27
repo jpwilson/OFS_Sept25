@@ -39,7 +39,7 @@ export default function StoryHeader({ event, mode, extras, isAuthor, authorItems
   const desktop = useDesktop()
   const [opts, setOpts] = useState(false)
   return (
-    <header className={s.head} data-ui="story-header">
+    <header className={s.head} data-ui="story-header" data-preview={preview || undefined}>
       {cover ? (
         <div className={s.coverWrap} ref={coverRef}>
           <img className={s.cover} src={imageSrc(cover, 'medium')} srcSet={imageSrcSet(cover)} sizes="(min-width: 900px) 1240px, 100vw" alt="" fetchPriority="high" decoding="async" />

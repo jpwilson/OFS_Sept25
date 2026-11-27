@@ -143,6 +143,11 @@ export function PhoneDock({ maker, state, rec, voiceFor, canUseAI, onPublish, pu
     setOpen(false)
   }
   const recording = rec.state === 'recording' && voiceFor === null
+  // The invitation: the story already stands; talking or typing makes it better.
+  const written = state.write.state === 'done'
+  const said = state.words.length > 0
+  const lead = !canUseAI ? 'Add a few words' : said || written ? 'Tell us more' : 'Tell us about it'
+  const sub = !canUseAI ? 'They open the story' : state.uploadsBusy && !written ? 'Talk while they upload' : 'Tap the mic, or type here'
   return (
     <div className={s.phone} data-ui="create-phone-bar">
       {settingsBar}
@@ -151,12 +156,13 @@ export function PhoneDock({ maker, state, rec, voiceFor, canUseAI, onPublish, pu
       ) : (
         <div className={s.phoneRow}>
           {canUseAI ? (
-            <button type="button" className={cx(s.mic, s.micPhone)} onClick={() => rec.startFor(null)} aria-label="Record a voice note" data-ui="mic" disabled={rec.state === 'asking'}>
+            <button type="button" className={cx(s.mic, s.micPhone, !said && s.micInvite)} onClick={() => rec.startFor(null)} aria-label="Record a voice note" data-ui="mic" disabled={rec.state === 'asking'}>
               <Icon name="mic" size={26} />
             </button>
           ) : null}
-          <button type="button" className={s.pill} onClick={() => setOpen(true)} data-ui="words-pill">
-            {state.uploadsBusy && canUseAI ? 'Talk or type while they upload' : 'Add a few words'}
+          <button type="button" className={s.pill} onClick={() => setOpen(true)} data-ui="words-pill" aria-label={canUseAI ? 'Type a few words about it' : 'Add a few words'}>
+            <span className={s.pillLead}>{lead}</span>
+            <span className={s.pillSub}>{sub}</span>
           </button>
           <Button onClick={onPublish} busy={publishBusy} className={s.publish}>{publishLabel || 'Publish'}</Button>
         </div>

@@ -35,6 +35,25 @@ function roomy(bb, minKm = 5) {
   const padLat = Math.max(0, (dLat - (n - s)) / 2), padLng = Math.max(0, (dLng - (e - w)) / 2)
   return [[w - padLng, s - padLat], [e + padLng, n + padLat]]
 }
+/**
+ * The stops a trip is about, without far outliers: a photo taken on the road there, or the
+ * drive from home on the first day. Kept: every stop within four times the median distance
+ * from the median place (and never less than 40 km). Outliers are still drawn; only the
+ * automatic fits leave them out. Small or evenly spread journeys come back whole.
+ */
+export function mainStops(pts) {
+  if (pts.length < 3) return pts
+  const med = (arr) => {
+    const a = [...arr].sort((x, y) => x - y)
+    const m = a.length >> 1
+    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2
+  }
+  const c = { lat: med(pts.map((p) => p.lat)), lng: med(pts.map((p) => p.lng)) }
+  const d = pts.map((p) => km(c, p))
+  const limit = Math.max(40, med(d) * 4)
+  const keep = pts.filter((p, i) => d[i] <= limit)
+  return keep.length >= Math.max(2, Math.ceil(pts.length * 0.6)) ? keep : pts
+}
 const bearingOf = (a, b) => {
   const y = Math.sin((b.lng - a.lng) * RAD) * Math.cos(b.lat * RAD)
   const x = Math.cos(a.lat * RAD) * Math.sin(b.lat * RAD) - Math.sin(a.lat * RAD) * Math.cos(b.lat * RAD) * Math.cos((b.lng - a.lng) * RAD)
@@ -50,7 +69,10 @@ export async function createJourneyScene(container, { journey, level = 'full', r
   let pad = { top: 24, bottom: 24, left: 24, right: 24, ...inset }
   let stops = journey.stops
   const indexOf = new Map(stops.map((s, i) => [s.id, i]))
-  const all = roomy(journey.bbox || bboxOf(stops), 3)
+  // what the first view and the automatic fits show: the trip's own stops (far outliers left
+  // out, still drawn); "Show the whole journey" shows everything
+  const all = roomy(bboxOf(mainStops(stops)), 3)
+  const whole = roomy(journey.bbox || bboxOf(stops), 3)
 
   const map = await createMap(container, {
     style: buildStyle({ hillshade: true, lite }),
@@ -200,15 +222,16 @@ export async function createJourneyScene(container, { journey, level = 'full', r
     const cam = map.cameraForBounds(bounds, { padding: 26, maxZoom, bearing: three ? map.getBearing() : 0 })
     return cam ? { center: cam.center, zoom: three ? cam.zoom + 0.15 : cam.zoom } : null
   }
-  function fit({ animate = true } = {}) {
-    const cam = cameraFor(all)
+  function fit({ animate = true, everything = false } = {}) {
+    const cam = cameraFor(everything ? whole : all)
     if (cam) go({ ...cam, ...(three ? {} : { bearing: 0, pitch: 0 }) }, { animate })
   }
   function fitDay(dayIndex, { animate = true, duration = 1100 } = {}) {
     const day = journey.days[dayIndex]
     if (!day) return fit({ animate })
-    // the day's own stops fill the view; the road in arrives from the edge
-    const cam = cameraFor(roomy(bboxOf(day.stopIds.map((id) => stops[indexOf.get(id)])), 5))
+    // the day's own stops fill the view (a far-off photo from the road is left out of the
+    // fit); the road in arrives from the edge
+    const cam = cameraFor(roomy(bboxOf(mainStops(day.stopIds.map((id) => stops[indexOf.get(id)]).filter(Boolean))), 5))
     if (cam) go(cam, { animate, duration })
   }
   /** Is the stop inside what the overlays leave visible? (A day's fit puts all its stops there.) */

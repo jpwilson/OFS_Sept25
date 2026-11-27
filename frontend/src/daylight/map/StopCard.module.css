@@ -151,6 +151,55 @@
   font-size: 13.5px;
   -webkit-line-clamp: 3;
 }
+/* ---- line: the desktop panel's dock. One row: number, place and time, a photo strip, Play */
+.line {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.line .names {
+  flex: 1 1 auto;
+}
+.line .name {
+  font-size: 17px;
+}
+.line .when span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.strip {
+  display: flex;
+  flex: none;
+  gap: 5px;
+}
+.thumb {
+  width: 46px;
+  height: 36px;
+  object-fit: cover;
+  border: 2px solid var(--a-ink);
+  border-radius: 7px;
+  background: var(--a-paper-deep);
+  transition: transform 220ms var(--a-ease-pop), box-shadow 220ms var(--a-ease);
+}
+/* playback: the photo whose turn it is */
+.thumb[data-front] {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 var(--a-ink);
+}
+/* a narrow panel (the creation rail, a small window): one photo, so the place keeps its name */
+@container jstage (max-width: 539px) {
+  .line {
+    gap: 10px;
+  }
+  .strip .thumb:nth-child(n + 2) {
+    display: none;
+  }
+  .thumb {
+    width: 42px;
+    height: 34px;
+  }
+}
+
 @keyframes fade {
   from {
     opacity: 0;

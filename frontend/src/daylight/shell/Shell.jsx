@@ -23,6 +23,8 @@ import { setLook } from '../lib/look.js'
 import { signOutHere } from '../auth/lib/client.js'
 import { useNotificationCounts } from '../lib/data.js'
 import { useDesktop } from '../lib/capability.js'
+import { useStoryChrome } from '../../landing/pages/chrome.js'
+import { Pin } from '../../landing/close/Wordmark.jsx'
 import { ChromeContext, STORIES_RESELECT } from './chrome.js'
 import { NewChoices, NewSheet } from './NewMenu.jsx'
 import { SearchSheet } from './SearchSheet.jsx'
@@ -68,10 +70,23 @@ function youItems({ user, isSuperuser, navigate, logout }) {
   ]
 }
 
+/** A stored session (the same test the marketing frame and index.html's boot script make). */
+function sessionHint() {
+  try {
+    const ls = window.localStorage
+    if (ls.getItem('token')) return true
+    for (let i = 0; i < ls.length; i++) if (/^sb-.*-auth-token$/.test(ls.key(i) || '')) return true
+  } catch {
+    return false
+  }
+  return false
+}
+
 function Wordmark({ to }) {
   return (
     <Link to={to} className={s.wordmark} aria-label="Our Family Socials, home">
-      <span className={s.mark} aria-hidden="true" />
+      {/* the brand's journey pin, the same mark as the landing page and the sign-in pages */}
+      <Pin className={s.mark} />
       <span className={s.wordText}>Our Family Socials</span>
     </Link>
   )
@@ -135,6 +150,19 @@ export default function Shell({ override }) {
 
   const you = user ? youItems({ user, isSuperuser, navigate, logout }) : []
   const showTabs = !!user && chrome.tabBar && !desktop
+  // The marketing pages (pricing, FAQ, features, about, the comparisons) come in the landing's
+  // own frame, which draws its footer for everyone and its nav for visitors. A visitor sees
+  // that frame alone: no app bar, no app footer. A member keeps the app's bar and tabs to get
+  // around, and the frame's footer is the one footer.
+  const marketing = useStoryChrome()
+  const visitor = marketing && !user && !(authLoading && sessionHint())
+  // the frame's footer offers Log in and Start free: a member does not need them
+  const member = marketing && !!user
+  useLayoutEffect(() => {
+    if (!member) return
+    document.documentElement.classList.add('ofsa-member-page')
+    return () => document.documentElement.classList.remove('ofsa-member-page')
+  }, [member])
 
   return (
     <Root className={s.shell}>
@@ -159,7 +187,7 @@ export default function Shell({ override }) {
         )}
         <TrialBanner />
 
-        {chrome.topBar && (
+        {chrome.topBar && !visitor && (
           <header className={s.bar} data-ui="topbar">
             <div className={s.barInner}>
               <Wordmark to={homeTo} />
@@ -226,14 +254,16 @@ export default function Shell({ override }) {
           {override || <Outlet />}
         </main>
 
-        {chrome.footer && (
+        {chrome.footer && !marketing && (
           <div className={s.footer}>
             <Footer />
           </div>
         )}
-        <div className={s.feedbackSlot}>
-          <FeedbackWidget />
-        </div>
+        {visitor ? null : (
+          <div className={s.feedbackSlot}>
+            <FeedbackWidget />
+          </div>
+        )}
         {showTabs ? <div className={s.tabSpacer} aria-hidden="true" /> : null}
 
         {showTabs && (

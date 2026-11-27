@@ -16,13 +16,14 @@
 import { createMap, loadMapLibre } from './engine.js'
 import { buildStyle } from './style.js'
 import { clusterAt, expansionZoom, toPoints, zoomStep } from './cluster.js'
-import { storyPin, clusterPin, setFlag, anchorClass } from './markers.js'
+import { storyPin, clusterPin, setFlag, anchorClass, fanLeg } from './markers.js'
 import { shortPlace } from '../lib/format.js'
 import { COLOR, WASH } from '../styles/tokens.js'
 
 const RAD = Math.PI / 180
 const TILE = 512
 const RADIUS_PX = 62 // a group's back covers reach 13px either side, so groups keep clear of each other
+const SAME_SPOT_RAD = 0.06 / 6371 // stories within 60 m of each other share one spot (they open as a list)
 const noop = () => {}
 
 const angle = (a, b) => {
@@ -145,27 +146,88 @@ export async function createWorld(container, { events = [], level = 'full', proj
   const clusterOf = (id) => clusters.find((c) => c.members.some((m) => m.id === id))
   const domKey = (cl) => (cl.members.length > 1 && selectedId != null && cl.members.some((m) => m.id === selectedId) ? `${cl.key}@${selectedId}` : cl.key)
 
+  // ---------------------------------------------------------------- opening a group
+  // One tap shows every story in a group apart. When they share one spot they open as a list
+  // (emit.spot). Otherwise the camera goes in until the group fills the view; any stories still
+  // too close to stand apart there (a town and the city next door, on a phone's globe) fan out
+  // around their place on short leader lines, until the reader moves the map.
+  let fan = null // {ids: Set, settled: boolean}
+  /** The zoom at which every distinct place in the group has its own pin; null for one place. */
+  function splitZoom(members) {
+    const reps = []
+    for (const m of members) if (!reps.some((r) => angle(r, m) < SAME_SPOT_RAD)) reps.push(m)
+    if (reps.length < 2) return null
+    for (let zz = zoomStep(map.getZoom()) + 0.5; zz <= 16; zz += 0.5) if (clusterAt(reps, zz, RADIUS_PX).length === reps.length) return zz
+    return 16
+  }
   function tapCluster(cl) {
     if (cl.members.length === 1) return emit.select(cl.members[0].id)
-    const ez = expansionZoom(cl, map.getZoom(), 16, RADIUS_PX)
-    if (ez == null) {
+    const all = splitZoom(cl.members)
+    if (all == null) {
       emit.spot(cl.members.map((m) => m.id), shortPlace(cl.members[0].event.location_name))
       return
     }
-    // one tap opens the whole group: go in until its stories fit the view side by side
     let w = Infinity, s = Infinity, e = -Infinity, n = -Infinity
     for (const p of cl.members) {
       w = Math.min(w, p.lng); e = Math.max(e, p.lng); s = Math.min(s, p.lat); n = Math.max(n, p.lat)
     }
-    // the map already carries `pad` as its own padding; this is only the margin inside it
-    const fit = map.cameraForBounds([[w, s], [e, n]], { padding: { top: 90, bottom: 90, left: 70, right: 70 }, maxZoom: 11 })
-    move({ center: [(w + e) / 2, (s + n) / 2], zoom: Math.max(ez + 0.35, Math.min(fit?.zoom ?? ez, 11)) })
+    // the map already carries `pad` as its own padding; this is only the margin inside it (a
+    // pin is 48px across, so half of that and a little more keeps the outer ones whole)
+    const margin = phone() ? { top: 48, bottom: 40, left: 38, right: 38 } : { top: 90, bottom: 90, left: 70, right: 70 }
+    const fit = map.cameraForBounds([[w, s], [e, n]], { padding: margin, maxZoom: 11 })
+    const zFit = Math.min(fit?.zoom ?? all, 11)
+    fan = all > zFit ? { ids: new Set(cl.members.map((m) => m.id)), settled: false } : null
+    move({ center: [(w + e) / 2, (s + n) / 2], zoom: fan ? zFit : Math.max(zFit, Math.min(all + 0.35, 11)) })
+    if (fan && (reduced || lite)) {
+      fan.settled = true
+      sync(true)
+    }
+  }
+  /** Groups made only of the opened group's stories become single pins, nudged apart on screen. */
+  function spread(list) {
+    if (!fan?.settled) return list
+    const out = []
+    for (const cl of list) {
+      if (cl.members.length < 2 || cl.members.length > 8 || !cl.members.every((m) => fan.ids.has(m.id))) {
+        out.push(cl)
+        continue
+      }
+      const at = cl.members.map((m) => map.project([m.lng, m.lat]))
+      const pos = at.map((p, i) => ({ x: p.x + Math.cos((i * 2 * Math.PI) / cl.members.length - Math.PI / 2) * 6, y: p.y + Math.sin((i * 2 * Math.PI) / cl.members.length - Math.PI / 2) * 6 }))
+      const min = (phone() ? 48 : 52) + 8
+      for (let pass = 0; pass < 40; pass++) {
+        let moved = false
+        for (let i = 0; i < pos.length; i++) {
+          for (let j = i + 1; j < pos.length; j++) {
+            const dx = pos[j].x - pos[i].x, dy = pos[j].y - pos[i].y
+            const d = Math.hypot(dx, dy) || 0.01
+            if (d >= min) continue
+            const push = (min - d) / 2 + 0.5
+            pos[i].x -= (dx / d) * push; pos[i].y -= (dy / d) * push
+            pos[j].x += (dx / d) * push; pos[j].y += (dy / d) * push
+            moved = true
+          }
+        }
+        if (!moved) break
+      }
+      cl.members.forEach((m, i) => {
+        const offset = [Math.round(pos[i].x - at[i].x), Math.round(pos[i].y - at[i].y)]
+        out.push({ key: `f${m.id}:${offset.join(',')}`, lat: m.lat, lng: m.lng, members: [m], offset })
+      })
+    }
+    return out
+  }
+  function closeFan() {
+    if (!fan) return
+    fan = null
+    sync(true)
   }
 
   function addMarker(key, cl) {
     const one = cl.members.length === 1
     const lead = one ? null : cl.members.find((m) => m.id === selectedId)?.event
     const node = one ? storyPin(cl.members[0].event) : clusterPin(cl, lead)
+    if (cl.offset) fanLeg(node, cl.offset)
     node.addEventListener('click', (e) => {
       e.stopPropagation()
       tapCluster(cl)
@@ -177,7 +239,7 @@ export async function createWorld(container, { events = [], level = 'full', proj
     node.addEventListener('touchstart', () => (lastTouch = performance.now()), { passive: true })
     node.addEventListener('mouseenter', () => performance.now() - lastTouch > 800 && emit.hover(ids[0]))
     node.addEventListener('mouseleave', () => performance.now() - lastTouch > 800 && emit.hover(null))
-    const marker = new ml.Marker({ element: node, anchor: 'center', opacityWhenCovered: '0', subpixelPositioning: true }).setLngLat([cl.lng, cl.lat]).addTo(map)
+    const marker = new ml.Marker({ element: node, anchor: 'center', opacityWhenCovered: '0', subpixelPositioning: true, offset: cl.offset || [0, 0] }).setLngLat([cl.lng, cl.lat]).addTo(map)
     markers.set(key, { marker, el: node, cluster: cl })
   }
 
@@ -188,7 +250,7 @@ export async function createWorld(container, { events = [], level = 'full', proj
     }
     const cl = selectedId != null ? clusterOf(selectedId) : null
     if (cl) {
-      anchor.setLngLat([cl.lng, cl.lat])
+      anchor.setLngLat([cl.lng, cl.lat]).setOffset(cl.offset || [0, 0])
       if (!anchorOn) anchor.addTo(map)
       anchorOn = true
     } else if (anchorOn) {
@@ -201,7 +263,7 @@ export async function createWorld(container, { events = [], level = 'full', proj
     if (destroyed) return
     const step = zoomStep(map.getZoom())
     if (force || step !== cacheStep) {
-      clusters = clusterAt(points, step, RADIUS_PX)
+      clusters = spread(clusterAt(points, step, RADIUS_PX))
       cacheStep = step
     } else if (clusters.length <= cap && !force) {
       return paint()
@@ -264,16 +326,22 @@ export async function createWorld(container, { events = [], level = 'full', proj
   map.on('resize', drawRing)
   map.on('zoom', () => zoomStep(map.getZoom()) !== cacheStep && sync())
   map.on('moveend', () => {
-    sync()
+    if (fan) fan.settled = true
+    sync(!!fan) // an opened group is laid out again where the camera has landed
     emit.view({ zoom: map.getZoom(), bearing: map.getBearing(), globe, center: map.getCenter().toArray() })
   })
-  map.on('movestart', () => emit.state('busy'))
+  map.on('movestart', (e) => {
+    emit.state('busy')
+    // the reader taking the map (drag, pinch, wheel, keys) closes an opened group
+    if (e.originalEvent) closeFan()
+  })
   map.on('idle', () => emit.state('idle'))
   map.on('click', (e) => {
     if (e.defaultPrevented) return
     // a click inside the card that hangs from a pin bubbles up through the canvas container
     if (e.originalEvent?.target?.closest?.('[data-ui="story-peek"], [data-ui="map-pin"], [data-ui="map-cluster"]')) return
     if (map.queryRenderedFeatures(e.point, { layers: ['dots'] }).length) return
+    closeFan()
     emit.select(null)
   })
 
@@ -297,7 +365,10 @@ export async function createWorld(container, { events = [], level = 'full', proj
       return globe
     },
     setEvents(next) {
+      const was = points.map((p) => p.id).join()
       points = toPoints(next)
+      // an opened group stays open while the same stories come back (choosing one updates the URL)
+      if (points.map((p) => p.id).join() !== was) fan = null
       if (selectedId != null && !points.some((p) => p.id === selectedId)) selectedId = null
       sync(true)
     },

@@ -34,10 +34,11 @@ const shapeOf = (j) => j.stops.map((x) => `${x.id}:${x.lat.toFixed(5)},${x.lng.t
 
 // What the overlays cover, so the camera frames what is left: the chips and tools at the
 // top (an active stop also carries a fan of prints above it, so the top is generous) and,
-// in the panel, the dock at the bottom, which grows with the panel (see the container
-// queries in JourneyMap.module.css).
+// in the panel, the one-line dock at the bottom (taller while it carries the transport). A
+// short map (the creation rail) gives the top a smaller share, so a fit never runs out of room.
 const bandOf = (w) => (w >= 680 ? 2 : w >= 540 ? 1 : 0)
-const insetFor = (mode, w, playing) => (mode === 'sheet' ? { top: 150, bottom: 34, left: 40, right: 76 } : { top: 150, bottom: [206, 226, 238][bandOf(w)] + (playing ? 86 : 0), left: 40, right: 80 })
+const insetFor = (mode, w, playing, h = 800) =>
+  mode === 'sheet' ? { top: 150, bottom: 34, left: 40, right: 76 } : { top: Math.min(150, Math.round(h * 0.28)), bottom: (bandOf(w) ? 92 : 98) + (playing ? 96 : 0), left: 40, right: 80 }
 
 function DayChips({ journey, current, focus, onPick, playing }) {
   const ref = useRef(null)
@@ -47,8 +48,9 @@ function DayChips({ journey, current, focus, onPick, playing }) {
     const row = ref.current
     const el = row?.querySelector('[aria-pressed="true"]')
     if (!row || !el) return
+    // keep the chip clear of the row's faded edges (14px on the left, 24px on the right)
     const r = row.getBoundingClientRect(), e = el.getBoundingClientRect()
-    const dx = e.left < r.left ? e.left - r.left - 8 : e.right > r.right ? e.right - r.right + 8 : 0
+    const dx = e.left < r.left + 14 ? e.left - r.left - 14 : e.right > r.right - 24 ? e.right - r.right + 24 : 0
     if (dx) row.scrollTo({ left: row.scrollLeft + dx, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
   }, [current, focus])
   if (journey.days.length < 2) return null
@@ -194,7 +196,7 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
       level,
       reduced,
       cooperative: !sheet,
-      inset: insetFor(mode, node.current.clientWidth),
+      inset: insetFor(mode, node.current.clientWidth, false, node.current.clientHeight),
       alive: () => !dead,
       on: {
         stop: (id) => pick.current(id),
@@ -241,13 +243,15 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
 
   useEffect(() => {
     if (!ready || !node.current || typeof ResizeObserver === 'undefined') return
-    let band = bandOf(node.current.clientWidth)
+    const keyOf = () => `${bandOf(node.current.clientWidth)}:${Math.min(150, Math.round(node.current.clientHeight * 0.28))}`
+    let band = keyOf()
     const ro = new ResizeObserver(() => {
+      if (!node.current) return
       scene.current?.resize()
-      const next = bandOf(node.current.clientWidth)
+      const next = keyOf()
       if (next !== band) {
         band = next
-        scene.current?.setInset(insetFor(mode, node.current.clientWidth, live.current.inPlayback))
+        scene.current?.setInset(insetFor(mode, node.current.clientWidth, live.current.inPlayback, node.current.clientHeight))
       }
     })
     ro.observe(node.current)
@@ -255,7 +259,7 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
   }, [ready, mode])
   // the dock is taller while it carries the transport
   useEffect(() => {
-    if (ready && node.current) scene.current?.setInset(insetFor(mode, node.current.clientWidth, inPlayback))
+    if (ready && node.current) scene.current?.setInset(insetFor(mode, node.current.clientWidth, inPlayback, node.current.clientHeight))
   }, [ready, mode, inPlayback])
 
   // ---- reading: the map follows the story
@@ -419,7 +423,7 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
   // beside a stop's name in the panel, where a full-width button would cost the map a fifth of its height
   const playSmall = (
     <button type="button" className={s.playSmall} onClick={() => setPlaying(true)} disabled={!ready} data-ui="journey-play" aria-label={reduced ? 'Step through the journey' : 'Play the journey'} title={reduced ? 'Step through the journey' : 'Play the journey'}>
-      <Icon name="play" size={18} /> {reduced ? 'Step' : 'Play'}
+      <Icon name="play" size={18} /> <span className={s.playWord}>{reduced ? 'Step' : 'Play'}</span>
     </button>
   )
   const actions = inPlayback && play ? (
@@ -456,7 +460,7 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
             ) : null}
             <MapStack label="View">
               {Math.round(view.bearing) !== 0 && !three ? <MapButton icon="compass" label="Turn north up" onClick={() => scene.current?.north()} /> : null}
-              <MapButton icon="expand" label="Show the whole journey" onClick={() => (setFollowing(false), scene.current?.fit())} />
+              <MapButton icon="expand" label="Show the whole journey" onClick={() => (setFollowing(false), scene.current?.fit({ everything: true }))} />
             </MapStack>
             <MapStack label="Zoom" className={s.zoom}>
               <MapButton icon="plus" label="Zoom in" onClick={() => (setFollowing(false), scene.current?.zoomBy(1))} />
@@ -482,9 +486,21 @@ export default function JourneyLive({ journey, activeStopId = null, onStopSelect
           </div>
         ) : null}
         {!sheet ? (
-          <div ref={dock} className={s.dock} data-ui="journey-dock">
-            {current ? <StopCard journey={journey} stop={current} photo={play?.photo || 0} action={inPlayback ? null : playSmall} /> : summary}
-            {inPlayback || !current ? actions : null}
+          // one line of place and time with a small photo strip, so the map stays the main thing
+          <div ref={dock} className={cx(s.dock, s.dockLine)} data-ui="journey-dock">
+            {current ? (
+              <StopCard journey={journey} stop={current} photo={play?.photo || 0} line action={inPlayback ? null : playSmall} />
+            ) : (
+              <div className={s.sumLine}>
+                {summary}
+                {inPlayback ? null : (
+                  <Button icon="play" size="sm" onClick={() => setPlaying(true)} disabled={!ready} className={s.sumPlay} data-ui="journey-play">
+                    {reduced ? 'Step through' : 'Play the journey'}
+                  </Button>
+                )}
+              </div>
+            )}
+            {inPlayback ? actions : null}
           </div>
         ) : null}
         {sheet ? (

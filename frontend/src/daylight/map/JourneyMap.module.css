@@ -140,10 +140,12 @@
 }
 
 /* ---- day chips */
+/* the row runs from the map's left edge, so a chip scrolled past it fades out instead of
+   looking cut off; at rest the first chip sits 14px in, clear of the fade */
 .top {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 0;
   right: 68px;
   z-index: 2;
   pointer-events: none;
@@ -152,12 +154,12 @@
   display: flex;
   gap: 6px;
   max-width: 100%;
-  padding: 2px 4px 6px 2px;
+  padding: 2px 4px 6px 14px;
   overflow-x: auto;
   scrollbar-width: none;
   pointer-events: auto;
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent 2px, #000 13px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(90deg, transparent 2px, #000 13px, #000 calc(100% - 24px), transparent);
 }
 .days::-webkit-scrollbar {
   display: none;
@@ -317,6 +319,60 @@
   border-radius: 16px;
   background: var(--a-white);
   box-shadow: var(--a-shadow-sm);
+}
+/* the panel's dock is one line: the stop's place and time, a small photo strip and Play */
+.dockLine {
+  max-width: 640px;
+  padding: 10px 10px 10px 12px;
+  gap: 10px;
+}
+@container jstage (min-width: 540px) {
+  .dockLine {
+    max-width: 640px;
+    padding: 10px 10px 10px 14px;
+    gap: 10px;
+  }
+}
+.sumLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.sumLine .summary {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 3px;
+}
+.sumLine .summaryTitle {
+  font-size: 17px;
+}
+.sumLine .summaryNote {
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+.sumPlay {
+  flex: none;
+}
+/* a narrow panel: Play is the triangle alone (its name stays on the button for screen readers),
+   and the summary keeps its counts without the note */
+@container jstage (max-width: 539px) {
+  .sumLine .summaryNote {
+    display: none;
+  }
+  .playSmall {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  .playWord {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 .attrib {
   position: absolute;

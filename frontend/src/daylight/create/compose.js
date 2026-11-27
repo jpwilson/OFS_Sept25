@@ -10,7 +10,7 @@
 //       edits:   {uploaded:{photoId:url}, title, audience, groupId, category, start, end, place, placeLatLng,
 //                 cover, people:[{kind, id}], lead}
 //   normalizeMediaUrl(url)  the server's own rule for matching event_images rows (events.py:58-60)
-import { draftHtml, markerFor, photoToken, resolvePhotos, esc, stopOfPhotoIn } from './draft.js'
+import { draftHtml, markerFor, photoToken, resolvePhotos, esc, stopOfPhotoIn, renameMarkers } from './draft.js'
 import { tripDay } from '../lib/geo.js'
 import { dateRange, timeLabel, dayLabel } from '../lib/format.js'
 
@@ -154,7 +154,7 @@ export function leadHtml(words) {
 
 export function composeEvent(draft, written, edits = {}) {
   const uploaded = edits.uploaded || {}
-  const tokenHtml = written?.html ?? draftHtml(draft, { lead: edits.lead || '' })
+  const tokenHtml = written?.html != null ? renameMarkers(written.html, draft.stops) : draftHtml(draft, { lead: edits.lead || '' })
   const html = resolvePhotos(tokenHtml, (id) => uploaded[id] || null)
   const coverId = uploaded[edits.cover] ? edits.cover : uploaded[draft.cover] ? draft.cover : Object.keys(uploaded)[0]
   const ll = edits.placeLatLng || draft.centroid

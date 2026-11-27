@@ -13,6 +13,7 @@ import { parseStory } from '../lib/storyBlocks.js'
 import { buildJourney } from '../lib/journey.js'
 import StoryView from '../story/StoryView.jsx'
 import JourneyMap, { JourneySheet } from '../map/JourneyMap.jsx'
+import { RouteSketch } from '../map/RouteSketch.jsx'
 import { useJourneySync } from '../map/useJourneySync.js'
 import { Button } from '../ui/Button.jsx'
 import { IconButton } from '../ui/IconButton.jsx'
@@ -31,7 +32,7 @@ import { Inline, Questions, openQuestions } from './Words.jsx'
 import { SettingsRows, SettingsChips, SettingsSheet, summaries, usePeopleChoices, useGroups } from './Settings.jsx'
 import s from './CreateFlow.module.css'
 
-function Summary({ state, journey, phone, onStop, activeStopId, onOpenMap }) {
+function Summary({ state, journey, phone, activeStopId, onOpenMap }) {
   const d = state.draft
   const located = d.photos.filter((p) => p.hasGps).length
   const undated = d.untimed.length
@@ -41,24 +42,41 @@ function Summary({ state, journey, phone, onStop, activeStopId, onOpenMap }) {
   if (undated) notes.push(`${plural(undated, 'photo')} with no date ${undated === 1 ? 'is' : 'are'} at the end.`)
   if (d.skipped.length) notes.push(`${plural(d.skipped.length, 'file')} left out: clips and other files are added by editing the story after you publish.`)
   const days = d.days.length ? d.days[d.days.length - 1].n : 0
-  return (
-    <section className={s.summary} data-ui="create-summary" aria-label="What your photos say">
-      <div className={s.readouts}>
-        <Readout size="sm" label="Photos" value={d.photos.length} />
-        <Readout size="sm" label="Days" value={days || '–'} />
-        <Readout size="sm" label="Stops" value={d.stops.length || '–'} />
-        <Readout size="sm" label="When" value={d.start ? dateRange(d.start, d.end, { short: true }) : 'No date'} />
-      </div>
-      {phone && journey ? (
-        <div className={s.strip}>
-          <JourneyMap journey={journey} mode="strip" activeStopId={activeStopId} onStopSelect={onStop} />
-          {onOpenMap ? (
-            <Button variant="ghost" size="sm" icon="map" full onClick={onOpenMap} data-ui="create-open-map">
-              Open the map
-            </Button>
+  const readouts = (
+    <div className={s.readouts}>
+      <Readout size="sm" label="Photos" value={d.photos.length} />
+      <Readout size="sm" label="Days" value={days || '–'} />
+      <Readout size="sm" label="Stops" value={d.stops.length || '–'} />
+      <Readout size="sm" label="When" value={d.start ? dateRange(d.start, d.end, { short: true }) : 'No date'} />
+    </div>
+  )
+  // Phone: one short card, so the story itself (cover, title, the first day) is on the first
+  // screen. The route is a thumbnail that opens the full-screen map.
+  if (phone) {
+    return (
+      <section className={s.summary} data-ui="create-summary" aria-label="What your photos say">
+        <div className={s.sumRow}>
+          {readouts}
+          {journey && onOpenMap ? (
+            <button type="button" className={s.mini} onClick={onOpenMap} data-ui="create-open-map" aria-label="Open the map">
+              <RouteSketch journey={journey} activeStopId={activeStopId} width={150} height={150} labels="none" mini />
+              <span className={s.miniTag} aria-hidden="true">
+                <Icon name="map" size={14} /> Map
+              </span>
+            </button>
           ) : null}
         </div>
-      ) : null}
+        {notes.length ? (
+          <ul className={s.notes}>
+            {notes.map((n) => <li key={n}><Icon name="info" size={16} />{n}</li>)}
+          </ul>
+        ) : null}
+      </section>
+    )
+  }
+  return (
+    <section className={s.summary} data-ui="create-summary" aria-label="What your photos say">
+      {readouts}
       {notes.length ? (
         <ul className={s.notes}>
           {notes.map((n) => <li key={n}><Icon name="info" size={16} />{n}</li>)}
@@ -204,7 +222,7 @@ export default function CreateFlow({ maker, onLeave, leaveLabel = 'Start over', 
 
       <div className={s.grid}>
         <div className={s.main} ref={mainRef}>
-          <Summary state={state} journey={journey} phone={!desktop} onStop={scrollToStop} activeStopId={activeStopId} onOpenMap={() => setMapOpen(true)} />
+          <Summary state={state} journey={journey} phone={!desktop} activeStopId={activeStopId} onOpenMap={() => setMapOpen(true)} />
           <Inline state={view} maker={maker} />
           {preview}
           {desktop ? (

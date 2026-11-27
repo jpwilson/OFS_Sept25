@@ -13,7 +13,7 @@ import { useSyncExternalStore } from 'react'
 import apiService from '../../services/api.js'
 import { apiFetch, HttpError } from '../lib/http.js'
 import { FACTS } from '../../landing/content/facts.js'
-import { buildDraft, withStops, draftHtml } from './draft.js'
+import { buildDraft, withStops, draftHtml, renameMarkers } from './draft.js'
 import { writeRequest, finalizeStoryHtml, composeEvent, normalizeMediaUrl, leadHtml } from './compose.js'
 
 export const AI_PER_DAY = Number(FACTS.aiPerDay.value) // backend/app/api/ai_creator.py:22, shared by write-ups, voice notes and questions
@@ -420,7 +420,7 @@ export class StoryMaker {
 
   // ------------------------------------------------------------ the HTML the preview and Publish use
   tokenHtml(state = this.state) {
-    if (state.write.written) return state.write.written.html
+    if (state.write.written) return renameMarkers(state.write.written.html, state.draft.stops)
     return draftHtml(state.draft, { lead: leadHtml(state.words.filter((w) => w.state === 'ready')) })
   }
 

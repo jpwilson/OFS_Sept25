@@ -76,15 +76,15 @@
   white-space: nowrap;
   border-radius: 8px;
 }
+.wordmark {
+  /* the pin is the landing's art: give it the landing's zest */
+  --l-zest: var(--a-zest);
+}
 .mark {
-  width: 22px;
-  height: 22px;
+  height: 28px;
+  width: auto;
   flex: none;
-  border-radius: 7px;
-  background: var(--a-tide);
-  border: 2px solid var(--a-ink);
-  box-shadow: 2px 2px 0 var(--a-ink);
-  transform: rotate(-6deg);
+  margin-block: -2px;
 }
 .actions {
   display: flex;
@@ -196,6 +196,12 @@
   .feedbackSlot > div:first-child {
     bottom: calc(var(--a-tab-h) + var(--a-safe-bottom) + 12px) !important;
   }
+}
+
+/* A member on a marketing page (pricing, FAQ, features...): the landing footer's Account group
+   (Log in, Start free) is for visitors, so it steps aside. */
+:global(html.ofsa-member-page .ofsl footer nav > div:has(a[href='/login'])) {
+  display: none;
 }
 
 /* ---------------------------------------------------------------- tab bar (phone) */

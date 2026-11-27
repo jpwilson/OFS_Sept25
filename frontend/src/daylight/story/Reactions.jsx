@@ -167,7 +167,7 @@ export function useLongPress(onLong, onTap, ms = 450) {
  * screens. Arrow keys move, Enter picks, Esc closes and returns focus. Picking the current
  * reaction removes it.
  */
-export function ReactionTray({ anchor, open, value, onPick, onClose, label = 'React' }) {
+export function ReactionTray({ anchor, open, value, onPick, onClose, label = 'React', avoid }) {
   const ref = useRef(null)
   const [pos, setPos] = useState(null)
   const place = () => {
@@ -179,7 +179,10 @@ export function ReactionTray({ anchor, open, value, onPick, onClose, label = 'Re
     let left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, vw - w - 8))
     const h = (vw < 600 ? 2 : 1) * 48 + 16
     const above = r.top - h - 10
-    const top = above > 8 ? above : Math.min(r.bottom + 10, window.innerHeight - h - 8)
+    let top = above > 8 ? above : Math.min(r.bottom + 10, window.innerHeight - h - 8)
+    // never over the words it would hide (the lightbox's caption): go above them instead
+    const b = avoid?.()?.getBoundingClientRect?.()
+    if (b && b.height && top < b.bottom && top + h > b.top && left < b.right && left + w > b.left && b.top - h - 10 > 8) top = b.top - h - 10
     setPos({ left, top, cols })
   }
   useLayoutEffect(() => {
@@ -246,7 +249,7 @@ export function ReactionTray({ anchor, open, value, onPick, onClose, label = 'Re
  * <ReactionButton counts mine onPick label variant="chip|plain" /> The keylined chip that
  * shows the top reactions and the total, and opens the tray. Owns its tray.
  */
-export function ReactionButton({ counts, mine, total, onPick, label = 'React', variant = 'chip', disabled, onDisabled, className }) {
+export function ReactionButton({ counts, mine, total, onPick, label = 'React', variant = 'chip', disabled, onDisabled, className, trayAvoid }) {
   const [open, setOpen] = useState(false)
   const btn = useRef(null)
   const n = total ?? Object.values(counts || {}).reduce((a, b) => a + (b || 0), 0)
@@ -278,6 +281,7 @@ export function ReactionButton({ counts, mine, total, onPick, label = 'React', v
         open={open}
         value={mine}
         label={label}
+        avoid={trayAvoid}
         onClose={() => setOpen(false)}
         onPick={(t) => {
           setOpen(false)

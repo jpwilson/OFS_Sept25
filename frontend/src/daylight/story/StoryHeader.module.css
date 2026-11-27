@@ -280,4 +280,26 @@ a.tag:hover {
   .act span {
     white-space: nowrap;
   }
+  /* the creation flow's preview: a shorter cover and a tighter head, so the title and the
+     start of the first day are on the first screen with the summary above them */
+  .head[data-preview] .coverWrap {
+    aspect-ratio: 2 / 1;
+    max-height: 30svh;
+  }
+  .head[data-preview] .text {
+    padding-top: 14px;
+  }
+  .head[data-preview] .eyebrow {
+    margin-bottom: 8px;
+  }
+  .head[data-preview] .title {
+    font-size: clamp(29px, 8.4vw, 35px);
+  }
+  .head[data-preview] .byline {
+    margin-top: 12px;
+    padding: 6px 0;
+  }
+  .head[data-preview] .facts {
+    display: none;
+  }
 }
