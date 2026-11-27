@@ -220,6 +220,37 @@
   font-family: var(--a-font-mono);
   font-size: 10px;
 }
+/* A small day (the year's four-across months on a laptop: about 28px) has no room for both the
+   day's number and the +N of a day with several stories: they ran into each other. There the
+   two shrink into opposite corners. */
+.cellWrap {
+  container-type: inline-size;
+}
+@container (max-width: 36px) {
+  .photo .num {
+    top: 2px;
+    left: 2px;
+    min-width: 13px;
+    height: 11px;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-size: 9px;
+  }
+  .cell:has(.more):not(.photo) .num {
+    top: 3px;
+    left: 4px;
+    transform: none;
+    font-size: 11px;
+  }
+  .more {
+    right: 2px;
+    bottom: 2px;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    line-height: 10px;
+  }
+}
 .today:not(.photo) {
   box-shadow: inset 0 0 0 2px var(--a-ink);
 }
@@ -428,7 +459,24 @@
   left: 8px;
   transform: none;
 }
+/* a phone's month zoom: about 43px a day, still short of room for the number and the +N */
+@container (max-width: 48px) {
+  .big .photo .num {
+    top: 3px;
+    left: 3px;
+    min-width: 16px;
+    height: 15px;
+    font-size: 10px;
+  }
+}
 @media (min-width: 900px) {
+  /* the photo's title runs along the bottom: the +N moves to the top-right corner */
+  .big .more {
+    top: 6px;
+    right: 6px;
+    bottom: auto;
+    font-size: 11px;
+  }
   .big .cellTitle {
     display: block;
     position: absolute;

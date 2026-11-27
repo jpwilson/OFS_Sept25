@@ -188,7 +188,9 @@ export default function Shell({ override }) {
             </button>
           </div>
         )}
-        <TrialBanner />
+        <div className={s.trial}>
+          <TrialBanner />
+        </div>
 
         {chrome.topBar && !visitor && (
           <header className={s.bar} data-ui="topbar">

@@ -28,11 +28,13 @@
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
+/* The label never shrinks below its longest word and its count ("· 1 story" does not wrap);
+   on a narrow phone a long category's "Only …" link wraps instead of running under the count. */
 .label {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0;
+  min-width: min-content;
   font-family: var(--a-font-mono);
   font-weight: 500;
   font-size: 12.5px;
@@ -64,7 +66,8 @@
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
-  white-space: nowrap;
+  text-align: right;
+  line-height: 1.25;
 }
 .only::after {
   content: '';

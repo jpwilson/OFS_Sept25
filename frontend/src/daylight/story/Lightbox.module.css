@@ -46,6 +46,13 @@
   }
 }
 
+/* The zoom buttons (yarl's toolbar, from the right edge) sit left of the close button, level
+   with it: at the edge, zoom out lay under close, so tapping it closed the photos. */
+.lb :global(.yarl__toolbar) {
+  right: 64px;
+  top: calc(2px + var(--a-safe-top));
+}
+
 .top {
   position: absolute;
   top: 0;
@@ -56,6 +63,11 @@
   justify-content: space-between;
   padding: calc(10px + var(--a-safe-top)) 12px 10px 20px;
   z-index: 2;
+  /* the bar spans the width: let taps between its two ends reach the zoom buttons */
+  pointer-events: none;
+}
+.top > * {
+  pointer-events: auto;
 }
 .count {
   font-size: 13px;

@@ -442,11 +442,16 @@
 .sheetTitleText {
   min-width: 0;
 }
+/* The head is exactly the peek height (HEAD_H in WorldParts.jsx): the title keeps to one line
+   so the date line under it stays above the tab bar on a narrow phone. */
 .sheetTitle h2 {
   font-weight: 800;
-  font-size: 21px;
+  font-size: clamp(18px, 5.2vw, 21px);
   line-height: 1.1;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sheetTitle p {
   margin-top: 6px;
@@ -474,6 +479,11 @@
   display: flex;
   flex: none;
   padding-right: 4px;
+}
+@media (max-width: 389px) {
+  .covers img:nth-child(n + 4) {
+    display: none;
+  }
 }
 .covers img {
   width: 40px;

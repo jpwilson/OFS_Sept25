@@ -134,8 +134,12 @@
   align-items: center;
   justify-content: space-between;
 }
+/* On a short laptop screen (700px) the open tray made the sticky dock as tall as the column,
+   so the draft behind it could not be read at any scroll: there the tray gives way first
+   (its body scrolls) and leaves the draft at least a third of the column. */
 .trayBody {
   max-height: min(46vh, 460px);
+  max-height: min(46svh, 460px, max(140px, 100svh - 520px));
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 2px;

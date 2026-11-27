@@ -20,17 +20,25 @@
   top: 12px;
 }
 
+/* The demo note scrolls away with the page: held at the top it lay over the sticky top bar
+   (the wordmark, search and the bell) and the story's own bar, which also hold at the top. */
 .demo {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: calc(var(--a-z-bar) + 1);
   padding: 8px 16px;
+  /* the first thing on the page: in an app added to the home screen it starts under the
+     status bar, so it starts below it */
+  padding-top: calc(8px + var(--a-safe-top));
   background: var(--a-lime);
   color: var(--a-ink);
   border-bottom: var(--a-keyline);
   text-align: center;
   font-size: 14px;
   font-weight: 550;
+}
+/* a phone story's floating back button sits in the top-left corner, over the note's first words */
+:global(html.ofsa-on):has([data-ui='story-float']) .demo {
+  padding-inline: 68px;
 }
 .demo button {
   border: 0;
@@ -41,6 +49,22 @@
   text-decoration: underline;
   cursor: pointer;
   min-height: 32px;
+}
+
+/* The classic trial banner: its dismiss button is placed absolutely at the right edge, and
+   from 601px its message and Subscribe button run the full width, so the button ran under the
+   dismiss button. Keep the edges clear of it. */
+/* the first thing on the page when there is no demo note: clear of the status bar too */
+.trial:has(> div) {
+  padding-top: var(--a-safe-top);
+}
+.demo ~ .trial {
+  padding-top: 0;
+}
+@media (min-width: 601px) {
+  .trial > div:has(> button[aria-label='Dismiss']) {
+    padding-inline: 48px;
+  }
 }
 
 /* ---------------------------------------------------------------- top bar */
@@ -176,6 +200,22 @@
 .tabSpacer {
   flex: none;
   height: calc(var(--a-tab-h) + var(--a-safe-bottom));
+}
+/* From 769px the classic help button floats in the bottom-right corner (20px in, 44px wide):
+   at the end of a page it lay over the footer's last row (the social links). The footer
+   clears it. */
+@media (min-width: 769px) {
+  .footer > :first-child {
+    padding-bottom: 84px;
+  }
+}
+/* A phone story brings its own bottom bar in place of the tab bar (66px: 52px row, 6px above
+   and below, the 2px keyline) and no spacer comes with it: the footer's last row (the social
+   links) lay under that bar at the end of the page. The footer clears it instead. */
+@media (max-width: 899px) {
+  :global(html.ofsa-on):has([data-ui='story-bottombar']) .footer > :first-child {
+    padding-bottom: calc(32px + 66px + var(--a-safe-bottom));
+  }
 }
 
 /* The classic help button (FeedbackWidget's floating "?", z-index 9998 in its own module) is

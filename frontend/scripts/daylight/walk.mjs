@@ -6,6 +6,12 @@
 // thirty Teton photos becoming a draft and being published, and the profile.
 //
 //   node scripts/daylight/walk.mjs [--base http://127.0.0.1:5333] [--device phone|desktop|both] [--as maya]
+//                                  [--viewport 375x560,1024x700] [--overlap]
+//
+// --viewport walks at those sizes instead (narrower than 900 walks the phone path; written to
+// daylight-walk-<w>x<h>/). --overlap runs the overlap detector (scripts/daylight/overlap.mjs)
+// on every frame, outlines what collides in the frame, lists it in report.json and exits 1 if
+// anything does. For every page scrolled top to bottom, see check-overlap.mjs.
 //
 // Writes frontend/shots/daylight-walk-m/ (phone) and daylight-walk-d/ (desktop):
 // NN-name.jpg, sheet.jpg (labelled contact sheet) and report.json. Capture conventions as
@@ -16,6 +22,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { detectOverlap, highlight, unhighlight } from './overlap.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const FRONTEND = path.resolve(HERE, '../..')
@@ -23,13 +30,21 @@ const KIT = path.resolve(FRONTEND, '../landing-art/kits/tetons')
 const requirePw = createRequire('/Users/jpwilson/Documents/Projects/jpw-ops/node_modules/')
 const { chromium } = requirePw('playwright')
 
-const args = { base: 'http://127.0.0.1:5333', device: 'both', as: 'maya', only: null }
-for (let i = 2; i < process.argv.length; i++) args[process.argv[i].replace(/^--/, '')] = process.argv[++i]
+const args = { base: 'http://127.0.0.1:5333', device: 'both', as: 'maya', only: null, viewport: null, overlap: false }
+for (let i = 2; i < process.argv.length; i++) {
+  const k = process.argv[i].replace(/^--/, '')
+  if (k === 'overlap') args.overlap = true
+  else args[k] = process.argv[++i]
+}
 const TILE_HOSTS = new Set(['tiles.openfreemap.org', 'tiles.mapterhorn.com'])
 const NOW = new Date('2026-11-26T12:00:00')
 const TETONS = 'Seven days in the Tetons'
 const KIT_FILES = fs.readdirSync(KIT).filter((f) => /\.jpe?g$/i.test(f)).sort().map((f) => path.join(KIT, f))
-const devices = args.device === 'both' ? ['phone', 'desktop'] : [args.device]
+const SIZES = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } }
+const devices = args.viewport
+  ? args.viewport.split(',').map((v) => { const [width, height] = v.split('x').map(Number); return { key: v, width, height, phone: width < 900 } })
+  : (args.device === 'both' ? ['phone', 'desktop'] : [args.device]).map((d) => ({ key: d, ...SIZES[d], phone: d === 'phone' }))
+let overlapTotal = 0
 const only = args.only ? new Set(args.only.split(',')) : null
 
 const browser = await chromium.launch({
@@ -37,24 +52,24 @@ const browser = await chromium.launch({
   args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--mute-audio', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'],
 })
 
-for (const device of devices) {
-  const phone = device === 'phone'
-  const OUT = path.join(FRONTEND, 'shots', `daylight-walk-${phone ? 'm' : 'd'}`)
+for (const dev of devices) {
+  const { phone, key: device } = dev
+  const OUT = path.join(FRONTEND, 'shots', `daylight-walk-${args.viewport ? device : phone ? 'm' : 'd'}`)
   fs.rmSync(OUT, { recursive: true, force: true })
   fs.mkdirSync(OUT, { recursive: true })
-  const report = { device, base: args.base, as: args.as, shots: [], errors: [], unanswered: [], notes: [], hosts: {}, aborted: {} }
+  const report = { device, base: args.base, as: args.as, shots: [], errors: [], unanswered: [], notes: [], hosts: {}, aborted: {}, overlap: [] }
   const bump = (o, k) => (o[k] = (o[k] || 0) + 1)
 
   const ctx = await browser.newContext({
-    viewport: phone ? { width: 390, height: 844 } : { width: 1440, height: 900 },
+    viewport: { width: dev.width, height: dev.height },
     deviceScaleFactor: 2,
-    isMobile: phone,
+    isMobile: dev.width < 600,
     hasTouch: phone,
     serviceWorkers: 'block',
     locale: 'en-US',
     timezoneId: 'America/Chicago',
     permissions: ['microphone'],
-    userAgent: phone ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1' : undefined,
+    userAgent: dev.width < 600 ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1' : undefined,
   })
   const appHost = new URL(args.base).host
   await ctx.route('**/*', (route) => {
@@ -106,7 +121,14 @@ for (const device of devices) {
   async function shot(name, label) {
     const n = report.shots.length + 1
     const file = path.join(OUT, `${String(n).padStart(2, '0')}-${name}.jpg`)
+    const found = args.overlap ? (await page.evaluate(detectOverlap)).findings : []
+    if (found.length) {
+      report.overlap.push(...found.map((f) => ({ shot: n, name, ...f })))
+      for (const f of found) console.log(`  ${device} ✗ ${name}: ${f.kind} ${f.a}${f.b ? `  x  ${f.b}` : ''}${f.note ? ` (${f.note})` : ''}`)
+      await highlight(page, found)
+    }
     await page.screenshot({ path: file, type: 'jpeg', quality: 84 })
+    if (found.length) await unhighlight(page)
     report.shots.push({ n, name, label, file: path.relative(FRONTEND, file), url: page.url().replace(args.base, '') })
     console.log(`  ${device} ${String(n).padStart(2, '0')}  ${label}`)
   }
@@ -425,7 +447,7 @@ for (const device of devices) {
   const w = phone ? 300 : 620
   const tiles = report.shots.map((s) => `<figure style="margin:0;width:${w}px"><div style="padding:4px 0;min-height:34px">${String(s.n).padStart(2, '0')} · ${s.label.replace(/</g, '&lt;')}</div><img style="width:${w}px;border:2px solid #101B3B;border-radius:8px;display:block" src="data:image/jpeg;base64,${fs.readFileSync(path.join(FRONTEND, s.file)).toString('base64')}"></figure>`).join('')
   const html = `<!doctype html><html><body style="margin:0;background:#F4F7FB;font:13px Menlo,monospace;color:#101B3B">
-  <div style="padding:16px 16px 4px;font-weight:700">Daylight walkthrough · ${phone ? 'phone 390x844' : 'desktop 1440x900'} · signed in as ${args.as} · ${report.shots.length} frames</div>
+  <div style="padding:16px 16px 4px;font-weight:700">Daylight walkthrough · ${phone ? 'phone' : 'desktop'} ${dev.width}x${dev.height} · signed in as ${args.as} · ${report.shots.length} frames</div>
   <div style="display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px">${tiles}</div></body></html>`
   const sctx = await browser.newContext({ viewport: { width: phone ? 1600 : 1940, height: 900 }, deviceScaleFactor: 1 })
   const sp = await sctx.newPage()
@@ -438,5 +460,8 @@ for (const device of devices) {
   console.log(`sheet: ${path.relative(process.cwd(), path.join(OUT, 'sheet.jpg'))}`)
   console.log(report.unanswered.length ? `✗ unanswered: ${report.unanswered.join(', ')}` : '✓ every API route answered')
   console.log(report.errors.length ? `✗ errors (${report.errors.length}):\n    ${report.errors.slice(0, 20).join('\n    ')}` : '✓ no errors')
+  if (args.overlap) console.log(report.overlap.length ? `✗ ${report.overlap.length} overlaps in ${new Set(report.overlap.map((f) => f.shot)).size} frames` : '✓ nothing collides in any frame')
+  overlapTotal += report.overlap.length
 }
 await browser.close()
+if (args.overlap && overlapTotal) process.exit(1)

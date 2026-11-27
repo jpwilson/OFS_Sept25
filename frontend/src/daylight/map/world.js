@@ -171,13 +171,18 @@ export async function createWorld(container, { events = [], level = 'full', proj
     for (const p of cl.members) {
       w = Math.min(w, p.lng); e = Math.max(e, p.lng); s = Math.min(s, p.lat); n = Math.max(n, p.lat)
     }
-    // the map already carries `pad` as its own padding; this is only the margin inside it (a
-    // pin is 48px across, so half of that and a little more keeps the outer ones whole)
+    // the margin inside what the pill and the sheet cover (`pad`): a pin is 48px across, so half
+    // of that and a little more keeps the outer ones whole. cameraForBounds sizes the group to
+    // the whole canvas unless told what `pad` covers, which left the outer pins under the
+    // filter pill and the sheet, so both go in.
     const margin = phone() ? { top: 48, bottom: 40, left: 38, right: 38 } : { top: 90, bottom: 90, left: 70, right: 70 }
-    const fit = map.cameraForBounds([[w, s], [e, n]], { padding: margin, maxZoom: 11 })
+    const box = { top: pad.top + margin.top, bottom: pad.bottom + margin.bottom, left: pad.left + margin.left, right: pad.right + margin.right }
+    const fit = map.cameraForBounds([[w, s], [e, n]], { padding: box, maxZoom: 11 })
     const zFit = Math.min(fit?.zoom ?? all, 11)
     fan = all > zFit ? { ids: new Set(cl.members.map((m) => m.id)), settled: false } : null
-    move({ center: [(w + e) / 2, (s + n) / 2], zoom: fan ? zFit : Math.max(zFit, Math.min(all + 0.35, 11)) })
+    // Never closer than the zoom that fits the whole group: every pin is apart from `all` on,
+    // and going past zFit pushed the outer pins under the filter pill and the sheet.
+    move({ center: [(w + e) / 2, (s + n) / 2], zoom: zFit })
     if (fan && (reduced || lite)) {
       fan.settled = true
       sync(true)
