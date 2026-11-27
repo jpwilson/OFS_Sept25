@@ -66,11 +66,11 @@ export default function InviteViewerForm({ onInviteSent, onClose }) {
 
       // Handle specific error codes
       if (error?.detail?.code === 'USER_EXISTS') {
-        showToast(`This person already has an account (@${error.detail.username})`, 'error')
+        showToast('This person already has an account. Send them a follow request instead.', 'error')
       } else if (error?.detail?.code === 'ALREADY_INVITED') {
         showToast('You\'ve already invited this person', 'error')
       } else {
-        showToast(error.message || 'Failed to send invitation', 'error')
+        showToast((typeof error?.detail === 'string' && error.detail) || error.message || 'Failed to send invitation', 'error')
       }
     } finally {
       setIsSubmitting(false)
