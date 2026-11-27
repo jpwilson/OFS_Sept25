@@ -21,10 +21,10 @@
 //                            top, 34px bottom on phones) and the status bar and home indicator drawn
 //                            as opaque bars over the page, so what lands under them is found.
 //                            Headless Chromium has no insets of its own.
-// The family tree's scenes with a sample set other than the Hartleys (family: <set>) run after
-// the rest, one set at a time with every viewport on it, because the set and the signed-in
-// person are the sample's own state, shared by every page (src/daylight/family/sample.js);
-// the sample is put back to the Hartleys and Maya after them.
+// The family tree's scenes (family: <set>) run after the rest, one set at a time with every
+// viewport on it, because the set and the signed-in person are the sample's own state, shared
+// by every page (src/daylight/family/sample.js): a sign-in or sign-up scene on another viewport
+// changes who is signed in. The sample is put back to the Hartleys and Maya after them.
 // Writes <vp>-<scene>-NN.jpg (findings outlined: pink the thing, orange what it collides with),
 // sheet-NN.jpg (labelled contact sheets), report.json. Exits 1 when anything collides.
 import fs from 'node:fs'
@@ -206,11 +206,11 @@ const SCENES = [
   { name: 'admin', path: '/admin' },
   { name: 'admin-users', path: '/admin/users' },
   // the family tree (docs/app/FAMILY.md): the Hartleys as Maya, then the other sample sets
-  { name: 'family-tree', path: FAMILY, prep: familyTree },
-  { name: 'family-person', path: `${FAMILY}?person=u:2`, prep: familySheet },
-  { name: 'family-tag', path: `${FAMILY}?person=t:41`, prep: familySheet },
-  { name: 'family-add', path: `${FAMILY}?add=1`, prep: familySheet },
-  { name: 'family-list', path: `${FAMILY}?view=list`, prep: async (page, h) => { await page.waitForSelector('[data-ui="family-list"]', { timeout: 20000 }); await h.idle(700) } },
+  { name: 'family-tree', path: FAMILY, family: 'hartley', prep: familyTree },
+  { name: 'family-person', path: `${FAMILY}?person=u:2`, family: 'hartley', prep: familySheet },
+  { name: 'family-tag', path: `${FAMILY}?person=t:41`, family: 'hartley', prep: familySheet },
+  { name: 'family-add', path: `${FAMILY}?add=1`, family: 'hartley', prep: familySheet },
+  { name: 'family-list', path: `${FAMILY}?view=list`, family: 'hartley', prep: async (page, h) => { await page.waitForSelector('[data-ui="family-list"]', { timeout: 20000 }); await h.idle(700) } },
   { name: 'family-requests-tree', path: FAMILY, family: 'requests', prep: familyTree },
   { name: 'family-requests', path: `${FAMILY}?requests=1`, family: 'requests', prep: familySheet },
   { name: 'family-empty', path: FAMILY, family: 'empty', prep: familyTree },
