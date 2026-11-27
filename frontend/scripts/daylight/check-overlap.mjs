@@ -80,6 +80,22 @@ const familyTree = async (page, h) => {
   await h.idle(700)
 }
 const FAMILY = '/family-tree'
+// notes and history on a person sheet (docs/app/FAMILY-NOTES.md): the block asks once it is near view
+const familyNotes = async (page, h) => {
+  await familySheet(page, h)
+  await page.locator('[data-ui="person-notes"]').scrollIntoViewIfNeeded()
+  await page.waitForSelector('[data-ui="person-notes"][data-state="ready"], [data-ui="person-notes"][data-state="error"], [data-ui="person-notes"][data-state="forbidden"]', { timeout: 10000 })
+  await h.idle(500)
+}
+const noteMenu = async (page, h) => {
+  await familyNotes(page, h)
+  await h.tap('[data-ui="person-notes"] [role="radio"]:has-text("Notes")')
+  await page.waitForTimeout(300)
+  await h.tap('[data-ui="note-menu"]')
+  await page.waitForSelector('[data-ui="menu"]')
+  await page.waitForTimeout(400)
+}
+const LONG_NOTE = 'She kept the ration books from 1953 in the biscuit tin with the buttons, and she would tell you about each one if you asked, '.repeat(9)
 const openYou = async (page, h) => (h.desktop ? h.tap('button[aria-label$="your menu"]') : h.tap('[data-ui="tabbar"] button:has-text("You")'))
 const SCENES = [
   { name: 'feed', path: '/feed' },
@@ -216,6 +232,54 @@ const SCENES = [
   { name: 'family-error', path: FAMILY, family: 'error', prep: familyTree },
   { name: 'family-owner', path: FAMILY, family: 'owner-shape', as: 'nate', prep: familyTree },
   { name: 'family-owner-tag', path: `${FAMILY}?person=t:401`, family: 'owner-shape', as: 'nate', prep: familySheet },
+  // notes, history and birthdays (docs/app/FAMILY-NOTES.md), with the Hartleys as Maya
+  { name: 'family-notes', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: familyNotes },
+  { name: 'family-notes-empty', path: `${FAMILY}?person=u:4`, family: 'hartley', prep: familyNotes },
+  { name: 'family-notes-error', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    // the server failing, for this page only (the set is shared by every viewport)
+    const fail = (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"detail":"Internal Server Error"}' })
+    await page.route('**/api/v1/family-notes?*', fail)
+    try {
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await familyNotes(page, h)
+      await page.waitForSelector('[data-ui="notes-error"]', { timeout: 10000 })
+    } finally {
+      await page.unroute('**/api/v1/family-notes?*', fail)
+    }
+  } },
+  { name: 'family-note-write', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    await familyNotes(page, h)
+    await h.tap('[data-ui="notes-write"]')
+    await page.waitForSelector('[data-ui="note-composer"]')
+    await h.tap('[data-ui="note-composer"] [role="radio"]:has-text("History")')
+    await page.fill('[data-ui="note-text"]', LONG_NOTE.slice(0, 3700))
+    await page.fill('[data-ui="date-year"]', '1953')
+    await page.locator('[data-ui="note-composer"]').evaluate((el) => el.scrollIntoView({ block: 'start' }))
+    await h.idle(400)
+  } },
+  { name: 'family-note-menu', path: `${FAMILY}?person=u:5`, family: 'hartley', noSweep: true, prep: noteMenu },
+  { name: 'family-note-delete', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    await noteMenu(page, h)
+    await h.tap(page.getByRole('menuitem', { name: 'Delete' }))
+    await page.waitForSelector('[data-ui="note-delete-confirm"]')
+    await page.waitForTimeout(600)
+  } },
+  { name: 'family-notes-demo', path: `${FAMILY}?person=u:5`, family: 'hartley', me: 'demo', prep: familyNotes },
+  { name: 'family-you-birthday', path: `${FAMILY}?person=u:1`, family: 'hartley', prep: async (page, h) => {
+    await familySheet(page, h)
+    await h.tap('[data-ui="your-birthday"]')
+    await page.waitForSelector('[data-ui="birthday-form"]')
+    await h.idle(400)
+  } },
+  { name: 'family-tag-edit', path: `${FAMILY}?person=t:41`, family: 'hartley', prep: async (page, h) => {
+    await familySheet(page, h)
+    await h.tap(page.getByRole('button', { name: 'Edit Biscuit' }))
+    await page.waitForSelector('[data-ui="tag-more-about"]')
+    if (!(await page.locator('[data-ui="tag-died"]').count())) await h.tap('[data-ui="tag-more-about"] button')
+    await page.waitForSelector('[data-ui="tag-died"]')
+    await page.locator('[data-ui="tag-more-about"]').evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await h.idle(400)
+  } },
   // the admin page (docs/app/ADMIN-ANALYTICS.md); the sweep's member is a superuser
   { name: 'admin', path: '/admin', settle: 900 },
   { name: 'admin-chart-selected', path: '/admin', settle: 900, prep: async (page, h) => {
