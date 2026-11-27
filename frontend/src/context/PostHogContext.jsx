@@ -49,17 +49,12 @@ export function PostHogProvider({ children }) {
     return posthog.__loaded
   }
 
-  // Track page views (called manually from route changes)
-  const trackPageView = (path, properties = {}) => {
+  // Track page views (called manually from route changes). PostHog fills in
+  // $current_url / $pathname itself; the before_send hook in config/posthogOptions.js
+  // drops the query string and hash and masks tokens and ids in every URL property.
+  const trackPageView = (_path, properties = {}) => {
     if (!isEnabled()) return
-
-    // Sanitize the path to remove any sensitive data
-    const sanitizedPath = sanitizePath(path)
-    
-    posthog.capture('$pageview', {
-      $current_url: sanitizedPath,
-      ...properties,
-    })
+    posthog.capture('$pageview', { ...properties })
   }
 
   // Track custom events
@@ -84,26 +79,6 @@ export function PostHogProvider({ children }) {
   const resetUser = () => {
     if (!isEnabled()) return
     posthog.reset()
-  }
-
-  // Helper to sanitize path - remove any IDs, usernames, or tokens
-  const sanitizePath = (path) => {
-    // Remove share tokens
-    let sanitized = path.replace(/\/share\/[^/]+/g, '/share/:token')
-    
-    // Remove join tokens
-    sanitized = sanitized.replace(/\/join\/[^/]+/g, '/join/:token')
-    
-    // Remove event IDs (numeric or slugs)
-    sanitized = sanitized.replace(/\/event\/[^/]+/g, '/event/:id')
-    
-    // Remove usernames from profile paths
-    sanitized = sanitized.replace(/\/profile\/[^/]+/g, '/profile/:username')
-    
-    // Remove tag profile IDs
-    sanitized = sanitized.replace(/\/tag-profile\/[^/]+/g, '/tag-profile/:id')
-    
-    return sanitized
   }
 
   // Helper to sanitize properties - remove any PII
