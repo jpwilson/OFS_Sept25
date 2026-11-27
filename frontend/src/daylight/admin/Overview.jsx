@@ -204,7 +204,7 @@ function VisitorsCard({ vis, v, q, long, onRetry }) {
       interval={v.interval || q.interval}
       keys={[{ key: 'visitors', label: 'visitors', color: C1 }]}
       extra={[{ key: 'pageviews', label: 'page views' }]}
-      summary={`${num(v.totals.visitors)} visitors, ${num(v.totals.pageviews)} page views.`}
+      summary={v.totals.visitors ? `${num(v.totals.visitors)} visitors, ${num(v.totals.pageviews)} page views.` : `No visitors in ${long}.`}
     />
   )
 }
@@ -251,7 +251,7 @@ function SignupsCard({ o, long }) {
       series={o.signups.series}
       interval={o.interval}
       keys={by === 'method' ? METHOD_KEYS : SOURCE_KEYS}
-      summary={`${num(t.profiles)} made a profile in ${long}${t.started != null ? `; ${num(t.started)} started an account` : ''}.`}
+      summary={t.profiles || t.started ? `${num(t.profiles)} made a profile in ${long}${t.started != null ? `; ${num(t.started)} started an account` : ''}.` : `Nobody signed up in ${long}.`}
     />
   )
 }
@@ -343,7 +343,7 @@ function SigninsCard({ o, long }) {
           series={series}
           interval={o.interval}
           keys={m === 'active' ? [{ key: 'active', label: 'active members', color: C1 }] : [{ key: 'email', label: 'email', color: C1 }, { key: 'google', label: 'Google', color: C2 }, ...(hasOther ? [{ key: 'other', label: 'other', color: C3 }] : [])]}
-          summary={m === 'active' ? `${num(t.active)} members came back in ${long}.` : `${num(t.signins)} sign-ins by ${num(t.members)} people in ${long}.`}
+          summary={m === 'active' ? `${num(t.active)} members came back in ${long}.` : t.signins ? `${num(t.signins)} sign-ins by ${num(t.members)} people in ${long}.` : `No sign-ins in ${long}.`}
         />
       )}
       <p className={s.foot}>
