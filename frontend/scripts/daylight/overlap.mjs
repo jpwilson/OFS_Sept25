@@ -244,7 +244,6 @@ export function detectOverlap() {
   // the screen. Room is what its scrollers have left. Returns why not, or null.
   const stuckUnder = (t, layer) => {
     const r = t.r
-    const y = r.top + r.height / 2
     const lb = layer.getBoundingClientRect()
     const side = lb.height > VH * 0.8 // a side panel: scrolling up or down never clears it
     // itself on a bar held in place (fixed, or sticky and resting at its offset): one bar on
@@ -257,7 +256,7 @@ export function detectOverlap() {
     const canDown = lb.top > r.height && roomDown >= r.bottom - lb.top - 1
     const canUp = roomUp >= lb.bottom - r.top - 1 && r.bottom + (lb.bottom - r.top) <= VH
     if (!side && !held && (canDown || canUp)) return null
-    const below = lb.bottom >= VH - 2 && lb.top > 2 ? true : lb.top <= 2 ? false : (lb.top + lb.bottom) / 2 > y
+    const below = (lb.top + lb.bottom) / 2 > VH / 2 // which half of the screen the bar keeps to
     return held ? 'a bar under another bar' : side ? 'under a side panel' : below ? 'under a bar below it, and no scrolling brings it out' : 'under a bar above it, and no scrolling brings it out'
   }
   // Two things on different layers: one on a fixed or sticky bar, the other scrolling past it.
