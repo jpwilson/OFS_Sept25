@@ -22,9 +22,13 @@ def send_email(
     html: str,
     from_email: str = FROM_EMAIL
 ) -> dict:
-    """Send an email using Resend"""
+    """Send an email using Resend.
+
+    Logs never include the recipient or the subject (subjects carry names and story
+    titles); the Resend message id is enough to look an email up in Resend.
+    """
     if not settings.RESEND_API_KEY:
-        print(f"Email not sent (no API key): {subject} to {to}")
+        print("Email not sent: RESEND_API_KEY is not configured")
         return {"id": "test", "error": "No API key configured"}
 
     try:
@@ -35,10 +39,11 @@ def send_email(
             "html": html
         }
         response = resend.Emails.send(params)
-        print(f"Email sent: {subject} to {to}")
+        message_id = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
+        print(f"Email sent (resend id={message_id})")
         return response
     except Exception as e:
-        print(f"Email error: {e}")
+        print(f"Email error: {type(e).__name__}")
         return {"error": str(e)}
 
 
