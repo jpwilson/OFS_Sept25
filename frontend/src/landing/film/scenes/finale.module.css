@@ -178,6 +178,24 @@
 .fanSlot [data-part='frame'] {
   box-shadow: 5px 5px 0 var(--l-ink);
 }
+/* a capture whose near corner is under the feed carries its tag on the far corner (layout.js APP.fan) */
+@media (min-aspect-ratio: 9001/10000) {
+  .fanSlot[data-tag-d='end'] .fanTag {
+    left: auto;
+    right: 0;
+    transform: translate(6%, -55%);
+  }
+}
+@media (max-aspect-ratio: 9/10) {
+  .fanSlot[data-tag-m='end'] .fanTag {
+    left: auto;
+    right: 0;
+    transform: translate(6%, -55%);
+  }
+  .fanSlot[data-tag-m='out'] .fanTag {
+    transform: translate(-40%, -55%);
+  }
+}
 
 /* ---------- the close ---------- */
 .end {

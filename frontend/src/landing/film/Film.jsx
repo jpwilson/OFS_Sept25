@@ -11,6 +11,7 @@ import { TETONS as TETONS_SAMPLE, YEARS, ageLabel } from '../content/film.sample
 import { onFrame, prefersReducedMotion, refreshScroll, scrollToId, stageProgress } from '../lib/scroll.js'
 import { Icon } from '../ui/index.js'
 import { FilmEngine } from './engine.js'
+import { fit } from './fit.js'
 import { App, End, Ours } from './scenes/Finale.jsx'
 import { Hero } from './scenes/Hero.jsx'
 import { Kitchen } from './scenes/Kitchen.jsx'
@@ -22,12 +23,18 @@ import s from './stage.module.css'
 import { ANCHOR, CHAPTERS, ORDER, STAGE_SVH } from './timeline.js'
 
 const useIso = typeof window === 'undefined' ? useEffect : useLayoutEffect
+// The film pins only on a screen tall enough to hold a chapter: below these heights the posters
+// stand, each one scrolling (stage.module.css draws a phone's poster at a full phone's height).
+// A phone needs more height than a wider screen: its copy and readouts sit above and below the
+// art instead of beside it. Keep in step with the first-paint queries in hero.module.css and
+// crowd.module.css (min-height: 650px / 560px with min-width: 700px).
 const MIN_H = 560
+const MIN_H_PHONE = 650
 const two = (n) => String(n).padStart(2, '0')
 
 function canPin() {
   if (prefersReducedMotion()) return false
-  if (window.innerHeight < MIN_H) return false
+  if (window.innerHeight < (window.innerWidth < 700 ? MIN_H_PHONE : MIN_H)) return false
   if (import.meta.env.DEV && /[?&]film=poster\b/.test(window.location.search)) return false
   return true
 }
@@ -87,6 +94,23 @@ export function Film() {
       window.removeEventListener('resize', decide)
     }
   }, [])
+
+  // The poster column fits its chapters to a short screen too (pinned, the engine does it).
+  useIso(() => {
+    if (mode !== 'poster' || !pin.current) return undefined
+    const el = pin.current
+    const refit = () => {
+      try {
+        fit(el)
+      } catch (err) {
+        console.warn('[film] fit failed', err)
+      }
+    }
+    refit()
+    window.addEventListener('resize', refit)
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit)
+    return () => window.removeEventListener('resize', refit)
+  }, [mode])
 
   useIso(() => {
     if (mode !== 'pinned' || !section.current || !pin.current) return undefined

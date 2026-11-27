@@ -27,6 +27,41 @@
   }
 }
 
+/* Posters left standing on a phone (reduced motion, a screen too short for the film): each one
+   is drawn at a full phone's height and scrolls, rather than crowding a short screen. */
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .film[data-settled] {
+    --sh: max(100svh, 860px);
+  }
+}
+
+/* the film's own unit, kept for the parts a refitted scene must not shrink (its copy) */
+.film {
+  --u0: var(--u);
+}
+
+/* Short portrait screens: film/fit.js gives a chapter that does not fit between its copy and
+   its docks a new floor and, if it must, a smaller unit (layout.js FIT). data-tight (phones):
+   the readout row steps aside and the audience chip takes its place. */
+.scene[data-fit] {
+  --u: var(--fit-u);
+  --floor: var(--fit-floor);
+}
+.scene[data-fit] .copy {
+  --u: var(--u0);
+}
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .scene[data-tight] .bl {
+    display: none;
+  }
+  .scene[data-tight] .br {
+    bottom: 80px;
+  }
+  .film:not([data-mode='pinned']) .scene[data-tight] .br {
+    bottom: 22px;
+  }
+}
+
 .pin {
   position: relative;
 }
@@ -211,7 +246,8 @@
   top: var(--floor);
   z-index: var(--z, 6);
   width: calc(var(--w) * var(--u));
-  transform: translate(calc(var(--x) * var(--u) - 50%), calc(var(--y) * var(--u) * -1 - 50%)) rotate(var(--r)) scale(var(--s, 1));
+  /* --ay: which point of the slot y places, as a share of its height (50%: its centre; 0%: its top edge) */
+  transform: translate(calc(var(--x) * var(--u) - 50%), calc(var(--y) * var(--u) * -1 - var(--ay, 50%))) rotate(var(--r)) scale(var(--s, 1));
 }
 .amv {
   position: relative;
@@ -237,6 +273,7 @@
     --w: var(--wm);
     --r: var(--rm, 0deg);
     --s: var(--sm, 1);
+    --ay: var(--aym, 50%);
   }
 }
 @media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
@@ -258,6 +295,7 @@
     --w: var(--wt, var(--wm));
     --r: var(--rt, var(--rm, 0deg));
     --s: var(--st, var(--sm, 1));
+    --ay: var(--ayt, var(--aym, 50%));
   }
   .actor[data-off-t],
   .air[data-off-t] {
@@ -983,6 +1021,15 @@
   .film:not([data-mode='pinned']) .bl,
   .film:not([data-mode='pinned']) .br {
     bottom: 28px;
+  }
+}
+
+/* ---------- a narrow landscape screen (a tablet on its side): each dock keeps its first readout
+   (and the right one its audience chip), so the docks stay clear of the rail between them ---------- */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1199.98px) {
+  .bl > [data-readout]:not(:first-child),
+  .br > [data-readout] {
+    display: none;
   }
 }
 

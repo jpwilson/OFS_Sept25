@@ -285,6 +285,11 @@
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
+/* Public's line already says "anyone with the link": its value stays one word (as on a phone),
+   clear of the plate's label in the corner */
+.canVal[data-v='public'] .canBig > i {
+  display: none;
+}
 .canBig > i {
   font-style: normal;
   font-size: 0.44em;
@@ -302,7 +307,7 @@
    The server renders the switch on Followers (the no-script state). Where the script is about
    to pin the film, the word, the readout and the switch's thumb already show Private, so
    nothing moves when it arrives. */
-@media (prefers-reduced-motion: no-preference) and (min-height: 560px) {
+@media (prefers-reduced-motion: no-preference) and (min-height: 650px), (prefers-reduced-motion: no-preference) and (min-height: 560px) and (min-width: 700px) {
   :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .word[data-v='followers'],
   :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .canVal[data-v='followers'] {
     transform: translateY(-105%);
@@ -471,6 +476,22 @@
   /* as a poster the full group stands under the sub line, so it stands a little smaller */
   :global([data-mode='poster']) .hero .group {
     --cam: 0.74;
+  }
+}
+
+/* A phone too short to stack the readout under the people and the switch, buttons and note
+   below it (engine.js sets data-short). The readout waits for the sub line to step aside, then
+   takes the place of the buttons and the note, which step aside with it. */
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  :global([data-mode='pinned']) .hero[data-short] .can {
+    top: auto;
+    bottom: 70px;
+  }
+}
+/* the first paint, on such a phone: the readout is not shown yet (it is only placed once the film runs) */
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) and (max-height: 859.98px) and (prefers-reduced-motion: no-preference) and (min-height: 650px) {
+  :global(html[data-boot='landing'] [data-mode='poster']:not([data-settled])) .hero .can {
+    opacity: 0;
   }
 }
 
