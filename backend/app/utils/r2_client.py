@@ -10,6 +10,8 @@ custom domain (R2_PUBLIC_DOMAIN), optionally transformed on the fly via
 When R2 is not configured (R2_ACCESS_KEY_ID empty) the callers fall back to
 Supabase Storage, so deploying this code before provisioning R2 is safe.
 """
+import re
+
 import boto3
 from botocore.config import Config
 
@@ -79,9 +81,13 @@ def r2_delete(keys: list[str]) -> None:
     )
 
 
-def r2_presign_put(key: str, content_type: str, expires_in: int = 3600) -> dict:
+def r2_presign_put(key: str, content_type: str, content_length: int, expires_in: int = 1800) -> dict:
     """Generate a presigned PUT URL so the browser can upload large files
     (e.g. videos) directly to R2, bypassing the Vercel 4.5MB request-body limit.
+
+    Content-Type and Content-Length are part of the signature, so the upload
+    must send exactly the declared type and size (R2 rejects anything else).
+    Callers check the size against the limit before signing.
 
     Returns {"upload_url": <presigned PUT URL>, "public_url": <delivery URL>, "key": key}.
     """
@@ -91,7 +97,36 @@ def r2_presign_put(key: str, content_type: str, expires_in: int = 3600) -> dict:
             "Bucket": settings.R2_BUCKET,
             "Key": key,
             "ContentType": content_type,
+            "ContentLength": content_length,
         },
         ExpiresIn=expires_in,
     )
     return {"upload_url": upload_url, "public_url": r2_public_url(key), "key": key}
+
+
+# Keys this app writes: images as {full,medium,thumbnails}/<uuid>.jpg (upload.py and
+# the Cloudinary migration), videos as videos/<uuid>.<ext>.
+_UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+R2_IMAGE_KEY = re.compile(rf"(full|medium|thumbnails)/({_UUID}\.jpg)")
+R2_VIDEO_KEY = re.compile(rf"videos/({_UUID}\.(?:mp4|mov|avi|webm))")
+# Cloudflare image resizing in front of R2: /cdn-cgi/image/<options>/<key>
+_RESIZE_PREFIX = r"(?:cdn-cgi/image/[A-Za-z0-9=,._:-]{1,200}/)?"
+
+
+def r2_media_from_url(url: str):
+    """("image" | "video", file name) for a URL of this bucket's media, else None.
+
+    The whole URL must match exactly (https, the public domain, a known key format,
+    no query string or fragment), so the key derived from it is the only object it
+    can refer to.
+    """
+    if not url or not settings.R2_PUBLIC_DOMAIN:
+        return None
+    base = rf"https://{re.escape(settings.R2_PUBLIC_DOMAIN)}/"
+    m = re.fullmatch(base + _RESIZE_PREFIX + R2_IMAGE_KEY.pattern, url)
+    if m:
+        return "image", m.group(2)
+    m = re.fullmatch(base + R2_VIDEO_KEY.pattern, url)
+    if m:
+        return "video", m.group(1)
+    return None

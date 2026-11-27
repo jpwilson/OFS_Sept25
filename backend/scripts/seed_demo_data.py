@@ -1,11 +1,19 @@
 """
 Seed script for demo account data.
-Creates demo user, showcase events, follow relationships, and sample content.
+Creates the demo user, showcase events and sample content.
 Idempotent - safe to re-run.
+
+The demo password is never stored in this file. It is only needed the first time,
+when the demo account is created, and is read from the DEMO_ACCOUNT_PASSWORD
+environment variable. An existing demo account keeps its password (rotate it in
+Admin -> Demo password).
+
+The demo account follows nobody: what it may see is decided by the privacy code
+(showcase and public stories), not by follow relationships.
 
 Usage:
     cd backend
-    python scripts/seed_demo_data.py
+    DEMO_ACCOUNT_PASSWORD=... python scripts/seed_demo_data.py
 """
 import sys
 import os
@@ -18,7 +26,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash
 # Import all models to resolve SQLAlchemy relationships
 from app.models import (
-    User, Event, Follow, Comment, ContentBlock, EventImage, EventLocation
+    User, Event, Comment, ContentBlock, EventImage, EventLocation
 )
 
 # Connect to database
@@ -28,7 +36,6 @@ db = SessionLocal()
 
 DEMO_EMAIL = "demo@ourfamilysocials.com"
 DEMO_USERNAME = "demo-investor"
-DEMO_PASSWORD = "March2026"
 
 # Unsplash photos for showcase events
 GREEK_PHOTOS = [
@@ -51,11 +58,15 @@ try:
     # --- Step 1: Create or find demo user ---
     demo_user = db.query(User).filter(User.email == DEMO_EMAIL).first()
     if not demo_user:
+        demo_password = os.environ.get("DEMO_ACCOUNT_PASSWORD", "")
+        if not demo_password:
+            print("ERROR: Set DEMO_ACCOUNT_PASSWORD to create the demo account.")
+            sys.exit(1)
         demo_user = User(
             email=DEMO_EMAIL,
             username=DEMO_USERNAME,
             display_name="Demo Investor",
-            hashed_password=get_password_hash(DEMO_PASSWORD),
+            hashed_password=get_password_hash(demo_password),
             is_demo_account=True,
             is_active=True,
             subscription_tier="family",
@@ -66,11 +77,10 @@ try:
         db.flush()
         print(f"Created demo user: {demo_user.username} (id={demo_user.id})")
     else:
-        # Ensure flags are correct
+        # Ensure flags are correct. The existing password is left as it is.
         demo_user.is_demo_account = True
         demo_user.subscription_tier = "family"
         demo_user.subscription_status = "active"
-        demo_user.hashed_password = get_password_hash(DEMO_PASSWORD)
         db.flush()
         print(f"Demo user already exists: {demo_user.username} (id={demo_user.id})")
 
@@ -81,25 +91,7 @@ try:
         sys.exit(1)
     print(f"Using admin user: {admin_user.username} (id={admin_user.id})")
 
-    # --- Step 3: Create follow from demo -> admin (idempotent) ---
-    existing_follow = db.query(Follow).filter(
-        Follow.follower_id == demo_user.id,
-        Follow.following_id == admin_user.id
-    ).first()
-    if not existing_follow:
-        follow = Follow(
-            follower_id=demo_user.id,
-            following_id=admin_user.id,
-            status="accepted",
-            is_close_family=False,
-        )
-        db.add(follow)
-        print("Created follow: demo -> admin (accepted)")
-    else:
-        existing_follow.status = "accepted"
-        print("Follow already exists: demo -> admin")
-
-    # --- Step 4: Create showcase events ---
+    # --- Step 3: Create showcase events ---
     def create_event_if_not_exists(title, **kwargs):
         existing = db.query(Event).filter(
             Event.title == title,
@@ -252,7 +244,6 @@ try:
     # Print summary
     print("\n--- Demo Data Summary ---")
     print(f"Demo user: {demo_user.username} (id={demo_user.id})")
-    print(f"Demo password: {DEMO_PASSWORD}")
     print(f"Event 1: '{greek_event.title}' (id={greek_event.id}, is_demo_showcase=True)")
     print(f"Event 2: '{bday_event.title}' (id={bday_event.id}, is_demo_showcase=True)")
     print("Done!")

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
@@ -10,6 +11,12 @@ from ..models.user_mute import UserMute
 from ..services.email_service import send_follow_request_email, send_new_follower_email
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+# A follow request the requester withdrew. The row is kept so that requesting
+# again within FOLLOW_REQUEST_EMAIL_INTERVAL does not email the person again.
+CANCELLED_FOLLOW_STATUS = "cancelled"
+
+FOLLOW_REQUEST_EMAIL_INTERVAL = timedelta(days=1)
 
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -111,9 +118,10 @@ def get_current_user_profile(
 @router.get("/search/users")
 def search_users(
     q: str,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Search for users by username or full name"""
+    """Search for users by username or full name (members only)"""
     if not q or len(q) < 2:
         return []
 
@@ -214,21 +222,32 @@ def follow_user(
         Follow.following_id == user_to_follow.id
     ).first()
 
-    if existing_follow:
+    send_email = True
+    if existing_follow and existing_follow.status == CANCELLED_FOLLOW_STATUS:
+        # Re-sending a request that was cancelled: email at most once a day
+        # per pair, so request/cancel/request cannot be used to spam someone.
+        # created_at holds when the last emailed request was made.
+        now = datetime.utcnow()
+        send_email = existing_follow.created_at is None or existing_follow.created_at <= now - FOLLOW_REQUEST_EMAIL_INTERVAL
+        existing_follow.status = "pending"
+        if send_email:
+            existing_follow.created_at = now
+        db.commit()
+    elif existing_follow:
         return {"message": "Already following this user"}
+    else:
+        # Create follow request (pending by default)
+        follow = Follow(
+            follower_id=current_user.id,
+            following_id=user_to_follow.id,
+            status="pending"
+        )
 
-    # Create follow request (pending by default)
-    follow = Follow(
-        follower_id=current_user.id,
-        following_id=user_to_follow.id,
-        status="pending"
-    )
-
-    db.add(follow)
-    db.commit()
+        db.add(follow)
+        db.commit()
 
     # Send email notification to user being followed
-    if user_to_follow.email:
+    if send_email and user_to_follow.email:
         # Check notification preferences
         should_notify = (
             (user_to_follow.email_notifications_enabled is None or user_to_follow.email_notifications_enabled) and
@@ -264,10 +283,15 @@ def unfollow_user(
         Follow.following_id == user_to_unfollow.id
     ).first()
 
-    if not follow:
+    if not follow or follow.status == CANCELLED_FOLLOW_STATUS:
         return {"message": "Not following this user"}
 
-    db.delete(follow)
+    if follow.status == "pending":
+        # Keep a cancelled request (ignored everywhere else, which only looks
+        # at pending/accepted) so a new request soon after sends no new email
+        follow.status = CANCELLED_FOLLOW_STATUS
+    else:
+        db.delete(follow)
     db.commit()
 
     return {"message": f"Unfollowed {username}"}
@@ -385,7 +409,7 @@ def check_if_following(
         Follow.following_id == user.id
     ).first()
 
-    if not follow:
+    if not follow or follow.status == CANCELLED_FOLLOW_STATUS:
         return {"is_following": False, "status": None}
 
     return {
@@ -410,7 +434,7 @@ def check_if_following_me(
         Follow.following_id == current_user.id
     ).first()
 
-    if not follow:
+    if not follow or follow.status == CANCELLED_FOLLOW_STATUS:
         return {"is_following": False, "status": None}
 
     return {

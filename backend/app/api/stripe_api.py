@@ -7,7 +7,7 @@ import stripe
 
 from ..core.database import get_db
 from ..core.config import settings
-from ..core.deps import get_current_user
+from ..core.deps import require_not_demo
 from ..models.user import User
 from ..services.email_service import (
     send_subscription_confirmed_email,
@@ -67,10 +67,20 @@ def get_price_id(price_type: str) -> str:
     return price_map[price_type]
 
 
+def _stripe_http_error(e: Exception, fallback: str) -> HTTPException:
+    """Log a Stripe error without personal data and return a client-safe message.
+    Stripe's user_message is written for end users; the raw error text is not."""
+    print(f"Stripe error: {type(e).__name__} code={getattr(e, 'code', None)}")
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=getattr(e, 'user_message', None) or fallback
+    )
+
+
 @router.post("/create-checkout-session", response_model=CheckoutResponse)
 def create_checkout_session(
     request: CheckoutRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Create a Stripe Checkout session for subscription or one-time purchase"""
@@ -142,34 +152,19 @@ def create_checkout_session(
         # The webhook will extend the billing cycle by free_days
 
     # Allow promotion codes to be entered on Stripe's checkout page
-    # This lets users enter promo codes like "SECRETFIRSTUSERS90OFF" directly on Stripe
     checkout_params['allow_promotion_codes'] = True
-
-    # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
-    print(f"[DEBUG] Creating checkout session for user {current_user.id}")
-    print(f"[DEBUG] Price type: {request.price_id}, Price ID: {price_id}")
 
     try:
         checkout_session = stripe.checkout.Session.create(**checkout_params)
-        print(f"[DEBUG] Checkout session created: {checkout_session.id}")
         return CheckoutResponse(checkout_url=checkout_session.url)
     except stripe.error.StripeError as e:
-        # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
-        print(f"[DEBUG ERROR] Stripe error for user {current_user.id}: {type(e).__name__}: {str(e)}")
-        if hasattr(e, 'user_message'):
-            print(f"[DEBUG ERROR] User message: {e.user_message}")
-        if hasattr(e, 'code'):
-            print(f"[DEBUG ERROR] Error code: {e.code}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise _stripe_http_error(e, "Could not start checkout. Please try again.")
 
 
 @router.post("/create-portal-session", response_model=PortalResponse)
 def create_portal_session(
     return_url: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Create a Stripe Customer Portal session for managing subscription"""
@@ -193,10 +188,7 @@ def create_portal_session(
         )
         return PortalResponse(portal_url=portal_session.url)
     except stripe.error.StripeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise _stripe_http_error(e, "Could not open billing management. Please try again.")
 
 
 @router.post("/webhook")
@@ -225,50 +217,122 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
     print(f"Stripe webhook received: {event_type}")
 
-    # Handle different event types
-    if event_type == 'checkout.session.completed':
-        await handle_checkout_completed(data, db)
-    elif event_type == 'customer.subscription.created':
-        await handle_subscription_created(data, db)
-    elif event_type == 'customer.subscription.updated':
-        await handle_subscription_updated(data, db)
-    elif event_type == 'customer.subscription.deleted':
-        await handle_subscription_deleted(data, db)
-    elif event_type == 'invoice.payment_succeeded':
-        await handle_payment_succeeded(data, db)
-    elif event_type == 'invoice.payment_failed':
-        await handle_payment_failed(data, db)
+    handler = WEBHOOK_HANDLERS.get(event_type)
+    if handler:
+        await handler(data, db)
 
     return {"status": "ok"}
 
 
+# --- Webhook helpers ---
+
+# Subscription statuses after which a subscription can never become active again.
+ENDED_SUBSCRIPTION_STATUSES = ('canceled', 'incomplete_expired')
+
+
+def _ts(value) -> Optional[datetime]:
+    """Stripe Unix timestamp -> naive UTC datetime (how the users table stores times)."""
+    return datetime.utcfromtimestamp(value) if value else None
+
+
+def _object_id(value):
+    """Stripe sends related objects either as an id string or as an expanded object."""
+    if isinstance(value, dict):
+        return value.get('id')
+    return value
+
+
+def is_lifetime_member(user: User) -> bool:
+    """A Lifetime member is premium and active with no end date and no subscription.
+
+    Lifetime grants clear stripe_subscription_id, and every subscriber has one, so a
+    subscriber is never mistaken for a Lifetime member.
+    """
+    return (
+        user.subscription_tier == 'premium'
+        and user.subscription_status == 'active'
+        and user.subscription_ends_at is None
+        and not user.stripe_subscription_id
+    )
+
+
+def _period_end(subscription):
+    """current_period_end lives on the subscription in older Stripe API versions
+    and on its items in newer ones."""
+    end = subscription.get('current_period_end')
+    if not end:
+        items = (subscription.get('items') or {}).get('data') or []
+        if items:
+            end = items[0].get('current_period_end')
+    return end
+
+
+def _invoice_subscription_id(invoice):
+    """The invoice's subscription id (older API: invoice.subscription; newer API:
+    invoice.parent.subscription_details.subscription)."""
+    sub = invoice.get('subscription')
+    if not sub:
+        parent = invoice.get('parent') or {}
+        sub = (parent.get('subscription_details') or {}).get('subscription')
+    return _object_id(sub)
+
+
+def _user_for_customer(customer_id, db: Session) -> Optional[User]:
+    if not customer_id:
+        return None
+    return db.query(User).filter(User.stripe_customer_id == customer_id).first()
+
+
+def _live_subscription(subscription):
+    """Fetch the subscription's current state from Stripe.
+
+    Stripe does not deliver events in order, and an event payload is a snapshot from
+    when the event happened. Acting on the live object means a late or replayed event
+    can never bring back a state the subscription has already left.
+    """
+    return stripe.Subscription.retrieve(subscription.get('id'))
+
+
+def _apply_subscription_state(user: User, subscription):
+    """Copy a (live) subscription's status and paid-until date onto the user."""
+    status = subscription.get('status')
+    if status in ('trialing', 'active'):
+        # A scheduled cancellation keeps access until the period ends
+        if subscription.get('cancel_at_period_end', False):
+            user.subscription_status = 'canceled'
+        else:
+            user.subscription_status = 'active'
+        user.subscription_tier = 'premium'
+    elif status == 'past_due':
+        user.subscription_status = 'active'  # Keep active, payment will retry
+    elif status in ('canceled', 'unpaid', 'incomplete_expired'):
+        user.subscription_status = 'canceled'
+
+    # Paid until the later of the trial end (our free-days extension) and the period end
+    ends = [t for t in (subscription.get('trial_end'), _period_end(subscription)) if t]
+    if ends:
+        user.subscription_ends_at = _ts(max(ends))
+
+
+# --- Webhook handlers ---
+
 async def handle_checkout_completed(session, db: Session):
-    """Handle successful checkout - update user subscription"""
+    """Checkout finished. Lifetime is granted only for a paid Lifetime checkout;
+    subscriptions are handled by the customer.subscription.* events."""
 
     customer_id = session.get('customer')
-    metadata = session.get('metadata', {})
+    metadata = session.get('metadata') or {}
     user_id = metadata.get('user_id')
     price_type = metadata.get('price_type')
     mode = session.get('mode')
 
-    # TEMPORARY DEBUG LOGGING - Remove after promo code issue is resolved
-    print(f"[DEBUG] Checkout completed - Session ID: {session.get('id')}")
-    print(f"[DEBUG] Customer: {customer_id}, User ID: {user_id}, Mode: {mode}")
-    total_details = session.get('total_details', {})
-    amount_discount = total_details.get('amount_discount', 0)
-    if amount_discount > 0:
-        print(f"[DEBUG] Discount applied: ${amount_discount / 100:.2f}")
-    if session.get('discount'):
-        print(f"[DEBUG] Discount info: {session.get('discount')}")
-
     if not user_id:
-        # Try to find user by customer ID
-        user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+        user = _user_for_customer(customer_id, db)
     else:
         user = db.query(User).filter(User.id == int(user_id)).first()
 
     if not user:
-        print(f"Webhook error: User not found for checkout session")
+        print(f"Webhook error: User not found for checkout session {session.get('id')}")
         return
 
     # Update user's Stripe customer ID if not set
@@ -276,19 +340,13 @@ async def handle_checkout_completed(session, db: Session):
         user.stripe_customer_id = customer_id
 
     if mode == 'payment':
-        # Lifetime purchase - one-time payment
-        user.subscription_tier = 'premium'
-        user.subscription_status = 'active'
-        user.subscription_started_at = datetime.utcnow()
-        user.subscription_ends_at = None  # Never expires
+        granted = _grant_lifetime_if_paid(user, session)
+        db.commit()
+        if not granted:
+            return
+    else:
+        db.commit()
 
-        # Check early bird bonus
-        if user.is_within_first_5_days():
-            user.subscribed_within_5_days = True
-
-    # For subscriptions, the subscription.created/updated events will handle the rest
-
-    db.commit()
     print(f"Checkout completed for user {user.id}")
 
     # Send subscription confirmation email
@@ -300,7 +358,41 @@ async def handle_checkout_completed(session, db: Session):
         )
         print(f"Subscription confirmation email sent to user {user.id}")
     except Exception as e:
-        print(f"Failed to send subscription confirmation email: {e}")
+        print(f"Failed to send subscription confirmation email: {type(e).__name__}")
+
+
+def _grant_lifetime_if_paid(user: User, session) -> bool:
+    """Grant Lifetime for a one-time Checkout session, but only if it was our Lifetime
+    checkout and Stripe says it is paid. Returns True when Lifetime was granted.
+
+    'no_payment_required' means a valid promotion code took the total to zero.
+    Delayed payment methods complete the session as 'unpaid'; they are granted by
+    checkout.session.async_payment_succeeded once the money arrives.
+    """
+    metadata = session.get('metadata') or {}
+    payment_status = session.get('payment_status')
+    if metadata.get('price_type') != 'lifetime' or payment_status not in ('paid', 'no_payment_required'):
+        print(
+            f"Checkout {session.get('id')}: Lifetime not granted "
+            f"(price_type={metadata.get('price_type')}, payment_status={payment_status})"
+        )
+        return False
+
+    if user.stripe_subscription_id:
+        # Lifetime replaces the subscription in our records. The old subscription keeps
+        # billing in Stripe until it is cancelled there; its events are ignored from now on.
+        print(f"User {user.id} bought Lifetime while subscription {user.stripe_subscription_id} was on record")
+
+    user.subscription_tier = 'premium'
+    user.subscription_status = 'active'
+    user.subscription_started_at = datetime.utcnow()
+    user.subscription_ends_at = None  # Never expires
+    user.stripe_subscription_id = None
+
+    # Check early bird bonus
+    if user.is_within_first_5_days():
+        user.subscribed_within_5_days = True
+    return True
 
 
 async def handle_subscription_created(subscription, db: Session):
@@ -308,50 +400,57 @@ async def handle_subscription_created(subscription, db: Session):
 
     customer_id = subscription.get('customer')
     subscription_id = subscription.get('id')
-    status = subscription.get('status')
-    metadata = subscription.get('metadata', {})
 
-    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    user = _user_for_customer(customer_id, db)
     if not user:
         print(f"Webhook error: User not found for customer {customer_id}")
         return
 
+    if is_lifetime_member(user):
+        print(f"Subscription {subscription_id} ignored: user {user.id} is a Lifetime member")
+        return
+
+    live = _live_subscription(subscription)
+    status = live.get('status')
+
+    if status in ENDED_SUBSCRIPTION_STATUSES:
+        print(f"Subscription {subscription_id} ignored: already {status}")
+        return
+
+    if user.stripe_subscription_id and user.stripe_subscription_id != subscription_id:
+        # Another subscription is on record. Only a newer one takes over, so a late
+        # "created" event for an old subscription cannot replace the current one.
+        started = user.subscription_started_at
+        created = _ts(live.get('created'))
+        if started and created and created <= started:
+            print(f"Subscription {subscription_id} ignored: older than the current subscription")
+            return
+
+    metadata = live.get('metadata') or {}
     user.stripe_subscription_id = subscription_id
-
-    # Map Stripe status to our status
-    if status in ['trialing', 'active']:
-        user.subscription_status = 'active'
-        user.subscription_tier = 'premium'
-        user.subscription_started_at = datetime.utcnow()
-
+    user.subscription_started_at = _ts(live.get('created')) or datetime.utcnow()
+    if status in ('trialing', 'active'):
         # Check early bird bonus
         if metadata.get('early_bird') == 'True' or user.is_within_first_5_days():
             user.subscribed_within_5_days = True
+    _apply_subscription_state(user, live)
 
-    # Set subscription end date from Stripe
-    current_period_end = subscription.get('current_period_end')
-    if current_period_end:
-        user.subscription_ends_at = datetime.fromtimestamp(current_period_end)
-
-    # Extend billing cycle by free days (remaining trial + early bird bonus)
-    free_days = int(metadata.get('free_days', 0))
-    if free_days > 0 and current_period_end:
+    # Extend billing cycle by free days (remaining trial + early bird bonus).
+    # Skipped when a trial end is already set, so a replayed event cannot extend twice.
+    free_days = int(metadata.get('free_days', 0) or 0)
+    current_period_end = _period_end(live)
+    if free_days > 0 and current_period_end and not live.get('trial_end') and status in ('trialing', 'active'):
         try:
-            # Calculate new trial_end to extend the billing cycle
             new_trial_end = current_period_end + (free_days * 86400)  # 86400 seconds per day
-
-            # Modify the subscription to add the free period
             stripe.Subscription.modify(
                 subscription_id,
                 trial_end=new_trial_end,
                 proration_behavior='none'
             )
-            print(f"Extended subscription {subscription_id} by {free_days} days (trial_end set to {datetime.fromtimestamp(new_trial_end)})")
-
-            # Update our end date to reflect the extension
-            user.subscription_ends_at = datetime.fromtimestamp(new_trial_end)
+            print(f"Extended subscription {subscription_id} by {free_days} days")
+            user.subscription_ends_at = _ts(new_trial_end)
         except stripe.error.StripeError as e:
-            print(f"Failed to extend subscription billing cycle: {e}")
+            print(f"Failed to extend subscription billing cycle: {type(e).__name__}")
 
     db.commit()
     print(f"Subscription created for user {user.id}: status={status}, free_days={free_days}")
@@ -362,50 +461,39 @@ async def handle_subscription_updated(subscription, db: Session):
 
     customer_id = subscription.get('customer')
     subscription_id = subscription.get('id')
-    status = subscription.get('status')
-    cancel_at_period_end = subscription.get('cancel_at_period_end', False)
-    trial_end = subscription.get('trial_end')
 
-    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    user = _user_for_customer(customer_id, db)
     if not user:
         print(f"Webhook error: User not found for customer {customer_id}")
         return
 
-    user.stripe_subscription_id = subscription_id
+    if user.stripe_subscription_id != subscription_id:
+        print(f"Subscription {subscription_id} update ignored: not the current subscription of user {user.id}")
+        return
 
-    # Map Stripe status to our status
-    if status in ['trialing', 'active']:
-        # Check if user has scheduled cancellation
-        if cancel_at_period_end:
-            user.subscription_status = 'canceled'  # Will expire at period end
-        else:
-            user.subscription_status = 'active'
-        user.subscription_tier = 'premium'
-    elif status == 'past_due':
-        user.subscription_status = 'active'  # Keep active, payment will retry
-    elif status in ['canceled', 'unpaid']:
-        user.subscription_status = 'canceled'
-
-    # Update subscription end date - prefer trial_end if set (our free days extension)
-    if trial_end:
-        user.subscription_ends_at = datetime.fromtimestamp(trial_end)
-    else:
-        current_period_end = subscription.get('current_period_end')
-        if current_period_end:
-            user.subscription_ends_at = datetime.fromtimestamp(current_period_end)
+    live = _live_subscription(subscription)
+    _apply_subscription_state(user, live)
 
     db.commit()
-    print(f"Subscription updated for user {user.id}: status={status}, cancel_at_period_end={cancel_at_period_end}")
+    print(f"Subscription updated for user {user.id}: status={live.get('status')}, "
+          f"cancel_at_period_end={live.get('cancel_at_period_end', False)}")
 
 
 async def handle_subscription_deleted(subscription, db: Session):
     """Handle subscription cancellation/deletion"""
 
     customer_id = subscription.get('customer')
+    subscription_id = subscription.get('id')
 
-    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    user = _user_for_customer(customer_id, db)
     if not user:
         print(f"Webhook error: User not found for customer {customer_id}")
+        return
+
+    # Only the current subscription ending removes premium. This also protects Lifetime
+    # members, who have no current subscription.
+    if user.stripe_subscription_id != subscription_id:
+        print(f"Subscription {subscription_id} deletion ignored: not the current subscription of user {user.id}")
         return
 
     user.subscription_status = 'expired'
@@ -421,18 +509,19 @@ async def handle_payment_succeeded(invoice, db: Session):
     """Handle successful recurring payment"""
 
     customer_id = invoice.get('customer')
-    subscription_id = invoice.get('subscription')
+    subscription_id = _invoice_subscription_id(invoice)
 
-    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    user = _user_for_customer(customer_id, db)
     if not user:
         return
 
-    # Ensure subscription is active
-    user.subscription_status = 'active'
-    user.subscription_tier = 'premium'
-
-    db.commit()
-    print(f"Payment succeeded for user {user.id}")
+    if subscription_id and subscription_id == user.stripe_subscription_id:
+        # Re-sync from the live subscription rather than assuming "active"
+        _apply_subscription_state(user, _live_subscription({'id': subscription_id}))
+        db.commit()
+        print(f"Payment succeeded for user {user.id}")
+    else:
+        print(f"Payment succeeded for user {user.id} on a subscription that is not current; status unchanged")
 
     # Send payment receipt email if user has opted in
     if user.notify_payment_receipts:
@@ -465,7 +554,7 @@ async def handle_payment_succeeded(invoice, db: Session):
             )
             print(f"Payment receipt email sent to user {user.id}")
         except Exception as e:
-            print(f"Failed to send payment receipt email: {e}")
+            print(f"Failed to send payment receipt email: {type(e).__name__}")
 
 
 async def handle_payment_failed(invoice, db: Session):
@@ -473,7 +562,7 @@ async def handle_payment_failed(invoice, db: Session):
 
     customer_id = invoice.get('customer')
 
-    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    user = _user_for_customer(customer_id, db)
     if not user:
         return
 
@@ -482,9 +571,60 @@ async def handle_payment_failed(invoice, db: Session):
     print(f"Payment failed for user {user.id}")
 
 
+async def handle_charge_refunded(charge, db: Session):
+    """A fully refunded Lifetime payment removes Lifetime. Partial refunds change nothing."""
+    if not charge.get('refunded'):
+        print(f"Charge {charge.get('id')} partially refunded; access unchanged")
+        return
+    _revoke_lifetime_for_charge(charge, db, reason='refund')
+
+
+async def handle_dispute_created(dispute, db: Session):
+    """A chargeback on a Lifetime payment removes Lifetime straight away.
+    If the dispute is later won, restore the member by hand."""
+    charge_id = _object_id(dispute.get('charge'))
+    if not charge_id:
+        return
+    charge = stripe.Charge.retrieve(charge_id)  # disputes do not carry the customer
+    _revoke_lifetime_for_charge(charge, db, reason='dispute')
+
+
+def _revoke_lifetime_for_charge(charge, db: Session, reason: str):
+    # Subscription payments are billed through invoices; their access follows the
+    # subscription events. Lifetime is a one-time payment without an invoice.
+    if _object_id(charge.get('invoice')):
+        print(f"Charge {charge.get('id')} {reason}: subscription payment, access follows the subscription")
+        return
+
+    user = _user_for_customer(charge.get('customer'), db)
+    if not user or not is_lifetime_member(user):
+        print(f"Charge {charge.get('id')} {reason}: no Lifetime member to update")
+        return
+
+    user.subscription_tier = 'free'
+    user.subscription_status = 'expired'
+    user.subscription_ends_at = datetime.utcnow()
+    db.commit()
+    print(f"Lifetime removed for user {user.id} after {reason} of charge {charge.get('id')}")
+
+
+# Events this endpoint acts on. Each must also be enabled on the webhook in Stripe.
+WEBHOOK_HANDLERS = {
+    'checkout.session.completed': handle_checkout_completed,
+    'checkout.session.async_payment_succeeded': handle_checkout_completed,
+    'customer.subscription.created': handle_subscription_created,
+    'customer.subscription.updated': handle_subscription_updated,
+    'customer.subscription.deleted': handle_subscription_deleted,
+    'invoice.payment_succeeded': handle_payment_succeeded,
+    'invoice.payment_failed': handle_payment_failed,
+    'charge.refunded': handle_charge_refunded,
+    'charge.dispute.created': handle_dispute_created,
+}
+
+
 @router.get("/subscription-status")
 def get_subscription_status(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Get current user's subscription status"""
@@ -506,7 +646,7 @@ def get_subscription_status(
 
 @router.get("/payment-history", response_model=PaymentHistoryResponse)
 def get_payment_history(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Get user's payment history from Stripe"""
@@ -586,15 +726,12 @@ def get_payment_history(
         )
 
     except stripe.error.StripeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise _stripe_http_error(e, "Could not load payment history. Please try again.")
 
 
 @router.post("/email-billing-history")
 def email_billing_history(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Email the user their billing history (rate limited to once per week)"""
@@ -658,7 +795,7 @@ def email_billing_history(
 @router.put("/receipt-preference")
 def update_receipt_preference(
     request: ReceiptPreferenceRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Update user's preference for receiving payment receipt emails"""
@@ -674,7 +811,7 @@ def update_receipt_preference(
 
 @router.get("/receipt-preference")
 def get_receipt_preference(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_not_demo)
 ):
     """Get user's payment receipt email preference"""
 

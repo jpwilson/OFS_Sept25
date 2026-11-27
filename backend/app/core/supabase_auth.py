@@ -31,10 +31,8 @@ def validate_supabase_token(token: str) -> dict:
 
     Returns the decoded payload if valid, raises HTTPException if invalid
     """
-    import traceback
-
-    print(f"🔵 Validating Supabase token (length: {len(token)})")
-
+    # Logging rule: never log the token, its claims or the user id. Log only the
+    # outcome and the exception class; clients get a generic message.
     try:
         # Try with audience check first
         try:
@@ -44,9 +42,7 @@ def validate_supabase_token(token: str) -> dict:
                 algorithms=["HS256"],
                 audience="authenticated"
             )
-            print(f"🟢 Token validated with audience check")
-        except JWTError as e:
-            print(f"🟡 Audience check failed: {e}, trying without audience...")
+        except JWTError:
             # Fall back to validation without audience check
             payload = jwt.decode(
                 token,
@@ -54,34 +50,30 @@ def validate_supabase_token(token: str) -> dict:
                 algorithms=["HS256"],
                 options={"verify_aud": False}  # Skip audience verification
             )
-            print(f"🟢 Token validated without audience check")
 
         # Check if token has required fields
         if "sub" not in payload:
-            print(f"🔴 Token missing 'sub' field. Payload keys: {payload.keys()}")
+            print("Supabase token rejected: missing sub claim")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token payload - missing sub"
+                detail="Invalid authentication token"
             )
 
-        print(f"🟢 Token valid! User ID: {payload.get('sub')}")
         return payload
 
     except HTTPException:
         raise
     except JWTError as e:
-        print(f"🔴 JWT validation error: {e}")
-        print(traceback.format_exc())
+        print(f"Supabase token rejected: {type(e).__name__}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid authentication token: {str(e)}"
+            detail="Invalid authentication token"
         )
     except Exception as e:
-        print(f"🔴 Unexpected error validating token: {e}")
-        print(traceback.format_exc())
+        print(f"Supabase token validation error: {type(e).__name__}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Token validation failed: {str(e)}"
+            detail="Token validation failed"
         )
 
 
