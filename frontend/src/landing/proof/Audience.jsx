@@ -28,15 +28,16 @@ const P1 = 0.96
 /**
  * Where each figure stands. row: one line (wide screens). rows: two rows (portrait and phone).
  * x: centre, % of the line's width. y: feet above the floor, % of its height. h: height, % of
- * its height (from the film's relative heights, so the adults and kids read true).
+ * its height (from the film's relative heights, so the adults and kids read true). b: where a
+ * front-row badge sits, % of the figure's height (40 unless given).
  */
 const SPOT = {
   web1: { row: { x: 4, y: 3, h: 82 }, rows: { x: 7, y: 35, h: 54 } },
   finn: { row: { x: 13.2, y: 0, h: 90 }, rows: { x: 23, y: 35, h: 60 } },
   kate: { row: { x: 22.4, y: 0, h: 92 }, rows: { x: 12, y: 0, h: 76 } },
-  ruth: { row: { x: 31.6, y: 0, h: 87 }, rows: { x: 31, y: 0, h: 72 } },
+  ruth: { row: { x: 31.6, y: 0, h: 87 }, rows: { x: 31, y: 0, h: 72, b: 26 } },
   maya: { row: { x: 42, y: -1, h: 100 }, rows: { x: 51, y: -2, h: 84 } },
-  joe: { row: { x: 52.4, y: 0, h: 96 }, rows: { x: 71, y: 0, h: 79 } },
+  joe: { row: { x: 52.4, y: 0, h: 96 }, rows: { x: 71, y: 0, h: 79, b: 26 } },
   marcus: { row: { x: 61.6, y: 0, h: 97 }, rows: { x: 90, y: 0, h: 80 } },
   sam: { row: { x: 70.8, y: 0, h: 95 }, rows: { x: 41, y: 35, h: 63 } },
   priya: { row: { x: 80, y: 0, h: 88 }, rows: { x: 59, y: 35, h: 59 } },
@@ -46,8 +47,9 @@ const SPOT = {
 
 function spotVars(id) {
   const p = SPOT[id]
-  // the back row (feet above the floor) wears its badge above the head, clear of the front row
-  return { '--x': p.row.x, '--y': p.row.y, '--h': p.row.h, '--xm': p.rows.x, '--ym': p.rows.y, '--hm': p.rows.h, '--bm': p.rows.y > 0 ? 100 : 40 }
+  // the back row (feet above the floor) wears its badge above the head, clear of the front row;
+  // in the front row every other badge sits lower (b), so neighbours' badges never meet
+  return { '--x': p.row.x, '--y': p.row.y, '--h': p.row.h, '--xm': p.rows.x, '--ym': p.rows.y, '--hm': p.rows.h, '--bm': p.rows.y > 0 ? 100 : p.rows.b || 40 }
 }
 
 /** Each figure carries its state at every setting, read from the matrix. */
