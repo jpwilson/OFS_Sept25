@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
 from ..models.feedback import Feedback
 import hashlib
+import re
 import time
+from ..utils.rate_limit import SlidingWindowLimiter
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 
@@ -125,31 +127,65 @@ class ErrorLog(BaseModel):
     is_mobile: bool = False
     additional_context: Optional[dict] = None
 
+# Client error logging is open to signed-out visitors (errors happen before
+# sign-in), so bound what one client can write to the logs.
+MAX_ERROR_LOG_BYTES = 16 * 1024
+_error_log_limiter = SlidingWindowLimiter(limit=10, window_seconds=60)
+_CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]+")
+
+
+def _log_field(value, limit: int) -> str:
+    """One line, truncated: a client cannot forge extra log lines or flood them."""
+    return _CONTROL_CHARS.sub(" ", str(value))[:limit]
+
+
+def _client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+async def _read_capped_body(request: Request, cap: int) -> bytes:
+    declared = request.headers.get("content-length")
+    if declared and declared.isdigit() and int(declared) > cap:
+        raise HTTPException(status_code=413, detail="Error report too large")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > cap:
+            raise HTTPException(status_code=413, detail="Error report too large")
+    return bytes(body)
+
+
 @router.post("/log-error")
 async def log_client_error(
-    error: ErrorLog,
     request: Request,
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Log client-side errors for debugging. Does not store in DB, just logs."""
+    client_ip = _client_ip(request)
+    limiter_key = f"user:{current_user.id}" if current_user else f"ip:{client_ip}"
+    if not _error_log_limiter.allow(limiter_key):
+        raise HTTPException(status_code=429, detail="Too many error reports")
 
-    # Get client IP
-    client_ip = request.client.host if request.client else "unknown"
-    forwarded_for = request.headers.get("x-forwarded-for")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",")[0].strip()
+    body = await _read_capped_body(request, MAX_ERROR_LOG_BYTES)
+    try:
+        error = ErrorLog.model_validate_json(body)
+    except ValidationError:
+        raise HTTPException(status_code=422, detail="Invalid error report")
 
     # Log the error (this will appear in Vercel logs)
     user_info = f"user:{current_user.username}" if current_user else "anonymous"
     device_type = "mobile" if error.is_mobile else "desktop"
 
-    print(f"[CLIENT ERROR] {user_info} | {device_type} | {error.component_name or 'unknown'}")
-    print(f"  Message: {error.error_message[:500]}")
-    print(f"  URL: {error.page_url}")
+    print(f"[CLIENT ERROR] {user_info} | {device_type} | {_log_field(error.component_name or 'unknown', 100)}")
+    print(f"  Message: {_log_field(error.error_message, 500)}")
+    print(f"  URL: {_log_field(error.page_url, 300)}")
     if error.error_stack:
-        print(f"  Stack: {error.error_stack[:1000]}")
+        print(f"  Stack: {_log_field(error.error_stack, 1000)}")
     if error.additional_context:
-        print(f"  Context: {error.additional_context}")
+        print(f"  Context: {_log_field(error.additional_context, 1000)}")
 
     return {"logged": True}
 

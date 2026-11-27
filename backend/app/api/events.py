@@ -15,6 +15,7 @@ from ..models.custom_group import CustomGroupMember
 from ..schemas.event import EventCreate, EventUpdate, EventResponse, ContentBlockCreate, ContentBlockResponse
 from ..utils.location_validator import validate_location_count, extract_location_markers
 from ..utils.slug import generate_unique_slug
+from ..utils.story_html import clean_story_html
 from ..services.email_service import send_new_event_notification_email
 
 
@@ -391,6 +392,7 @@ def create_event(
     # Use authenticated user as the event author
     # Exclude gps_locations from event creation as it's handled separately
     event_dict = event_data.model_dump(exclude={'gps_locations'})
+    event_dict['description'] = clean_story_html(event_dict.get('description'))
 
     # Generate URL-friendly slug from title
     slug = generate_unique_slug(event_data.title, db)
@@ -705,6 +707,8 @@ def update_event(
 
     # Get update data
     update_dict = event_data.model_dump(exclude_unset=True)
+    if update_dict.get('description'):
+        update_dict['description'] = clean_story_html(update_dict['description'])
 
     # Check event limit for free users if publishing a draft
     if current_user.subscription_tier == 'free':

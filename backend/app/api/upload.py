@@ -1,8 +1,11 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, NamedTuple, List
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 import os
+import re
 import uuid
 from pathlib import Path
 from PIL import Image, ImageOps
@@ -22,12 +25,18 @@ from ..core.deps import get_current_user, get_current_user_optional, require_not
 from ..models.event_image import EventImage
 from ..models.event import Event
 from ..models.user import User
+from ..models.tag_profile import TagProfile
+from ..models.event_location import EventLocation
+from ..models.content_block import ContentBlock
+from ..models.feedback import Feedback
+from ..models.app_setting import AppSetting
 from ..schemas.event_image import EventImageCreate, EventImageResponse, EventImageUpdate
 from ..utils.r2_client import (
     r2_configured,
     r2_put,
     r2_delete,
     r2_presign_put,
+    r2_media_from_url,
 )
 
 try:
@@ -73,6 +82,16 @@ def get_supabase_client() -> Client:
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
+# Decoders Pillow may use on an upload (by content, not by file name). Everything
+# else (TIFF, PDF, EPS via Ghostscript, PSD, ...) is never even tried. pillow-heif
+# registers HEIC/HEIF as "HEIF"; a phone's multi-picture JPEG opens as "MPO".
+OPEN_FORMATS = ["JPEG", "PNG", "GIF", "WEBP", "HEIF"]
+ACCEPTED_FORMATS = set(OPEN_FORMATS) | {"MPO"}
+# 80 megapixels covers phone cameras up to 64 MP (a 48 MP iPhone photo is ~49 MP)
+# and bounds the memory one decode can take (RGB copies are 3 bytes a pixel).
+MAX_IMAGE_PIXELS = 80_000_000
+Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
+
 # Image sizes
 THUMBNAIL_SIZE = (300, 300)
 MEDIUM_SIZE = (1200, 1200)
@@ -95,6 +114,91 @@ def storage_put(storage_path: str, data: bytes, content_type: str, *, bucket: st
         file_options={"content-type": content_type},
     )
     return supabase_client.storage.from_(bucket).get_public_url(storage_path)
+
+
+class MediaRef(NamedTuple):
+    """A stored media file, parsed strictly from its URL."""
+    store: str          # "r2" or "supabase"
+    kind: str           # "image" or "video"
+    name: str           # file name, e.g. "<uuid>.jpg"; what references are searched for
+    bucket: str         # Supabase bucket ("" for R2)
+    keys: List[str]     # every stored object that belongs to this file
+
+
+_SUPABASE_IMAGE_NAME = r"([A-Za-z0-9_-]{6,100}\.(?:jpg|jpeg|png|gif|webp))"
+_SUPABASE_VIDEO_NAME = r"([A-Za-z0-9_-]{6,100}\.(?i:mp4|mov|avi|webm))"
+
+
+def parse_media_url(url: Optional[str]) -> Optional[MediaRef]:
+    """MediaRef for a URL of this app's media storage (R2, or the Supabase Storage
+    fallback) in the key format the app writes; None for anything else.
+
+    Media URLs on records are client-supplied, so the whole URL must match: the
+    stored objects derived from it are the only ones it can name.
+    """
+    if not url or not isinstance(url, str) or len(url) > 1000:
+        return None
+    r2 = r2_media_from_url(url)
+    if r2:
+        kind, name = r2
+        keys = [f"{size}/{name}" for size in ("full", "medium", "thumbnails")] if kind == "image" else [f"videos/{name}"]
+        return MediaRef("r2", kind, name, "", keys)
+    if settings.SUPABASE_URL:
+        base = re.escape(settings.SUPABASE_URL.rstrip("/")) + "/storage/v1/object/public/"
+        m = re.fullmatch(base + re.escape(settings.SUPABASE_BUCKET) + "/(?:full|medium|thumbnails)/" + _SUPABASE_IMAGE_NAME, url)
+        if m:
+            name = m.group(1)
+            return MediaRef("supabase", "image", name, settings.SUPABASE_BUCKET,
+                            [f"{size}/{name}" for size in ("full", "medium", "thumbnails")])
+        m = re.fullmatch(base + re.escape(settings.SUPABASE_VIDEO_BUCKET) + "/" + _SUPABASE_VIDEO_NAME, url)
+        if m:
+            return MediaRef("supabase", "video", m.group(1), settings.SUPABASE_VIDEO_BUCKET, [m.group(1)])
+    return None
+
+
+def require_media_url(url: Optional[str], field: str = "image_url") -> MediaRef:
+    ref = parse_media_url(url)
+    if ref is None:
+        raise HTTPException(status_code=400, detail=f"{field} must be a photo or video uploaded to Our Family Socials")
+    return ref
+
+
+def media_name_in_use(db: Session, name: str) -> bool:
+    """True if any row anywhere still refers to this stored file: media rows (any
+    story, including the same one), story covers and story text, content blocks,
+    map popups, avatars and banners, tag-profile photos and feedback attachments.
+
+    File names are random UUIDs, so a substring match is precise. On any error
+    this returns True, which keeps the file.
+    """
+    pattern = f"%{name}%"
+    checks = [
+        (EventImage.id, or_(EventImage.image_url.like(pattern), EventImage.video_thumbnail_url.like(pattern))),
+        (Event.id, or_(Event.description.like(pattern), Event.cover_image_url.like(pattern))),
+        (User.id, or_(User.avatar_url.like(pattern), User.banner_url.like(pattern))),
+        (TagProfile.id, TagProfile.photo_url.like(pattern)),
+        (EventLocation.id, EventLocation.associated_image_url.like(pattern)),
+        (ContentBlock.id, ContentBlock.content.like(pattern)),
+        (Feedback.id, Feedback.attachment_url.like(pattern)),
+    ]
+    try:
+        return any(db.query(column).filter(condition).first() is not None for column, condition in checks)
+    except Exception as e:
+        print(f"Warning: reference check failed for {name}, keeping file: {e}")
+        return True
+
+
+def delete_stored_media(ref: MediaRef) -> None:
+    """Delete every stored object of one file (best effort)."""
+    if ref.store == "r2":
+        r2_delete(ref.keys)
+        return
+    supabase_client = get_supabase_client()
+    for key in ref.keys:
+        try:
+            supabase_client.storage.from_(ref.bucket).remove([key])
+        except Exception as e:
+            print(f"Warning: Failed to delete {ref.bucket}/{key}: {e}")
 
 
 def get_decimal_from_dms(dms, ref):
@@ -218,6 +322,25 @@ def resize_image(image: Image.Image, max_size: tuple, quality: int = 85) -> byte
     return output.getvalue()
 
 
+def open_upload_image(contents: bytes) -> Image.Image:
+    """Open an uploaded image, refusing formats the app does not support and
+    images too large to decode safely. Raises HTTPException(400)."""
+    try:
+        image = Image.open(io.BytesIO(contents), formats=OPEN_FORMATS)
+    except Image.DecompressionBombError:
+        raise HTTPException(status_code=400, detail="Image is too large to process.")
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="This file is not a supported image. Allowed formats: JPG, PNG, GIF, WebP, HEIC",
+        )
+    if image.format not in ACCEPTED_FORMATS:
+        raise HTTPException(status_code=400, detail="Unsupported image format. Allowed formats: JPG, PNG, GIF, WebP, HEIC")
+    if image.width * image.height > MAX_IMAGE_PIXELS:
+        raise HTTPException(status_code=400, detail="Image dimensions are too large (maximum 80 megapixels).")
+    return image
+
+
 @router.post("/upload")
 async def upload_file_endpoint(
     file: UploadFile = File(...),
@@ -258,10 +381,9 @@ async def upload_file(file: UploadFile):
     unique_id = str(uuid.uuid4())
     base_filename = f"{unique_id}.jpg"
 
-    try:
-        # Open image with Pillow
-        image = Image.open(io.BytesIO(contents))
+    image = open_upload_image(contents)
 
+    try:
         # Extract EXIF metadata before any processing
         metadata = extract_exif_metadata(image)
 
@@ -399,6 +521,8 @@ async def create_event_image_record(
     This endpoint is for images already uploaded to R2 from the frontend.
     No file processing - just database record creation.
     """
+    require_media_url(data.image_url)
+
     # Verify event exists and user has permission
     event = db.query(Event).filter(Event.id == data.event_id).first()
     if not event:
@@ -475,50 +599,22 @@ async def delete_event_image(
             detail="You don't have permission to delete this image"
         )
 
-    # Delete the underlying object(s) from storage (R2 or Supabase)
-    image_url = event_image.image_url or ""
-    is_r2 = bool(settings.R2_PUBLIC_DOMAIN) and settings.R2_PUBLIC_DOMAIN in image_url
-
-    # The URL on this record is client-supplied. Never delete a stored file
-    # that another event, profile or record still uses (it may belong to
-    # someone else) - only drop this record.
-    from ..utils.image_cleanup import is_media_referenced_elsewhere
-    media_key = image_url.split("?")[0].rstrip("/").split("/")[-1]
-    thumb_key = (event_image.video_thumbnail_url or "").split("?")[0].rstrip("/").split("/")[-1]
-    if (media_key and is_media_referenced_elsewhere(db, media_key, event_image.event_id)) or \
-            (thumb_key and is_media_referenced_elsewhere(db, thumb_key, event_image.event_id)):
-        db.delete(event_image)
-        db.commit()
-        return {"message": "Image deleted successfully"}
-
-    try:
-        if "/full/" in image_url:
-            # Image: delete all three sizes (full, medium, thumbnail)
-            base_path = image_url.split("/full/")[-1].split("?")[0]
-            if is_r2:
-                r2_delete([f"full/{base_path}", f"medium/{base_path}", f"thumbnails/{base_path}"])
-            else:
-                supabase_client = get_supabase_client()
-                for size in ["full", "medium", "thumbnails"]:
-                    try:
-                        supabase_client.storage.from_(settings.SUPABASE_BUCKET).remove([f"{size}/{base_path}"])
-                    except Exception as e:
-                        print(f"Warning: Failed to delete {size} version: {e}")
-
-        # Also clean up the R2 video object + its thumbnail when present
-        if is_r2 and event_image.media_type == "video":
-            keys = [image_url.split(f"{settings.R2_PUBLIC_DOMAIN}/")[-1].split("?")[0]]
-            thumb = event_image.video_thumbnail_url or ""
-            if "/full/" in thumb and settings.R2_PUBLIC_DOMAIN in thumb:
-                tbase = thumb.split("/full/")[-1].split("?")[0]
-                keys += [f"full/{tbase}", f"medium/{tbase}", f"thumbnails/{tbase}"]
-            r2_delete(keys)
-    except Exception as e:
-        print(f"Warning: Failed to delete from storage: {e}")
-        # Continue with database deletion even if storage deletion fails
-
-    # Delete from database
+    # The URLs on this record are client-supplied and may name someone else's
+    # file. Drop the record first, then delete a stored file only if its URL is
+    # exactly one of this app's media URLs and no other row anywhere (this
+    # story's text included) still refers to it.
+    refs = [ref for ref in (parse_media_url(event_image.image_url),
+                            parse_media_url(event_image.video_thumbnail_url)) if ref]
     db.delete(event_image)
+    db.flush()
+    for ref in refs:
+        if media_name_in_use(db, ref.name):
+            continue
+        try:
+            delete_stored_media(ref)
+        except Exception as e:
+            # Continue with database deletion even if storage deletion fails
+            print(f"Warning: Failed to delete from storage: {e}")
     db.commit()
 
     return {"message": "Image deleted successfully"}
@@ -596,6 +692,12 @@ async def create_event_image_metadata(
     Create an event_image record for an already-uploaded image
     Used when images are uploaded via RichTextEditor and need captions added later
     """
+    require_media_url(image_data.image_url)
+    if image_data.video_thumbnail_url:
+        require_media_url(image_data.video_thumbnail_url, "video_thumbnail_url")
+    if image_data.media_type not in ("image", "video"):
+        raise HTTPException(status_code=400, detail="media_type must be 'image' or 'video'")
+
     # Verify event exists and user has permission
     event = db.query(Event).filter(Event.id == image_data.event_id).first()
     if not event:
@@ -644,20 +746,72 @@ async def create_event_image_metadata(
 class PresignRequest(BaseModel):
     filename: str
     content_type: Optional[str] = None
+    # Exact size of the file to upload, in bytes; signed into the link.
+    content_length: Optional[int] = None
+
+
+# Direct-to-R2 upload links: each is one video of at most MAX_VIDEO_SIZE.
+VIDEO_LINKS_PER_DAY = 50
+_VIDEO_CONTENT_TYPE = re.compile(r"video/[a-z0-9][a-z0-9.+-]{0,40}")
+
+
+def take_video_link_quota(db: Session, user: User) -> None:
+    """Count one upload link against the user's daily allowance (429 when used up).
+
+    Kept in app_settings under one key per user ("<date>:<count>"), so the limit
+    holds across serverless instances without a schema change.
+    """
+    if getattr(user, "is_superuser", False):
+        return
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    key = f"video_upload_links:{user.id}"
+    query = db.query(AppSetting).filter(AppSetting.key == key)
+    try:
+        query = query.with_for_update()
+    except Exception:
+        pass
+    row = query.first()
+    day, _, count = (row.value if row else "").partition(":")
+    used = int(count) if day == today and count.isdigit() else 0
+    if used >= VIDEO_LINKS_PER_DAY:
+        db.rollback()
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily video upload limit reached ({VIDEO_LINKS_PER_DAY} a day). Please try again tomorrow.",
+        )
+    value = f"{today}:{used + 1}"
+    if row:
+        row.value = value
+        row.updated_by = user.id
+    else:
+        db.add(AppSetting(key=key, value=value, updated_by=user.id))
+    try:
+        db.commit()
+    except IntegrityError:
+        # Two first links of the day at once: the other request made the row.
+        db.rollback()
+        take_video_link_quota(db, user)
 
 
 @router.post("/upload/r2-presign")
 async def create_r2_presign(
     body: PresignRequest,
     current_user: User = Depends(require_not_demo),
+    db: Session = Depends(get_db),
 ):
     """
     Return a presigned PUT URL so the browser can upload a (client-compressed)
     video directly to R2, bypassing the Vercel ~4.5MB request-body limit.
     The caller then records the returned public_url via /upload/event-image-metadata.
+
+    Only for members with an active trial or plan, a limited number a day, and
+    the link only accepts the declared video type and size (at most MAX_VIDEO_SIZE).
     """
     if not r2_configured():
         raise HTTPException(status_code=503, detail="R2 storage is not configured")
+
+    if not current_user.can_access_content():
+        raise HTTPException(status_code=403, detail="Uploading videos needs an active trial or subscription.")
 
     file_ext = os.path.splitext(body.filename)[1].lower()
     if file_ext not in settings.ALLOWED_VIDEO_FORMATS:
@@ -666,13 +820,22 @@ async def create_r2_presign(
             detail=f"'{file_ext}' is not a supported video format. Allowed formats: MP4, MOV, AVI, WebM",
         )
 
-    content_type = body.content_type or f"video/{file_ext[1:]}"
-    # Only video content types: the object is served publicly from the media
+    content_type = (body.content_type or f"video/{file_ext[1:]}").strip().lower()
+    # Only plain video content types: the object is served publicly from the media
     # domain with this Content-Type, so never allow e.g. text/html.
-    if not content_type.lower().startswith("video/"):
+    if not _VIDEO_CONTENT_TYPE.fullmatch(content_type):
         raise HTTPException(status_code=400, detail="Only video uploads are allowed")
+
+    max_mb = settings.MAX_VIDEO_SIZE // (1024 * 1024)
+    if body.content_length is None or body.content_length <= 0:
+        raise HTTPException(status_code=400, detail="content_length (the video's size in bytes) is required")
+    if body.content_length > settings.MAX_VIDEO_SIZE:
+        raise HTTPException(status_code=400, detail=f"Video is too large. Maximum size is {max_mb}MB.")
+
+    take_video_link_quota(db, current_user)
+
     key = f"videos/{uuid.uuid4()}{file_ext}"
-    return r2_presign_put(key, content_type)
+    return r2_presign_put(key, content_type, body.content_length)
 
 
 @router.post("/upload/video")
@@ -754,6 +917,9 @@ async def upload_event_video(
     Upload a video for an event and save it to the event_images table
     The thumbnail should be uploaded separately first
     """
+    if thumbnail_url:
+        require_media_url(thumbnail_url, "thumbnail_url")
+
     # Verify event exists and user has permission
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
