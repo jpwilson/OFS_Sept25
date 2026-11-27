@@ -106,7 +106,7 @@ def list_users(
         total = query.count()
 
         # Apply sorting - only use safe columns that definitely exist
-        safe_sort_columns = ['username', 'email', 'created_at', 'subscription_tier']
+        safe_sort_columns = ['username', 'email', 'created_at', 'subscription_tier', 'last_login']
         if sort_by not in safe_sort_columns:
             sort_by = 'created_at'
         sort_column = getattr(User, sort_by, User.created_at)
