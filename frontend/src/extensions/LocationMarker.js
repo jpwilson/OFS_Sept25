@@ -10,21 +10,31 @@ export const LocationMarker = Node.create({
   atom: true,
 
   addAttributes() {
+    // Each value is read from the plain attribute this editor writes, or else from its
+    // data-* copy: stories made by the new story maker carry only the data-* attributes.
+    // Number-like values become numbers, as TipTap's default attribute parsing does.
+    const typed = (v) => (typeof v === 'string' && /^[+-]?(?:\d*\.)?\d+$/.test(v) ? Number(v) : v)
+    const read = (plain, data) => (el) => typed(el.getAttribute(plain) ?? el.getAttribute(data))
     return {
       locationName: {
         default: null,
+        parseHTML: read('locationname', 'data-location-name'),
       },
       latitude: {
         default: null,
+        parseHTML: read('latitude', 'data-latitude'),
       },
       longitude: {
         default: null,
+        parseHTML: read('longitude', 'data-longitude'),
       },
       timestamp: {
         default: null,
+        parseHTML: read('timestamp', 'data-timestamp'),
       },
       placeId: {
         default: null,
+        parseHTML: read('placeid', 'data-place-id'),
       }
     }
   },
