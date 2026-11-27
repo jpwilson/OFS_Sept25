@@ -34,18 +34,16 @@ def get_current_user(
     Tries Supabase token first, falls back to legacy token
     """
     import uuid
-    import traceback
 
     token = credentials.credentials
     supabase_error = None
 
-    print(f"🔵 GET_CURRENT_USER: Starting authentication")
-    print(f"🔵 Token length: {len(token)}")
+    # Logging rule: never log tokens, token claims, user ids or emails here (this
+    # runs on every request). Log only the outcome and the exception class.
 
     # Try Supabase JWT first
     if settings.SUPABASE_JWT_SECRET:
         try:
-            print("🔵 Trying Supabase JWT validation...")
             # Try with audience check first
             try:
                 payload = jwt.decode(
@@ -54,9 +52,7 @@ def get_current_user(
                     algorithms=["HS256"],
                     audience="authenticated"
                 )
-                print("🟢 Token validated with audience check")
-            except JWTError as e:
-                print(f"🟡 Audience check failed: {e}, trying without audience...")
+            except JWTError:
                 # Fall back to validation without audience check
                 payload = jwt.decode(
                     token,
@@ -64,39 +60,32 @@ def get_current_user(
                     algorithms=["HS256"],
                     options={"verify_aud": False}
                 )
-                print("🟢 Token validated without audience check")
 
             # Supabase token validated - get user by auth_user_id
             auth_user_id_str = payload.get("sub")
-            print(f"🔵 Auth user ID from token: {auth_user_id_str}")
 
             if auth_user_id_str:
                 # Convert string UUID to uuid.UUID object for database query
                 try:
                     auth_user_id = uuid.UUID(auth_user_id_str)
-                    print(f"🔵 Converted to UUID object: {auth_user_id}")
-                except (ValueError, AttributeError) as e:
-                    print(f"🔴 UUID conversion failed: {e}")
+                except (ValueError, AttributeError):
                     # If conversion fails, fall back to legacy token
                     raise JWTError("Invalid UUID format in sub claim")
 
-                print(f"🔵 Looking up user with auth_user_id: {auth_user_id}")
                 user = db.query(User).filter(User.auth_user_id == auth_user_id).first()
 
                 if user:
-                    print(f"🟢 User found! ID: {user.id}")
                     if user.is_active:
-                        print(f"🟢 User is active, returning user")
                         _update_last_login(user, db)
                         return user
                     else:
-                        print(f"🔴 User account is inactive")
+                        print("Auth: account is inactive")
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
                             detail="Account is inactive"
                         )
                 else:
-                    print(f"🔴 User NOT found with auth_user_id: {auth_user_id}")
+                    print("Auth: valid Supabase token but no user profile")
 
                     # Supabase token valid but user not found in our DB
                     raise HTTPException(
@@ -107,19 +96,15 @@ def get_current_user(
             # Re-raise HTTP exceptions (user not found, account inactive)
             raise
         except JWTError as e:
-            # Not a valid Supabase token, save error and try legacy
-            supabase_error = str(e)
-            pass
+            # Not a valid Supabase token, note the error class and try legacy
+            supabase_error = type(e).__name__
 
     # Fallback to legacy token validation
     payload = decode_token(token)
     if payload is None:
         # Both Supabase and legacy validation failed
         if supabase_error:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Token validation failed. Supabase error: {supabase_error}"
-            )
+            print(f"Auth: token rejected (Supabase check: {supabase_error})")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
