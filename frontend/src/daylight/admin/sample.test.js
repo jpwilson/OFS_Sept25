@@ -109,3 +109,16 @@ test('filters: chips and the request body', () => {
   assert.equal(pageLine(1, 25, 132), '1–25 of 132')
   assert.equal(pageLine(6, 25, 132), '126–132 of 132')
 })
+
+test('the server’s edges: no auth, All capped at 90 days, long search, unknown range', { skip: !haveSnap && 'no sample.json' }, () => {
+  const st = state()
+  const n = overview(st, { range: '7d', __overview: 'noauth' })
+  assert.equal(n.funnel.unfinished, null)
+  assert.deepEqual(Object.values(n.funnel.by_method.email), [null, null, null, null, null])
+  assert.ok(n.signins.note && n.signins.totals.signins === null && n.signins.series.every((b) => b.signins === null))
+  const all = overview(st, { range: 'all' })
+  assert.match(all.signins.note, /90 days/)
+  assert.equal(all.signins.series[0].signins, 0)
+  assert.equal(members(st, { sort: 'joined', q: 'x'.repeat(201) }).status, 422)
+  assert.equal(overview(st, { range: 'nonsense' }).range, '7d')
+})

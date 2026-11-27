@@ -267,6 +267,8 @@ export function overview(st, q = {}) {
   const steps = () => ({ accounts: auth ? 0 : null, confirmed: auth ? 0 : null, profiles: 0, with_story: 0, with_published: 0 })
   const all = steps()
   const byMethod = { email: steps(), google: steps() }
+  // without the auth schema the method is unknown: the server keeps the keys, all null
+  const nullSteps = () => ({ accounts: null, confirmed: null, profiles: null, with_story: null, with_published: null })
   const bump = (o, f) => {
     if (o.accounts != null) o.accounts++
     if (o.confirmed != null && f.confirmed) o.confirmed++
@@ -289,9 +291,12 @@ export function overview(st, q = {}) {
   const seen = Array.from({ length: n }, () => ({ members: new Set(), active: new Set() }))
   const totMembers = new Set(), totActive = new Set()
   let totSignins = 0
+  // the audit log has no index on created_at: the server reads at most the last 90 days
+  const p90 = zoneParts(SAMPLE_NOW)
+  const signinFloor = win.range === 'all' ? zoneTime(p90.y, p90.mo, p90.d - 89).getTime() : -Infinity
   if (auth) {
     for (const e of w.events) {
-      if (!counted(e)) continue
+      if (!counted(e) || e.at < signinFloor) continue
       const i = win.indexOf(e.at)
       if (i < 0) continue
       // sessions keep only people still signed in: about one in five has since signed out
@@ -338,11 +343,13 @@ export function overview(st, q = {}) {
       series: sSeries.map((b, i) => ({ t: win.tOf(i), partial: i === n - 1, ...b })),
       totals: sTot,
     },
-    funnel: { steps: all, by_method: byMethod, unfinished: all.accounts == null ? null : all.accounts - all.profiles },
+    funnel: { steps: all, by_method: auth ? byMethod : { email: nullSteps(), google: nullSteps() }, unfinished: all.accounts == null ? null : all.accounts - all.profiles },
     signins: {
       series: iSeries.map((b, i) => ({ t: win.tOf(i), partial: i === n - 1, ...b })),
       totals: auth ? { signins: totSignins, members: totMembers.size, active: viaSessions ? null : totActive.size } : { signins: null, members: null, active: null },
-      note: !auth ? 'Supabase sign-in data could not be read.' : viaSessions ? 'Counted from Supabase sessions: people who later signed out are not counted.' : null,
+      note: !auth
+        ? 'Supabase sign-in data could not be read.'
+        : [viaSessions ? 'Counted from Supabase sessions: people who later signed out are not counted.' : null, win.range === 'all' ? 'Sign-ins cover only the last 90 days; earlier bars show 0.' : null].filter(Boolean).join(' ') || null,
     },
     activity,
   }
@@ -357,6 +364,7 @@ export function members(st, body = {}, q = {}) {
   const auth = md.overview !== 'noauth'
   const sort = body.sort || 'joined'
   if (!SORT_KEYS[sort]) return { status: 422, json: { detail: [{ loc: ['body', 'sort'], msg: 'Unknown sort', type: 'value_error' }] } }
+  if (String(body.q || '').length > 200) return { status: 422, json: { detail: [{ loc: ['body', 'q'], msg: 'Search text is at most 200 characters', type: 'value_error' }] } }
   const order = body.order === 'asc' ? 'asc' : 'desc'
   const page = Math.max(1, Number(body.page) || 1)
   const pageSize = Math.min(100, Math.max(1, Number(body.page_size) || 25))

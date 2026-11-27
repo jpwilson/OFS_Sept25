@@ -311,7 +311,8 @@ function SigninsCard({ o, long }) {
   const series = o.signins.series.map((b) => ({ ...b, other: Math.max(0, (b.signins || 0) - (b.email || 0) - (b.google || 0)) }))
   const hasOther = series.some((b) => b.other)
   const a = o.activity
-  const note = o.signins.note || SOURCE_NOTE[o.sources.signins] || null
+  // the source, then whatever the server adds (sessions, the 90-day cap on All, no auth)
+  const notes = [o.sources.signins === 'audit_log' ? SOURCE_NOTE.audit_log : null, o.signins.note || (o.sources.signins === 'sessions' ? SOURCE_NOTE.sessions : null)].filter(Boolean)
   return (
     <div className={s.stack}>
       {t.signins == null ? (
@@ -349,7 +350,7 @@ function SigninsCard({ o, long }) {
         Right now: {num(a.active_24h)} active in the last day, {num(a.active_7d)} this week and {num(a.active_30d)} this month, of {num(a.members)} members.
         {a.last_login_latest ? ` Last seen ${ago(a.last_login_latest)}.` : ''}
       </p>
-      {note ? <p className={s.foot}>{note}</p> : null}
+      {t.signins == null ? null : notes.map((n) => <p key={n} className={s.foot}>{n}</p>)}
     </div>
   )
 }

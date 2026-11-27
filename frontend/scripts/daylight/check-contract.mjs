@@ -5,8 +5,11 @@
 // It also asks src/daylight/admin/sample.js every admin analytics route, in every range,
 // interval and state, and compares each answer with fixtures/admin-contract.json: the keys
 // of every response and nested object, the same file the API branch tests its Pydantic
-// models against (docs/app/ADMIN-ANALYTICS.md). An object in an answer that the contract
-// does not list fails too.
+// models against (docs/app/ADMIN-ANALYTICS.md). A flat object: each key is the path to an
+// object ("[]" marks list items; roots overview, members, unfinished, visitors,
+// visitors_not_configured, visitors_failed), each value that object's keys. An object in an
+// answer that the contract does not list fails too. The file is the API branch's, byte for
+// byte: change it there first.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -45,7 +48,7 @@ function walk(value, at, what) {
   if (d.extra.length || d.missing.length) problems.push(`${what}: ${at} extra [${d.extra}] missing [${d.missing}]`)
   for (const [k, v] of Object.entries(value)) walk(v, `${at}.${k}`, what)
 }
-const visitorsRoot = (j) => (j.configured === false ? 'visitors:not_configured' : j.ok === false ? 'visitors:failed' : 'visitors:ok')
+const visitorsRoot = (j) => (j.configured === false ? 'visitors_not_configured' : j.ok === false ? 'visitors_failed' : 'visitors')
 let asked = 0
 const ask = async (method, p, query = {}, body = null) => {
   const st = { db: JSON.parse(JSON.stringify(snap)), viewer: 'maya', origin: 'http://127.0.0.1' }
@@ -68,6 +71,7 @@ for (const mode of ['ok', 'noauth', 'sessions', 'empty']) {
     await ask('POST', '/admin/analytics/members', { __overview: mode }, { q: null, sort, order: 'desc', page: 1, page_size: 100, include_staff: true, joined: 'all' })
   }
 }
+await ask('GET', '/admin/analytics/overview', { range: 'nonsense' })
 await ask('POST', '/admin/analytics/members', {}, { q: 'a', method: 'google', source: 'organic', plan: 'trial', activity: 'active_7d', stories: 'none', confirmed: true, joined: '7d', include_staff: false, sort: 'last_active', order: 'asc', page: 1, page_size: 25 })
 for (const on of ['0', 'fail']) await ask('GET', '/admin/analytics/visitors', { range: '7d', __posthog: on })
 const unused = Object.keys(ADMIN).filter((k) => !used.has(k))

@@ -24,7 +24,7 @@ const PAGE_SIZE = 25
 
 export function MethodChip({ method }) {
   if (!method) return null
-  const label = { email: 'Email', google: 'Google', legacy: 'Legacy' }[method] || method
+  const label = { email: 'Email', google: 'Google', legacy: 'Legacy', other: 'Other' }[method] || method
   return (
     <Chip size="sm" wash={method === 'email' ? 'azure' : method === 'google' ? 'fizz' : undefined} className={s.chipNoShrink}>
       {label}
@@ -72,7 +72,7 @@ export default function Members({ q, onSort }) {
     <section className={s.members} aria-label="Members" data-ui="admin-members">
       <div className={s.membersBar}>
         <Field label="Search members" hideLabel className={s.search}>
-          <input type="search" value={text} onChange={(e) => setText(e.target.value)} placeholder="Name, @username or email" autoComplete="off" spellCheck={false} enterKeyHint="search" data-ui="admin-search" />
+          <input type="search" value={text} onChange={(e) => setText(e.target.value)} placeholder="Name, @username or email" maxLength={200} autoComplete="off" spellCheck={false} enterKeyHint="search" data-ui="admin-search" />
         </Field>
         <div className={s.barButtons}>
           <Button variant="ghost" size="sm" icon="filter" onClick={() => setSheet(true)} aria-haspopup="dialog" data-ui="admin-filters-button">
