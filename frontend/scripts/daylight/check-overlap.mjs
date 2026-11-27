@@ -21,7 +21,7 @@
 //                            as opaque bars over the page, so what lands under them is found.
 //                            Headless Chromium has no insets of its own.
 // Writes <vp>-<scene>-NN.jpg (findings outlined: pink the thing, orange what it collides with),
-// sheet.jpg (labelled contact sheet), report.json. Exits 1 when anything collides.
+// sheet-NN.jpg (labelled contact sheets), report.json. Exits 1 when anything collides.
 import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
@@ -47,7 +47,8 @@ const TETONS = '/event/seven-days-in-the-tetons'
 
 // ---------------------------------------------------------------- scenes
 // {name, path, as: 'maya'|null (signed out), me: a key of ME (the member's account changed),
-//  prep(page, h), wide: only >= 900, narrow: only < 900}
+//  prep(page, h), wide: only >= 900, narrow: only < 900, maxW: only this wide or narrower,
+//  noSweep: look once where prep leaves it}
 // prep opens whatever a person would open; the sweep then scrolls whatever is on top.
 // what the member's account says, for the banners the sample member never sees
 const ME = {
@@ -154,6 +155,13 @@ const SCENES = [
   { name: 'banner-earlybird', path: '/feed', me: 'earlybird' },
   { name: 'banner-trial', path: '/feed', me: 'trial' },
   { name: 'banner-trial-ended', path: '/feed', me: 'trialend' },
+  { name: 'install-prompt', path: '/feed', maxW: 599, noSweep: true, prep: async (page, h) => {
+    await page.evaluate(() => { sessionStorage.setItem('overlap-install-prompt', '1'); localStorage.removeItem('pwa-install-dismissed') })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.getByText('Get the OFS App').waitFor({ timeout: 8000 })
+    await page.waitForTimeout(600)
+    await page.evaluate(() => sessionStorage.removeItem('overlap-install-prompt'))
+  } },
   { name: 'profile-you', path: '/profile/maya' },
   { name: 'profile-other', path: '/profile/tom' },
   { name: 'privacy-403', path: '/event/403' },
@@ -175,7 +183,9 @@ const SCENES = [
   { name: 'signup', path: '/login?signup=true', as: null },
   { name: 'reset', path: '/reset-password', as: null },
   { name: 'reset-new', path: '/reset-password', as: null, prep: async (page, h) => {
-    await page.fill('[data-ui="email"]', 'tom@example.test')
+    // one member per viewport: the sample limits how often one address asks
+    const who = ['tom', 'ruth', 'joe', 'kate', 'marcus', 'finn', 'priya', 'sam', 'deb'][h.index % 9]
+    await page.fill('[data-ui="email"]', `${who}@example.test`)
     await page.click('[data-ui="send-link"]')
     await page.getByText('on its way').first().waitFor({ timeout: 12000 })
     await page.goto(`${args.base}/__fx/inbox?go=verify&kind=recovery`)
@@ -232,6 +242,13 @@ async function newPage(vp, as, me) {
     }
     return route.continue()
   })
+  // the classic "Get the OFS App" prompt rises over every page a few seconds in on an iPhone
+  // until it is dismissed once: dismissed here, and looked at on its own (install-prompt)
+  await ctx.addInitScript(() => {
+    try {
+      if (!sessionStorage.getItem('overlap-install-prompt')) localStorage.setItem('pwa-install-dismissed', 'true')
+    } catch {}
+  })
   if (args.notch && phone) {
     await ctx.addInitScript(() => {
       const put = () => {
@@ -274,6 +291,7 @@ function helpers(page, vp) {
   const touch = vp.width <= 1024
   const h = {
     desktop: vp.width >= 900,
+    index: viewports.indexOf(vp),
     async tap(sel) {
       const loc = typeof sel === 'string' ? page.locator(sel).first() : sel
       await loc.scrollIntoViewIfNeeded({ timeout: 8000 }).catch(() => {})
@@ -327,9 +345,9 @@ async function openScene(page, vp, scene) {
     await page.waitForSelector('[data-ui="create-summary"]', { timeout: 30000 })
     await page.waitForTimeout(1200)
   } else if (page.url().startsWith(args.base) && !/^\/__fx\//.test(new URL(page.url()).pathname) && new URL(page.url()).pathname !== new URL(scene.path, args.base).pathname) {
-    // another page: move inside the running app (the same page loads afresh, so nothing the
-    // last scene opened on it stays open); (a full load costs hundreds of module requests on the dev
-    // server); the router answers popstate like a Back
+    // another page: move inside the running app, as the router answers popstate like a Back (a
+    // full load costs hundreds of module requests on the dev server). The same page loads
+    // afresh, so nothing the last scene opened on it stays open.
     await page.evaluate((p) => {
       history.pushState({}, '', p)
       dispatchEvent(new PopStateEvent('popstate'))
@@ -358,7 +376,7 @@ async function runViewport(vp) {
   const pageFor = async (as, me) => (pages[`${as || '-'}:${me || ''}`] ||= await newPage(vp, as, me))
   for (const scene of scenes) {
     const wide = vp.width >= 900
-    if ((scene.wide && !wide) || (scene.narrow && wide)) continue
+    if ((scene.wide && !wide) || (scene.narrow && wide) || (scene.maxW && vp.width > scene.maxW)) continue
     const as = scene.as === undefined ? 'maya' : scene.as
     const page = await pageFor(as, scene.me)
     // a scene may leave a sheet open or the voice recorder running: start each from clean
@@ -412,6 +430,10 @@ async function runViewport(vp) {
   for (const p of Object.values(pages)) await p.context().close()
 }
 
+// a fresh sample, as the walk starts from
+await fetch(`${args.base}/__fx/reset`).catch(() => {})
+await fetch(`${args.base}/api/v1/__create/sample/reset`).catch(() => {})
+
 // a few viewports at a time; each has its own signed-in and signed-out pages
 const queue = [...viewports]
 await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length) }, async () => {
@@ -419,30 +441,35 @@ await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length)
 }))
 
 // ---------------------------------------------------------------- contact sheet
-async function contactSheet() {
+// Labelled contact sheets, 30 frames a page (one tall page runs past what Chromium can shoot):
+// sheet-01.jpg, sheet-02.jpg...
+async function contactSheets() {
   const order = (f) => viewports.findIndex((v) => v.key === f.vp) * 1000 + SCENES.findIndex((s) => s.name === f.scene)
   const frames = [...report.frames].sort((a, b) => order(a) - order(b))
-  if (!frames.length) return
-  const tiles = frames.map((f) => {
-    const w = Number(f.vp.split('x')[0]) < 600 ? 240 : 380
-    const img = fs.readFileSync(path.join(OUT, f.file)).toString('base64')
-    const tag = f.count ? `<b style="color:#C4253B">${f.count} found</b>` : '<b style="color:#1a7f37">clear</b>'
-    return `<figure style="margin:0;width:${w}px"><div style="padding:4px 0;min-height:48px;word-break:break-word">${f.vp} · ${f.scene} · ${tag}<br>${(f.label || '').replace(/</g, '&lt;').slice(0, 120)}</div><img style="width:${w}px;border:2px solid #101B3B;border-radius:8px;display:block" src="data:image/jpeg;base64,${img}"></figure>`
-  }).join('')
-  const html = `<!doctype html><html><body style="margin:0;background:#F4F7FB;font:12px Menlo,monospace;color:#101B3B">
-  <div style="padding:16px 16px 4px;font-weight:700">Daylight overlap sweep · ${args.out}${replay ? ' (replay)' : ''} · ${report.findings.length} findings · ${frames.length} frames · pink: the thing, orange: what it meets</div>
-  <div style="display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px">${tiles}</div></body></html>`
-  const ctx = await browser.newContext({ viewport: { width: 1700, height: 900 }, deviceScaleFactor: 1 })
-  const p = await ctx.newPage()
-  await p.setContent(html, { waitUntil: 'load' })
-  await p.screenshot({ path: path.join(OUT, 'sheet.jpg'), type: 'jpeg', quality: 78, fullPage: true })
-  await ctx.close()
+  const pages = []
+  for (let i = 0; i < frames.length; i += 30) pages.push(frames.slice(i, i + 30))
+  for (const [n, page] of pages.entries()) {
+    const tiles = page.map((f) => {
+      const w = Number(f.vp.split('x')[0]) < 600 ? 240 : 380
+      const img = fs.readFileSync(path.join(OUT, f.file)).toString('base64')
+      const tag = f.count ? `<b style="color:#C4253B">${f.count} found</b>` : '<b style="color:#1a7f37">clear</b>'
+      return `<figure style="margin:0;width:${w}px"><div style="padding:4px 0;min-height:48px;word-break:break-word">${f.vp} · ${f.scene} · ${tag}<br>${(f.label || '').replace(/</g, '&lt;').slice(0, 120)}</div><img style="width:${w}px;border:2px solid #101B3B;border-radius:8px;display:block" src="data:image/jpeg;base64,${img}"></figure>`
+    }).join('')
+    const html = `<!doctype html><html><body style="margin:0;background:#F4F7FB;font:12px Menlo,monospace;color:#101B3B">
+    <div style="padding:16px 16px 4px;font-weight:700">Daylight overlap sweep · ${args.out}${replay ? ' (replay)' : ''} · page ${n + 1} of ${pages.length} · ${report.findings.length} findings in all · pink: the thing, orange: what it meets</div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px">${tiles}</div></body></html>`
+    const ctx = await browser.newContext({ viewport: { width: 1700, height: 900 }, deviceScaleFactor: 1 })
+    const p = await ctx.newPage()
+    await p.setContent(html, { waitUntil: 'load' })
+    await p.screenshot({ path: path.join(OUT, `sheet-${String(n + 1).padStart(2, '0')}.jpg`), type: 'jpeg', quality: 78, fullPage: true })
+    await ctx.close()
+  }
 }
-await contactSheet()
-await browser.close()
 report.errors = [...new Set(report.errors)]
 report.unanswered = [...new Set(report.unanswered)]
 fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2))
+await contactSheets().catch((e) => console.log(`(contact sheet failed: ${e.message.split('\n')[0]})`))
+await browser.close()
 const byKind = report.findings.reduce((o, f) => ((o[f.kind] = (o[f.kind] || 0) + 1), o), {})
 console.log(`\nreport: ${path.relative(process.cwd(), path.join(OUT, 'report.json'))}`)
 console.log(report.findings.length ? `✗ ${report.findings.length} findings: ${Object.entries(byKind).map(([k, n]) => `${k} ${n}`).join(', ')}` : '✓ nothing collides')
