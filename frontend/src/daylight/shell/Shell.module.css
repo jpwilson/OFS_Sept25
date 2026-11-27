@@ -44,6 +44,15 @@
   min-height: 32px;
 }
 
+/* The classic trial banner: its dismiss button is placed absolutely at the right edge, and
+   from 601px its message and Subscribe button run the full width, so the button ran under the
+   dismiss button. Keep the edges clear of it. */
+@media (min-width: 601px) {
+  .trial > div:has(> button[aria-label='Dismiss']) {
+    padding-inline: 48px;
+  }
+}
+
 /* ---------------------------------------------------------------- top bar */
 .bar {
   position: sticky;
@@ -177,6 +186,14 @@
 .tabSpacer {
   flex: none;
   height: calc(var(--a-tab-h) + var(--a-safe-bottom));
+}
+/* From 769px the classic help button floats in the bottom-right corner (20px in, 44px wide):
+   at the end of a page it lay over the footer's last row (the social links). The footer
+   clears it. */
+@media (min-width: 769px) {
+  .footer > :first-child {
+    padding-bottom: 84px;
+  }
 }
 /* A phone story brings its own bottom bar in place of the tab bar (66px: 52px row, 6px above
    and below, the 2px keyline) and no spacer comes with it: the footer's last row (the social
