@@ -1,0 +1,240 @@
+/* Admin charts (owner: ADMIN). Text is HTML in the app's type; the SVG only draws. */
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+.cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  min-height: 32px;
+}
+.title {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: var(--a-size-card);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--a-mute);
+}
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1.5px solid var(--a-ink);
+}
+.readout {
+  margin: 0;
+  min-height: 2.9em; /* two lines held, so selecting a bar never moves the chart */
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--a-mute);
+  font-variant-numeric: tabular-nums;
+}
+.readoutOn {
+  color: var(--a-ink);
+  font-weight: 600;
+}
+.plot {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 8px;
+  align-items: stretch;
+}
+.yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--a-font-mono);
+  font-size: 11.5px;
+  line-height: 1;
+  color: var(--a-mute);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+}
+.area {
+  position: relative;
+  height: 112px;
+  min-width: 0;
+  cursor: pointer;
+  touch-action: pan-y;
+  border-radius: 4px;
+}
+.area:focus-visible {
+  outline-offset: 4px;
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.base {
+  stroke: var(--a-ink);
+  stroke-width: 2px;
+}
+.grid {
+  stroke: var(--a-line);
+  stroke-width: 1px;
+  stroke-dasharray: 3 4;
+}
+.hilite {
+  fill: var(--a-paper-deep);
+}
+.xaxis {
+  position: relative;
+  height: 16px;
+  font-family: var(--a-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  line-height: 16px;
+  color: var(--a-mute);
+  white-space: nowrap;
+}
+.tick {
+  position: absolute;
+  top: 0;
+}
+.first {
+  left: 0;
+}
+.mid {
+  transform: translateX(-50%);
+}
+.last {
+  right: 0;
+}
+.soFar {
+  color: var(--a-ink);
+}
+.table summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--a-target);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tableScroll {
+  max-height: 320px;
+  overflow: auto;
+  border: var(--a-hairline);
+  border-radius: 12px;
+}
+.table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: 6px 10px;
+  text-align: right;
+  border-bottom: var(--a-hairline);
+  white-space: nowrap;
+}
+.table th[scope='row'],
+.table thead th:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+.table thead th {
+  font-family: var(--a-font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-mute);
+  background: var(--a-paper);
+}
+
+/* funnel and ranked rows: text and number on one line, the bar under them */
+.funnel,
+.ranked {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+.fText {
+  font-size: 15px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.rNote {
+  margin-left: 6px;
+  font-size: 13px;
+  color: var(--a-mute);
+}
+.fNum {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.fPct {
+  font-family: var(--a-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--a-mute);
+  min-width: 4ch;
+  text-align: right;
+}
+.track {
+  grid-column: 1 / -1;
+  display: block;
+  height: 12px;
+  border-radius: var(--a-r-pill);
+  background: var(--a-paper-deep);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--a-r-pill);
+}
+
+@media (min-width: 900px) {
+  .area {
+    height: 150px;
+  }
+}
