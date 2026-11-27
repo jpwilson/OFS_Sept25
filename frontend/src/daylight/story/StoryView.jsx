@@ -43,7 +43,7 @@ function coverIndex(cover, media) {
 
 export default function StoryView({
   event, images, mode = 'read', extras, parsed: parsedIn, journey: journeyIn, activeStopId,
-  bodyRef: bodyRefIn, aside, rail, afterHeader, onShowStop, onContents, authorItems, onShare, hideMedia, me, onSignIn, social, coverRef, authorFace, isAuthor,
+  bodyRef: bodyRefIn, aside, rail, afterHeader, onShowStop, onContents, authorItems, onShare, hideMedia, me, onSignIn, social, coverRef, authorFace, isAuthor, shareToken,
 }) {
   const parsed = useMemo(() => parsedIn || parseStory(event?.description || '', images || event?.event_images || []), [parsedIn, event, images])
   const journey = useMemo(() => (journeyIn !== undefined ? journeyIn : buildJourney(event, parsed)), [journeyIn, event, parsed])
@@ -69,7 +69,7 @@ export default function StoryView({
     return () => io.disconnect()
   }, [read, near, bodyRef])
   const mediaIds = useMemo(() => (near ? parsed.media.map((m) => m.imageId).filter((x) => x != null) : []), [near, parsed])
-  const ms = useMediaStats(mediaIds)
+  const ms = useMediaStats(mediaIds, shareToken)
   const react = useCallback(
     async (imageId, type) => {
       try {
@@ -203,6 +203,7 @@ export default function StoryView({
             journey={journey}
             me={me}
             canComment={read && !!me}
+            shareToken={shareToken}
           />
         </Suspense>
       ) : null}
