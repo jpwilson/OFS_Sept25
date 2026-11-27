@@ -75,10 +75,11 @@ export const LOVE = {
       stand: 'photo-year-school',
     },
     {
-      // Photo books are being built (ROUND4 §2): this card must not go live before they can be ordered.
-      line: 'Turn a story into a photo book.',
-      text: 'Your favorite stories, printed and on the coffee table.',
-      photo: 'photo-love-book',
+      // Was "Turn a story into a photo book." Photo books are paused (owner, 26 Nov 2026), so the
+      // card goes back to photo-love-book only when books can be ordered.
+      line: 'Room for the whole family.',
+      text: 'Tag the kids, add the dog and grow your family tree, from the grandparents to the grandkids.',
+      photo: 'photo-years-4b',
       stand: 'photo-year-halloween',
     },
   ],
