@@ -9,7 +9,9 @@
 //     arrive through the dynamic import in src/daylight/map/engine.js);
 //   - the entry's static closure contains anything from src/daylight/map/ except nothing
 //     (the map package is always behind a lazy page);
-//   - the service worker precaches a maplibre file.
+//   - the service worker precaches a maplibre file;
+//   - the admin page (src/daylight/admin/) reaches src/daylight/map/ or maplibre-gl, statically
+//     or through a dynamic import (docs/app/ADMIN-ANALYTICS.md "Checks").
 // Prints raw and gzip sizes of the main bundle, the map library, its worker and CSS.
 import fs from 'node:fs'
 import path from 'node:path'
@@ -52,6 +54,22 @@ const entryClosure = [...new Set([...closure(entryKey), ...closure(appKey)])]
 const mapInEntry = entryClosure.filter((k) => isMapLib(k) || isMapPkg(k))
 if (mapInEntry.length) failures.push(`the main bundle contains map code: ${mapInEntry.join(', ')}`)
 
+// the admin package: nothing of the map, by any import
+const isAdmin = (k) => /src\/daylight\/admin\//.test(k)
+function reach(key, seen = new Set()) {
+  if (seen.has(key) || !mf[key]) return seen
+  seen.add(key)
+  // static imports everywhere; dynamic ones only where the admin package itself makes them
+  // (a shared chunk's lazy pages, the map among them, are not the admin page's doing)
+  for (const i of [...(mf[key].imports || []), ...(isAdmin(key) ? mf[key].dynamicImports || [] : [])]) reach(i, seen)
+  return seen
+}
+const adminKeys = Object.keys(mf).filter(isAdmin)
+for (const key of adminKeys) {
+  const bad = [...reach(key)].filter((k) => isMapLib(k) || isMapPkg(k))
+  if (bad.length) failures.push(`the admin page ${key} reaches map code: ${bad.join(', ')}`)
+}
+
 const swFile = path.join(DIST, 'sw.js')
 // the precache list is url:"..." entries; the runtime-cache rule for the map chunks names maplibre too
 const precached = fs.existsSync(swFile) ? [...fs.readFileSync(swFile, 'utf8').matchAll(/url:"([^"]+)"/g)].map((m) => m[1]) : []
@@ -86,6 +104,9 @@ console.log(`  maplibre-gl JS   ${fmt(sum(libJs))}   ${libJs.join(', ')}`)
 console.log(`  maplibre worker  ${fmt(sum(worker))}   ${worker.join(', ')}`)
 console.log(`  maplibre CSS     ${fmt(sum(libCss))}   ${libCss.join(', ')}`)
 console.log(`  our map code     ${fmt(sum(ourMap))}   ${ourMap.length} chunks`)
+const adminFiles = [...new Set(adminKeys.flatMap((k) => [mf[k].file, ...(mf[k].css || [])]))]
+console.log(`  admin page       ${fmt(sum(adminFiles))}   ${adminFiles.join(', ') || 'not built'}`)
+if (!adminKeys.length) failures.push('no src/daylight/admin chunk in the manifest (is the AdminDashboard seam in place?)')
 if (args.classic) {
   const c = path.resolve(args.classic)
   const html = fs.readFileSync(path.join(c, 'index.html'), 'utf8')
@@ -100,4 +121,4 @@ if (failures.length) {
   for (const f of failures) console.log(`  - ${f}`)
   process.exit(1)
 }
-console.log('PASS: maplibre-gl is reachable only through the dynamic import in src/daylight/map/engine.js, and the service worker does not precache it')
+console.log('PASS: maplibre-gl is reachable only through the dynamic import in src/daylight/map/engine.js, the admin page reaches no map code, and the service worker does not precache it')
