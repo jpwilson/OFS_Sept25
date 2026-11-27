@@ -107,6 +107,23 @@ export const STAGE = {
   end: { d: { A: 44, floor: 86 }, m: { A: 36, floor: 78 } },
 }
 
+/**
+ * Short portrait screens (film/fit.js): the chapters whose art is kept clear of their copy and
+ * docks. fit.js measures the art itself; skip names a part that is not art (a frame around the
+ * whole scene). A scene with no entry is left as designed.
+ */
+export const FIT = {
+  coast: {},
+  tetons: {},
+  world: {},
+  wedding: {},
+  kitchen: {},
+  race: {},
+  year: {},
+  ours: { skip: ['ours:group', 'ours:print'] },
+  app: {},
+}
+
 // ---------------------------------------------------------------------------------------
 // HERO: the household, and the people each audience lets in.
 //   f: where a person stands on the poster, which is the Followers step (and Close Family and Public)
@@ -326,10 +343,13 @@ export const WORLD = {
   /** The timeline view, in a phone. */
   timeline: { d: { x: -60, y: 19.5, w: 16.5 }, m: { x: 16.6, y: 7.4, w: 7.2 }, z: 6 },
   home: both(-87.5, 42.2),
-  /** The family's own trips: a pin and a small print each. */
+  /**
+   * The family's own trips: a pin and a small print each. name: on a phone, which side of its pin
+   * the place's name sits (under it by default), clear of the postcards' name tags below the map.
+   */
   trips: {
-    tetons: { pin: both(-110.7, 43.7), print: { d: { dx: -7.5, dy: -9.5, w: 10, r: -4 }, m: { dx: -3, dy: -7, w: 6.4, r: -4 } } },
-    coast: { pin: both(-68.5, 44.3), print: { d: { dx: 8.5, dy: -9, w: 10, r: 4 }, m: { dx: 3.4, dy: -7, w: 6.4, r: 4 } } },
+    tetons: { pin: both(-110.7, 43.7), print: { d: { dx: -7.5, dy: -9.5, w: 10, r: -4 }, m: { dx: -3, dy: -7, w: 6.4, r: -4 } }, name: 'left' },
+    coast: { pin: both(-68.5, 44.3), print: { d: { dx: 8.5, dy: -9, w: 10, r: 4 }, m: { dx: 3.4, dy: -7, w: 6.4, r: 4 } }, name: 'right' },
     maui: { pin: both(-156.7, 20.9), print: { d: { dx: 2, dy: -8.6, w: 10, r: 3 }, m: { dx: 1.4, dy: -6.4, w: 6.4, r: 3 } } },
   },
   /** The relatives' own stories: a pin, and a postcard with its author beside it. */
@@ -363,7 +383,8 @@ export const WEDDING = {
   lightbox: { d: { x: 65.4, y: 26.2, w: 21.2 }, m: { x: 17.8, y: 14.4, w: 8.4 }, z: 6 },
   reactions: { d: { x: 54, y: 36.4, w: 44.6 }, m: { x: 13.2, y: 8.6, w: 18 }, z: 9 },
   comments: [
-    { d: { x: 42.6, y: 8.6, w: 23.6, r: -1.5 }, m: { x: 11.4, y: 2.2, w: 21.6, r: -1.5 }, z: 8 },
+    // on a phone its top edge is placed, so the lines it wraps to grow downwards, away from the reactions
+    { d: { x: 42.6, y: 8.6, w: 23.6, r: -1.5 }, m: { x: 11.4, y: 6.5, w: 21.6, r: -1.5, ay: 0 }, z: 8 },
     { d: { x: 64.6, y: 8, w: 23.6, r: 1.5 }, m: null, z: 8 },
   ],
 }
@@ -490,11 +511,15 @@ export const APP = {
   sam: { art: 'p-sam-wave', d: { x: 68, lift: 0.6, s: 0.96 }, m: { x: 18, lift: -1, s: 0.78 }, z: 6, rise: true },
   /** The feed, large and tilted; the other captures fan out from behind it. */
   feed: { d: { x: 11, y: 42.4, w: 60, r: -2.5 }, m: { x: 0.6, y: 26.4, w: 27, r: -2.5 }, z: 5 },
+  /**
+   * tag: where the feed in front would cover a capture's tag on its near corner, 'end' pins it to
+   * the far corner and 'out' slides it further out past the near one.
+   */
   fan: [
     { d: { x: 44.5, y: 65, w: 26, r: 7 }, m: { x: 12.6, y: 44.6, w: 15, r: 8 } },
-    { d: { x: 52, y: 44.6, w: 25, r: 11 }, m: { x: 15, y: 31, w: 14, r: 12 } },
+    { d: { x: 52, y: 44.6, w: 25, r: 11 }, m: { x: 15, y: 31, w: 14, r: 12, tag: 'end' } },
     { d: { x: -27, y: 33, w: 23, r: -8 }, m: { x: -12.6, y: 45, w: 14, r: -8 } },
-    { d: { x: 46.5, y: 21.4, w: 27, r: 5 }, m: { x: -14.4, y: 30, w: 14, r: -10 } },
+    { d: { x: 46.5, y: 21.4, w: 27, r: 5, tag: 'end' }, m: { x: -14.4, y: 30, w: 14, r: -10, tag: 'out' } },
   ],
 }
 
@@ -528,6 +553,9 @@ export function airVars(a) {
   // s: drawn smaller than it is laid out (a print that pops large is laid out large, so it stays sharp)
   if (a.d && a.d.s != null) out['--sd'] = n(a.d.s)
   if (a.m && a.m.s != null) out['--sm'] = n(a.m.s)
+  // ay: which point of the slot y places (0: its top edge), for a card whose text sets its height
+  if (a.m && a.m.ay != null) out['--aym'] = `${n(a.m.ay * 100)}%`
+  if (a.t && a.t.ay != null) out['--ayt'] = `${n(a.t.ay * 100)}%`
   if (a.t) Object.assign(out, { '--xt': n(a.t.x), '--yt': n(a.t.y), '--wt': n(a.t.w), '--rt': `${a.t.r || 0}deg`, '--st': n(a.t.s != null ? a.t.s : 1) })
   return out
 }

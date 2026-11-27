@@ -176,9 +176,12 @@ function hero(e, S) {
   words.op(1 - c)
   // on portrait screens and on a tablet on its side the sub line shares the stage with the crowd, so it steps aside
   const subOut = e.phone || e.W <= 1300 ? w(S, B.subOut) : 0
+  // a short phone: as the sub line leaves, the buttons and the note go, then the readout comes in their place
+  const btn = e.short ? clamp(1 - subOut * 2) : 1
+  const swap = { 'hero:sub': 1 - subOut, 'hero:can': e.short ? clamp(subOut * 2 - 1) : 1, 'hero:cta': btn, 'hero:note': btn }
   for (const name of ['hero:sub', 'hero:cta', 'hero:can', 'hero:note', 'hero:console']) {
     const n = e.n(name)
-    const o = name === 'hero:sub' ? (1 - subOut) * (1 - c * 1.25) : 1 - c * 1.25
+    const o = (swap[name] ?? 1) * (1 - c * 1.25)
     n.show(o > 0.001)
     n.op(o)
     n.tf(c <= 0 ? '' : `translate3d(0,${f1(ce * 30)}px,0)`)
@@ -927,12 +930,12 @@ export function MEASURE(e) {
     if (pre.el && e.geo.galleryPre == null) e.geo.galleryPre = pre.el.textContent
     const kn = e.n('kitchen:kitchen')
     e.geo.kitchenH = kn.el ? kn.el.offsetHeight : 0
-    if (e.scenes.kitchen) measureKitchen(e)
+    if (e.scenes.kitchen) e.inScene('kitchen', () => measureKitchen(e))
     // the feed opens from the middle of the screen, where the portrait shrank to
     const fd = e.n('app:feed')
     if (fd.el) {
       const c = e.centre(fd.el)
-      e.geo.app = { dx: (e.cx - c.x) / e.u, dy: (e.H * 0.48 - c.y) / e.u }
+      e.inScene('app', () => (e.geo.app = { dx: (e.cx - c.x) / e.u, dy: (e.H * 0.48 - c.y) / e.u }))
     }
   })
 }
