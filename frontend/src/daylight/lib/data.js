@@ -6,7 +6,7 @@
 //   usePeople() -> {following, faceFor(username, fullName?), muted, refreshMuted, me, loading}
 //   useStory(idOrSlug, {shareToken}) -> {event, images, locations, privacyError, error, shareContext, loading, reload}
 //   useStoryExtras(eventId, {shareToken}) -> {comments, tags, likes, loading, error, actions}
-//   useMediaStats(mediaIds) -> {stats, react(id, type), unreact(id), loading}
+//   useMediaStats(mediaIds, shareToken?) -> {stats, react(id, type), unreact(id), loading}
 //   useNotificationCounts() -> {total, follow_requests, tag_requests, profile_claims}
 //   searchPeople(query) -> Promise<[{id, username, full_name, avatar_url}]>
 //   imageSrc(url, 'micro'|'small'|'medium'|'original')   imageSrcSet(url) -> "u400 400w, u1200 1200w"
@@ -300,7 +300,7 @@ export function useStoryExtras(eventId, { shareToken } = {}) {
  * the first photo nears the screen, not on load. stats: {[id]: {like_count,
  * comment_count, is_liked, user_reaction, reaction_counts}}. react and unreact are optimistic.
  */
-export function useMediaStats(mediaIds) {
+export function useMediaStats(mediaIds, shareToken) {
   const ids = useMemo(() => [...new Set((mediaIds || []).filter((x) => x != null).map(Number))].sort((a, b) => a - b), [mediaIds])
   const key = ids.join(',')
   const [stats, setStats] = useState({})
@@ -309,7 +309,8 @@ export function useMediaStats(mediaIds) {
     if (!ids.length) return
     let live = true
     setLoading(true)
-    apiFetch('/media/batch/stats', { query: { ids: key } })
+    // A share link's token lets its viewers read stats on a non-public story
+    apiFetch('/media/batch/stats', { query: { ids: key, share_token: shareToken } })
       .then((rows) => {
         if (!live) return
         const m = {}
@@ -321,7 +322,7 @@ export function useMediaStats(mediaIds) {
     return () => {
       live = false
     }
-  }, [key])
+  }, [key, shareToken])
   const apply = (id, type) =>
     setStats((m) => {
       const cur = m[id] || { like_count: 0, reaction_counts: {}, user_reaction: null, is_liked: false }

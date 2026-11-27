@@ -43,7 +43,7 @@ function SlideInfo({ m, journey }) {
   )
 }
 
-export default function StoryLightbox({ open, index, media, onClose, onIndex, stats, react, canReact, onSignIn, journey, me, canComment }) {
+export default function StoryLightbox({ open, index, media, onClose, onIndex, stats, react, canReact, onSignIn, journey, me, canComment, shareToken }) {
   const [talk, setTalk] = useState(null) // media item whose comments are open
   // Phone: the photo across the width with its words right under it, every photo of the story
   // in a strip and every control in a bar at the bottom (the thumb zone). Wider screens: the
@@ -178,23 +178,23 @@ export default function StoryLightbox({ open, index, media, onClose, onIndex, st
             ),
         }}
       />
-      <PhotoComments item={talk} onClose={() => setTalk(null)} me={me} canComment={canComment} onSignIn={onSignIn} />
+      <PhotoComments item={talk} onClose={() => setTalk(null)} me={me} canComment={canComment} onSignIn={onSignIn} shareToken={shareToken} />
     </>
   )
 }
 
 /** One photo's own comments, in a sheet over the lightbox. */
-function PhotoComments({ item, onClose, me, canComment, onSignIn }) {
+function PhotoComments({ item, onClose, me, canComment, onSignIn, shareToken }) {
   const id = item?.imageId
   const [list, setList] = useState(null)
   const [error, setError] = useState(null)
   const load = useCallback(() => {
     if (id == null) return
     setError(null)
-    apiFetch(`/media/${id}/comments`, { auth: !!me })
+    apiFetch(`/media/${id}/comments`, { auth: !!me, query: { share_token: shareToken } })
       .then((rows) => setList(rows || []))
       .catch((e) => setError(e))
-  }, [id, me])
+  }, [id, me, shareToken])
   useEffect(() => {
     setList(null)
     load()

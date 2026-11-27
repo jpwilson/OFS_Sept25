@@ -212,6 +212,7 @@ export default function StoryPage({ isShareMode = false }) {
           authorItems={authorItems}
           onShare={isAuthor ? () => setSheet('share') : null}
           onSignIn={signIn}
+          shareToken={shareToken}
           hideMedia={hideMedia}
           onShowStop={desktop ? (sid) => scrollToStop(sid) : (sid) => openMap(sid)}
           onContents={() => setSheet('contents')}
