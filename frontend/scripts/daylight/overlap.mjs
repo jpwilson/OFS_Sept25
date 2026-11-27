@@ -116,8 +116,8 @@ export function detectOverlap() {
 
   // ---------------------------------------------------------------- the scope: an open modal, else the page
   // layers lying over the page on purpose, for a moment or until closed: overlays, menus,
-  // popovers, the lightbox, toasts
-  const OVERLAY = '#ofsa-overlays, [role="menu"], [role="listbox"], [role="tooltip"], [role="dialog"], .yarl__portal, .maplibregl-popup, [class*="toast" i]'
+  // popovers (the reaction tray), the lightbox, toasts
+  const OVERLAY = '#ofsa-overlays, [role="menu"], [role="listbox"], [role="tooltip"], [role="dialog"], [data-ui="reaction-tray"], .yarl__portal, .maplibregl-popup, [class*="toast" i]'
   const modals = [...document.querySelectorAll('[aria-modal="true"], .yarl__portal_open, dialog[open]')].filter((m) => {
     if (!isShown(m)) return false
     const b = m.getBoundingClientRect()
@@ -266,7 +266,11 @@ export function detectOverlap() {
   }
   // Two things on different layers: one on a fixed or sticky bar, the other scrolling past it.
   // They meet only for good if scrolling cannot part them. Returns false to let them pass.
+  const POPOVER = '[role="menu"], [role="listbox"], [role="tooltip"], [data-ui="reaction-tray"], .maplibregl-popup, [class*="toast" i]'
   const meetForGood = (a, c) => {
+    // a popover the person opened lies over the rest on purpose, until it closes
+    const pa = a.el.closest(POPOVER), pc = c.el.closest(POPOVER)
+    if (pa !== pc) return false
     const la = layerOf(a.el), lc = layerOf(c.el)
     const barA = la && !la.contains(c.el) ? la : null
     const barC = lc && !lc.contains(a.el) ? lc : null

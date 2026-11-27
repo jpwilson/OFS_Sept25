@@ -192,7 +192,7 @@ const SCENES = [
     const who = ['tom', 'ruth', 'joe', 'kate', 'marcus', 'finn', 'priya', 'sam', 'deb'][h.index % 9]
     await page.fill('[data-ui="email"]', `${who}@example.test`)
     await page.click('[data-ui="send-link"]')
-    await page.getByText('on its way').first().waitFor({ timeout: 12000 })
+    await page.getByText(/on its way|Send it again/).first().waitFor({ timeout: 12000 })
     await page.goto(`${args.base}/__fx/inbox?go=verify&kind=recovery&to=${who}@example.test`)
     await page.waitForSelector('[data-ui="new-password"]', { timeout: 12000 })
     await h.idle(500)
