@@ -310,7 +310,8 @@ class ApiService {
 
   // Check if file is HEIC format
   isHeicFile(file) {
-    const fileName = file.name.toLowerCase()
+    // Pre-resized images arrive as a Blob, which has no name.
+    const fileName = (file?.name || '').toLowerCase()
     return fileName.endsWith('.heic') || fileName.endsWith('.heif')
   }
 
@@ -402,6 +403,13 @@ class ApiService {
 
   async uploadImage(file) {
     try {
+      // The editor passes a pre-resized Blob (canvas output, always JPEG) with no
+      // name. Give it one: the backend checks the file extension, and a nameless
+      // Blob would be sent as "blob" and rejected.
+      if (!file.name) {
+        file = new File([file], `image-${Date.now()}.jpg`, { type: file.type || 'image/jpeg' })
+      }
+
       // HEIC/HEIF files: convert to JPEG in-browser, then upload to R2
       if (this.isHeicFile(file)) {
         console.log('HEIC detected in uploadImage, converting + routing to R2')
