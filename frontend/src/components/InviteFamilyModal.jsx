@@ -100,11 +100,11 @@ Looking forward to sharing our memories together!
     } catch (error) {
       const detail = error.response?.data?.detail || error.detail
       if (detail?.code === 'USER_EXISTS') {
-        showToast(`${email} already has an account (@${detail.username})`, 'info')
+        showToast(`${email} already has an account. Send them a follow request instead.`, 'info')
       } else if (detail?.code === 'ALREADY_INVITED') {
         showToast('You\'ve already invited this person', 'info')
       } else {
-        showToast(error.message || 'Failed to send invitation', 'error')
+        showToast((typeof detail === 'string' && detail) || error.message || 'Failed to send invitation', 'error')
       }
     } finally {
       setSending(false)

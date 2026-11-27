@@ -285,25 +285,11 @@ def create_supabase_profile(
             except Exception as e:
                 print(f"🟡 Failed to process invite token: {e}")
 
-        # Also check for any other pending invitations to this email
-        try:
-            other_invitations = db.query(InvitedViewer).filter(
-                func.lower(InvitedViewer.invited_email) == email.lower(),
-                InvitedViewer.status == 'pending'
-            ).all()
+        # Other pending invitations to this email are left as they are: only the
+        # inviter whose link was actually redeemed is connected automatically.
+        # Anyone else can send the new member a follow request they may accept.
 
-            for inv in other_invitations:
-                if inv not in invitations_processed:
-                    user.is_invited_viewer = True
-                    inv.status = 'signed_up'
-                    inv.resulting_user_id = user.id
-                    inv.signed_up_at = datetime.utcnow()
-                    invitations_processed.append(inv)
-                    print(f"🟢 Found and processed additional invitation from user {inv.inviter_id}")
-        except Exception as e:
-            print(f"🟡 Failed to check other invitations: {e}")
-
-        # Auto-create BI-DIRECTIONAL Follow relationships for all processed invitations
+        # Auto-create BI-DIRECTIONAL Follow relationships for the redeemed invitation
         # Both the invitee follows the inviter AND the inviter follows the invitee
         for inv in invitations_processed:
             try:

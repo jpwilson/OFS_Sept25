@@ -49,10 +49,9 @@ def create_comment(
     db: Session = Depends(get_db)
 ):
     """Create a new comment on an event"""
-    # Check if event exists
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+    # Check the event exists and the user may open it
+    from ..utils.privacy import get_viewable_event_or_404
+    event = get_viewable_event_or_404(event_id, current_user, db)
 
     # Handle threading
     depth = 0
@@ -222,6 +221,10 @@ def react_to_comment(
     # Validate reaction type
     if reaction.reaction_type not in REACTION_TYPES:
         raise HTTPException(status_code=400, detail=f"Invalid reaction type. Must be one of: {REACTION_TYPES}")
+
+    # Check the user may open the event
+    from ..utils.privacy import get_viewable_event_or_404
+    get_viewable_event_or_404(event_id, current_user, db)
 
     # Check comment exists and belongs to this event
     comment = db.query(Comment).filter(

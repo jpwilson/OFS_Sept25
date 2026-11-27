@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 from ..core.database import get_db
 from ..core.deps import get_current_user
@@ -16,6 +17,39 @@ router = APIRouter(prefix="/invitations", tags=["invitations"])
 
 # Base URL for invite links
 INVITE_BASE_URL = "https://www.ourfamilysocials.com"
+
+# Invitation emails carry text the inviter writes, so they are capped to keep
+# them from being used as an open email relay.
+MAX_INVITATION_EMAILS_PER_DAY = 25
+MAX_PERSONAL_MESSAGE_LENGTH = 500
+MAX_INVITED_NAME_LENGTH = 100
+_LINK_PATTERN = re.compile(
+    r"(https?://|www\.|\b[\w-]+\.(com|net|org|info|biz|io|co|ly|app|link|site|online|xyz|top|ru|cn|gl|uk)\b)",
+    re.IGNORECASE
+)
+
+
+def contains_link(text: Optional[str]) -> bool:
+    """True if the text contains a URL or something that looks like a web address."""
+    return bool(text) and _LINK_PATTERN.search(text) is not None
+
+
+def invitation_emails_sent_today(user_id: int, db: Session) -> int:
+    """Email invitations this user created or re-sent in the last 24 hours."""
+    since = datetime.utcnow() - timedelta(days=1)
+    return db.query(InvitedViewer).filter(
+        InvitedViewer.inviter_id == user_id,
+        InvitedViewer.invited_email != None,
+        (InvitedViewer.created_at >= since) | (InvitedViewer.last_sent_at >= since)
+    ).count()
+
+
+def check_invitation_email_quota(user_id: int, db: Session):
+    if invitation_emails_sent_today(user_id, db) >= MAX_INVITATION_EMAILS_PER_DAY:
+        raise HTTPException(
+            status_code=429,
+            detail=f"You can send up to {MAX_INVITATION_EMAILS_PER_DAY} invitation emails a day. Please try again tomorrow."
+        )
 
 
 # ===== Schemas =====
@@ -51,7 +85,10 @@ class InvitationResponse(BaseModel):
 
 
 class EmailCheckResponse(BaseModel):
-    exists_as_user: bool
+    # Only already_invited_by_me / my_invitation_id are filled in. The other
+    # fields stay for older clients and are always empty: whether an address
+    # has an account, or who else invited it, is not shown to members.
+    exists_as_user: bool = False
     existing_user_username: Optional[str] = None
     already_invited_by_me: bool
     my_invitation_id: Optional[int] = None
@@ -128,6 +165,24 @@ def create_invitation(
     """
     email_lower = invitation.email.lower()
 
+    # The name and message go into an email to someone who is not a member:
+    # short plain text only, no links
+    if invitation.personal_message and len(invitation.personal_message) > MAX_PERSONAL_MESSAGE_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Personal message is too long (max {MAX_PERSONAL_MESSAGE_LENGTH} characters)"
+        )
+    if invitation.name and len(invitation.name) > MAX_INVITED_NAME_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Name is too long (max {MAX_INVITED_NAME_LENGTH} characters)"
+        )
+    if contains_link(invitation.personal_message) or contains_link(invitation.name):
+        raise HTTPException(
+            status_code=400,
+            detail="Links are not allowed in invitations. The email already includes the link to join."
+        )
+
     # Check if this email already has a user account
     existing_user = db.query(User).filter(
         func.lower(User.email) == email_lower
@@ -138,8 +193,7 @@ def create_invitation(
             status_code=400,
             detail={
                 "code": "USER_EXISTS",
-                "message": "This email already has an account",
-                "username": existing_user.username
+                "message": "This email already has an account"
             }
         )
 
@@ -159,6 +213,8 @@ def create_invitation(
                 "invitation_id": existing_invitation.id
             }
         )
+
+    check_invitation_email_quota(current_user.id, db)
 
     # Create the invitation
     invite_token = InvitedViewer.generate_token()
@@ -254,15 +310,10 @@ def check_email(
     db: Session = Depends(get_db)
 ):
     """
-    Check if an email already exists as a user or has been invited.
-    Useful for showing appropriate UI before creating invitation.
+    Check whether I have already invited this email (pending).
+    Nothing about other members or other inviters is returned.
     """
     email_lower = email.lower()
-
-    # Check if email exists as user
-    existing_user = db.query(User).filter(
-        func.lower(User.email) == email_lower
-    ).first()
 
     # Check if I've already invited this email
     my_invitation = db.query(InvitedViewer).filter(
@@ -271,26 +322,9 @@ def check_email(
         InvitedViewer.status == 'pending'
     ).first()
 
-    # Check if others have invited this email
-    other_invitations = db.query(InvitedViewer).join(
-        User, InvitedViewer.inviter_id == User.id
-    ).filter(
-        func.lower(InvitedViewer.invited_email) == email_lower,
-        InvitedViewer.inviter_id != current_user.id,
-        InvitedViewer.status == 'pending'
-    ).all()
-
-    other_inviter_names = [
-        inv.inviter.display_name or inv.inviter.username
-        for inv in other_invitations
-    ]
-
     return EmailCheckResponse(
-        exists_as_user=existing_user is not None,
-        existing_user_username=existing_user.username if existing_user else None,
         already_invited_by_me=my_invitation is not None,
-        my_invitation_id=my_invitation.id if my_invitation else None,
-        invited_by_others=other_inviter_names
+        my_invitation_id=my_invitation.id if my_invitation else None
     )
 
 
@@ -359,6 +393,8 @@ def resend_invitation(
             status_code=400,
             detail=f"Maximum resends reached. You can only send {MAX_RESENDS + 1} emails per invitation."
         )
+
+    check_invitation_email_quota(current_user.id, db)
 
     # Resend email
     inviter_name = current_user.display_name or current_user.username

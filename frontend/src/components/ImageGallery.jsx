@@ -382,7 +382,8 @@ function ImageGallery({
   lightboxIndex,
   onLightboxChange,
   showCaptions = false,
-  enableEngagement = false  // New prop to enable per-media likes/comments
+  enableEngagement = false,  // New prop to enable per-media likes/comments
+  shareToken = null  // Share link token, so share-link viewers can read stats and comments
 }) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
@@ -440,7 +441,7 @@ function ImageGallery({
     if (mediaIds.length === 0) return
 
     try {
-      const stats = await api.getBatchMediaStats(mediaIds)
+      const stats = await api.getBatchMediaStats(mediaIds, shareToken)
       const statsMap = {}
       stats.forEach(stat => {
         statsMap[stat.media_id] = {
@@ -537,7 +538,7 @@ function ImageGallery({
     if (!mediaId) return
     setLoadingComments(true)
     try {
-      const commentsData = await api.getMediaComments(mediaId)
+      const commentsData = await api.getMediaComments(mediaId, shareToken)
       setComments(commentsData || [])
     } catch (error) {
       console.error('Failed to load comments:', error)
@@ -611,7 +612,7 @@ function ImageGallery({
       const reply = await api.createMediaComment(currentMediaId, replyContent.trim(), parentId)
       if (reply) {
         // Reload all comments to get proper nesting
-        const updatedComments = await api.getMediaComments(currentMediaId)
+        const updatedComments = await api.getMediaComments(currentMediaId, shareToken)
         setComments(updatedComments)
         setReplyContent('')
         setReplyingTo(null)
@@ -647,7 +648,7 @@ function ImageGallery({
       }
       setShowCommentReactionPicker(null)
       // Reload comments to get updated reaction counts
-      const updatedComments = await api.getMediaComments(currentMediaId)
+      const updatedComments = await api.getMediaComments(currentMediaId, shareToken)
       setComments(updatedComments)
     } catch (error) {
       console.error('Failed to react to comment:', error)

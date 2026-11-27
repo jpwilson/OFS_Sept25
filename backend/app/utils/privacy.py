@@ -8,7 +8,6 @@ from ..models.event import Event
 from ..models.follow import Follow
 from ..models.custom_group import CustomGroupMember
 from ..models.user import User
-from ..models.event_tag import EventTag
 
 
 def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
@@ -25,11 +24,30 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
     Subscription rules:
     - Authors can ALWAYS see their own events (even if expired - reminds them what they have)
     - If author's subscription expired, others cannot see their events
+
+    Drafts and trashed events are visible to their author only.
+
+    Demo accounts may open only public stories and stories flagged
+    is_demo_showcase (whatever their audience).
+
+    audience_filter() is the same rule as an SQL condition, used by the feed
+    and list filters: a list may never include an event this function refuses.
     """
     # Author can ALWAYS view their own events (even with expired subscription)
     # This reminds them of what they have and motivates resubscription
     if viewer and event.author_id == viewer.id:
         return True
+
+    # Drafts and trashed events are for the author only
+    if not event.is_published or event.is_deleted:
+        return False
+
+    # Demo accounts: showcase stories (so the demo works without following
+    # anyone) and public stories only
+    if is_demo_viewer(viewer):
+        if event.is_demo_showcase:
+            return True
+        return event.privacy_level == "public" and is_user_subscription_active(event.author)
 
     # For others viewing: check if author's subscription is active
     if not is_user_subscription_active(event.author):
@@ -75,26 +93,88 @@ def can_view_event(event: Event, viewer: Optional[User], db: Session) -> bool:
             CustomGroupMember.group_id == event.custom_group_id,
             CustomGroupMember.user_id == viewer.id
         ).first()
-        if member:
-            return True
+        return member is not None
 
-    # Check if viewer follows someone who is tagged in this event
-    # This applies to all privacy levels except private
-    if event.privacy_level != "private":
-        tagged_followed = db.query(EventTag).join(
-            Follow,
-            (Follow.following_id == EventTag.tagged_user_id) &
-            (Follow.follower_id == viewer.id) &
-            (Follow.status == "accepted")
-        ).filter(
-            EventTag.event_id == event.id,
-            EventTag.status == "accepted"
-        ).first()
-        if tagged_followed:
-            return True
+    # Being tagged, or following someone who is tagged, never widens the
+    # audience: Close Family and Custom Group stories are for that audience only.
 
     # Default: deny access
     return False
+
+
+def is_demo_viewer(viewer: Optional[User]) -> bool:
+    return bool(viewer and getattr(viewer, "is_demo_account", False))
+
+
+def audience_filter(viewer: Optional[User], db: Session):
+    """
+    SQL condition for the events whose audience includes the viewer: the same
+    rule as can_view_event(). Callers still filter is_published / is_deleted
+    and the author subscription check (see active_author_filter).
+
+    - anonymous: public
+    - demo account: own, public, is_demo_showcase
+    - member: own (Private included), public, followers stories of people they
+      follow, close family stories of people who marked them close family,
+      custom group stories of groups they belong to
+    """
+    if not viewer:
+        return Event.privacy_level == "public"
+
+    if is_demo_viewer(viewer):
+        return or_(
+            Event.author_id == viewer.id,
+            Event.privacy_level == "public",
+            Event.is_demo_showcase == True
+        )
+
+    following_ids = db.query(Follow.following_id).filter(
+        Follow.follower_id == viewer.id,
+        Follow.status == "accepted"
+    )
+    close_family_ids = db.query(Follow.following_id).filter(
+        Follow.follower_id == viewer.id,
+        Follow.status == "accepted",
+        Follow.is_close_family == True
+    )
+    group_ids = db.query(CustomGroupMember.group_id).filter(
+        CustomGroupMember.user_id == viewer.id
+    )
+
+    # No "someone you follow is tagged" condition: can_view_event() does not
+    # grant access that way, so a list must not show those events either
+    # (it used to, which leaked Private, Close Family and Custom Group stories).
+    return or_(
+        Event.author_id == viewer.id,
+        Event.privacy_level == "public",
+        (Event.privacy_level == "followers") & Event.author_id.in_(following_ids),
+        (Event.privacy_level == "close_family") & Event.author_id.in_(close_family_ids),
+        (Event.privacy_level == "custom_group") & Event.custom_group_id.in_(group_ids),
+    )
+
+
+def active_author_filter(query, viewer: Optional[User]):
+    """Hide events whose author's subscription has lapsed, except the viewer's
+    own (and, for a demo account, showcase stories, as in can_view_event)."""
+    from datetime import datetime
+
+    return query.join(Event.author).filter(
+        or_(
+            # Always show viewer's own events (regardless of subscription)
+            Event.author_id == viewer.id if viewer else False,
+            # Demo accounts always see showcase stories
+            Event.is_demo_showcase == True if is_demo_viewer(viewer) else False,
+            # Author has premium/family tier with active or canceled status
+            (User.subscription_tier.in_(['premium', 'family'])) &
+            (User.subscription_status.in_(['active', 'canceled'])),
+            # Author is on trial and trial hasn't expired
+            (User.subscription_status == 'trial') &
+            (
+                (User.trial_end_date == None) |  # Legacy users
+                (User.trial_end_date > datetime.utcnow())  # Active trial
+            )
+        )
+    )
 
 
 def can_view_event_or_share(
@@ -176,49 +256,25 @@ def filter_events_for_feed(
     db: Session
 ):
     """
-    Filter events for feed/explore display.
-    Shows ALL events except PRIVATE to logged-in users.
-    Privacy gates are applied when viewing event detail via can_view_event().
+    Filter events for feed/explore display: only stories the viewer may open
+    (audience_filter, the same rule as can_view_event), from authors whose
+    subscription is active, minus muted authors.
 
-    - Anonymous users: only PUBLIC events (prevents enumeration)
-    - Logged-in users: ALL events except PRIVATE
-    - Subscription filtering: still enforced (expired author events hidden)
+    - Anonymous users: only PUBLIC events
+    - Logged-in users: their own stories (Private included) plus stories whose
+      audience includes them
     """
-    from datetime import datetime
+    query = active_author_filter(query, viewer)
+    query = query.filter(audience_filter(viewer, db))
 
-    # Filter out events from expired users (subscription check)
-    query = query.join(Event.author).filter(
-        or_(
-            # Always show viewer's own events
-            Event.author_id == viewer.id if viewer else False,
-            # Author has premium/family tier with active or canceled status
-            (User.subscription_tier.in_(['premium', 'family'])) &
-            (User.subscription_status.in_(['active', 'canceled'])),
-            # Author is on trial and trial hasn't expired
-            (User.subscription_status == 'trial') &
-            (
-                (User.trial_end_date == None) |  # Legacy users
-                (User.trial_end_date > datetime.utcnow())  # Active trial
-            )
-        )
-    )
-
-    # Anonymous users: only public events (security - prevents enumeration)
     if not viewer:
-        return query.filter(Event.privacy_level == "public")
-
-    # Logged-in users: all events except private, plus the viewer's own private
-    # events (a Private story must still appear in its author's own feed and profile).
-    # Privacy gates for followers/close_family/custom_group applied at detail view
-    query = query.filter(
-        or_(Event.privacy_level != "private", Event.author_id == viewer.id)
-    )
+        return query
 
     # Filter out events from muted users
     from ..models.user_mute import UserMute
     muted_user_ids = db.query(UserMute.muted_user_id).filter(
         UserMute.muter_id == viewer.id
-    ).subquery()
+    )
     query = query.filter(~Event.author_id.in_(muted_user_ids))
 
     return query
@@ -231,99 +287,14 @@ def filter_events_by_privacy(
 ):
     """
     Filter a SQLAlchemy query to only include events the viewer can see
-
-    Returns a modified query with privacy filters applied
+    (audience_filter, the same rule as can_view_event).
 
     Subscription rules:
     - Users can ALWAYS see their own events (even if their subscription expired)
     - Events from OTHER expired users are hidden
     """
-    from sqlalchemy.orm import joinedload
-    from datetime import datetime
-
-    # Filter out events from expired users (authors without active subscription)
-    # EXCEPT: Always allow viewer to see their own events
-    # We need to join with the User table to check subscription status
-    query = query.join(Event.author).filter(
-        or_(
-            # Always show viewer's own events (regardless of subscription)
-            Event.author_id == viewer.id if viewer else False,
-            # Author has premium/family tier with active or canceled status
-            (User.subscription_tier.in_(['premium', 'family'])) &
-            (User.subscription_status.in_(['active', 'canceled'])),
-            # Author is on trial and trial hasn't expired
-            (User.subscription_status == 'trial') &
-            (
-                (User.trial_end_date == None) |  # Legacy users
-                (User.trial_end_date > datetime.utcnow())  # Active trial
-            )
-        )
-    )
-
-    # If no viewer, only show public events
-    if not viewer:
-        return query.filter(Event.privacy_level == "public")
-
-    # Build privacy filter conditions
-    conditions = [
-        # Always show author's own events
-        Event.author_id == viewer.id,
-        # Always show public events
-        Event.privacy_level == "public"
-    ]
-
-    # Get user's accepted follows (people they follow)
-    following_ids = db.query(Follow.following_id).filter(
-        Follow.follower_id == viewer.id,
-        Follow.status == "accepted"
-    ).subquery()
-
-    # Add followers-only events from people user follows
-    conditions.append(
-        (Event.privacy_level == "followers") &
-        (Event.author_id.in_(following_ids))
-    )
-
-    # Get user's close family follows
-    close_family_ids = db.query(Follow.following_id).filter(
-        Follow.follower_id == viewer.id,
-        Follow.status == "accepted",
-        Follow.is_close_family == True
-    ).subquery()
-
-    # Add close family events
-    conditions.append(
-        (Event.privacy_level == "close_family") &
-        (Event.author_id.in_(close_family_ids))
-    )
-
-    # Get custom groups user is a member of
-    group_ids = db.query(CustomGroupMember.group_id).filter(
-        CustomGroupMember.user_id == viewer.id
-    ).subquery()
-
-    # Add custom group events
-    conditions.append(
-        (Event.privacy_level == "custom_group") &
-        (Event.custom_group_id.in_(group_ids))
-    )
-
-    # Add events where a followed user is tagged (with accepted tag)
-    # This allows viewers to see events where someone they follow is tagged
-    tagged_events = db.query(EventTag.event_id).filter(
-        EventTag.tagged_user_id.in_(
-            db.query(Follow.following_id).filter(
-                Follow.follower_id == viewer.id,
-                Follow.status == "accepted"
-            )
-        ),
-        EventTag.status == "accepted"
-    ).subquery()
-
-    conditions.append(Event.id.in_(tagged_events))
-
-    # Apply all conditions with OR (using distinct to avoid duplicates)
-    return query.filter(or_(*conditions)).distinct()
+    query = active_author_filter(query, viewer)
+    return query.filter(audience_filter(viewer, db)).distinct()
 
 
 def is_event_hidden_due_to_expired_subscription(event: Event) -> bool:
