@@ -19,7 +19,6 @@ import { Button } from '../ui/Button.jsx'
 import { Chip } from '../ui/Chip.jsx'
 import { Dialog } from '../ui/Dialog.jsx'
 import { EmptyState } from '../ui/EmptyState.jsx'
-import { useTopOnArrival } from '../lib/scroll.js'
 import { Icon } from '../ui/Icon.jsx'
 import { IconButton } from '../ui/IconButton.jsx'
 import { Menu } from '../ui/Menu.jsx'
@@ -182,7 +181,6 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const { username } = useParams()
-  useTopOnArrival(username)
   const location = useLocation()
   const navigate = useNavigate()
   const [sp, setSp] = useSearchParams()

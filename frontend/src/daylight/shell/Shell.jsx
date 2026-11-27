@@ -5,8 +5,8 @@
 // Family, You) with safe-area padding. Pages hide parts of it with useChrome().
 // It mounts the existing WelcomeModal, TrialBanner, Footer and FeedbackWidget unchanged,
 // and keeps the demo-account banner and the open-ai-create event from Layout and Header.
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { Link, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import TrialBanner from '../../components/TrialBanner.jsx'
 import WelcomeModal from '../../components/WelcomeModal.jsx'
@@ -82,6 +82,13 @@ export default function Shell({ override }) {
   const { user, isDemoAccount, isSuperuser, logout, loading: authLoading } = auth
   const navigate = useNavigate()
   const loc = useLocation()
+  const navType = useNavigationType()
+  // Arriving at a page by a link starts it at the top; Back and Forward (POP) keep their place.
+  // The router keeps the window's scroll across routes, so without this a story opened from far
+  // down the feed would open mid-story.
+  useLayoutEffect(() => {
+    if (navType !== 'POP') window.scrollTo(0, 0)
+  }, [loc.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
   const desktop = useDesktop()
   const counts = useNotificationCounts()
   const [sheet, setSheet] = useState(null) // 'new' | 'search' | 'you' | 'family' | null
