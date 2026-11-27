@@ -23,6 +23,7 @@ function Privacy() {
             <li>Content you create (events, photos, comments, likes)</li>
             <li>Communications with us</li>
           </ul>
+          <p>If you choose "Continue with Google", Google shares your name, email address and profile picture with us. We use them only to create your account and sign you in. We never receive your Google password, and we can't see anything else in your Google account.</p>
         </section>
 
         <section>
