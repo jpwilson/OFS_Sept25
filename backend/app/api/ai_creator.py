@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ import re
 import logging
 
 from ..core.config import settings
-from ..core.deps import get_current_user
+from ..core.deps import require_not_demo
 from ..core.database import get_db
 from ..models.user import User
 from ..models.ai_usage_log import AIUsageLog
@@ -20,6 +20,14 @@ logger = logging.getLogger("ofs")
 router = APIRouter(prefix="/admin/ai", tags=["ai-creator"])
 
 DAILY_LIMIT = 5
+
+# Request limits (AI cost control)
+MAX_PHOTOS_PER_REQUEST = 100     # larger requests are refused (the model rejects >100 images anyway)
+MAX_IMAGES_TO_MODEL = 40         # images actually sent to the model per request
+MAX_REQUEST_TEXT = 10000         # longest user text accepted; the prompt uses the first 5000
+MAX_INTERVIEW_ANSWERS = 10
+MAX_ANSWER_TEXT = 2000           # per interview question or answer, in the prompt
+MAX_AUDIO_BYTES = 25 * 1024 * 1024  # Whisper's own upload limit
 
 ALLOWED_CATEGORIES = [
     "Birthday", "Anniversary", "Vacation", "Family Gathering", "Holiday",
@@ -44,29 +52,51 @@ def check_ai_access(user: User):
     )
 
 
-def check_rate_limit(user: User, action_type: str, db: Session):
-    """Check if user has exceeded daily AI usage limit. Superusers are exempt."""
-    if user.is_superuser:
-        return
+def reserve_ai_use(user: User, action_type: str, db: Session):
+    """Count one AI use before the model is called. Superusers have no daily limit.
 
-    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-    usage_count = db.query(func.count(AIUsageLog.id)).filter(
-        AIUsageLog.user_id == user.id,
-        AIUsageLog.created_at >= today_start
-    ).scalar()
+    The check and the usage row share one transaction, and the user's row is locked
+    first (SELECT ... FOR UPDATE), so a second parallel request from the same user
+    waits until the first has committed its row and then sees it. The use stays
+    counted whatever happens afterwards, so failed or abandoned calls count too.
+    Call this only after everything that can fail without reaching the model
+    (input checks, API key) has passed.
+    """
+    db.query(User.id).filter(User.id == user.id).with_for_update().one()
 
-    if usage_count >= DAILY_LIMIT:
-        raise HTTPException(
-            status_code=429,
-            detail=f"Daily AI limit reached ({DAILY_LIMIT}/day). Try again tomorrow."
-        )
+    if not user.is_superuser:
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        usage_count = db.query(func.count(AIUsageLog.id)).filter(
+            AIUsageLog.user_id == user.id,
+            AIUsageLog.created_at >= today_start
+        ).scalar()
 
+        if usage_count >= DAILY_LIMIT:
+            db.rollback()
+            raise HTTPException(
+                status_code=429,
+                detail=f"Daily AI limit reached ({DAILY_LIMIT}/day). Try again tomorrow."
+            )
 
-def log_usage(user: User, action_type: str, db: Session):
-    """Log an AI usage event."""
-    entry = AIUsageLog(user_id=user.id, action_type=action_type)
-    db.add(entry)
+    db.add(AIUsageLog(user_id=user.id, action_type=action_type, created_at=datetime.utcnow()))
     db.commit()
+
+
+def ensure_model_configured(provider: str):
+    """Refuse before counting a use when the model cannot be called at all."""
+    key = settings.OPENROUTER_API_KEY if provider == "openrouter" else settings.ANTHROPIC_API_KEY
+    if not key:
+        name = "OpenRouter" if provider == "openrouter" else "Anthropic"
+        raise HTTPException(status_code=500, detail=f"{name} API key not configured")
+
+
+def images_for_model(photos: list) -> list:
+    """At most MAX_IMAGES_TO_MODEL photos, spread evenly across the list."""
+    n = len(photos)
+    if n <= MAX_IMAGES_TO_MODEL:
+        return list(photos)
+    step = n / MAX_IMAGES_TO_MODEL
+    return [photos[int(i * step)] for i in range(MAX_IMAGES_TO_MODEL)]
 
 
 SYSTEM_PROMPT = """You are a family storyteller for "Our Family Socials", a private family social network.
@@ -173,22 +203,22 @@ def call_ai_model(model_id: str, provider: str, system_prompt: str, content, max
 # --- Schemas ---
 
 class PhotoData(BaseModel):
-    image_url: str
-    place_name: Optional[str] = None
+    image_url: str = Field(max_length=2048)
+    place_name: Optional[str] = Field(default=None, max_length=500)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    timestamp: Optional[str] = None
+    timestamp: Optional[str] = Field(default=None, max_length=64)
 
 
 class InterviewAnswer(BaseModel):
-    question: str
-    answer: str
+    question: str = Field(max_length=MAX_REQUEST_TEXT)
+    answer: str = Field(max_length=MAX_REQUEST_TEXT)
 
 
 class GenerateStoryRequest(BaseModel):
-    photos: List[PhotoData]
-    user_text: str = ""
-    interview_answers: Optional[List[InterviewAnswer]] = None
+    photos: List[PhotoData] = Field(max_length=MAX_PHOTOS_PER_REQUEST)
+    user_text: str = Field(default="", max_length=MAX_REQUEST_TEXT)
+    interview_answers: Optional[List[InterviewAnswer]] = Field(default=None, max_length=MAX_INTERVIEW_ANSWERS)
 
 
 class GenerateStoryResponse(BaseModel):
@@ -201,8 +231,8 @@ class GenerateStoryResponse(BaseModel):
 
 
 class GenerateQuestionsRequest(BaseModel):
-    photos: List[PhotoData]
-    user_text: str = ""
+    photos: List[PhotoData] = Field(max_length=MAX_PHOTOS_PER_REQUEST)
+    user_text: str = Field(default="", max_length=MAX_REQUEST_TEXT)
 
 
 class GenerateQuestionsResponse(BaseModel):
@@ -229,7 +259,7 @@ class ClusterPhotosRequest(BaseModel):
 @router.post("/cluster-photos")
 async def cluster_photos_endpoint(
     request: ClusterPhotosRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Cluster a batch of photo metadata (timestamps + GPS, no images) into
@@ -254,23 +284,26 @@ async def cluster_photos_endpoint(
 @router.post("/transcribe")
 async def transcribe_audio(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Transcribe audio using OpenAI Whisper API."""
     check_ai_access(current_user)
-    check_rate_limit(current_user, "transcribe", db)
 
     if not settings.OPENAI_API_KEY:
         raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+
+    # Read the uploaded audio file (refuse anything over Whisper's own limit)
+    audio_bytes = await file.read(MAX_AUDIO_BYTES + 1)
+    if len(audio_bytes) > MAX_AUDIO_BYTES:
+        raise HTTPException(status_code=413, detail="Recording is too long to transcribe.")
+
+    reserve_ai_use(current_user, "transcribe", db)
 
     try:
         import openai
 
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-
-        # Read the uploaded audio file
-        audio_bytes = await file.read()
 
         # Whisper expects a file-like object with a name
         import io
@@ -282,29 +315,28 @@ async def transcribe_audio(
             file=audio_file
         )
 
-        log_usage(current_user, "transcribe", db)
         return {"text": transcription.text}
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Transcription failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+        logger.error(f"Transcription failed: {type(e).__name__}")
+        raise HTTPException(status_code=500, detail="Transcription failed. Please try again.")
 
 
 @router.post("/generate-questions", response_model=GenerateQuestionsResponse)
 async def generate_questions(
     request: GenerateQuestionsRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Generate follow-up questions about photos to enrich the story."""
     check_ai_access(current_user)
-    check_rate_limit(current_user, "generate_questions", db)
+    model_id, provider = get_ai_model_config(db)
+    ensure_model_configured(provider)
+    reserve_ai_use(current_user, "generate_questions", db)
 
     try:
-        model_id, provider = get_ai_model_config(db)
-
         # Build photo info
         place_names = [p.place_name for p in request.photos if p.place_name]
         unique_places = list(dict.fromkeys(place_names))
@@ -332,7 +364,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
         # Build content with images
         content = []
-        for p in request.photos:
+        for p in images_for_model(request.photos):
             content.append({
                 "type": "image",
                 "source": {"type": "url", "url": p.image_url}
@@ -357,8 +389,6 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
         result = json.loads(response_text)
 
-        log_usage(current_user, "generate_questions", db)
-
         return GenerateQuestionsResponse(
             questions=result.get("questions", []),
             context_summary=result.get("context_summary", "")
@@ -370,23 +400,23 @@ Return ONLY valid JSON (no markdown, no code blocks):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Question generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Question generation failed: {str(e)}")
+        logger.error(f"Question generation failed: {type(e).__name__}")
+        raise HTTPException(status_code=500, detail="Question generation failed. Please try again.")
 
 
 @router.post("/generate-story", response_model=GenerateStoryResponse)
 async def generate_story(
     request: GenerateStoryRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_not_demo),
     db: Session = Depends(get_db)
 ):
     """Generate an AI story from photos and optional text using Claude."""
     check_ai_access(current_user)
-    check_rate_limit(current_user, "generate_story", db)
+    model_id, provider = get_ai_model_config(db)
+    ensure_model_configured(provider)
+    reserve_ai_use(current_user, "generate_story", db)
 
     try:
-        model_id, provider = get_ai_model_config(db)
-
         # Sort photos: those with timestamps first (chronologically), then those without
         photos_with_ts = []
         photos_without_ts = []
@@ -423,18 +453,26 @@ async def generate_story(
             qa_lines = []
             for qa in request.interview_answers:
                 if qa.answer.strip():
-                    qa_lines.append(f"Q: {qa.question}\nA: {qa.answer}")
+                    qa_lines.append(f"Q: {qa.question.strip()[:MAX_ANSWER_TEXT]}\nA: {qa.answer.strip()[:MAX_ANSWER_TEXT]}")
             if qa_lines:
                 interview_section = f"\n\nThe user answered follow-up questions about this event:\n" + "\n\n".join(qa_lines)
 
         categories_list = ", ".join(ALLOWED_CATEGORIES)
+
+        model_photos = images_for_model(sorted_photos)
+        attached_note = ""
+        if len(model_photos) < len(sorted_photos):
+            attached_note = (
+                f"\nOnly {len(model_photos)} of the {len(sorted_photos)} photos are attached as images. "
+                "For the others, rely on their timestamps, places and the photos taken around them."
+            )
 
         text_prompt = f"""You are creating a family event post for "Our Family Socials", a private family social network.
 
 {len(sorted_photos)} photos were provided{places_text}.
 
 Photos (sorted chronologically where timestamps available):
-{chr(10).join(photo_descriptions)}
+{chr(10).join(photo_descriptions)}{attached_note}
 
 {user_text_section}{interview_section}
 
@@ -464,8 +502,8 @@ Return ONLY valid JSON (no markdown, no code blocks):
         # Build message content with images
         content = []
 
-        # Add each photo as an image block
-        for p in sorted_photos:
+        # Add each photo as an image block (capped, see images_for_model)
+        for p in model_photos:
             content.append({
                 "type": "image",
                 "source": {
@@ -527,8 +565,6 @@ Return ONLY valid JSON (no markdown, no code blocks):
                     "caption": caption_text
                 })
 
-        log_usage(current_user, "generate_story", db)
-
         return GenerateStoryResponse(
             suggested_title=result.get("title", "Untitled Event"),
             story_html=result.get("story_html", ""),
@@ -540,10 +576,9 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse AI response as JSON: {e}")
-        logger.error(f"Raw response: {response_text[:500]}")
         raise HTTPException(status_code=500, detail="AI generated invalid response. Please try again.")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Story generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Story generation failed: {str(e)}")
+        logger.error(f"Story generation failed: {type(e).__name__}")
+        raise HTTPException(status_code=500, detail="Story generation failed. Please try again.")
