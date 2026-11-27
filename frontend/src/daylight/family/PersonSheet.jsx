@@ -1,11 +1,12 @@
-// One person, opened from the tree or the list (owner: FAMILY). docs/app/FAMILY.md section 5.
-// In sections, so more can join them: To you (who they are to you), Details, Stories (the
-// stories they are in), then what you can do. A relative: their profile, and Remove from your
-// tree. Someone you asked: Withdraw. A tag profile: its page, Edit, and links to your other
-// relatives. You: your profile.
-// The owner has asked for notes and history on each person; that needs the backend (a table,
-// routes and rules for who may read and write) and slots in after Stories when it exists.
-import { useEffect, useMemo, useState } from 'react'
+// One person, opened from the tree or the list (owner: FAMILY). docs/app/FAMILY.md section 5
+// and docs/app/FAMILY-NOTES.md "Page".
+// In sections: To you (who they are to you), Details (born, died, links), Stories (the stories
+// they are in), Notes and history, then what you can do. A relative: their profile, and Remove
+// from your tree. Someone you asked: Withdraw. A tag profile: its page, Edit, and links to your
+// other relatives. You: your profile, and your birthday.
+// Modes replace the body below the face: view, edit (a tag), link (a tag), write (a note or a
+// history entry), birthday (your own).
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../ui/Button.jsx'
 import { Chip } from '../ui/Chip.jsx'
@@ -18,7 +19,11 @@ import { Skeleton } from '../ui/Skeleton.jsx'
 import { apiFetch } from '../lib/http.js'
 import { imageSrc } from '../lib/data.js'
 import { dateRange, monthLabel, parseBackendDate } from '../lib/format.js'
+import BirthdayForm from './BirthdayForm.jsx'
+import { bornLine, diedLine } from './dates.js'
 import { COMMON, TYPE_GROUPS, capitalise } from './kin.js'
+import NoteComposer from './NoteComposer.jsx'
+import Notes from './Notes.jsx'
 import { Face, FaceSticker } from './Person.jsx'
 import TagForm from './TagForm.jsx'
 import { inSentence, possessive } from './words.js'
@@ -28,27 +33,40 @@ const since = (iso) => {
   const d = parseBackendDate(iso)
   return d ? monthLabel(d) : null
 }
-// a calendar date, not an instant: read it in local time so no time zone moves the day
-const born = (ymd) => {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || '')
-  return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null
+/** Born and died, as far as the server lets you see them: your own, a relative's who shares it, your tag's. */
+function lifeLines(p, you) {
+  const r = p.source || {}
+  if (p.kind === 'tag') return [bornLine(r.birth_date, r.birth_date_precision, r.birthplace), diedLine(r.died_on, r.died_on_precision)].filter(Boolean)
+  if (you) return [bornLine(r.birth_date, 'day', r.birthplace)].filter(Boolean)
+  return [bornLine(r.other_user_birth_date, 'day', r.other_user_birthplace)].filter(Boolean)
 }
 
 /** <PersonSheet open id structure fam onClose canWrite /> */
 export default function PersonSheet({ open, id, structure, fam, onClose, canWrite }) {
   const p = id ? structure?.people.get(id) : null
-  const [mode, setMode] = useState('view') // view | edit | link
+  const [mode, setModeRaw] = useState('view') // view | edit | link | write | birthday
   const [confirm, setConfirm] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
+  const [writing, setWriting] = useState({ note: null, kind: 'note' })
+  const [notesTab, setNotesTab] = useState(null)
+  const [settled, setSettled] = useState(null) // the person whose Stories have arrived: notes may ask now
+  const [reveal, setReveal] = useState(0) // back from writing: show the notes again, not the top
+  const hero = useRef(null)
   useEffect(() => {
-    setMode('view')
+    setModeRaw('view')
     setError('')
     setNote('')
+    setNotesTab(null)
   }, [id])
+  // a mode replaces the body below the face: start it from the top
+  const setMode = (m) => {
+    setModeRaw(m)
+    requestAnimationFrame(() => hero.current?.scrollIntoView({ block: 'start' }))
+  }
   const close = () => {
-    setMode('view')
+    setModeRaw('view')
     setError('')
     setNote('')
     onClose()
@@ -80,7 +98,7 @@ export default function PersonSheet({ open, id, structure, fam, onClose, canWrit
 
   return (
     <Sheet open={open} onClose={close} title={p.name} hideTitle wash="lime">
-      <div className={s.hero} data-ui="person-sheet" data-person={id}>
+      <div className={s.hero} data-ui="person-sheet" data-person={id} data-mode={mode} ref={hero}>
         <span className={s.heroFace}>
           <Face name={p.name} src={p.avatar} size={104} you={you} tag={p.kind === 'tag'} asked={p.status === 'asked'} />
           {you ? <FaceSticker kind="you" /> : p.kind === 'tag' ? <FaceSticker kind="tag" /> : null}
@@ -104,15 +122,39 @@ export default function PersonSheet({ open, id, structure, fam, onClose, canWrit
       {mode === 'edit' && p.kind === 'tag' ? (
         <TagForm
           id="tag-edit"
-          initial={{ name: p.name, word: p.word, photoUrl: p.avatar, birth: p.birth }}
+          initial={{
+            name: p.name,
+            word: p.word,
+            photoUrl: p.avatar,
+            birth: { ymd: p.source?.birth_date, precision: p.source?.birth_date_precision },
+            birthplace: p.source?.birthplace,
+            died: { ymd: p.source?.died_on, precision: p.source?.died_on_precision },
+          }}
           submitLabel="Save"
           busy={busy}
           error={error}
           onSubmit={(v) => run(async () => {
-            await fam.actions.updateTag(p.tagId, { name: v.name, word: v.word || '', photoUrl: v.photoUrl ?? '', birthDate: v.birthDate })
+            await fam.actions.updateTag(p.tagId, v)
             setMode('view')
           })}
         />
+      ) : mode === 'write' && p.status !== 'asked' ? (
+        <NoteComposer
+          key={writing.note?.id || 'new'}
+          p={p}
+          you={you}
+          editing={writing.note}
+          kind={writing.kind}
+          onCancel={() => { setModeRaw('view'); setReveal((r) => r + 1) }}
+          onSaved={(n) => {
+            setNotesTab(n.kind)
+            setNote(writing.note ? 'Saved.' : n.kind === 'history' ? `Added to ${you ? 'your' : possessive(first)} history.` : 'Your note is saved.')
+            setModeRaw('view')
+            setReveal((r) => r + 1)
+          }}
+        />
+      ) : mode === 'birthday' && you ? (
+        <BirthdayForm fam={fam} onCancel={() => setMode('view')} onDone={(msg) => { setNote(msg); setMode('view') }} />
       ) : mode === 'link' && p.kind === 'tag' ? (
         <LinkForm p={p} structure={structure} busy={busy} error={error} onCancel={() => setMode('view')} onLink={(userId, w, who) => run(async () => {
           const r = await fam.actions.linkTag(p.tagId, userId, w)
@@ -123,14 +165,33 @@ export default function PersonSheet({ open, id, structure, fam, onClose, canWrit
         <>
           <ToYou p={p} you={you} structure={structure} />
           <Details p={p} you={you} structure={structure} canWrite={canWrite} busy={busy} onUnlink={(linkId) => run(() => fam.actions.unlinkTag(p.tagId, linkId))} />
-          <Stories p={p} you={you} open={open} />
-          {/* Notes and history join here once the backend keeps them (see the family report). */}
-          {note ? <p className={s.done} role="status">{note}</p> : null}
+          <Stories p={p} you={you} open={open} onSettled={() => setSettled(id)} />
+          <Notes
+            p={p}
+            you={you}
+            open={open}
+            ready={settled === id}
+            canWrite={canWrite}
+            tab={notesTab}
+            onTab={setNotesTab}
+            reveal={reveal}
+            meId={structure.people.get(structure.me)?.userId}
+            onWrite={(n, kind) => { setNote(''); setWriting({ note: n, kind: kind || 'note' }); setMode('write') }}
+          />
+          {note ? <p className={s.done} role="status" style={{ marginBottom: 14 }}>{note}</p> : null}
           <div className={s.actions} data-ui="person-actions">
             {you ? (
-              <Button to={`/profile/${p.username}`} iconAfter="chevron-right" full>
-                Open your profile
-              </Button>
+              <>
+                <Button to={`/profile/${p.username}`} iconAfter="chevron-right" full>
+                  Open your profile
+                </Button>
+                {canWrite && p.source && 'birth_date_visibility' in p.source ? (
+                  // the server keeps birthdays (an older one sends no birth keys): add or change yours
+                  <Button variant="ghost" icon="calendar" full onClick={() => { setNote(''); setMode('birthday') }} data-ui="your-birthday">
+                    {p.source.birth_date ? 'Change your birthday' : 'Add your birthday'}
+                  </Button>
+                ) : null}
+              </>
             ) : p.kind === 'tag' ? (
               <>
                 <Button to={`/tag-profile/${p.tagId}`} iconAfter="chevron-right" full>
@@ -254,7 +315,8 @@ function Details({ p, you, structure, canWrite, busy, onUnlink }) {
   } else if (p.username) {
     lines.push(<p key="acct">{you ? 'You are' : `${p.first} is`} on Our Family Socials as @{p.username}.</p>)
   }
-  if (born(p.birth)) lines.push(<p key="born">Born {born(p.birth)}.</p>)
+  for (const [i, line] of lifeLines(p, you).entries()) lines.push(<p key={`life${i}`}>{line}</p>)
+  if (you && p.source?.birth_date && p.source.birth_date_visibility === 'only_me') lines.push(<p key="only" className="a-mute">Only you see your birthday.</p>)
   const others = p.kind === 'tag' ? (p.source?.relationships || []).filter((l) => `u:${l.user_id}` !== structure.me) : []
   if (others.length) {
     lines.push(
@@ -274,7 +336,7 @@ function Details({ p, you, structure, canWrite, busy, onUnlink }) {
 }
 
 /** The stories they are in that you may open: a person's own stories, or the stories a tag is tagged in. */
-function Stories({ p, you, open }) {
+function Stories({ p, you, open, onSettled }) {
   const [state, setState] = useState({ key: null, list: null, failed: false })
   const key = p.kind === 'tag' ? `t:${p.tagId}` : p.username ? `u:${p.username}` : null
   useEffect(() => {
@@ -289,6 +351,10 @@ function Stories({ p, you, open }) {
       live = false
     }
   }, [open, key]) // eslint-disable-line react-hooks/exhaustive-deps
+  const settledNow = !key || (state.key === key && state.list != null)
+  useEffect(() => {
+    if (settledNow) onSettled?.()
+  }, [settledNow, key]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!key) return null
   const title = p.kind === 'tag' ? `Stories with ${p.first}` : you ? 'Your stories' : `${possessive(p.first)} stories`
   const all = p.kind === 'tag' ? `/tag-profile/${p.tagId}` : `/profile/${p.username}`
