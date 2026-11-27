@@ -979,7 +979,9 @@ class ApiService {
 
   async searchUsers(query) {
     try {
-      const response = await fetch(`${API_BASE}/users/search/users?q=${encodeURIComponent(query)}`)
+      const response = await fetch(`${API_BASE}/users/search/users?q=${encodeURIComponent(query)}`, {
+        headers: await this.getAuthHeaders()
+      })
 
       if (!response.ok) throw new Error('Failed to search users')
       return await response.json()
