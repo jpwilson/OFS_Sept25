@@ -219,6 +219,12 @@ export function layout(s, { size = 'wide', trayMax } = {}) {
     const near = lineGroup ? (side === 'left' ? lineGroup.children.slice(0, li).reverse() : lineGroup.children.slice(li + 1)) : []
     const far = side === 'left' ? [...others].reverse().flatMap((g) => [...g.children].reverse()) : others.flatMap((g) => g.children)
     for (const b of [...near, ...far]) if (b !== 'LINE') packSide(b, side === 'none' ? 'right' : side)
+    // you by age (arrange.js youByAge): younger brothers and sisters stand on the line's other
+    // side, nearest first; arrange allows it only when nothing stands there
+    if (lineGroup && li >= 0 && side !== 'none') {
+      const across = side === 'left' ? lineGroup.children.slice(li + 1) : lineGroup.children.slice(0, li).reverse()
+      for (const b of across) packSide(b, side === 'left' ? 'right' : 'left')
+    }
     if (u.bar) {
       bars.push({ members: lineGroup.children.map((c) => (c === 'LINE' ? u.line : c.blood)) })
       return

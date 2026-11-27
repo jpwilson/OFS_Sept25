@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { arrange } from './arrange.js'
 import { layout, sizeFor, elbow, SIZES } from './layout.js'
-import { HARTLEYS, LARGE, viewOf, truthLinks } from './fixtures.js'
+import { HARTLEYS, LARGE, MEMBER_DETAILS, viewOf, truthLinks } from './fixtures.js'
 
 const view = (truth, who, links = false) => {
   const v = viewOf(truth, who)
@@ -197,4 +197,15 @@ test('two hundred people lay out in under 10ms', () => {
   const t1 = performance.now()
   for (let i = 0; i < runs; i++) arrange(input)
   assert.ok((performance.now() - t1) / runs < 25, 'arranging two hundred stays quick too')
+})
+
+test('you by age: a younger brother or sister stands on your other side, never dropped', () => {
+  // Ivy's own birthday saved as older than Leo's: arrange puts her first ([LINE, Leo]); both are drawn
+  for (const [birth, order] of [['2015-09-02', ['u:4', 'u:3']], ['2010-01-01', ['u:3', 'u:4']]]) {
+    const v = viewOf(HARTLEYS, 'ivy', undefined, (k) => (k === 'ivy' ? { ...MEMBER_DETAILS.ivy, birth_date: birth } : MEMBER_DETAILS[k] || null))
+    const g = layout(arrange(v))
+    const x = (id) => g.nodes.find((n) => n.id === id)?.x
+    assert.ok(x('u:3') != null && x('u:4') != null, `${birth}: both drawn`)
+    assert.deepEqual([...order].sort((a, b) => x(a) - x(b)), order, birth)
+  }
 })
