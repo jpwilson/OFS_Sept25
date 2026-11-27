@@ -1,0 +1,115 @@
+/* Story look for src/pages/Privacy.jsx and Terms.jsx (owner: pages): the landing's shell
+   and clean, readable type, nothing more. Same class names as src/pages/Legal.module.css;
+   swapped in by scripts/landing/story-pages.mjs (story only). */
+
+.container {
+  composes: ph-page from global;
+}
+/* The page's own logo bar: shown to signed-in members (no landing nav for them here). */
+.header {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .header {
+  position: relative;
+  padding-top: 20px;
+}
+:global(.ofsl[data-nav]) .header {
+  display: none;
+}
+.logo {
+  composes: ph-back from global;
+}
+:global(.ofsl) .logo {
+  margin: 0;
+}
+:global(.ofsl) .content {
+  width: 100%;
+  max-width: calc(760px + 2 * var(--l-gutter));
+  margin-inline: auto;
+  padding: var(--ph-top) var(--l-gutter) 24px;
+}
+:global(.ofsl) .content h1 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-size: clamp(44px, 6.2vw, 96px);
+  max-width: 16ch;
+  color: var(--l-ink);
+  text-wrap: balance;
+  margin: 0;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: clamp(42px, 5.4vw, 76px);
+  max-width: none;
+}
+.lastUpdated {
+  composes: ph-mono from global;
+}
+:global(.ofsl) .content .lastUpdated {
+  margin: 22px 0 0;
+  padding-bottom: clamp(28px, 3vw, 40px);
+  border-bottom: var(--l-keyline);
+  color: var(--l-ink);
+}
+:global(.ofsl) .content section {
+  padding-top: clamp(28px, 3vw, 40px);
+}
+:global(.ofsl) .content h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: clamp(24px, 2vw, 30px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+:global(.ofsl) .content p {
+  margin: 0 0 14px;
+  font-size: var(--ph-size-body);
+  line-height: 1.7;
+  color: var(--l-ink);
+}
+:global(.ofsl) .content ul {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 16px;
+  padding: 0;
+  list-style: none;
+}
+:global(.ofsl) .content li {
+  position: relative;
+  padding-left: 26px;
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+}
+:global(.ofsl) .content li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--l-ink);
+  border-radius: 50%;
+  background: var(--l-tide);
+}
+:global(.ofsl) .content a {
+  font-weight: 600;
+}
+:global(.ofsl) .actions {
+  padding: 24px 0 clamp(64px, 8vw, 112px);
+}
+.backButton {
+  composes: ph-btn ph-btn-ghost from global;
+}

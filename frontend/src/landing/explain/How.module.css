@@ -1,0 +1,531 @@
+/* How (owner: explain). Round three: bigger station type, people at each step, light visuals.
+   Pinned on iPad and desktop (>600px wide); phones and reduced motion get the stacked column. */
+.stage {
+  background: var(--l-wash);
+}
+.pin {
+  background: var(--l-wash);
+}
+
+.in {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'top'
+    'track'
+    'st';
+  gap: clamp(28px, 4vw, 48px);
+  padding-block: var(--l-band-y);
+}
+.top {
+  grid-area: top;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.titles {
+  display: grid;
+  gap: 16px;
+}
+.head {
+  max-width: 15ch;
+}
+.meter {
+  display: none;
+  flex: none;
+  gap: 4px;
+  justify-items: end;
+  padding: 10px 16px 12px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow);
+}
+.meter b {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.meter em {
+  font-style: normal;
+  font-size: 0.5em;
+  opacity: 0.55;
+  margin-left: 2px;
+}
+
+/* ---------- stations, flow mode (server, no script, reduced motion, phones) ---------- */
+.stations {
+  grid-area: st;
+  display: grid;
+  gap: clamp(64px, 8vw, 112px);
+}
+.station {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+}
+.text {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
+.text p {
+  max-width: 40ch;
+  font-size: clamp(17px, 1.3vw, 20px);
+  line-height: 1.5;
+  font-weight: 500;
+}
+.n {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  font-variation-settings: 'wdth' 80;
+  font-size: clamp(64px, 7vw, 112px);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: var(--l-white);
+  -webkit-text-stroke: 2px var(--l-ink);
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 var(--l-ink);
+}
+.title {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(34px, 3.7vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+
+/* the visual: the proof on the left, one of the family standing at its right edge */
+.vis {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  align-items: end;
+  padding-right: clamp(110px, 14vw, 220px);
+  transform-origin: 50% 100%;
+}
+.person {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  width: clamp(110px, 12vw, 190px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* step 1: the trial, set as three plain claims */
+.pass {
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+  width: min(100%, 520px);
+  padding: clamp(22px, 2.6vw, 34px);
+  background: var(--l-lime);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+  transform: rotate(-1.5deg);
+}
+.passList {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+.passList li {
+  padding: 8px 0 10px;
+  border-bottom: 2px solid var(--l-ink);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.passList li:last-child {
+  border-bottom: 0;
+}
+
+/* step 3: three ways in */
+.ways {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 560px);
+}
+.ways ul {
+  display: grid;
+  gap: 12px;
+}
+.ways li {
+  transform: rotate(calc((var(--k) - 1) * -1deg));
+}
+.ways a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'name arrow'
+    'tool arrow';
+  align-items: center;
+  column-gap: 16px;
+  min-height: 44px;
+  padding: 16px 20px 18px;
+  background: var(--l-wash);
+  color: var(--l-ink);
+  text-decoration: none;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  transition: transform var(--l-dur-hover) var(--l-ease-out);
+}
+.ways a:hover {
+  transform: translate(-2px, -2px);
+}
+.ways b {
+  grid-area: name;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(26px, 2.4vw, 36px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+.ways a > span {
+  grid-area: tool;
+  font-size: 17px;
+  font-weight: 600;
+}
+.ways svg {
+  grid-area: arrow;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* steps 2 and 4: a light capture cropped to its point, with big callouts over it */
+.shotBox {
+  position: relative;
+  width: min(100%, 640px);
+}
+.shot img,
+.shot [data-art-missing] {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  height: auto;
+  object-fit: cover;
+  object-position: var(--ox, 50%) var(--oy, 0%);
+}
+.callouts {
+  position: absolute;
+  left: -14px;
+  right: -10px;
+  bottom: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+.callout {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(19px, 1.7vw, 26px);
+  letter-spacing: -0.02em;
+  padding: 6px 12px 8px;
+}
+
+/* ---------- the track (pinned only) ---------- */
+.track {
+  position: relative;
+}
+.trackH {
+  grid-area: track;
+  height: clamp(86px, 8vw, 110px);
+}
+.trackV {
+  display: none;
+}
+.track svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+}
+.ghost {
+  fill: none;
+  stroke: var(--l-ink);
+  stroke-width: 2;
+  stroke-dasharray: 2 9;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+.line {
+  fill: none;
+  stroke: var(--l-ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+}
+.nodes {
+  position: absolute;
+  inset: 0;
+}
+.node {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  transform: translate(-50%, -50%);
+}
+.node i {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  font-style: normal;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 18px;
+  transition:
+    transform 300ms var(--l-ease-pop),
+    background var(--l-dur-hover);
+}
+.node span {
+  position: absolute;
+  top: calc(100% + 2px);
+  white-space: nowrap;
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.1;
+  padding: 4px 10px 5px;
+  border-radius: var(--l-r-pill);
+  background: rgba(255, 255, 255, 0.6);
+}
+.node:hover i {
+  transform: scale(1.12);
+}
+.node[data-on] i {
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+.node[data-on='cur'] i {
+  background: var(--l-lime);
+  color: var(--l-ink);
+  transform: scale(1.3);
+  box-shadow: var(--l-shadow-sm);
+}
+.node[data-on='cur'] span {
+  background: var(--l-white);
+  border: var(--l-keyline);
+}
+.rider {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--l-fizz);
+  border: var(--l-keyline);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+/* keep the end labels inside the track */
+.trackH .node:first-child span {
+  justify-self: start;
+  left: -6px;
+}
+.trackH .node:last-child span {
+  justify-self: end;
+  right: -6px;
+}
+
+/* ---------- pinned mode (iPad and desktop) ---------- */
+.stage[data-mode='pinned'] .in {
+  height: 100%;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  padding-top: calc(var(--l-nav-h) + 4px);
+  padding-bottom: 26px;
+  gap: clamp(14px, 2.2vh, 30px);
+}
+.stage[data-mode='pinned'] .meter {
+  display: grid;
+}
+.stage[data-mode='pinned'] .head {
+  font-size: clamp(34px, 4vw, 60px);
+  max-width: 24ch;
+}
+.stage[data-mode='pinned'] .stations {
+  position: relative;
+  grid-template-areas: 'one';
+  min-height: 0;
+}
+.stage[data-mode='pinned'] .station {
+  grid-area: one;
+  min-height: 0;
+  height: 100%;
+  will-change: opacity;
+}
+.stage[data-mode='pinned'] .station:not(:first-child) {
+  opacity: 0;
+  visibility: hidden;
+}
+.stage[data-mode='pinned'] .vis {
+  will-change: transform;
+}
+.stage[data-mode='pinned'] .shot img {
+  max-height: calc(100svh - 440px);
+}
+.stage[data-mode='pinned'] .person {
+  width: auto;
+  height: min(calc(100svh - 430px), 440px);
+}
+.stage[data-mode='pinned'] .person img {
+  height: 100%;
+  width: auto !important;
+}
+
+/* ---------- iPad portrait (601-999): text above, visual below ---------- */
+@media (max-width: 999px) and (min-width: 601px) {
+  .station {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    align-content: start;
+  }
+  .stage[data-mode='pinned'] .station {
+    align-content: start;
+    align-items: start;
+  }
+  .text p {
+    font-size: 19px;
+    max-width: 46ch;
+  }
+  .title {
+    max-width: 20ch;
+    font-size: 46px;
+  }
+  .n {
+    font-size: 72px;
+  }
+  .stage[data-mode='pinned'] .head {
+    font-size: 50px;
+    max-width: 14ch;
+  }
+  .stage[data-mode='pinned'] .person {
+    height: min(calc(100svh - 700px), 440px);
+  }
+  .stage[data-mode='pinned'] .shot img {
+    max-height: calc(100svh - 760px);
+  }
+  .vis {
+    padding-right: 180px;
+  }
+  .node span {
+    font-size: 15px;
+  }
+}
+
+/* ---------- phone (<=600): stacked, on a rail ---------- */
+@media (max-width: 600px) {
+  .in {
+    gap: 36px;
+  }
+  .stations {
+    position: relative;
+    gap: 64px;
+    padding-left: 22px;
+  }
+  .stations::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    bottom: 10px;
+    border-left: 4px dashed var(--l-ink);
+    opacity: 0.5;
+  }
+  .station {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .text {
+    gap: 12px;
+  }
+  .text p {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .n {
+    font-size: 64px;
+    margin-left: -28px;
+  }
+  .title {
+    font-size: 34px;
+    max-width: none;
+  }
+  .vis {
+    padding-right: 96px;
+  }
+  .person {
+    width: 104px;
+    right: -14px;
+  }
+  .pass {
+    transform: none;
+    padding: 18px;
+  }
+  .passList li {
+    font-size: 30px;
+  }
+  .ways b {
+    font-size: 24px;
+  }
+  .ways a > span {
+    font-size: 16px;
+  }
+  .ways a {
+    padding: 14px 14px 16px;
+    column-gap: 8px;
+  }
+  .ways svg {
+    width: 24px;
+    height: 24px;
+  }
+  .shot img {
+    aspect-ratio: 4 / 5;
+    transform: scale(var(--z, 1));
+    transform-origin: var(--ox, 50%) var(--oy, 0%);
+  }
+  .callouts {
+    position: static;
+    margin-top: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .callout {
+    font-size: 19px;
+  }
+}

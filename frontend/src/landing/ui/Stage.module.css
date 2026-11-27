@@ -1,0 +1,25 @@
+.stage {
+  position: relative;
+  color: var(--l-ink);
+}
+.stage[data-wash] {
+  background: var(--l-wash);
+}
+.pin {
+  position: relative;
+  overflow: hidden;
+}
+.stage[data-pinned] > .pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+}
+.stage[data-floor] > .pin::before {
+  content: '';
+  position: absolute;
+  inset: var(--l-horizon) 0 0 0;
+  background: var(--l-wash-deep);
+  pointer-events: none;
+  z-index: 0;
+}

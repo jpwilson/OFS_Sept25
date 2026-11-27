@@ -1,0 +1,307 @@
+/* The drawn family tree (owner: proof). Paper ground in a keylined frame, ink lines with a
+   wash-coloured branch beneath, large round faces. */
+.frame {
+  --d: 10.4%;
+  --beat: 420ms;
+  margin: 0;
+  padding: clamp(14px, 2.4vw, 36px) clamp(10px, 2vw, 32px) clamp(30px, 3.4vw, 52px);
+  background: var(--l-paper);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+.tree {
+  position: relative;
+  aspect-ratio: 1000 / 640;
+}
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.tall {
+  display: none;
+}
+.under {
+  fill: none;
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+.under[data-tone='fizz'] { stroke: var(--l-fizz); }
+.under[data-tone='azure'] { stroke: var(--l-azure); }
+.under[data-tone='zest'] { stroke: var(--l-zest); }
+.under[data-tone='lime'] { stroke: var(--l-lime); }
+.under[data-tone='violet'] { stroke: var(--l-violet); }
+.ink {
+  fill: none;
+  stroke: var(--l-ink);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dashed {
+  stroke-dasharray: 9 8;
+}
+.people {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---- a person ---- */
+.node {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--yw) * 1%);
+  width: var(--d);
+  translate: -50% -50%;
+}
+.kid {
+  width: calc(var(--d) * 0.88);
+}
+.photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 3px solid var(--l-ink);
+  border-radius: 50%;
+  background: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-ink);
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 6px);
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 2px 8px 3px;
+  border-radius: 8px;
+  background: var(--l-paper);
+  white-space: nowrap;
+  text-align: center;
+}
+.name {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(17px, 1.8vw, 26px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.rel {
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--l-mute);
+}
+
+/* Maya: the You sticker */
+.you .photo {
+  border-width: 4px;
+  box-shadow: 4px 4px 0 var(--l-ink), 0 0 0 7px var(--l-lime);
+}
+.youTag,
+.tagTag {
+  position: absolute;
+  z-index: 3;
+  right: -14%;
+  top: -6%;
+  padding: 3px 9px 4px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  box-shadow: 2px 2px 0 var(--l-ink);
+  font-weight: 800;
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1;
+  rotate: 6deg;
+}
+.youTag {
+  background: var(--l-lime);
+}
+/* Biscuit: a tag profile, dashed */
+.tag .photo {
+  border-style: dashed;
+  box-shadow: none;
+}
+.tagTag {
+  background: var(--l-white);
+  border-style: dashed;
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* Add a relative */
+.add .photo {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+  color: var(--l-ink);
+}
+.add .name {
+  white-space: normal;
+  width: 9ch;
+  font-size: clamp(15px, 1.4vw, 20px);
+}
+/* a confirmed relationship */
+.tick {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--yw) * 1%);
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: var(--l-keyline);
+  border-radius: 50%;
+  background: var(--l-lime);
+}
+
+/* ---- the one on its own (the tag card) ---- */
+.solo {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 140px;
+}
+.solo .photo {
+  width: 100%;
+}
+.solo .label {
+  position: static;
+  translate: none;
+  background: transparent;
+}
+.solo .tagTag {
+  right: -10%;
+  top: 0;
+}
+
+/* ---- it grows: the couple, the parents, the children, the rest ---- */
+.frame[data-armed] .node,
+.frame[data-armed] .tick {
+  opacity: 0;
+  scale: 0.5;
+}
+.frame[data-armed] .under,
+.frame[data-armed] .ink:not(.dashed) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.frame[data-armed] .dashed {
+  opacity: 0;
+}
+.frame[data-armed][data-grown] .node,
+.frame[data-armed][data-grown] .tick {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 260ms ease calc(var(--step) * var(--beat)),
+    scale 560ms var(--l-ease-pop) calc(var(--step) * var(--beat));
+}
+.frame[data-armed][data-grown] .under,
+.frame[data-armed][data-grown] .ink:not(.dashed) {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 520ms var(--l-ease-out) calc(var(--step) * var(--beat) + 120ms);
+}
+.frame[data-armed][data-grown] .dashed {
+  opacity: 1;
+  transition: opacity 400ms ease calc(var(--step) * var(--beat) + 200ms);
+}
+
+/* ---- phone: stacked generations, larger faces relative to the width, no relation labels ---- */
+@media (max-width: 760px) {
+  .frame {
+    --d: 16.8%;
+  }
+  .tree {
+    aspect-ratio: 1000 / 1180;
+  }
+  .wide {
+    display: none;
+  }
+  .tall {
+    display: block;
+  }
+  .node,
+  .tick {
+    top: calc(var(--yt) * 1%);
+  }
+  .under {
+    stroke-width: 22;
+  }
+  .ink {
+    stroke-width: 7;
+  }
+  .dashed {
+    stroke-dasharray: 18 16;
+  }
+  .rel {
+    display: none;
+  }
+  .name {
+    font-size: 15px;
+  }
+  .label {
+    top: calc(100% + 4px);
+    padding: 1px 5px 2px;
+  }
+  .photo {
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .you .photo {
+    border-width: 3px;
+    box-shadow: 2px 2px 0 var(--l-ink), 0 0 0 4px var(--l-lime);
+  }
+  .youTag,
+  .tagTag {
+    font-size: 12px;
+    padding: 2px 5px 3px;
+    right: -22%;
+  }
+  .add .name {
+    font-size: 13px;
+  }
+  .tick {
+    width: 22px;
+    height: 22px;
+  }
+  .tick svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame .node,
+  .frame .tick,
+  .frame .under,
+  .frame .ink {
+    opacity: 1 !important;
+    scale: 1 !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,206 @@
+/* Story look for src/pages/About.jsx (owner: pages). Same class names as
+   src/pages/About.module.css; swapped in by scripts/landing/story-pages.mjs (story only). */
+
+.container {
+  composes: ph-page from global;
+}
+.content {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .content {
+  display: grid;
+  gap: clamp(20px, 2.4vw, 32px);
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+.header {
+  composes: ph-band ph-top from global;
+}
+:global(.ofsl) .header {
+  margin-bottom: clamp(28px, 4vw, 64px);
+}
+.backLink {
+  composes: ph-back from global;
+}
+.title {
+  composes: ph-title from global;
+}
+.subtitle {
+  composes: ph-lede from global;
+}
+
+/* every section is a keylined sheet */
+.section {
+  composes: ph-card from global;
+}
+:global(.ofsl) .section {
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+  padding: clamp(28px, 4vw, 56px);
+}
+:global(.ofsl) .section h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  margin-bottom: 4px;
+}
+:global(.ofsl) .section p {
+  max-width: 68ch;
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+}
+
+/* what makes it ours: wash cards, like the landing's love cards */
+:global(.ofsl) .features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  width: 100%;
+}
+:global(.ofsl) .feature {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 24px 24px 26px;
+  background: var(--c, var(--l-tide));
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+:global(.ofsl) .feature:nth-child(6n + 2) {
+  --c: var(--l-fizz);
+}
+:global(.ofsl) .feature:nth-child(6n + 3) {
+  --c: var(--l-zest);
+}
+:global(.ofsl) .feature:nth-child(6n + 4) {
+  --c: var(--l-lime);
+}
+:global(.ofsl) .feature:nth-child(6n + 5) {
+  --c: var(--l-azure);
+}
+:global(.ofsl) .feature:nth-child(6n + 6) {
+  --c: var(--l-sun);
+}
+/* the landing draws its icons; the app's emoji stay out of the brand look */
+:global(.ofsl) .featureIcon {
+  display: none;
+}
+:global(.ofsl) .feature h3 {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(21px, 1.2vw + 10px, 26px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--l-ink);
+}
+:global(.ofsl) .feature p {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+/* how it works: four numbered steps */
+:global(.ofsl) .steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  width: 100%;
+}
+:global(.ofsl) .step {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 22px 22px 24px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+}
+:global(.ofsl) .stepNumber {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border: var(--l-keyline);
+  border-radius: 12px;
+  background: var(--l-zest);
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1;
+  transform: rotate(-3deg);
+}
+:global(.ofsl) .step:nth-child(2) .stepNumber {
+  background: var(--l-tide);
+  transform: rotate(2deg);
+}
+:global(.ofsl) .step:nth-child(3) .stepNumber {
+  background: var(--l-fizz);
+}
+:global(.ofsl) .step:nth-child(4) .stepNumber {
+  background: var(--l-lime);
+  transform: rotate(2deg);
+}
+:global(.ofsl) .step h3 {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(21px, 1.2vw + 10px, 26px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--l-ink);
+}
+:global(.ofsl) .step p {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.list {
+  composes: ph-ticks from global;
+}
+
+:global(.ofsl) .ctaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+  margin-top: 8px;
+}
+.ctaButton {
+  composes: ph-btn ph-btn-solid from global;
+}
+.secondaryButton {
+  composes: ph-btn ph-btn-ghost from global;
+}
+
+@media (max-width: 1100px) {
+  :global(.ofsl) .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :global(.ofsl) .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  :global(.ofsl) .features,
+  :global(.ofsl) .steps {
+    grid-template-columns: 1fr;
+  }
+  :global(.ofsl) .section {
+    padding: 24px 20px 28px;
+  }
+  :global(.ofsl) .ctaButtons {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+}

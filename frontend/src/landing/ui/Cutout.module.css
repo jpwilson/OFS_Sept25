@@ -1,0 +1,26 @@
+.cutout {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.withShadow {
+  position: relative;
+  display: inline-block;
+}
+.withShadow > .cutout {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.shadow {
+  position: absolute;
+  left: calc(var(--ax, 0.5) * 100%);
+  top: calc(var(--feet, 1) * 100%);
+  width: 70%;
+  height: 7%;
+  min-height: 8px;
+  transform: translate(-50%, -55%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(16, 27, 59, 0.34), rgba(16, 27, 59, 0.12) 60%, transparent);
+  pointer-events: none;
+}

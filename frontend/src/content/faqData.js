@@ -7,15 +7,15 @@ export const faqCategories = [
     questions: [
       {
         q: 'What is Our Family Socials?',
-        a: 'Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. Unlike public social media, a new event goes to the family you have approved rather than to the open internet, and there are no ads or algorithms.'
+        a: 'Our Family Socials is a private social network designed for families. It lets you share life events, photos, and stories with your closest family members and friends. A new event goes to the family you have approved, you choose the audience for every one, and there are no ads and nothing ranked.'
       },
       {
         q: 'Who is Our Family Socials for?',
-        a: 'It is built for families who want a private place for their memories: parents sharing milestones with grandparents, extended families staying in touch across different countries, and anyone who documents trips and celebrations but does not want to post them on public social media.'
+        a: 'It is built for families who want a private place for their memories: parents sharing milestones with grandparents, extended families staying in touch across different countries, and anyone who wants to tell the story of their trips and celebrations to the people who matter, privately.'
       },
       {
         q: 'Is it really free?',
-        a: 'Viewing is free forever: the free plan includes viewing the events you have access to, following family members, commenting and liking. Creating events needs an active trial or subscription. Every new account gets a 30-day Pro trial during which you can publish up to 5 events; after that you need Pro or Lifetime to publish, and those plans remove the 5-event limit.'
+        a: 'Reading is free forever: the free plan lets you open the events of the people you follow and every Public event, follow family members, like and comment. Every new account also gets a 30-day Pro trial with up to 5 published events, and Pro or Lifetime make publishing unlimited.'
       },
       {
         q: 'How much does Pro cost?',
@@ -27,11 +27,11 @@ export const faqCategories = [
       },
       {
         q: 'Can I use it on my phone?',
-        a: 'Absolutely! Our Family Socials is fully responsive and works great on phones, tablets, and computers. Just visit ourfamilysocials.com in your mobile browser.'
+        a: 'Absolutely. Our Family Socials works beautifully on phones, tablets and computers. Just visit ourfamilysocials.com in your phone\'s browser.'
       },
       {
-        q: 'Is there an app I can install?',
-        a: 'Our Family Socials is a progressive web app (PWA). There is no separate App Store or Google Play download: you open ourfamilysocials.com in your browser and, on most phones, you can add it to your home screen so it opens like a normal app.'
+        q: 'Is there an app?',
+        a: 'Yes. Add Our Family Socials to your phone\'s home screen today, and our iPhone app is on the way.'
       }
     ]
   },
@@ -40,31 +40,31 @@ export const faqCategories = [
     questions: [
       {
         q: 'What is an "event"?',
-        a: 'An event is a collection of photos, stories, and details about something that happened - like a vacation, birthday party, graduation, or Sunday dinner. Think of it as a rich, detailed post that tells the full story of a moment.'
+        a: 'An event, which we also call a story, is a page for something that happened - like a vacation, birthday party, graduation or Sunday dinner - with your writing, a gallery of captioned photos, video clips, dates and places. Think of it as the full story of a moment, all in one place.'
       },
       {
         q: 'How many photos can I add to an event?',
-        a: 'There is no per-event photo limit on a paid plan or an active trial. Photos are resized before upload - down to 1500 pixels on the longest side and re-encoded as JPEG at 85% quality - and then stored in several sizes for fast loading, so what we keep is a high-quality copy rather than your untouched original file. Keep your originals on your own device or backup. Individual uploads are limited to 10MB, and HEIC photos from iPhones are converted server-side.'
+        a: 'On Pro and Lifetime an event holds up to 300 photos, and during the free trial up to 50. iPhone HEIC photos are welcome, and every photo is prepared for fast loading so it looks sharp on any screen, while your original files stay safe on your own device.'
       },
       {
         q: 'Can I add locations to my events?',
-        a: 'Yes! You can add multiple locations to each event, perfect for road trips and multi-destination adventures. We can also automatically extract GPS data from your photos to suggest locations.'
+        a: 'Yes. You can add multiple locations to each event, perfect for road trips and multi-destination adventures. We also read the GPS data in your photos to suggest locations, and you can add a place to any photo yourself.'
       },
       {
         q: 'Can I add videos as well as photos?',
-        a: 'Yes. Pro accounts can upload photos and video clips to an event, and there is a built-in trimmer so you can shorten a clip before uploading it.'
+        a: 'Yes. Add video clips right in the story alongside your photos, on Pro and during the free trial. The built-in trimmer lets you pick the best 60 seconds of each clip.'
       },
       {
         q: 'What\'s the difference between Published, Drafts, and Trash?',
-        a: 'Published events are visible to the audience you chose for them. Drafts are works-in-progress that only you can see. Trash holds deleted events for 30 days before permanent deletion - you can restore them anytime.'
+        a: 'Published events are visible to the audience you chose for them. Drafts are works-in-progress that only you can see. Trash keeps the events you delete, so you can restore one whenever you like, or delete it for good.'
       },
       {
         q: 'Do drafts count toward my event limit?',
-        a: 'No! Only published events count toward your limit. You can have unlimited drafts and deleted events.'
+        a: 'No. Only published events count toward the 5 in your trial, so you can keep as many drafts as you like.'
       },
       {
         q: 'Can AI help me write an event?',
-        a: 'Yes. AI Create is a beta feature available to accounts on a paid plan or an active free trial. You upload photos and it groups them, asks a few questions, and drafts a story you can edit before publishing. It can make mistakes, so you always review the draft yourself.'
+        a: 'Yes. Add your photos or clips, then type or simply say what happened, and AI Create comes back with a title, a story with section headings, a caption for every photo, a category and a place. AI Draft and AI Interview hand you the draft to polish before it goes out, and Quick Publish posts it straight away to your Followers; you can change the audience whenever you edit the story. AI Create is part of Pro and the free trial.'
       }
     ]
   },
@@ -73,19 +73,19 @@ export const faqCategories = [
     questions: [
       {
         q: 'Who can see my events?',
-        a: 'You choose an audience for every event: Followers (the default), Close Family, a custom group, Private (only you) or Public. Follow requests are yours to accept or decline. Two things are worth knowing: an event set to Public can be opened by anyone who has the link, including people without an account; and any event that is not set to Private can appear in the shared feed to signed-in members, although opening the event page itself is still gated by the audience you chose.'
+        a: 'You choose who can open every event: Followers (the default), Close Family, a Custom Group, Private (only you) or Public (anyone with the link, with or without an account). Follow requests are yours to accept or decline. A Private event stays with you alone; every other event shows its card (title, cover and place) in the feed of signed-in members, and opening it always follows the audience you chose.'
       },
       {
         q: 'Can I share an event with someone who doesn\'t have an account?',
-        a: 'Yes! Each event can be shared via a private link. Recipients can view that specific event without needing an account, but they won\'t see your other events or be able to follow you.'
+        a: 'Yes. Make a private share link for any event. Anyone you give it to can open that one event without an account, for 1 to 5 days, your choice.'
       },
       {
         q: 'Can I make an event public?',
-        a: 'Yes. Public is one of the five audience settings, and a public event can be opened by anyone who has the link, with or without an account. Our robots.txt asks search engines and AI crawlers not to index event pages, but a public event is not family-only - pick Followers, Close Family, a custom group or Private if that matters.'
+        a: 'Yes. Public is one of the five audience settings, and a public event can be opened by anyone who has the link, with or without an account. Our robots.txt asks search engines and AI crawlers not to index event pages. For anything just for the family, pick Followers, Close Family, a Custom Group or Private.'
       },
       {
         q: 'Is my data safe?',
-        a: 'Yes. We take privacy seriously. We never sell your data, show ads, or use algorithms to manipulate what you see. Your photos and stories are yours, and we\'re just here to help you preserve and share them with family.'
+        a: 'Yes. We take privacy seriously. We never sell your data, never show ads, and never rank what you see. Your photos and stories are yours, and we\'re just here to help you preserve and share them with family.'
       },
       {
         q: 'Does Our Family Socials show ads?',
@@ -93,7 +93,7 @@ export const faqCategories = [
       },
       {
         q: 'Can I delete my account?',
-        a: 'Yes. Contact us at support@ourfamilysocials.com and we\'ll delete your account and all associated data. You can also export your data before deletion.'
+        a: 'Yes. Email us at support@ourfamilysocials.com and we\'ll delete your account and all associated data for you.'
       }
     ]
   },
@@ -119,15 +119,15 @@ export const faqCategories = [
     questions: [
       {
         q: 'How does the map view work?',
-        a: 'The map view shows all events with locations on an interactive world map. You can see where your family has traveled and click on markers to view those events. It\'s a beautiful way to visualize your family\'s adventures.'
+        a: 'The map view shows every event with a location on an interactive world map, with nearby pins grouped together. See where your family has traveled and tap a pin to open that event. It\'s a beautiful way to see your family\'s adventures.'
       },
       {
         q: 'Can I see events from multiple family members on one map?',
-        a: 'Yes! You can view all events you have access to on a single map, or filter by specific family members to see individual journeys.'
+        a: 'Yes. See every event you can open on a single map, or filter by family member to follow one person\'s journeys.'
       },
       {
         q: 'What is the timeline view?',
-        a: 'The timeline view shows events organized chronologically, grouped by year. It\'s like a visual history of your family\'s memories over time.'
+        a: 'The timeline view shows events organized chronologically, grouped by year. It\'s a visual history of your family\'s memories over time.'
       }
     ]
   },
@@ -136,7 +136,7 @@ export const faqCategories = [
     questions: [
       {
         q: 'What\'s included in the free trial?',
-        a: 'Every new account gets a 30-day free trial of Pro features, including photo and video uploads, journey mapping, GPS extraction and AI Create. You can publish up to 5 events during the trial. After the trial you revert to the free plan unless you subscribe, which means you can still browse and comment but cannot create new events.'
+        a: 'Every new account gets a 30-day free trial of Pro, including photo and video uploads, journey mapping, GPS extraction, AI Create and Smart Import, with up to 5 published events. When the trial ends you keep a free account for reading, liking and commenting, and Pro or Lifetime picks your storytelling up right where you left off.'
       },
       {
         q: 'How do I upgrade to Pro?',
@@ -148,11 +148,11 @@ export const faqCategories = [
       },
       {
         q: 'Can I cancel anytime?',
-        a: 'Yes! You can cancel your subscription anytime. You\'ll keep Pro access until the end of your billing period. Your events and data are never deleted when you cancel.'
+        a: 'Yes. Cancel your subscription anytime, with no questions asked. Your events and data stay right where they are, and you can pick up again whenever you like.'
       },
       {
         q: 'What happens to my events if I downgrade?',
-        a: 'Your existing events stay exactly as they are, and you can always open your own events. You will not be able to create new events without an active subscription, and other people cannot open your events while your subscription is inactive, so resubscribing restores them.'
+        a: 'Your events stay exactly as they are, and you can always open them yourself. Sharing them with your family and publishing new ones come with an active subscription, so the moment you resubscribe, everyone can open your stories again.'
       }
     ]
   }

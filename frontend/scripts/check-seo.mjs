@@ -6,13 +6,14 @@
 // exactly one <h1>, JSON-LD that parses, and more than 300 words of text. Also
 // checks robots.txt, sitemap.xml, llms.txt and llms-full.txt.
 import { readFileSync, existsSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PAGES } from '../src/content/marketing.js'
 import { countWords } from '../src/content/renderStatic.js'
 import { SITE_ORIGIN, absUrl, INDEXNOW_KEY } from '../src/content/site.js'
 
-const DIST = join(dirname(fileURLToPath(import.meta.url)), '../dist')
+// OFS_DIST checks a build written somewhere other than dist/.
+const DIST = process.env.OFS_DIST ? resolve(process.env.OFS_DIST) : join(dirname(fileURLToPath(import.meta.url)), '../dist')
 const MIN_WORDS = 300
 
 let failures = 0
@@ -88,7 +89,7 @@ for (const page of PAGES) {
   if (words < MIN_WORDS) fail(page.path, `only ${words} crawler-visible words (need > ${MIN_WORDS})`)
 
   // the H1 text must really be in the HTML, not injected by JS
-  if (!html.includes('<h1>')) fail(page.path, 'H1 is not in the raw HTML')
+  if (!/<h1[\s>]/.test(html)) fail(page.path, 'H1 is not in the raw HTML')
 
   rows.push({ path: page.path, words, titleLen: title?.length ?? 0, descLen: desc?.length ?? 0, types: [...new Set(types)].join(',') })
 }

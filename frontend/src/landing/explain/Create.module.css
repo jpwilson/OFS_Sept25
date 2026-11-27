@@ -1,0 +1,472 @@
+/* Create (owner: explain). Round three: poster first screen, cropped real screens, details below.
+   Viewports: phone (<=600), iPad portrait (601-999), iPad landscape and desktop (>=1000). */
+.band {
+  overflow: hidden;
+}
+.subLabel {
+  margin-bottom: 14px;
+}
+
+/* ================= first screen ================= */
+.poster {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: center;
+}
+.copy {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+  position: relative;
+  z-index: 1;
+}
+.head {
+  max-width: 12ch;
+  font-size: clamp(44px, 6vw, 92px);
+}
+.lede {
+  max-width: 34ch;
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+/* the ladder, stepping up beside Maya */
+.stage {
+  position: relative;
+  display: grid;
+  padding-right: clamp(110px, 12vw, 190px);
+  padding-bottom: 30px;
+  isolation: isolate;
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: -6%;
+  bottom: 0;
+  height: 120px;
+  background: var(--l-wash-deep);
+  border: 2px solid rgba(16, 27, 59, 0.16);
+  border-radius: 50%;
+  z-index: -1;
+}
+.maya {
+  position: absolute;
+  right: 0;
+  bottom: 18px;
+  width: clamp(130px, 13vw, 210px);
+  z-index: 2;
+  pointer-events: none;
+}
+.ladderWrap {
+  display: grid;
+  gap: 14px;
+}
+.ladderLabel {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-size: clamp(18px, 1.4vw, 21px);
+  line-height: 1.2;
+}
+.ladder {
+  display: grid;
+  gap: 10px;
+}
+.rung {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'meter name'
+    'meter text';
+  column-gap: 16px;
+  row-gap: 2px;
+  align-items: center;
+  margin-left: calc((3 - var(--k)) * clamp(8px, 1.6vw, 24px));
+  padding: 14px 18px 15px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.rung:last-child {
+  background: var(--l-lime);
+}
+.rung b {
+  grid-area: name;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.rung > span:last-child {
+  grid-area: text;
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.4;
+}
+.meter {
+  grid-area: meter;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 36px;
+}
+.meter i {
+  display: block;
+  width: 8px;
+  border: 2px solid var(--l-ink);
+  border-radius: 2px;
+  background: var(--l-white);
+}
+.meter i:nth-child(1) {
+  height: 12px;
+}
+.meter i:nth-child(2) {
+  height: 20px;
+}
+.meter i:nth-child(3) {
+  height: 28px;
+}
+.meter i:nth-child(4) {
+  height: 36px;
+}
+.meter i[data-on] {
+  background: var(--l-fizz);
+}
+
+/* ================= the three real screens, cropped to their point ================= */
+.screens {
+  margin-top: clamp(56px, 7vw, 104px);
+  display: grid;
+  gap: 18px;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+.tile {
+  display: grid;
+  gap: 0;
+  padding: 0 10px 10px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+.tile:nth-child(1) {
+  transform: rotate(-1.2deg);
+}
+.tile:nth-child(2) {
+  transform: rotate(0.8deg) translateY(14px);
+}
+.tile:nth-child(3) {
+  transform: rotate(-0.6deg);
+}
+.tileName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 6px 12px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.tileN {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--l-fizz);
+  border: var(--l-keyline);
+  font-size: 20px;
+}
+.crop {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid var(--l-ink);
+  background: #1a1a1a;
+}
+.cropImg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--z, 1) * 100%);
+  max-width: none;
+  height: auto;
+  transform: translate(calc(var(--fx, 0.5) * -100%), calc(var(--fy, 0.5) * -100%));
+}
+.crop [data-art-missing] {
+  position: absolute;
+  inset: 0;
+  border: 0;
+}
+.devCap {
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+/* ================= modes and what comes back ================= */
+.details {
+  margin-top: clamp(56px, 7vw, 100px);
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.modeList {
+  display: grid;
+  gap: 12px;
+}
+.mode {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-areas:
+    'n name tag'
+    'n text text';
+  column-gap: 16px;
+  row-gap: 4px;
+  align-items: baseline;
+  padding: 16px 20px 18px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+.modeN {
+  grid-area: n;
+  align-self: center;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--l-mute);
+}
+.mode b {
+  grid-area: name;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(24px, 2.1vw, 30px);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.tag {
+  grid-area: tag;
+  justify-self: start;
+  padding: 3px 10px 4px;
+  border-radius: var(--l-r-pill);
+  background: var(--l-lime);
+  border: var(--l-keyline);
+  font-size: 14px;
+  font-weight: 700;
+}
+.modeText {
+  grid-area: text;
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.4;
+}
+.backList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 12px;
+  padding-top: 4px;
+}
+.backSticker {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: clamp(22px, 2.2vw, 32px);
+  padding: 6px 14px 8px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :global(html.ofsl-on) .backList:not([data-in]) li {
+    opacity: 0;
+    transform: translateY(-46px) rotate(-14deg) scale(1.35);
+  }
+  :global(html.ofsl-on) .backList[data-in] li {
+    transition:
+      opacity 220ms var(--l-ease-out) calc(var(--k) * 180ms),
+      transform 620ms var(--l-ease-pop) calc(var(--k) * 180ms);
+  }
+}
+
+/* ================= write it yourself ================= */
+.write {
+  margin-top: clamp(64px, 8vw, 120px);
+  scroll-margin-top: var(--l-nav-h);
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+  padding: clamp(22px, 3vw, 48px);
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+.writeCopy {
+  display: grid;
+  gap: 18px;
+}
+.writeHead {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(34px, 3.8vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+.writeList {
+  display: grid;
+  border-top: 2px solid var(--l-ink);
+}
+.writeList li {
+  position: relative;
+  padding: 10px 0 11px 28px;
+  border-bottom: 1px solid var(--l-line);
+  font-size: clamp(17px, 1.3vw, 18px);
+  line-height: 1.4;
+}
+.writeList li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--l-fizz);
+  border: 2px solid var(--l-ink);
+  transform: rotate(45deg);
+}
+.editorFig {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.editorFig figcaption {
+  opacity: 0.8;
+}
+.editor {
+  height: clamp(460px, 46vw, 660px);
+}
+
+/* ================= iPad landscape (1000-1279) ================= */
+@media (max-width: 1279px) and (min-width: 1000px) {
+  .head {
+    font-size: clamp(44px, 5.6vw, 70px);
+  }
+  .rung {
+    padding: 12px 16px 13px;
+  }
+  .rung > span:last-child {
+    font-size: 16px;
+  }
+}
+
+/* ================= iPad portrait and phone (<1000) ================= */
+@media (max-width: 999px) {
+  .poster {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+  .head {
+    max-width: 16ch;
+    font-size: clamp(42px, 8vw, 72px);
+  }
+  .lede {
+    max-width: 44ch;
+    font-size: 20px;
+  }
+  .stage {
+    padding-right: 210px;
+  }
+  .maya {
+    width: 190px;
+  }
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .tileName {
+    font-size: 21px;
+    gap: 8px;
+  }
+  .tileN {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+  }
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .write {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ================= phone (<=600) ================= */
+@media (max-width: 600px) {
+  .head {
+    font-size: 44px;
+  }
+  .lede {
+    font-size: 18px;
+  }
+  .stage {
+    padding-right: 64px;
+    padding-bottom: 18px;
+  }
+  .stage::before {
+    left: 10%;
+    right: -10%;
+    height: 90px;
+  }
+  .maya {
+    right: -18px;
+    bottom: 0;
+    width: 96px;
+  }
+  .rung {
+    margin-left: calc((3 - var(--k)) * 10px);
+    padding: 12px 14px 13px;
+    column-gap: 12px;
+  }
+  .rung b {
+    font-size: 22px;
+  }
+  .rung > span:last-child {
+    font-size: 16px;
+  }
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .tile:nth-child(2) {
+    transform: rotate(0.8deg);
+  }
+  .tileName {
+    font-size: 24px;
+  }
+  .crop {
+    aspect-ratio: 5 / 4;
+  }
+  .mode {
+    padding: 14px 16px 16px;
+    column-gap: 12px;
+  }
+  .write {
+    padding: 22px 18px;
+  }
+  .editor {
+    height: 72svh;
+  }
+}

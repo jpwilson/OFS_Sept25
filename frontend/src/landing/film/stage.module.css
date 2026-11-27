@@ -1,0 +1,1021 @@
+/* The film (owner: film). Poster-first: with no script, every .scene below is a finished
+   full-screen poster drawn from the variables in layout.js. When the film is pinned
+   (data-mode='pinned'), the scenes stack in one sticky viewport and the engine adds
+   offsets that end at zero. Stage unit: 100u = min(100svh, 62.5vw); 100svh on a phone. */
+
+.film {
+  --sh: max(100vh, 560px);
+  --u: min(calc(var(--sh) / 100), 0.625vw);
+  position: relative;
+  color: var(--l-ink);
+  background: var(--l-tide);
+}
+@supports (height: 100svh) {
+  .film {
+    --sh: max(100svh, 560px);
+  }
+}
+@media (max-aspect-ratio: 9/10) {
+  .film {
+    --u: min(calc(var(--sh) / 100), 2.16vw);
+  }
+}
+/* a tablet in portrait: the phone's compositions at a larger unit, with their own slots where given */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .film {
+    --u: min(calc(var(--sh) / 85), 1.72vw);
+  }
+}
+
+.pin {
+  position: relative;
+}
+.film[data-mode='pinned'] > .pin {
+  position: sticky;
+  top: 0;
+  height: var(--sh);
+  overflow: hidden;
+}
+.anchor {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* ---------- a scene ---------- */
+
+.scene {
+  --A: var(--Ad);
+  --floor: var(--fd);
+  --hz: var(--hzd, 6.4);
+  position: relative;
+  height: var(--sh);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--l-wash);
+  color: var(--l-ink);
+}
+@media (max-aspect-ratio: 9/10) {
+  .scene {
+    --A: var(--Am);
+    --floor: var(--fm);
+    --hz: var(--hzm, 6.4);
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .scene {
+    --A: var(--At, var(--Am));
+    --floor: var(--ft, var(--fm));
+    --hz: var(--hzt, var(--hzm, 6.4));
+  }
+}
+.film[data-mode='pinned'] .scene {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  visibility: hidden;
+}
+.film[data-mode='pinned'] .scene[data-live] {
+  visibility: visible;
+}
+/* layers only for the things that move, and only while their scene is on stage */
+.film[data-mode='pinned'] .scene[data-live] :where([data-par]) {
+  will-change: transform, opacity;
+}
+
+/* the floor: deep colour below the horizon, which sits a little above the feet */
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--floor) - var(--hz) * var(--u));
+  bottom: 0;
+  z-index: 0;
+  background: var(--l-wash-deep);
+  background: linear-gradient(to bottom, var(--l-wash-deep) 0, color-mix(in srgb, var(--l-wash-deep) 72%, var(--l-wash)) 100%);
+  pointer-events: none;
+}
+
+/* the giant word */
+.ghostSlot {
+  position: absolute;
+  left: 50%;
+  top: var(--gy, 34%);
+  z-index: 1;
+  transform: translate(calc(-50% + var(--gx, 0) * var(--u)), -50%);
+  pointer-events: none;
+}
+.ghost {
+  display: block;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-variation-settings: 'wdth' 75;
+  font-size: min(calc(100vw / var(--gw)), calc(var(--sh) * 0.66));
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  color: var(--l-wash-deep);
+  user-select: none;
+}
+@media (max-aspect-ratio: 9/10) {
+  .ghostSlot {
+    top: var(--gym, 44%);
+  }
+  .ghost {
+    font-size: min(calc(112vw / var(--gw)), calc(var(--sh) * 0.34));
+  }
+}
+
+/* ---------- things standing on the floor ---------- */
+
+.actor {
+  --x: var(--xd);
+  --lift: var(--ld);
+  --h: var(--hd);
+  --r: var(--rd, 0deg);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: var(--z, 4);
+  height: calc(var(--h) * var(--A) * var(--u));
+  aspect-ratio: var(--ar);
+  transform-origin: calc(var(--ax) * 100%) calc(var(--feet) * 100%);
+  transform: translate(calc(var(--x) * var(--u) - var(--ax) * 100%), calc(var(--lift) * var(--u) * -1 - var(--feet) * 100%)) rotate(var(--r));
+  pointer-events: none;
+}
+.mv {
+  position: absolute;
+  inset: 0;
+  transform-origin: calc(var(--ax) * 100%) calc(var(--feet) * 100%);
+}
+.clip {
+  position: absolute;
+  inset: 0;
+}
+.clip[data-clip] {
+  clip-path: inset(-120% -80% calc((1 - var(--feet)) * 100%) -80%);
+}
+.rise {
+  position: absolute;
+  inset: 0;
+}
+.rise > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.flip {
+  transform: scaleX(-1);
+}
+.tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--l-wash);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
+.shadow {
+  position: absolute;
+  left: calc(var(--ax) * 100%);
+  top: calc(var(--feet) * 100%);
+  width: var(--sw, 78%);
+  aspect-ratio: 4.6 / 1;
+  transform: translate(-50%, -46%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(16, 27, 59, 0.44) 0, rgba(16, 27, 59, 0.2) 38%, rgba(16, 27, 59, 0) 70%);
+}
+
+/* ---------- things in the air ---------- */
+
+.air {
+  --x: var(--xd);
+  --y: var(--yd);
+  --w: var(--wd);
+  --r: var(--rd, 0deg);
+  --s: var(--sd, 1);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: var(--z, 6);
+  width: calc(var(--w) * var(--u));
+  transform: translate(calc(var(--x) * var(--u) - 50%), calc(var(--y) * var(--u) * -1 - 50%)) rotate(var(--r)) scale(var(--s, 1));
+}
+.amv {
+  position: relative;
+  display: block;
+}
+.airImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 calc(0.9 * var(--u)) calc(0.7 * var(--u)) rgba(16, 27, 59, 0.24));
+}
+
+@media (max-aspect-ratio: 9/10) {
+  .actor {
+    --x: var(--xm);
+    --lift: var(--lm);
+    --h: var(--hm);
+    --r: var(--rm, 0deg);
+  }
+  .air {
+    --x: var(--xm);
+    --y: var(--ym);
+    --w: var(--wm);
+    --r: var(--rm, 0deg);
+    --s: var(--sm, 1);
+  }
+}
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .actor[data-off-m],
+  .air[data-off-m] {
+    display: none;
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .actor {
+    --x: var(--xt, var(--xm));
+    --lift: var(--lt, var(--lm));
+    --h: var(--ht, var(--hm));
+    --r: var(--rt, var(--rm, 0deg));
+  }
+  .air {
+    --x: var(--xt, var(--xm));
+    --y: var(--yt, var(--ym));
+    --w: var(--wt, var(--wm));
+    --r: var(--rt, var(--rm, 0deg));
+    --s: var(--st, var(--sm, 1));
+  }
+  .actor[data-off-t],
+  .air[data-off-t] {
+    display: none;
+  }
+}
+@media (min-aspect-ratio: 9001/10000) {
+  .actor[data-off-d],
+  .air[data-off-d] {
+    display: none;
+  }
+}
+
+/* ---------- shared fragments ---------- */
+
+.photo {
+  --pp: calc(var(--w) * var(--u));
+  margin: 0;
+  padding: calc(var(--pp) * 0.045) calc(var(--pp) * 0.045) calc(var(--pp) * 0.04);
+  background: var(--l-white);
+  border: 1.5px solid var(--l-ink);
+  border-radius: 3px;
+  box-shadow: calc(var(--pp) * 0.028) calc(var(--pp) * 0.028) 0 var(--l-ink);
+}
+.photoImg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 1px;
+}
+.photo > figcaption {
+  padding-top: calc(var(--pp) * 0.035);
+  font-family: var(--l-font-story);
+  font-style: italic;
+  font-size: max(13px, calc(var(--pp) * 0.09));
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.avatar {
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--av, 30px);
+  height: var(--av, 30px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--l-wash);
+  border: 1.5px solid var(--l-ink);
+}
+.avatar > img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+}
+
+/* a phone holding a capture, sized by its Air slot */
+.phone {
+  --dw: calc(var(--w) * var(--u));
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin: 0;
+}
+.phoneBody {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 18.6;
+  padding: calc(var(--dw) * 0.035);
+  background: var(--l-ink);
+  border-radius: calc(var(--dw) * 0.16);
+  box-shadow: 5px 5px 0 var(--l-white);
+}
+.phoneScreen {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--l-white);
+  border-radius: calc(var(--dw) * 0.125);
+}
+.phoneScreen > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.phoneNotch {
+  position: absolute;
+  top: calc(var(--dw) * 0.06);
+  left: 50%;
+  width: 30%;
+  height: calc(var(--dw) * 0.07);
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--l-ink);
+}
+.phone > figcaption {
+  font-family: var(--l-font-mono);
+  font-size: clamp(9px, calc(1.1 * var(--u)), 11px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  text-align: center;
+}
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .phone > figcaption {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+  .phoneBody {
+    box-shadow: 3px 3px 0 var(--l-white);
+  }
+}
+
+/* ---------- copy ---------- */
+
+.copy {
+  position: absolute;
+  left: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 22px);
+  z-index: 20;
+  width: min(var(--copy-w, 41vw), 82 * var(--u));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  justify-items: start;
+}
+.copyTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  width: max-content;
+  max-width: 58vw;
+}
+.slate {
+  display: inline-flex;
+  align-items: stretch;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  line-height: 1.3;
+  border: var(--l-keyline);
+  border-radius: 6px;
+  background: var(--l-white);
+  overflow: hidden;
+}
+.slate > b {
+  padding: 5px 9px;
+  background: var(--l-ink);
+  color: var(--l-white);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.slate > span {
+  padding: 5px 10px;
+}
+.eyebrow {
+  margin: 0;
+}
+.head {
+  font-size: clamp(34px, calc(var(--head-fs, 7.9) * var(--u)), 84px);
+  max-width: 12.5em;
+}
+.w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.wMark {
+  margin-left: 0.04em;
+}
+.body {
+  max-width: var(--body-w, 33em);
+  font-size: clamp(15px, calc(1.84 * var(--u)), 18.5px);
+  line-height: 1.42;
+  font-weight: 500;
+}
+.month {
+  position: absolute;
+  right: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 24px);
+  z-index: 20;
+  display: flex;
+  gap: 0.8em;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.month > b {
+  font-weight: 500;
+}
+.month > span {
+  opacity: 0.6;
+}
+.film[data-mode='pinned'] .month {
+  display: none;
+}
+
+/* ---------- instruments ---------- */
+
+.dock {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.bl {
+  left: var(--l-gutter);
+  bottom: 22px;
+}
+.br {
+  right: var(--l-gutter);
+  bottom: 22px;
+  flex-direction: row-reverse;
+}
+.tr {
+  right: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 52px);
+  align-items: flex-start;
+  flex-direction: row-reverse;
+}
+.fact {
+  min-width: 0;
+  padding: 10px 14px 12px;
+  gap: 4px;
+  max-width: 250px;
+}
+.fact [data-part='value'] {
+  font-size: clamp(22px, calc(3.3 * var(--u)), 32px);
+  white-space: nowrap;
+}
+.factWords [data-part='value'] {
+  font-size: clamp(17px, calc(2.3 * var(--u)), 22px);
+  line-height: 1.12;
+  padding-block: 2px 3px;
+}
+.fact [data-part='note'] {
+  font-size: 13px;
+  line-height: 1.3;
+  max-width: 34ch;
+}
+
+.aud {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 9px 10px;
+  background: var(--l-ink);
+  color: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: 4px 4px 0 var(--l-white);
+}
+.audIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--l-white);
+  color: var(--l-ink);
+  flex: none;
+}
+.audText {
+  display: grid;
+  gap: 2px;
+}
+.audLabel {
+  font-family: var(--l-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  opacity: 0.74;
+}
+.audName {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.audName > i {
+  font-style: normal;
+  font-family: var(--l-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.74;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 4px 8px;
+  font-family: var(--l-font-mono);
+  font-size: clamp(9.5px, calc(1.22 * var(--u)), 11.5px);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--l-ink);
+  background: var(--l-white);
+  border: 1.5px solid var(--l-ink);
+  border-radius: 6px;
+}
+.tagSolid {
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+
+/* ---------- HUD: the month counter and the chapter rail (pinned mode only) ---------- */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  display: none;
+}
+.film[data-mode='pinned'] .hud {
+  display: block;
+}
+.counter {
+  position: absolute;
+  right: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 22px);
+  display: flex;
+  align-items: baseline;
+  gap: 0.7em;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.counter > b {
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+.counter > span {
+  opacity: 0.62;
+}
+
+.rail {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  transform: translateX(-50%);
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: 16px;
+  box-shadow: var(--l-shadow);
+  pointer-events: auto;
+}
+.railSlot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+}
+.chip {
+  display: grid;
+  justify-items: center;
+  white-space: nowrap;
+  gap: 3px;
+  padding: 4px 8px 5px;
+  min-width: 58px;
+  border-radius: 11px;
+  font-family: var(--l-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--l-ink);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+.chipDot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  font-size: 10px;
+  letter-spacing: 0;
+  color: var(--l-ink);
+  border-radius: 9px;
+  border: 2px solid var(--l-ink);
+  background: var(--l-wash);
+  overflow: hidden;
+  transition: transform 260ms var(--l-ease-pop);
+}
+.chipDot > b {
+  font-weight: 500;
+}
+.chip[data-active] {
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+.chip[data-active] .chipDot {
+  transform: translateY(-9px) scale(1.22);
+  border-color: var(--l-ink);
+  box-shadow: 0 0 0 2px var(--l-white);
+}
+@media (hover: hover) {
+  .chip:not([data-active]):hover .chipDot {
+    transform: translateY(-3px);
+  }
+}
+
+/* The white edge that runs ahead of each flood. */
+.rim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--l-white);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---------- phone ---------- */
+
+@media (max-aspect-ratio: 9/10) {
+  .copy {
+    left: 18px;
+    right: 18px;
+    top: calc(var(--l-nav-h) + 8px);
+    width: auto;
+    gap: 8px;
+  }
+  .copyTop {
+    max-width: 100%;
+    gap: 6px 10px;
+  }
+  .photo > figcaption {
+    font-size: 12px;
+  }
+  .head {
+    font-size: clamp(28px, calc(var(--head-fs-m, 4.6) * var(--u)), 44px);
+    max-width: none;
+  }
+  .head br {
+    display: none;
+  }
+  .body {
+    max-width: none;
+  }
+  .body {
+    font-size: clamp(13.5px, calc(1.72 * var(--u)), 16px);
+    line-height: 1.36;
+  }
+  .slate > span {
+    display: none;
+  }
+  .slate,
+  .eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .month,
+  .counter {
+    right: 18px;
+    top: calc(var(--l-nav-h) + 9px);
+    font-size: 9.5px;
+  }
+  .counter > b {
+    font-size: 11px;
+  }
+  .dock {
+    left: 14px;
+    right: 14px;
+    gap: 8px;
+  }
+  .bl {
+    bottom: 80px;
+    flex-direction: row;
+  }
+  /* the third readout moves out; the audience chip sits on the floor above the row */
+  .br {
+    left: auto;
+    bottom: 158px;
+    flex-direction: row;
+  }
+  .br > .fact {
+    display: none;
+  }
+  /* one slim line on a phone: icon, label, name, count */
+  .aud {
+    padding: 4px 11px 4px 4px;
+    gap: 8px;
+    box-shadow: 3px 3px 0 var(--l-white);
+  }
+  .audIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+  .audIcon > svg {
+    width: 14px;
+    height: 14px;
+  }
+  .audText {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .audLabel {
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+  }
+  .audName {
+    font-size: 14px;
+    gap: 6px;
+  }
+  .audName > i {
+    font-size: 8.5px;
+    letter-spacing: 0.05em;
+  }
+  .fact {
+    flex: 0 1 auto;
+    align-self: stretch;
+    padding: 7px 10px 8px;
+    gap: 2px;
+    max-width: none;
+  }
+  .fact:last-child {
+    flex: 1 1 auto;
+  }
+  .fact [data-part='label'] {
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+  }
+  .fact [data-part='value'] {
+    font-size: 21px;
+  }
+  .factWords [data-part='value'] {
+    font-size: 16px;
+    white-space: normal;
+  }
+  .fact [data-part='note'] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.2;
+    max-width: none;
+  }
+  .rail {
+    bottom: 12px;
+    gap: 2px;
+    padding: 5px;
+  }
+  .chip {
+    min-width: 56px;
+    padding: 3px 5px 4px;
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .chipDot {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* with no rail (the film as a column of posters) the phone's docks sit at the bottom edge */
+@media (max-aspect-ratio: 9/10) {
+  .film:not([data-mode='pinned']) .bl {
+    bottom: 22px;
+  }
+  .film:not([data-mode='pinned']) .br {
+    bottom: 100px;
+  }
+}
+
+/* ---------- a tablet held upright (iPad portrait): the same portrait compositions, at reading sizes ---------- */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .copy {
+    left: 32px;
+    right: 32px;
+    top: calc(var(--l-nav-h) + 14px);
+    gap: 10px;
+  }
+  .slate,
+  .eyebrow {
+    font-size: 11.5px;
+    letter-spacing: var(--l-track-label);
+  }
+  .slate > span {
+    display: inline;
+  }
+  .copyTop {
+    width: max-content;
+    max-width: calc(100vw - 150px);
+  }
+  .head {
+    font-size: clamp(36px, calc(var(--head-fs-t, 4.4) * var(--u)), 66px);
+    max-width: 12.5em;
+  }
+  .body {
+    max-width: var(--body-w, 33em);
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .month,
+  .counter {
+    right: 32px;
+    top: calc(var(--l-nav-h) + 16px);
+    font-size: 11.5px;
+  }
+  .counter > b {
+    font-size: 14px;
+  }
+  .dock {
+    left: 32px;
+    right: 32px;
+    gap: 12px;
+  }
+  .bl {
+    right: auto;
+    bottom: 96px;
+  }
+  .br {
+    left: auto;
+    bottom: 96px;
+    flex-direction: row-reverse;
+  }
+  .br > .fact {
+    display: inline-grid;
+  }
+  .fact,
+  .fact:last-child {
+    flex: 0 0 auto;
+    padding: 10px 14px 12px;
+    gap: 4px;
+  }
+  .fact [data-part='label'] {
+    font-size: 11px;
+    letter-spacing: var(--l-track-label);
+  }
+  .fact [data-part='value'] {
+    font-size: 26px;
+  }
+  .factWords [data-part='value'] {
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .fact [data-part='note'] {
+    display: block;
+    font-size: 13px;
+  }
+  .aud {
+    padding: 8px 14px 9px 10px;
+    gap: 10px;
+    box-shadow: 4px 4px 0 var(--l-white);
+  }
+  .audIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .audIcon > svg {
+    width: 18px;
+    height: 18px;
+  }
+  .audText {
+    display: grid;
+    gap: 2px;
+  }
+  .audLabel,
+  .audName > i {
+    font-size: 10.5px;
+  }
+  .audName {
+    font-size: 17px;
+    gap: 8px;
+  }
+  .rail {
+    bottom: 18px;
+    gap: 6px;
+    padding: 6px;
+  }
+  .chip {
+    min-width: 64px;
+    padding: 4px 8px 5px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .chipDot {
+    width: 30px;
+    height: 30px;
+  }
+  .photo > figcaption {
+    font-size: 14px;
+  }
+  .film:not([data-mode='pinned']) .bl,
+  .film:not([data-mode='pinned']) .br {
+    bottom: 28px;
+  }
+}
+
+/* ---------- a tablet on its side, or a small laptop: the rail and the readouts, tightened ---------- */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1300px) {
+  .rail {
+    gap: 3px;
+    padding: 5px;
+  }
+  .chip {
+    min-width: 44px;
+    padding: 4px 4px 5px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  /* every readout on one line each: label, value, note */
+  .fact {
+    max-width: none;
+    padding: 9px 11px 10px;
+  }
+  .fact [data-part='label'],
+  .fact [data-part='note'] {
+    white-space: nowrap;
+  }
+  .fact [data-part='note'] {
+    font-size: 12px;
+    max-width: none;
+  }
+  .factWords [data-part='value'] {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .dock {
+    gap: 9px;
+  }
+}

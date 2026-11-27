@@ -1,0 +1,127 @@
+.wrap {
+  /* Defaults read inherited values first, so a consumer can set these on any ancestor. */
+  --_h: var(--l-aud-h, 46px);
+  --_fs: var(--l-aud-fs, 15px);
+  --_pad: var(--l-aud-pad, 5px);
+  --_max: var(--l-aud-max, 680px);
+  --_opx: var(--l-aud-opt-px, 8px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+.legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  color: var(--l-ink);
+}
+.lg {
+  --_h: var(--l-aud-h, 60px);
+  --_fs: var(--l-aud-fs, 18px);
+  --_pad: var(--l-aud-pad, 6px);
+  --_max: var(--l-aud-max, 860px);
+  --_opx: var(--l-aud-opt-px, 12px);
+}
+.track {
+  --i: 2;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  max-width: var(--_max);
+  padding: var(--_pad);
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-button);
+  box-shadow: var(--l-shadow);
+}
+.track:has(.opt:nth-child(1) .input:checked) { --i: 0; }
+.track:has(.opt:nth-child(2) .input:checked) { --i: 1; }
+.track:has(.opt:nth-child(3) .input:checked) { --i: 2; }
+.track:has(.opt:nth-child(4) .input:checked) { --i: 3; }
+.track:has(.opt:nth-child(5) .input:checked) { --i: 4; }
+
+.thumb {
+  position: absolute;
+  z-index: 0;
+  top: var(--_pad);
+  bottom: var(--_pad);
+  left: var(--_pad);
+  width: calc((100% - 2 * var(--_pad)) / 5);
+  border-radius: 9px;
+  background: var(--l-ink);
+  transform: translateX(calc(var(--i) * 100%));
+  transition: transform 420ms var(--l-ease-pop);
+}
+.opt {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: var(--_h);
+  padding: 6px var(--_opx);
+  border-radius: 9px;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.text {
+  position: relative;
+  font-family: var(--l-font-text);
+  font-size: var(--_fs);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--l-ink);
+  transition: color var(--l-dur-hover) ease;
+  pointer-events: none;
+}
+.input:checked + .text {
+  color: var(--l-white);
+}
+@media (hover: hover) {
+  .opt:hover .input:not(:checked) + .text {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+}
+.opt:has(.input:focus-visible) {
+  outline: 3px solid var(--l-ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--l-white);
+}
+@media (max-width: 560px) {
+  .wrap {
+    --_h: var(--l-aud-h, 52px);
+    --_fs: var(--l-aud-fs, 13px);
+    --_opx: var(--l-aud-opt-px, 3px);
+  }
+  .lg {
+    --_h: var(--l-aud-h, 60px);
+    --_fs: var(--l-aud-fs, 14px);
+  }
+  .opt {
+    padding-block: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition: none;
+  }
+}
