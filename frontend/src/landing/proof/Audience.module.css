@@ -1,0 +1,760 @@
+.section {
+  --l-size-label: 13px;
+  position: relative;
+  background: var(--l-wash);
+  color: var(--l-ink);
+  overflow: clip;
+  isolation: isolate;
+}
+.stage {
+  position: relative;
+}
+.pin {
+  isolation: isolate;
+}
+.ghost {
+  position: absolute;
+  right: -3vw;
+  top: 4%;
+  z-index: -1;
+}
+
+/* ================= the lead: head, switch + readout, line-up ================= */
+.lead {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.2svh, 28px);
+  width: 100%;
+  max-width: calc(1440px + 2 * var(--l-gutter));
+  margin-inline: auto;
+  padding-inline: var(--l-gutter);
+}
+.stage[data-pinned] .lead {
+  height: 100%;
+  padding-top: calc(var(--l-nav-h) + 6px);
+}
+.stage:not([data-pinned]) .lead {
+  padding-top: var(--l-band-y);
+}
+.header {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.head {
+  font-size: clamp(36px, 4.5vw, 70px);
+  max-width: 22ch;
+}
+.control {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: end;
+}
+.switch {
+  --l-aud-max: 680px;
+}
+
+/* the readout: one block per setting, the checked one shows */
+.reads {
+  display: grid;
+  min-width: 0;
+}
+.read {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 8px;
+  align-content: end;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    visibility 0s 220ms;
+}
+.readTag {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+}
+.readAud {
+  padding: 4px 10px;
+  border-radius: var(--l-r-sticker);
+  background: var(--l-ink);
+  color: var(--l-white);
+  font-weight: 700;
+  font-size: 15px;
+}
+.readStory {
+  font-family: var(--l-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+.readWho {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(26px, 2.6vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+.readMore {
+  max-width: 52ch;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* ---- the line-up ---- */
+.lineup {
+  --floor: clamp(36px, 6svh, 64px);
+  position: relative;
+  margin: 0 calc(-1 * var(--l-gutter));
+  min-height: 0;
+}
+.stage[data-pinned] .lineup {
+  flex: 1;
+}
+.stage:not([data-pinned]) .lineup {
+  height: clamp(340px, 46vw, 600px);
+}
+/* the floor: the deep wash, full bleed, with a keyline horizon */
+.lineup::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--floor);
+  background: var(--l-wash-deep);
+  border-top: 2px solid var(--l-ink);
+  z-index: 0;
+}
+.line {
+  position: absolute;
+  inset: 4px var(--l-gutter) var(--floor);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.who {
+  --lit: 0;
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--x) * 1%);
+  bottom: calc(var(--y) * 1%);
+  height: calc(var(--h) * 1%);
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.who[data-you],
+.you {
+  z-index: 4;
+}
+.anon {
+  z-index: 1;
+}
+.fig {
+  position: relative;
+  display: block;
+  height: 100%;
+  transform-origin: 50% 100%;
+  filter: grayscale(calc(1 - var(--lit))) contrast(calc(0.8 + 0.2 * var(--lit)));
+  opacity: calc(0.42 + 0.58 * var(--lit));
+  transform: translateY(calc((1 - var(--lit)) * 4%)) scale(calc(0.95 + 0.05 * var(--lit)));
+  transition:
+    filter 520ms ease calc(var(--i) * 40ms),
+    opacity 520ms ease calc(var(--i) * 40ms),
+    transform 640ms var(--l-ease-pop) calc(var(--i) * 40ms);
+}
+.art {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  max-width: none;
+}
+.shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.5%;
+  width: 70%;
+  height: 5%;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(16, 27, 59, 0.35), rgba(16, 27, 59, 0));
+}
+.mask {
+  display: block;
+  height: 100%;
+  background: rgba(16, 27, 59, 0.34);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.anon .fig {
+  filter: none;
+  opacity: var(--lit);
+  transform: translateY(calc((1 - var(--lit)) * 40%));
+}
+
+/* the name badge, worn at chest height */
+.badge {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 34%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  padding: 4px 9px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--l-ink);
+  white-space: nowrap;
+  rotate: -2deg;
+  opacity: calc(0.62 + 0.38 * var(--lit));
+  transition: opacity 400ms ease, background-color 300ms ease;
+}
+.badgeRow {
+  display: flex;
+  align-items: center;
+}
+.tick {
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  width: calc(var(--lit) * 24px);
+  height: 20px;
+  margin-right: calc(var(--lit) * 6px);
+  border-radius: 50%;
+  background: var(--l-ink);
+  color: var(--l-lime);
+  transition:
+    width 360ms var(--l-ease-pop),
+    margin 360ms var(--l-ease-pop);
+}
+.tick > * {
+  width: 14px;
+  flex: none;
+}
+.badgeName {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.1;
+}
+.you .badge {
+  background: var(--l-lime);
+}
+.anyTag {
+  position: absolute;
+  z-index: 6;
+  right: 0;
+  top: 2%;
+  padding: 6px 12px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  box-shadow: var(--l-shadow-sm);
+  font-weight: 700;
+  font-size: 15px;
+  rotate: 3deg;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 200ms ease,
+    transform 300ms ease;
+}
+
+/* ---- the state, from the checked radio (works without script) ---- */
+.section:has(input[value='private']:checked) .who[data-private='open'],
+.section:has(input[value='close']:checked) .who[data-close='open'],
+.section:has(input[value='followers']:checked) .who[data-followers='open'],
+.section:has(input[value='custom']:checked) .who[data-custom='open'],
+.section:has(input[value='public']:checked) .who[data-public='open'] {
+  --lit: 1;
+}
+.section:has(input[value='private']:checked) .read[data-v='private'],
+.section:has(input[value='close']:checked) .read[data-v='close'],
+.section:has(input[value='followers']:checked) .read[data-v='followers'],
+.section:has(input[value='custom']:checked) .read[data-v='custom'],
+.section:has(input[value='public']:checked) .read[data-v='public'] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 360ms ease 120ms,
+    transform 520ms var(--l-ease-out) 120ms,
+    visibility 0s;
+}
+.section:has(input[value='public']:checked) .anyTag {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 300ms ease 500ms,
+    transform 500ms var(--l-ease-pop) 500ms;
+}
+
+/* ================= the detail: the exact matrix ================= */
+.detail {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+  padding-top: clamp(48px, 7vw, 96px);
+  padding-bottom: var(--l-band-y);
+}
+.detailHead {
+  display: grid;
+  gap: 10px;
+}
+.matrixHead {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.4vw, 48px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+.matrixLede {
+  max-width: 56ch;
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+.tableWrap {
+  padding: 8px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+.corner {
+  width: 17%;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: bottom;
+}
+.cornerA,
+.cornerB {
+  display: block;
+  font-family: var(--l-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--l-mute);
+}
+.cornerB {
+  text-align: right;
+}
+.cornerA::before {
+  content: '↓ ';
+}
+.cornerB::after {
+  content: ' →';
+}
+.th {
+  padding: 10px 8px 12px;
+  text-align: left;
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--l-ink);
+}
+.colHead {
+  display: grid;
+  gap: 3px;
+}
+.colLabel {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.colSub {
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--l-mute);
+}
+.keyIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 4px;
+  border: var(--l-keyline);
+  border-radius: 8px;
+  background: var(--l-lime);
+}
+/* The share-link column is a key the author hands out, not an audience: hatched, dashed, set apart. */
+.keyCol {
+  background: repeating-linear-gradient(-45deg, rgba(198, 241, 53, 0.35) 0 8px, rgba(198, 241, 53, 0.12) 8px 16px);
+  border-left: 2px dashed var(--l-ink);
+}
+th.keyCol {
+  border-top-right-radius: 12px;
+}
+tr:last-child .keyCol {
+  border-bottom-right-radius: 12px;
+}
+.rowHead,
+.td {
+  padding: 8px;
+  border-bottom: 1px solid var(--l-line);
+  vertical-align: middle;
+  text-align: left;
+  transition: background-color 250ms ease;
+}
+.tr:last-child .rowHead,
+.tr:last-child .td {
+  border-bottom: 0;
+}
+.rowBtn {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 10px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  text-align: left;
+  transition:
+    transform 300ms var(--l-ease-pop),
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.rowBtn:hover {
+  border-color: var(--l-ink);
+}
+.rowName {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.rowNote {
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--l-mute);
+}
+.section:has(input[value='private']:checked) .tr[data-v='private'] :is(.rowHead, .td),
+.section:has(input[value='close']:checked) .tr[data-v='close'] :is(.rowHead, .td),
+.section:has(input[value='followers']:checked) .tr[data-v='followers'] :is(.rowHead, .td),
+.section:has(input[value='custom']:checked) .tr[data-v='custom'] :is(.rowHead, .td),
+.section:has(input[value='public']:checked) .tr[data-v='public'] :is(.rowHead, .td) {
+  background-color: rgba(25, 207, 199, 0.18);
+}
+.section:has(input[value='private']:checked) .tr[data-v='private'] .rowBtn,
+.section:has(input[value='close']:checked) .tr[data-v='close'] .rowBtn,
+.section:has(input[value='followers']:checked) .tr[data-v='followers'] .rowBtn,
+.section:has(input[value='custom']:checked) .tr[data-v='custom'] .rowBtn,
+.section:has(input[value='public']:checked) .tr[data-v='public'] .rowBtn {
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-color: var(--l-ink);
+  box-shadow: 3px 3px 0 var(--l-tide);
+  transform: rotate(-1.5deg) translateX(-4px);
+}
+.section:has(input[value='private']:checked) .tr[data-v='private'] .rowNote,
+.section:has(input[value='close']:checked) .tr[data-v='close'] .rowNote,
+.section:has(input[value='followers']:checked) .tr[data-v='followers'] .rowNote,
+.section:has(input[value='custom']:checked) .tr[data-v='custom'] .rowNote,
+.section:has(input[value='public']:checked) .tr[data-v='public'] .rowNote {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--l-ink);
+}
+.cell[data-state='open'] .mark {
+  background: var(--l-ink);
+  color: var(--l-lime);
+}
+.cellText {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.cellQuiet {
+  min-height: 28px;
+}
+
+/* ---- phone: every row as a list, the chosen one open ---- */
+.rowLists {
+  display: none;
+  gap: 10px;
+}
+.rowList {
+  display: grid;
+}
+.rowListHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 14px;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: 12px;
+  box-shadow: var(--l-shadow-sm);
+  text-align: left;
+}
+.rowListHead .rowNote {
+  grid-column: 1;
+}
+.rowChevron {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.rowList ul {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: var(--l-shadow);
+  overflow: hidden;
+}
+.section:has(input[value='private']:checked) .rowList[data-v='private'] ul,
+.section:has(input[value='close']:checked) .rowList[data-v='close'] ul,
+.section:has(input[value='followers']:checked) .rowList[data-v='followers'] ul,
+.section:has(input[value='custom']:checked) .rowList[data-v='custom'] ul,
+.section:has(input[value='public']:checked) .rowList[data-v='public'] ul {
+  display: grid;
+}
+.section:has(input[value='private']:checked) .rowList[data-v='private'] .rowListHead,
+.section:has(input[value='close']:checked) .rowList[data-v='close'] .rowListHead,
+.section:has(input[value='followers']:checked) .rowList[data-v='followers'] .rowListHead,
+.section:has(input[value='custom']:checked) .rowList[data-v='custom'] .rowListHead,
+.section:has(input[value='public']:checked) .rowList[data-v='public'] .rowListHead {
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-radius: 12px 12px 0 0;
+  box-shadow: none;
+}
+.section:has(input[value='private']:checked) .rowList[data-v='private'] .rowListHead .rowNote,
+.section:has(input[value='close']:checked) .rowList[data-v='close'] .rowListHead .rowNote,
+.section:has(input[value='followers']:checked) .rowList[data-v='followers'] .rowListHead .rowNote,
+.section:has(input[value='custom']:checked) .rowList[data-v='custom'] .rowListHead .rowNote,
+.section:has(input[value='public']:checked) .rowList[data-v='public'] .rowListHead .rowNote {
+  color: rgba(255, 255, 255, 0.8);
+}
+.section:has(input[value='private']:checked) .rowList[data-v='private'] .rowChevron,
+.section:has(input[value='close']:checked) .rowList[data-v='close'] .rowChevron,
+.section:has(input[value='followers']:checked) .rowList[data-v='followers'] .rowChevron,
+.section:has(input[value='custom']:checked) .rowList[data-v='custom'] .rowChevron,
+.section:has(input[value='public']:checked) .rowList[data-v='public'] .rowChevron {
+  rotate: 90deg;
+}
+.rowItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--l-line);
+}
+.rowItem:last-child {
+  border-bottom: 0;
+}
+.rowItem .keyIcon {
+  display: none;
+}
+.keyItem {
+  background: repeating-linear-gradient(-45deg, rgba(198, 241, 53, 0.4) 0 8px, rgba(198, 241, 53, 0.15) 8px 16px);
+  border-top: 2px dashed var(--l-ink);
+}
+
+@media (max-width: 1240px) {
+  .badgeName {
+    font-size: 14px;
+  }
+  .badge {
+    padding: 3px 7px;
+  }
+}
+@media (max-width: 1100px) {
+  .colLabel {
+    font-size: 15px;
+  }
+  .colSub {
+    font-size: 13px;
+  }
+  .cellText {
+    font-size: 13.5px;
+  }
+  .mark {
+    width: 24px;
+    height: 24px;
+  }
+  .rowName {
+    font-size: 19px;
+  }
+  .cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* ================= portrait (iPad portrait) and phone: two rows ================= */
+@media (max-aspect-ratio: 1/1), (max-width: 760px) {
+  .control {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .who {
+    left: calc(var(--xm) * 1%);
+    bottom: calc(var(--ym) * 1%);
+    height: calc(var(--hm) * 1%);
+  }
+  .badge {
+    bottom: calc(var(--bm) * 1%);
+  }
+  .line {
+    top: 34px;
+  }
+  /* the silhouettes stand at the back corners; their tag sits on the floor, clear of the badges */
+  .anyTag {
+    top: auto;
+    right: auto;
+    left: 50%;
+    bottom: calc(-0.5 * var(--floor) - 16px);
+    translate: -50% 0;
+    rotate: -2deg;
+  }
+  /* a riser for the back row, so nobody stands on air */
+  .line::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--l-gutter));
+    right: calc(-1 * var(--l-gutter));
+    bottom: 0;
+    height: 35%;
+    background: color-mix(in srgb, var(--l-wash-deep) 70%, var(--l-wash));
+    border-top: 2px solid var(--l-ink);
+  }
+  .stage:not([data-pinned]) .lineup {
+    height: clamp(360px, 78vw, 640px);
+  }
+}
+@media (max-aspect-ratio: 1/1) and (min-width: 761px) {
+  .head {
+    font-size: clamp(44px, 6.6vw, 64px);
+  }
+  .readWho {
+    font-size: clamp(30px, 4.4vw, 40px);
+  }
+}
+
+/* ================= phone ================= */
+@media (max-width: 760px) {
+  .head {
+    font-size: clamp(31px, 8.4vw, 40px);
+  }
+  .lead {
+    gap: 14px;
+  }
+  .switch {
+    --l-aud-h: 50px;
+    --l-aud-fs: 14px;
+  }
+  .readWho {
+    font-size: 24px;
+  }
+  .readMore {
+    font-size: 16px;
+  }
+  .readAud {
+    font-size: 14px;
+  }
+  .badge {
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .badgeName {
+    font-size: 13px;
+  }
+  .tick {
+    width: calc(var(--lit) * 16px);
+    height: 16px;
+    margin-right: calc(var(--lit) * 4px);
+  }
+  .tick > * {
+    width: 11px;
+  }
+  .anyTag {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+  .matrixLede {
+    font-size: 16px;
+  }
+}
+/* portrait tablets and phones: the matrix as one list per setting (eight columns do not fit) */
+@media (max-width: 900px) {
+  .tableWrap {
+    display: none;
+  }
+  .rowLists {
+    display: grid;
+  }
+}
+@media (max-width: 900px) and (min-width: 761px) {
+  .rowLists {
+    max-width: 640px;
+  }
+}
+/* very short phones: the readout's second line yields to the faces */
+@media (max-width: 760px) and (max-height: 760px) {
+  .stage[data-pinned] .readMore {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig,
+  .badge,
+  .tick,
+  .read,
+  .anyTag,
+  .rowBtn,
+  .rowHead,
+  .td {
+    transition: none !important;
+  }
+}

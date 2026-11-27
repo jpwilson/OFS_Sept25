@@ -1,0 +1,101 @@
+/* Story look for src/pages/NotFound.jsx (owner: pages). NotFound.jsx imports
+   src/pages/Compare.module.css; for that importer only, scripts/landing/story-pages.mjs
+   swaps in this file (same class names). Story variant only. */
+
+.container {
+  composes: ph-page from global;
+}
+.content {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .content {
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+.header {
+  composes: ph-band ph-top from global;
+}
+:global(.ofsl) .header {
+  margin-bottom: clamp(32px, 4vw, 64px);
+}
+.title {
+  composes: ph-title from global;
+}
+.subtitle {
+  composes: ph-lede from global;
+}
+.section {
+  composes: ph-card from global;
+}
+:global(.ofsl) .section {
+  display: grid;
+  gap: 22px;
+  padding: clamp(28px, 4vw, 56px);
+}
+:global(.ofsl) .section h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+/* the ways on: a grid of keylined link buttons */
+:global(.ofsl) .list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+:global(.ofsl) .list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  height: 100%;
+  padding: 12px 18px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-button);
+  box-shadow: var(--l-shadow-sm);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.25;
+  text-decoration: none;
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    box-shadow var(--l-dur-hover) var(--l-ease-out),
+    background-color var(--l-dur-hover) ease;
+}
+:global(.ofsl) .list a::after {
+  content: '→';
+  flex: none;
+  font-size: 20px;
+}
+@media (hover: hover) {
+  :global(.ofsl) .list a:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--l-shadow);
+    background: var(--l-tide);
+  }
+}
+@media (max-width: 1023px) {
+  :global(.ofsl) .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  :global(.ofsl) .list {
+    grid-template-columns: 1fr;
+  }
+  :global(.ofsl) .section {
+    padding: 24px 20px 28px;
+  }
+}

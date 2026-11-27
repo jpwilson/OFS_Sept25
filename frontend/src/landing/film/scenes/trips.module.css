@@ -1,0 +1,437 @@
+/* The vacation scenes: coast, Tetons, the world (owner: film). */
+
+/* ---------- a route: a dashed line along the floor ---------- */
+.route {
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: 4;
+  width: calc(160 * var(--u));
+  height: calc(12 * var(--u));
+  margin-left: calc(-80 * var(--u));
+  margin-top: calc(-3 * var(--u));
+  overflow: visible;
+  pointer-events: none;
+}
+.route > path {
+  fill: none;
+  stroke: var(--l-ink);
+  stroke-width: 0.44;
+  stroke-linecap: round;
+  stroke-dasharray: 1.5 1.5;
+}
+.routeM {
+  display: none;
+}
+
+/* pins: numbered circles, as the app draws them */
+.pinSlot > div {
+  display: grid;
+  place-items: center;
+}
+.pin {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: 2px solid var(--l-ink);
+  box-shadow: 3px 3px 0 var(--l-ink);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: max(12px, calc(1.9 * var(--u)));
+  line-height: 1;
+}
+.pinStart {
+  background: var(--l-ink);
+  color: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-white);
+}
+.pinStart > svg {
+  width: 46%;
+  height: 46%;
+  margin-left: 6%;
+}
+.pinFar {
+  background: var(--l-ink);
+  border-color: var(--l-white);
+  box-shadow: 0 0 0 2px var(--l-ink);
+}
+/* a Tetons stop: quiet until its day comes round */
+.pinDay {
+  font-size: max(11px, calc(1.56 * var(--u)));
+  box-shadow: 2px 2px 0 var(--l-ink);
+  opacity: 0.6;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    opacity 200ms ease;
+}
+.pinDay[data-on] {
+  background: var(--l-ink);
+  color: var(--l-white);
+  box-shadow: 2px 2px 0 var(--l-white);
+  opacity: 1;
+}
+
+/* a stop's print, with the coordinates read from the photo */
+.stopSlot .coord {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 1;
+  transform: translate(-50%, -62%);
+}
+.stopSlot .coord > span {
+  font-size: clamp(8.5px, calc(1.06 * var(--u)), 10.5px);
+  letter-spacing: 0.05em;
+  padding: 3px 6px;
+}
+.shotSlot [data-part='caption'] {
+  font-size: clamp(9px, calc(1.16 * var(--u)), 11.5px);
+  letter-spacing: 0.08em;
+  opacity: 1;
+}
+.shotSlot figure {
+  gap: 7px;
+}
+
+/* ---------- Tetons ---------- */
+/* the range dissolves at its left end, where the copy sits */
+.range {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 26%);
+  mask-image: linear-gradient(to right, transparent 0, #000 26%);
+}
+.days {
+  position: absolute;
+  right: var(--l-gutter);
+  top: calc(var(--l-nav-h) + 52px);
+  z-index: 20;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+.dayRow {
+  display: flex;
+  gap: 6px;
+}
+.day {
+  padding: 6px 10px 7px;
+  background: var(--l-white);
+  border: 2px solid var(--l-ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--l-ink);
+  font-family: var(--l-font-mono);
+  font-size: clamp(10px, calc(1.26 * var(--u)), 12px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+.day[data-on] {
+  background: var(--l-ink);
+  color: var(--l-white);
+  box-shadow: 3px 3px 0 var(--l-white);
+}
+.dayPlace {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(18px, calc(2.6 * var(--u)), 28px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.dayPlace > b {
+  font-family: var(--l-font-mono);
+  font-size: 0.42em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* a day's print is drawn as a thumbnail at rest, so its caption only shows while it is popped */
+.daySlot figcaption {
+  opacity: 0;
+}
+.tetons .shotSlot {
+  z-index: 19;
+}
+/* over the peaks the capture's caption needs its own ground */
+.tetons .shotSlot [data-part='caption'] {
+  justify-self: start;
+  padding: 3px 7px;
+  background: var(--l-white);
+  border: 1.5px solid var(--l-ink);
+  border-radius: 6px;
+}
+
+/* ---------- the world: a flat dotted map on the wall ---------- */
+.dots {
+  --x0: var(--x0d);
+  --w: var(--wd);
+  --top: var(--topd);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: 2;
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--w) * var(--u) * var(--ratio));
+  margin-left: calc(var(--x0) * var(--u));
+  margin-top: calc(var(--top) * var(--u) * -1);
+  pointer-events: none;
+}
+.dots > path {
+  fill: rgba(255, 255, 255, 0.5);
+}
+/* on desktop the copy sits beside the map's left edge: quieten the dots there */
+@media (min-aspect-ratio: 9001/10000) {
+  .dots {
+    -webkit-mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 10%, #000 24%);
+    mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 10%, #000 24%);
+  }
+}
+.leader {
+  --x: var(--xd);
+  --y: var(--yd);
+  --len: var(--lend);
+  --ang: var(--angd);
+  position: absolute;
+  left: 50%;
+  top: var(--floor);
+  z-index: 3;
+  width: calc(var(--len) * var(--u));
+  height: 0;
+  border-top: 2px solid var(--l-ink);
+  transform-origin: 0 0;
+  transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u) * -1)) rotate(var(--ang));
+  pointer-events: none;
+}
+.homeLine {
+  border-top-style: dashed;
+}
+.clusterSlot > div {
+  display: grid;
+  place-items: center;
+}
+.cluster {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--l-lime);
+  border: 2px solid var(--l-ink);
+  box-shadow: 4px 4px 0 var(--l-ink);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-size: max(18px, calc(3.4 * var(--u)));
+  line-height: 1;
+}
+.clusterSm {
+  font-size: max(12px, calc(1.9 * var(--u)));
+  box-shadow: 2px 2px 0 var(--l-ink);
+}
+.clusterTag {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 6px);
+}
+.tripSlot figcaption {
+  font-size: max(11px, calc(var(--pp) * 0.11));
+}
+
+/* a postcard: the story's photo, with the relative who wrote it standing beside */
+.postcard .who {
+  position: absolute;
+  right: calc(var(--w) * var(--u) * -0.2);
+  bottom: calc(var(--w) * var(--u) * -0.08);
+  height: calc(var(--wh) * var(--u));
+  aspect-ratio: var(--ar);
+}
+.postcard .who > :where(img, span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 calc(0.4 * var(--u)) calc(0.3 * var(--u)) rgba(16, 27, 59, 0.3));
+}
+.postcard .whoTag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-8%, -60%);
+}
+
+/* ---------- phone ---------- */
+@media (max-aspect-ratio: 9/10) {
+  .routeD {
+    display: none;
+  }
+  .routeM {
+    display: block;
+  }
+  .route {
+    width: calc(48 * var(--u));
+    margin-left: calc(-24 * var(--u));
+  }
+  .route > path {
+    stroke-width: 0.36;
+  }
+  .pin {
+    font-size: 12px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .pinDay {
+    font-size: 8.5px;
+    border-width: 1.5px;
+    box-shadow: none;
+  }
+  .pinDay[data-on] {
+    box-shadow: none;
+  }
+  /* prints are thumbnails at rest on a phone: no coordinate tag until they pop */
+  .stopSlot .coord > span {
+    font-size: 11px;
+  }
+  .stopSlot figcaption {
+    font-size: 13px;
+  }
+  .shotSlot [data-part='caption'] {
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    line-height: 1.25;
+  }
+  .range {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .days {
+    left: 18px;
+    right: 18px;
+    top: calc(var(--floor) - 42.4 * var(--u));
+    justify-items: start;
+    gap: 5px;
+  }
+  .dayRow {
+    gap: 4px;
+  }
+  .day {
+    padding: 4px 6px 5px;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    border-width: 1.5px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .day > span {
+    display: none;
+  }
+  .day[data-on] > span {
+    display: inline;
+  }
+  .day[data-on] {
+    box-shadow: 2px 2px 0 var(--l-white);
+  }
+  .dayPlace {
+    font-size: 17px;
+  }
+  .dots {
+    --x0: var(--x0m);
+    --w: var(--wm);
+    --top: var(--topm);
+  }
+  .leader {
+    --x: var(--xm);
+    --y: var(--ym);
+    --len: var(--lenm);
+    --ang: var(--angm);
+    border-top-width: 1.5px;
+  }
+  .postcard figcaption,
+  .tripSlot figcaption {
+    font-size: 12px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+  .tripSlot figcaption {
+    display: none;
+  }
+  .cluster {
+    font-size: 17px;
+    box-shadow: 3px 3px 0 var(--l-ink);
+  }
+}
+
+/* a name beside a trip's pin: phone only (on desktop the print carries it) */
+.pinName {
+  display: none;
+}
+
+/* ---------- phone, round two: prints lie on the floor in front of the family ---------- */
+@media (max-aspect-ratio: 9/10) {
+  /* thumbnails at rest: their caption and coordinates show only while a print is popped */
+  .stopSlot figcaption,
+  .stopSlot [data-poponly] {
+    opacity: 0;
+  }
+  .days {
+    top: calc(var(--floor) - 37.6 * var(--u));
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: start;
+    gap: 8px;
+  }
+  .dayN {
+    display: none;
+  }
+  .dayPlace {
+    font-size: 16px;
+  }
+  .pinName {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 3px);
+  }
+  .pinName > span {
+    font-size: 8px;
+    padding: 2px 4px;
+    letter-spacing: 0.04em;
+    border-width: 1px;
+  }
+  .tripSlot {
+    display: none;
+  }
+  .clusterTag {
+    top: auto;
+    bottom: 100%;
+    transform: translate(-50%, -6px);
+  }
+  .clusterTag > span {
+    font-size: 8.5px;
+    padding: 3px 5px;
+  }
+}
+
+/* chapter 03's long headline keeps to three lines */
+@media (max-aspect-ratio: 9/10) {
+  .worldCopy {
+    --head-fs-m: 3.7;
+  }
+}
+
+/* Tetons has one readout too many for a tablet: the map layers are already said in chapter 01 */
+@media (max-width: 1300px) {
+  .tetons [data-f='tetons:br'] > [data-readout] {
+    display: none;
+  }
+}

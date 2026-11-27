@@ -1,0 +1,205 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.side {
+  position: sticky;
+  top: calc(var(--l-nav-h) + 24px);
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+.band .eyebrow {
+  font-size: 13px;
+}
+.head {
+  max-width: 8ch;
+  font-size: clamp(52px, 6.6vw, 104px);
+}
+.lede {
+  max-width: 30ch;
+  font-size: var(--l-size-lede);
+  line-height: 1.45;
+  font-weight: 500;
+}
+.stage {
+  position: relative;
+  margin: 8px 0 0;
+  justify-self: stretch;
+  display: grid;
+  justify-items: center;
+  padding-bottom: 18px;
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44px;
+  background: var(--l-wash-deep);
+  border: var(--l-keyline);
+  border-radius: 999px;
+}
+.person {
+  position: relative;
+  z-index: 1;
+  width: clamp(130px, 12vw, 180px);
+}
+.band {
+  border-top: var(--l-keyline);
+}
+.band .lede {
+  color: var(--l-ink);
+}
+.list {
+  counter-reset: q;
+  padding: 8px 28px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+.item {
+  counter-increment: q;
+  border-bottom: 1px solid var(--l-line);
+}
+.item:last-child {
+  border-bottom: 0;
+}
+.q {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 16px;
+  min-height: 76px;
+  padding: 14px 0;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 8px;
+}
+.q::-webkit-details-marker {
+  display: none;
+}
+.n {
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: var(--l-track-label);
+  color: var(--l-mute);
+  font-variant-numeric: tabular-nums;
+}
+.n::before {
+  content: counter(q, decimal-leading-zero);
+}
+.qText {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(21px, 1.2vw + 10px, 27px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.plus {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border: var(--l-keyline);
+  border-radius: 50%;
+  background: var(--l-white);
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    background-color var(--l-dur-hover) ease;
+}
+.plus::before,
+.plus::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  margin: -1px 0 0 -7px;
+  background: var(--l-ink);
+  border-radius: 2px;
+}
+.plus::after {
+  transform: rotate(90deg);
+}
+.q:hover .plus {
+  background: var(--l-tide);
+}
+.item[open] .plus {
+  transform: rotate(45deg);
+  background: var(--l-zest);
+}
+.a {
+  max-width: 62ch;
+  padding: 0 52px 26px 56px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+/* iPad portrait: the claim and Aunt Kate side by side across the top, the list below */
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+  }
+  .side > :not(.stage) {
+    grid-column: 1;
+  }
+  .stage {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: end;
+    width: clamp(150px, 26vw, 220px);
+  }
+  .head {
+    max-width: none;
+    font-size: clamp(64px, 10vw, 96px);
+  }
+}
+@media (max-width: 640px) {
+  .head {
+    font-size: clamp(48px, 13.4vw, 60px);
+  }
+  .stage {
+    width: 34vw;
+  }
+  .person {
+    width: 100%;
+  }
+  .qText {
+    font-size: 20px;
+  }
+  .a {
+    font-size: 16px;
+  }
+}
+@media (max-width: 640px) {
+  .q {
+    grid-template-columns: 26px minmax(0, 1fr) 32px;
+    gap: 12px;
+  }
+  .plus {
+    width: 32px;
+    height: 32px;
+  }
+  .a {
+    padding: 0 0 22px 38px;
+  }
+  .list {
+    padding: 4px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plus {
+    transition: none;
+  }
+}

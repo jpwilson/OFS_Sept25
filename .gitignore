@@ -31,3 +31,11 @@ dist/
 uploads/
 # Python venv
 .venv/
+landing-art/raw/
+
+# Landing rebuild: screenshots and the server bundle used by the prerender
+frontend/shots/
+frontend/dist-ssr/
+
+# Landing art contact sheets (regenerate with landing-art/sheets.mjs)
+landing-art/sheets/

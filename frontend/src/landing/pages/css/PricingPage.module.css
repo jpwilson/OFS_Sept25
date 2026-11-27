@@ -1,0 +1,349 @@
+/* Story look for src/pages/PricingPage.jsx (owner: pages): the plan cards as the landing
+   draws them (close/Plans.module.css). Same class names as src/pages/PricingPage.module.css;
+   swapped in by scripts/landing/story-pages.mjs (story only). */
+
+.container {
+  composes: ph-page from global;
+}
+.content {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .content {
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+.title {
+  composes: ph-title ph-top from global;
+}
+.subtitle {
+  composes: ph-lede ph-band from global;
+}
+:global(.ofsl) .subtitle {
+  max-width: none;
+}
+/* full width, so the cut-out stands at the page's right; the words keep a reading width */
+@media (min-width: 641px) {
+  :global(.ofsl) .subtitle {
+    padding-right: max(calc(var(--ph-art-h) * var(--ph-ar) + 48px), calc(100% - 50ch));
+  }
+}
+
+/* ---------- billing switch (as the landing's) ---------- */
+
+:global(.ofsl) .billingToggle {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin: clamp(40px, 5vw, 64px) auto clamp(28px, 3vw, 40px);
+  padding: 3px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-pill);
+  background: var(--l-white);
+  box-shadow: var(--l-shadow-sm);
+}
+:global(.ofsl) .billingToggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--l-r-pill);
+  background: none;
+  color: var(--l-ink);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color var(--l-dur-hover) ease,
+    color var(--l-dur-hover) ease;
+}
+:global(.ofsl) .billingToggle button.toggleActive {
+  background: var(--l-ink);
+  color: var(--l-white);
+}
+:global(.ofsl) .saveBadge {
+  display: inline-block;
+  padding: 2px 8px 3px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--l-lime);
+  color: var(--l-ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  transform: rotate(-3deg);
+}
+
+/* ---------- the three plan cards ---------- */
+
+:global(.ofsl) .pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+  align-items: stretch;
+}
+:global(.ofsl) .pricingCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+  --c: var(--l-lime);
+}
+:global(.ofsl) .pricingCard:nth-child(3) {
+  --c: var(--l-fizz);
+}
+:global(.ofsl) .pricingCard.featured {
+  --c: var(--l-white);
+  background: var(--l-tide);
+  box-shadow: var(--l-shadow-lg);
+}
+:global(.ofsl) .popularBadge {
+  position: absolute;
+  top: -16px;
+  right: 22px;
+  padding: 5px 12px 6px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--l-sun);
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  transform: rotate(3deg);
+}
+:global(.ofsl) .pricingHeader {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+:global(.ofsl) .pricingHeader h3 {
+  padding: 5px 12px 6px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--c);
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transform: rotate(-2deg);
+}
+:global(.ofsl) .price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 4px 10px;
+  min-height: 96px;
+  align-content: flex-end;
+}
+:global(.ofsl) .priceAmount {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 80;
+  font-size: clamp(68px, 5.4vw, 96px);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+:global(.ofsl) .pricePeriod {
+  padding-bottom: 4px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(24px, 2vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+:global(.ofsl) .pricingDesc {
+  width: 100%;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--l-ink);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.3;
+}
+.pricingFeatures {
+  composes: ph-ticks from global;
+}
+:global(.ofsl) .pricingFeatures {
+  flex: 1;
+  gap: 10px;
+}
+:global(.ofsl) .pricingFeatures li {
+  font-size: 16px;
+  line-height: 1.45;
+  --tick: var(--l-white);
+}
+:global(.ofsl) .pricingCard.featured .pricingFeatures li {
+  --tick: var(--l-white);
+}
+:global(.ofsl) .pricingFeatures li:first-child {
+  font-weight: 700;
+}
+.pricingButton {
+  composes: ph-btn ph-btn-ghost from global;
+}
+:global(.ofsl) .pricingButton {
+  width: 100%;
+  margin-top: 6px;
+}
+.pricingButtonPrimary {
+  composes: ph-btn ph-btn-solid from global;
+}
+:global(.ofsl) .pricingButtonPrimary {
+  width: 100%;
+  margin-top: 6px;
+}
+:global(.ofsl) .currentPlan {
+  display: grid;
+  place-items: center;
+  min-height: 58px;
+  margin-top: 6px;
+  border: 2px dashed var(--l-ink);
+  border-radius: var(--l-r-button);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+}
+
+/* ---------- the trial note ---------- */
+
+:global(.ofsl) .pricingFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(32px, 4vw, 48px);
+}
+:global(.ofsl) .pricingNote {
+  display: inline-block;
+  max-width: 64ch;
+  padding: 14px 20px;
+  background: var(--l-sun);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow-sm);
+  font-size: 17px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* ---------- questions ---------- */
+
+:global(.ofsl) .faqSection {
+  margin-top: clamp(64px, 8vw, 120px);
+}
+:global(.ofsl) .faqSection h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: clamp(34px, 4.4vw, 64px);
+  margin-bottom: clamp(24px, 3vw, 40px);
+}
+:global(.ofsl) .faqGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+}
+.faqItem {
+  composes: ph-card from global;
+}
+:global(.ofsl) .faqItem {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: clamp(22px, 2.4vw, 32px);
+}
+:global(.ofsl) .faqItem h3 {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(21px, 1.2vw + 10px, 26px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--l-ink);
+}
+:global(.ofsl) .faqItem p {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+/* ---------- closing call ---------- */
+
+.ctaSection {
+  composes: ph-card-lg from global;
+}
+:global(.ofsl) .ctaSection {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  margin-top: clamp(56px, 7vw, 112px);
+  padding: clamp(28px, 4vw, 56px);
+  background: var(--l-tide);
+}
+:global(.ofsl) .ctaSection h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: clamp(34px, 4.4vw, 64px);
+  max-width: 16ch;
+}
+:global(.ofsl) .ctaSection p {
+  max-width: 46ch;
+  font-size: clamp(18px, 1vw + 12px, 21px);
+  font-weight: 500;
+}
+.finalCta {
+  composes: ph-btn ph-btn-solid from global;
+}
+:global(.ofsl) .finalCta {
+  margin-top: 8px;
+}
+
+@media (max-width: 1023px) {
+  :global(.ofsl) .pricingGrid {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  :global(.ofsl) .faqGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  :global(.ofsl) .pricingCard {
+    padding: 24px 20px;
+  }
+  :global(.ofsl) .billingToggle button {
+    padding: 0 14px;
+    font-size: 15px;
+  }
+  :global(.ofsl) .finalCta {
+    width: 100%;
+  }
+}

@@ -1,0 +1,20 @@
+.missing {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 10px;
+  border: 2px dashed rgba(16, 27, 59, 0.4);
+  background: repeating-linear-gradient(135deg, rgba(16, 27, 59, 0.08) 0 1px, transparent 1px 11px), rgba(255, 255, 255, 0.35);
+  color: var(--l-ink);
+}
+.tag {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--l-white);
+  font-family: var(--l-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

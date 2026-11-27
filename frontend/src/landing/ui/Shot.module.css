@@ -1,0 +1,31 @@
+.shot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+.frame {
+  display: block;
+  overflow: hidden;
+  background: var(--l-white);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-readout);
+  box-shadow: var(--l-shadow);
+}
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.caption {
+  font-family: var(--l-font-mono);
+  font-size: var(--l-size-label);
+  font-weight: 500;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  color: var(--l-ink);
+  opacity: 0.8;
+}
+.own {
+  opacity: 1;
+}

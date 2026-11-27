@@ -59,6 +59,15 @@
   margin-bottom: 1rem;
 }
 
+/* Inline links inside body copy (the global reset makes links inherit text colour). */
+.section p a,
+.section li a,
+.subtitle a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .comparison {
   display: flex;
   flex-direction: column;

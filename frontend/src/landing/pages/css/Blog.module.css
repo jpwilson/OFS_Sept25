@@ -1,0 +1,90 @@
+/* Story look for src/pages/Blog.jsx (owner: pages). Same class names as
+   src/pages/Blog.module.css; swapped in by scripts/landing/story-pages.mjs (story only). */
+
+.container {
+  composes: ph-page from global;
+}
+.content {
+  composes: ph-wrap from global;
+}
+:global(.ofsl) .content {
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+.title {
+  composes: ph-title ph-top from global;
+}
+.subtitle {
+  composes: ph-lede ph-band from global;
+}
+:global(.ofsl) .subtitle {
+  max-width: none;
+}
+/* full width, so the cut-out stands at the page's right; the words keep a reading width */
+@media (min-width: 641px) {
+  :global(.ofsl) .subtitle {
+    padding-right: max(calc(var(--ph-art-h) * var(--ph-ar) + 48px), calc(100% - 50ch));
+  }
+}
+/* the updates, newest first, as dated cards */
+:global(.ofsl) .posts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 2.4vw, 32px);
+  padding-top: clamp(48px, 6vw, 96px);
+}
+.post {
+  composes: ph-card from global;
+}
+:global(.ofsl) .post {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  justify-items: start;
+  padding: clamp(24px, 3vw, 36px);
+}
+:global(.ofsl) .post:first-child {
+  grid-column: 1 / -1;
+  background: var(--l-white);
+  box-shadow: var(--l-shadow-lg);
+}
+:global(.ofsl) .date {
+  padding: 4px 10px 5px;
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  background: var(--c, var(--l-tide));
+  box-shadow: var(--l-shadow-sm);
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+:global(.ofsl) .post:nth-child(5n + 2) .date {
+  --c: var(--l-zest);
+}
+:global(.ofsl) .post:nth-child(5n + 3) .date {
+  --c: var(--l-lime);
+}
+:global(.ofsl) .post:nth-child(5n + 4) .date {
+  --c: var(--l-fizz);
+}
+:global(.ofsl) .post:nth-child(5n + 5) .date {
+  --c: var(--l-azure);
+}
+.postTitle {
+  composes: ph-h2 from global;
+}
+:global(.ofsl) .postTitle {
+  font-size: clamp(28px, 2.6vw, 38px);
+}
+:global(.ofsl) .postDescription {
+  max-width: 64ch;
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+}
+@media (max-width: 760px) {
+  :global(.ofsl) .posts {
+    grid-template-columns: 1fr;
+  }
+}

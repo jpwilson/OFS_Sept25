@@ -1,0 +1,315 @@
+/* Shared pieces of the story marketing pages (owner: pages). A plain global stylesheet,
+   imported once by ../Frame.jsx (after the landing's base.css). The page stylesheets in this
+   folder keep the class names of the app's own stylesheets and pick these up with
+   `composes: ph-x from global`.
+
+   Specificity: every rule here is one class strong (:where(.ofsl) .ph-x), so it beats the
+   landing reset that loads before it, and every page rule (written :global(.ofsl) .y, two
+   classes) beats it whatever order the stylesheets land in. */
+
+/* ---------------------------------------------------------------- page and column */
+
+:where(.ofsl) .ph-page {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: var(--l-ink);
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+}
+:where(.ofsl) .ph-wrap {
+  width: 100%;
+  max-width: calc(var(--l-max) + 2 * var(--l-gutter));
+  margin-inline: auto;
+  padding-inline: var(--l-gutter);
+}
+
+/* ---------------------------------------------------------------- the page head
+   .ph-band closes a wash band: it paints the wash above and beside itself (out to the frame's
+   edges, whatever box it sits in), ends on a deep-wash floor with an ink keyline, and stands
+   the page's cut-out (--ph-art) on that floor at its right. Put it on the last element of
+   the head; the elements before it sit on the wash. */
+
+:where(.ofsl) .ph-band {
+  position: relative;
+  padding-bottom: calc(var(--ph-floor) + clamp(36px, 4.4vw, 64px));
+}
+:where(.ofsl) .ph-band::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -100vmax;
+  right: -100vmax;
+  top: -100vmax;
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--l-ink) 0 2px,
+    var(--l-wash-deep) 2px var(--ph-floor),
+    var(--l-wash) var(--ph-floor)
+  );
+  pointer-events: none;
+}
+:where(.ofsl[data-art]) .ph-band {
+  padding-right: calc(var(--ph-art-h) * var(--ph-ar) + clamp(32px, 4vw, 64px));
+  min-height: calc(var(--ph-art-h) * 0.9 + var(--ph-floor));
+}
+:where(.ofsl[data-art]) .ph-band::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--ph-floor) * 0.5 - 8px);
+  width: calc(var(--ph-art-h) * var(--ph-ar));
+  height: calc(var(--ph-art-h) + 8px);
+  background:
+    var(--ph-art) center top / 100% auto no-repeat,
+    radial-gradient(closest-side, rgba(16, 27, 59, 0.34), rgba(16, 27, 59, 0.12) 60%, transparent)
+      calc(var(--ph-ax) * 100%) bottom / 72% 16px no-repeat;
+  pointer-events: none;
+}
+/* A head that is all one box: tall enough that its cut-out clears the nav. */
+:where(.ofsl[data-art]) .ph-band.ph-top {
+  min-height: calc(var(--ph-top) + var(--ph-art-h) + var(--ph-floor));
+}
+/* The first element of the head clears the nav. */
+:where(.ofsl) .ph-top {
+  padding-top: var(--ph-top);
+}
+
+:where(.ofsl) .ph-title {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-size: clamp(44px, 6.2vw, 96px);
+  max-width: 16ch;
+  color: var(--l-ink);
+  text-wrap: balance;
+  margin: 0;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+:where(.ofsl) .ph-lede {
+  max-width: 44ch;
+  margin: clamp(18px, 2vw, 26px) 0 0;
+  font-size: clamp(18px, 1vw + 12px, 22px);
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--l-ink);
+}
+:where(.ofsl) .ph-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-bottom: clamp(20px, 2.4vw, 32px);
+  padding: 0 16px;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-pill);
+  box-shadow: var(--l-shadow-sm);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    box-shadow var(--l-dur-hover) var(--l-ease-out);
+}
+@media (hover: hover) {
+  :where(.ofsl) .ph-back:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: var(--l-shadow);
+    color: var(--l-ink);
+    text-decoration: none;
+  }
+}
+:where(.ofsl) .ph-mono {
+  font-family: var(--l-font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: var(--l-track-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  font-style: normal;
+}
+
+/* ---------------------------------------------------------------- body type */
+
+:where(.ofsl) .ph-h2 {
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--l-ink);
+  text-wrap: balance;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+:where(.ofsl) .ph-h3 {
+  font-family: var(--l-font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(21px, 1.2vw + 10px, 26px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--l-ink);
+}
+:where(.ofsl) .ph-prose {
+  font-size: var(--ph-size-body);
+  line-height: 1.6;
+  color: var(--l-ink);
+}
+
+/* a sticker card */
+:where(.ofsl) .ph-card {
+  position: relative;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow);
+}
+:where(.ofsl) .ph-card-lg {
+  position: relative;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-card);
+  box-shadow: var(--l-shadow-lg);
+}
+
+/* ticked list */
+:where(.ofsl) .ph-ticks {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+:where(.ofsl) .ph-ticks > li {
+  position: relative;
+  padding-left: 38px;
+  font-size: var(--ph-size-body);
+  line-height: 1.55;
+  color: var(--l-ink);
+}
+:where(.ofsl) .ph-ticks > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.12em;
+  width: 26px;
+  height: 26px;
+  border: var(--l-keyline);
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23101b3b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 15px 15px no-repeat,
+    var(--tick, var(--l-wash));
+}
+
+
+/* ---------------------------------------------------------------- buttons
+   The landing's Button (ui/Button.module.css), for links and buttons the pages render
+   themselves. ph-btn-solid and ph-btn-ghost include ph-btn. */
+
+:where(.ofsl) .ph-btn {
+  --h: 58px;
+  --px: 28px;
+  --fs: 18px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: var(--h);
+  padding: 0 var(--px);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-button);
+  box-shadow: var(--l-shadow);
+  font-family: var(--l-font-text);
+  font-size: var(--fs);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--l-dur-hover) var(--l-ease-out),
+    box-shadow var(--l-dur-hover) var(--l-ease-out),
+    background-color var(--l-dur-hover) ease;
+}
+:where(.ofsl) .ph-btn-solid {
+  background: var(--l-ink);
+  color: var(--l-white);
+  border-color: var(--l-ink);
+}
+:where(.ofsl) .ph-btn-ghost {
+  background: var(--l-white);
+  color: var(--l-ink);
+}
+@media (hover: hover) {
+  :where(.ofsl) .ph-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--l-ink);
+    text-decoration: none;
+  }
+}
+:where(.ofsl) .ph-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--l-ink);
+}
+:where(.ofsl) .ph-btn:focus-visible {
+  outline: 3px solid var(--l-ink);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.ofsl) .ph-btn {
+    transition: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  :where(.ofsl[data-art]) .ph-band {
+    padding-right: calc(var(--ph-art-h) * var(--ph-ar) + 24px);
+  }
+}
+/* Phone: the cut-out stands under the words, at the right. */
+@media (max-width: 640px) {
+  :where(.ofsl[data-art]) .ph-band {
+    padding-right: 0;
+    min-height: 0;
+    padding-bottom: calc(var(--ph-floor) + var(--ph-art-h) + 4px);
+  }
+  :where(.ofsl[data-art]) .ph-band.ph-top {
+    min-height: 0;
+  }
+  :where(.ofsl[data-art]) .ph-band::before {
+    right: 6px;
+  }
+  :where(.ofsl) .ph-title {
+    font-size: clamp(38px, 10.6vw, 46px);
+    max-width: none;
+  }
+  :where(.ofsl) .ph-lede {
+    font-size: 18px;
+  }
+  :where(.ofsl) .ph-btn {
+    --h: 54px;
+    --px: 22px;
+    --fs: 17px;
+  }
+}

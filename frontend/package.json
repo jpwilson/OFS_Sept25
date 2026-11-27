@@ -5,11 +5,14 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/generate-seo-files.mjs",
-    "build": "vite build && node scripts/prerender.mjs",
+    "build": "vite build && node scripts/landing/build-ssr.mjs && node scripts/prerender.mjs",
     "preview": "vite preview",
     "seo:files": "node scripts/generate-seo-files.mjs",
     "seo:check": "node scripts/check-seo.mjs",
-    "seo:indexnow": "node scripts/indexnow.mjs"
+    "seo:indexnow": "node scripts/indexnow.mjs",
+    "landing:facts": "node scripts/landing/check-facts.mjs",
+    "landing:shots": "node scripts/landing/shots.mjs",
+    "landing:variant": "node scripts/landing/variant.mjs"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
@@ -28,6 +31,7 @@
     "html-to-image": "^1.11.13",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
+    "lenis": "^1.3.28",
     "posthog-js": "^1.438.12",
     "react": "^19.1.1",
     "react-datepicker": "^8.8.0",

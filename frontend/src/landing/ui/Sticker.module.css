@@ -1,0 +1,23 @@
+.sticker {
+  display: inline-block;
+  position: relative;
+  padding: 0.02em 0.14em 0.08em;
+  margin: 0 0.02em;
+  background: var(--l-white);
+  color: var(--l-ink);
+  border: var(--l-keyline);
+  border-radius: var(--l-r-sticker);
+  box-shadow: var(--l-shadow);
+  transform: rotate(var(--l-sticker-tilt, -2deg));
+  line-height: 1;
+  white-space: nowrap;
+  font: inherit;
+  letter-spacing: inherit;
+  /* keep the label on the line it sits on, so the tilt reads as a sticker */
+  vertical-align: baseline;
+}
+.sm {
+  padding: 0.06em 0.3em 0.1em;
+  border-radius: 5px;
+  box-shadow: 2px 2px 0 var(--l-ink);
+}

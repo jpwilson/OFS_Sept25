@@ -25,4 +25,7 @@ export const PRICING = {
 // scripts/generate-seo-files.mjs. See SEO.md for how to use it.
 export const INDEXNOW_KEY = '8e5db8617ace1a3455a41ec1662533fd'
 
+// Date the marketing pages last changed (sitemap <lastmod>, JSON-LD dateModified).
+export const LAST_UPDATED_ISO = '2026-11-26'
+
 export const absUrl = (path) => (path === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${path}`)

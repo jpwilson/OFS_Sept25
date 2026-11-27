@@ -1,0 +1,157 @@
+/* The crowd a switch controls (owner: film), shared by the hero and the finale portrait.
+   Everything here is driven by the checked radio through :has(), so it works before any
+   script runs.
+     .scope      the switch always drives it (the portrait)
+     .scopeHero  the switch drives it only while the film is a column of posters; once the
+                 film is pinned the engine places everyone from the scroll instead
+   .who is one person; data-g lists the settings they stand for. */
+
+/* ---- motion, only where CSS is the driver ---- */
+:is(.scope, [data-mode='poster'] .scopeHero) .who [data-rise] {
+  transition: transform 640ms var(--l-ease-pop) calc(var(--i, 0) * 46ms);
+}
+:is(.scope, [data-mode='poster'] .scopeHero) .who [data-shadow] {
+  transition: opacity 260ms ease calc(var(--i, 0) * 46ms + 160ms);
+}
+[data-mode='poster'] .scopeHero .who [data-actor],
+[data-mode='poster'] .scopeHero .who [data-tint],
+[data-mode='poster'] .scopeHero .group,
+[data-mode='poster'] .scopeHero .album {
+  transition:
+    transform 700ms var(--l-ease-out),
+    opacity 300ms ease;
+}
+
+/* ---- strangers stay below the floor until Public ---- */
+:is(.scope, [data-mode='poster'] .scopeHero) .stranger [data-rise] {
+  transform: translateY(106%);
+}
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='public']:checked) .stranger [data-rise] {
+  transform: none;
+  transition: transform 640ms var(--l-ease-pop) calc(var(--i, 0) * 70ms + 120ms);
+}
+.mask {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgba(16, 27, 59, 0.3);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.anyone {
+  text-align: center;
+}
+:is(.scope, [data-mode='poster'] .scopeHero) .anyone {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='public']:checked) .anyone {
+  opacity: 1;
+  transition-delay: 420ms;
+}
+
+/* ---- Private: nobody but the household ---- */
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='private']:checked) .who [data-rise],
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='close']:checked) .who:not([data-g~='close']) [data-rise],
+.scope:has(input[value='custom']:checked) .who:not([data-g~='custom']) [data-rise] {
+  transform: translateY(106%);
+  transition: transform 400ms cubic-bezier(0.5, 0, 0.9, 0.4) calc(var(--i, 0) * 22ms);
+}
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='private']:checked) .who [data-shadow],
+:is(.scope, [data-mode='poster'] .scopeHero):has(input[value='close']:checked) .who:not([data-g~='close']) [data-shadow],
+.scope:has(input[value='custom']:checked) .who:not([data-g~='custom']) [data-shadow] {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ---- the hero's Custom Group: the group steps forward, everyone else steps back ---- */
+.scopeHero .who {
+  --cx: var(--cxd);
+  --cy: var(--cyd);
+  --cs: var(--csd);
+}
+@media (max-aspect-ratio: 9/10) {
+  .scopeHero .who {
+    --cx: var(--cxm);
+    --cy: var(--cym);
+    --cs: var(--csm);
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .scopeHero .who {
+    --cx: var(--cxt);
+    --cy: var(--cyt);
+    --cs: var(--cst);
+  }
+}
+[data-mode='poster'] .scopeHero:has(input[value='custom']:checked) .who [data-actor] {
+  transform: translate(calc(var(--cx) * var(--u)), calc(var(--cy) * var(--u))) scale(var(--cs));
+}
+[data-mode='poster'] .scopeHero:has(input[value='custom']:checked) .who:not([data-g~='custom']) {
+  --z: 20;
+}
+[data-mode='poster'] .scopeHero:has(input[value='custom']:checked) .who[data-g~='custom'] {
+  --z: 56;
+}
+[data-mode='poster'] .scopeHero:has(input[value='custom']:checked) .who:not([data-g~='custom']) [data-tint] {
+  opacity: 0.5;
+}
+
+/* ---- the hero's camera and albums, as a poster ---- */
+.group {
+  --cam: 1;
+}
+[data-mode='poster'] .scopeHero .group {
+  transform: scale(var(--cam));
+}
+[data-mode='poster'] .scopeHero:has(input[value='private']:checked) .group {
+  --cam: var(--cam-private);
+}
+[data-mode='poster'] .scopeHero:has(input[value='close']:checked) .group {
+  --cam: var(--cam-close);
+}
+[data-mode='poster'] .scopeHero:has(input[value='public']:checked) .group {
+  --cam: var(--cam-public);
+}
+[data-mode='poster'] .scopeHero .album {
+  opacity: 0;
+  pointer-events: none;
+}
+[data-mode='poster'] .scopeHero:has(input[value='private']:checked) .album {
+  opacity: 1;
+}
+
+/* ---- the first paint with script on: the film is about to open on Private, so the
+        server-rendered poster already shows it (no crowd to drop when the script arrives) ---- */
+@media (prefers-reduced-motion: no-preference) and (min-height: 560px) {
+  html[data-boot='landing'] [data-mode='poster']:not([data-settled]) .scopeHero .who [data-rise] {
+    transform: translateY(106%);
+    transition: none;
+  }
+  html[data-boot='landing'] [data-mode='poster']:not([data-settled]) .scopeHero .who [data-shadow] {
+    opacity: 0;
+    transition: none;
+  }
+  html[data-boot='landing'] [data-mode='poster']:not([data-settled]) .scopeHero .group {
+    --cam: var(--cam-private);
+    transition: none;
+  }
+  html[data-boot='landing'] [data-mode='poster']:not([data-settled]) .scopeHero .album {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .who [data-rise],
+  .who [data-shadow],
+  .who [data-actor],
+  .who [data-tint],
+  .group,
+  .album,
+  .anyone {
+    transition: none !important;
+  }
+}

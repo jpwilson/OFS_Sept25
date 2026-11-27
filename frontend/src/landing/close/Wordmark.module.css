@@ -1,0 +1,42 @@
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--l-font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--l-ink);
+}
+/* The pin's ink box is 57.5 x 49.5; at 30px tall it stands just over the sticker. */
+.pin {
+  height: 1.6em;
+  width: auto;
+  flex: none;
+  margin-block: -0.2em;
+}
+.full {
+  display: inline-block;
+}
+.short {
+  display: none;
+}
+@media (max-width: 560px) {
+  .mark[data-short] .full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .mark[data-short] .short {
+    display: inline-block;
+  }
+  .mark[data-short] {
+    gap: 8px;
+  }
+}

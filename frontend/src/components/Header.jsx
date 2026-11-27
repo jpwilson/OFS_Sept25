@@ -91,7 +91,8 @@ function Header() {
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
-        Our Family Socials
+        <img src="/favicon.svg" alt="" width="24" height="24" className={styles.logoMark} />
+        <span className={styles.logoText}>Our Family Socials</span>
       </Link>
 
       {/* Hamburger button for mobile */}

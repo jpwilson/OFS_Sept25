@@ -1,0 +1,19 @@
+/* Hidden only once the landing is mounted (html.ofsl-on); visible in static HTML. */
+:global(html.ofsl-on) .reveal:not(:global(.is-in)) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+:global(html.ofsl-on) .reveal:global(.is-in):not([data-instant]) {
+  transition:
+    opacity var(--l-dur-enter) var(--l-ease-out) var(--d, 0ms),
+    transform var(--l-dur-enter) var(--l-ease-out) var(--d, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html.ofsl-on) .reveal:not(:global(.is-in)) {
+    opacity: 1;
+    transform: none;
+  }
+  :global(html.ofsl-on) .reveal {
+    transition: none !important;
+  }
+}

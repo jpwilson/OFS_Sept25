@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { PostHogProvider, usePostHog } from './context/PostHogContext'
 import { ToastProvider } from './components/Toast'
 import { ConfirmProvider } from './components/ConfirmModal'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import Landing from './pages/Landing'
 import Feed from './pages/Feed'
 import EventDetail from './pages/EventDetail'
@@ -77,10 +77,23 @@ function SignupInviteRedirect() {
   return <Navigate to="/login?signup=true" replace />
 }
 
+// The story landing (src/landing), only in builds whose landing variant is 'story'.
+// In a classic build this is null and the import is dropped from the bundle.
+const StoryLanding = __LANDING_VARIANT__ === 'story' ? lazy(() => import('./landing/Page.jsx')) : null
+
 // Component to handle root route redirect
 function RootRedirect() {
   const { user } = useAuth()
-  return user ? <Navigate to="/feed" replace /> : <Landing />
+  const [searchParams] = useSearchParams()
+  if (user) return <Navigate to="/feed" replace />
+  if (StoryLanding && searchParams.get('landing') !== 'legacy') {
+    return (
+      <Suspense fallback={null}>
+        <StoryLanding />
+      </Suspense>
+    )
+  }
+  return <Landing />
 }
 
 // Component to track page views on route changes
