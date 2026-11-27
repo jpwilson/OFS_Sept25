@@ -29,6 +29,38 @@ from ..schemas.tag_profile import (
 
 router = APIRouter(prefix="/tag-profiles", tags=["tag-profiles"])
 
+# A relationship request the profile creator makes for another user is stored
+# with that user as proposer_id and a message starting with this prefix. It is
+# how the two kinds of request are told apart (no schema change), so members
+# may not start their own request message with it.
+CREATOR_PROPOSAL_PREFIX = "Proposed by "
+
+
+def is_creator_proposal(req: TagProfileRelationshipRequest) -> bool:
+    """True for a request the profile creator made for another user (that user
+    approves); False for a member asking to be linked (the creator approves)."""
+    return (req.message or "").startswith(CREATOR_PROPOSAL_PREFIX)
+
+
+def can_resolve_relationship_request(req: TagProfileRelationshipRequest, user: User) -> bool:
+    """Only the other party may approve or reject a relationship request."""
+    creator_id = req.tag_profile.created_by_id
+    if creator_id == req.proposer_id:
+        return False
+    if is_creator_proposal(req):
+        return user.id == req.proposer_id
+    return user.id == creator_id
+
+
+def can_see_birth_date(profile: TagProfile, viewer: User, db: Session) -> bool:
+    """Birth dates are shown only to the profile's creator and to linked users."""
+    if profile.created_by_id == viewer.id:
+        return True
+    return db.query(TagProfileRelationship).filter(
+        TagProfileRelationship.tag_profile_id == profile.id,
+        TagProfileRelationship.user_id == viewer.id
+    ).first() is not None
+
 
 def get_tag_profile_relationships(db: Session, tag_profile_id: int) -> List[TagProfileRelationshipResponse]:
     """Helper to get all relationships for a tag profile."""
@@ -193,10 +225,11 @@ def get_my_tag_profiles(
 @router.get("/{profile_id}", response_model=TagProfileResponse)
 def get_tag_profile(
     profile_id: int,
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get a tag profile by ID."""
+    """Get a tag profile by ID (members only; birth date only for the creator
+    and linked users)."""
     profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
     if not profile:
         raise HTTPException(
@@ -211,7 +244,7 @@ def get_tag_profile(
         name=profile.name,
         relationship_to_creator=profile.relationship_to_creator,
         photo_url=profile.photo_url,
-        birth_date=profile.birth_date,
+        birth_date=profile.birth_date if can_see_birth_date(profile, current_user, db) else None,
         created_by_id=profile.created_by_id,
         created_by_username=creator.username if creator else None,
         created_by_display_name=creator.display_name or creator.full_name if creator else None,
@@ -359,7 +392,7 @@ def delete_tag_profile(
 @router.get("/{profile_id}/relationships", response_model=List[TagProfileRelationshipResponse])
 def get_relationships(
     profile_id: int,
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get all relationships for a tag profile."""
@@ -455,7 +488,7 @@ def add_relationship(
         tag_profile_id=profile_id,
         proposer_id=relationship.user_id,  # The target user (who will approve)
         relationship_type=relationship.relationship_type,
-        message=f"Proposed by {current_user.display_name or current_user.username}"
+        message=f"{CREATOR_PROPOSAL_PREFIX}{current_user.display_name or current_user.username}"
     )
     db.add(new_request)
     db.commit()
@@ -842,6 +875,13 @@ def request_relationship(
             detail="You already have a pending relationship request for this profile"
         )
 
+    # The prefix marks creator proposals (which the proposer approves)
+    if (request_data.message or "").startswith(CREATOR_PROPOSAL_PREFIX):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Your message cannot start with "{CREATOR_PROPOSAL_PREFIX.strip()}"'
+        )
+
     # Create the request
     new_request = TagProfileRelationshipRequest(
         tag_profile_id=profile_id,
@@ -880,25 +920,20 @@ def get_relationship_requests_to_me(
     1. Requests on tag profiles I created (non-creator initiated)
     2. Requests where I am the target user (creator initiated proposals for me)
     """
-    # Case 1: I created the tag profile and someone wants to add themselves
-    requests_on_my_profiles = db.query(TagProfileRelationshipRequest).join(
+    # Both cases: only the requests I am the one to approve
+    pending = db.query(TagProfileRelationshipRequest).join(
         TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
     ).filter(
-        TagProfile.created_by_id == current_user.id,
-        TagProfileRelationshipRequest.proposer_id != current_user.id,  # Someone else proposed
+        or_(
+            # Case 1: I created the tag profile and someone wants to add themselves
+            TagProfile.created_by_id == current_user.id,
+            # Case 2: Creator proposed a relationship for ME (I am the proposer_id/target)
+            TagProfileRelationshipRequest.proposer_id == current_user.id
+        ),
         TagProfileRelationshipRequest.status == "pending"
     ).all()
 
-    # Case 2: Creator proposed a relationship for ME (I am the proposer_id/target)
-    requests_for_me = db.query(TagProfileRelationshipRequest).join(
-        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
-    ).filter(
-        TagProfileRelationshipRequest.proposer_id == current_user.id,
-        TagProfile.created_by_id != current_user.id,  # I didn't create the tag
-        TagProfileRelationshipRequest.status == "pending"
-    ).all()
-
-    all_requests = requests_on_my_profiles + requests_for_me
+    all_requests = [r for r in pending if can_resolve_relationship_request(r, current_user)]
     all_requests.sort(key=lambda r: r.created_at, reverse=True)
 
     results = []
@@ -930,25 +965,17 @@ def get_relationship_requests_count(
     db: Session = Depends(get_db)
 ):
     """Get count of pending relationship requests that need my approval."""
-    # Case 1: Requests on tag profiles I created
-    count1 = db.query(TagProfileRelationshipRequest).join(
+    pending = db.query(TagProfileRelationshipRequest).join(
         TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
     ).filter(
-        TagProfile.created_by_id == current_user.id,
-        TagProfileRelationshipRequest.proposer_id != current_user.id,
+        or_(
+            TagProfile.created_by_id == current_user.id,
+            TagProfileRelationshipRequest.proposer_id == current_user.id
+        ),
         TagProfileRelationshipRequest.status == "pending"
-    ).count()
+    ).all()
 
-    # Case 2: Creator proposed a relationship for me
-    count2 = db.query(TagProfileRelationshipRequest).join(
-        TagProfile, TagProfileRelationshipRequest.tag_profile_id == TagProfile.id
-    ).filter(
-        TagProfileRelationshipRequest.proposer_id == current_user.id,
-        TagProfile.created_by_id != current_user.id,
-        TagProfileRelationshipRequest.status == "pending"
-    ).count()
-
-    return {"count": count1 + count2}
+    return {"count": sum(1 for r in pending if can_resolve_relationship_request(r, current_user))}
 
 
 @claims_router.get("/tag-profile-relationship-requests/sent", response_model=List[TagProfileRelationshipRequestSentResponse])
@@ -1007,13 +1034,9 @@ def approve_relationship_request(
 
     profile = req.tag_profile
 
-    # Check if user can approve this request
-    # Case 1: I created the tag profile and someone else wants to add themselves
-    is_creator_approving = (profile.created_by_id == current_user.id and req.proposer_id != current_user.id)
-    # Case 2: I am the target of a creator-initiated proposal
-    is_target_approving = (req.proposer_id == current_user.id and profile.created_by_id != current_user.id)
-
-    if not is_creator_approving and not is_target_approving:
+    # Only the other party may approve: the creator for a member's request,
+    # the target user for a creator's proposal
+    if not can_resolve_relationship_request(req, current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to approve this request"
@@ -1058,13 +1081,8 @@ def reject_relationship_request(
             detail="Request not found"
         )
 
-    profile = req.tag_profile
-
-    # Check if user can reject this request (same logic as approve)
-    is_creator_rejecting = (profile.created_by_id == current_user.id and req.proposer_id != current_user.id)
-    is_target_rejecting = (req.proposer_id == current_user.id and profile.created_by_id != current_user.id)
-
-    if not is_creator_rejecting and not is_target_rejecting:
+    # Check if user can reject this request (same rule as approve)
+    if not can_resolve_relationship_request(req, current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to reject this request"
