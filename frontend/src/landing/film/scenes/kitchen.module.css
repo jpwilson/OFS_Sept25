@@ -35,13 +35,11 @@
   right: 0;
   bottom: 6px;
 }
-/* on a phone the stage's name starts at the kitchen's left end and wraps, clear of Maya standing at its right */
+/* on a portrait screen the stage's name (the page's headings say it too) steps aside: on the
+   kitchen it ran under Maya and the ways in */
 @media (max-aspect-ratio: 9/10) {
   .level > span {
-    right: auto;
-    left: 0;
-    max-width: 9.5em;
-    white-space: normal;
+    display: none;
   }
 }
 
@@ -392,12 +390,17 @@
   }
 }
 
-/* A tablet held upright: the page hangs from its top edge just under the voice note, and the
-   right dock keeps only the audience chip (its readout ran over the left dock's at 768px). */
+/* A tablet held upright: the page hangs from its top edge just under the voice note with the
+   sticker hanging from its foot, and the right dock keeps only the audience chip (its readout
+   ran over the left dock's at 768px). */
 @media (max-aspect-ratio: 9/10) and (min-width: 700px) {
   .pageSlot.pageSlot {
     --ay: 0%;
     --y: 28.6;
+  }
+  .stickerSlot.stickerSlot {
+    --ay: 0%;
+    --y: 2.4;
   }
 }
 @media (max-aspect-ratio: 9/10) and (min-width: 700px) and (max-width: 899.98px) {
