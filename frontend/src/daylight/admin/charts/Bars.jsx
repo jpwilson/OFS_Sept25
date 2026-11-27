@@ -28,6 +28,8 @@ const total = (b, keys) => keys.reduce((a, k) => a + (b[k.key] || 0), 0)
 export function Bars({ title, action, series, keys, extra = [], interval, summary, legend = keys.length > 1, ui }) {
   const id = useId()
   const [sel, setSel] = useState(null)
+  // the table is built only while open: a closed <details> still lays out its content
+  const [tableOpen, setTableOpen] = useState(false)
   const areaRef = useRef(null)
   const n = series.length
   const max = niceMax(Math.max(0, ...series.map((b) => total(b, keys))))
@@ -138,27 +140,29 @@ export function Bars({ title, action, series, keys, extra = [], interval, summar
           })}
         </div>
       </div>
-      <details className={s.table}>
+      <details className={s.table} onToggle={(e) => setTableOpen(e.currentTarget.open)}>
         <summary>Show as table</summary>
-        <div className={s.tableScroll}>
-          <table>
-            <caption className="a-sr">{title}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{interval === 'hour' ? 'Hour' : interval === 'month' ? 'Month' : 'Day'}</th>
-                {[...keys, ...extra].map((k) => <th key={k.key} scope="col">{k.label}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {series.map((b) => (
-                <tr key={b.t}>
-                  <th scope="row">{bucketLabel(b.t, interval)}{b.partial ? ' (so far)' : ''}</th>
-                  {[...keys, ...extra].map((k) => <td key={k.key}>{num(b[k.key])}</td>)}
+        {tableOpen ? (
+          <div className={s.tableScroll}>
+            <table>
+              <caption className="a-sr">{title}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{interval === 'hour' ? 'Hour' : interval === 'month' ? 'Month' : 'Day'}</th>
+                  {[...keys, ...extra].map((k) => <th key={k.key} scope="col">{k.label}</th>)}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {series.map((b) => (
+                  <tr key={b.t}>
+                    <th scope="row">{bucketLabel(b.t, interval)}{b.partial ? ' (so far)' : ''}</th>
+                    {[...keys, ...extra].map((k) => <td key={k.key}>{num(b[k.key])}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
       </details>
     </figure>
   )
