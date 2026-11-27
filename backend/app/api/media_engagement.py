@@ -7,6 +7,7 @@ from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_user_optional, require_not_demo
 from ..models.user import User
+from ..models.event import Event
 from ..models.event_image import EventImage
 from ..models.media_like import MediaLike, REACTION_TYPES
 from ..models.media_comment import MediaComment
@@ -77,15 +78,58 @@ class BatchMediaStats(BaseModel):
     user_reaction: Optional[str] = None  # The reaction type used by current user
     reaction_counts: Optional[Dict[str, int]] = None  # Count per reaction type
 
+# ============ Access helpers ============
+
+def get_viewable_media_ids(
+    media_ids: List[int],
+    viewer: Optional[User],
+    db: Session,
+    share_token: Optional[str] = None
+) -> set:
+    """IDs from media_ids whose event the viewer may open (same rule as the
+    event itself, including a valid share link token)."""
+    from ..utils.privacy import can_view_event_or_share
+
+    if not media_ids:
+        return set()
+    rows = db.query(EventImage.id, EventImage.event_id).filter(
+        EventImage.id.in_(media_ids)
+    ).all()
+    event_ids = {row.event_id for row in rows}
+    events = db.query(Event).filter(Event.id.in_(event_ids)).all() if event_ids else []
+    viewable_event_ids = {
+        event.id for event in events
+        if can_view_event_or_share(event, viewer, db, share_token)
+    }
+    return {row.id for row in rows if row.event_id in viewable_event_ids}
+
+
+def get_viewable_media_or_404(
+    media_id: int,
+    viewer: Optional[User],
+    db: Session,
+    share_token: Optional[str] = None
+) -> EventImage:
+    """Load a media item the viewer may open, else 404 (so IDs cannot be probed)."""
+    from ..utils.privacy import can_view_event_or_share
+
+    media = db.query(EventImage).filter(EventImage.id == media_id).first()
+    if not media or not media.event or not can_view_event_or_share(media.event, viewer, db, share_token):
+        raise HTTPException(status_code=404, detail="Media not found")
+    return media
+
+
 # ============ Batch Endpoints (must be before parameterized routes) ============
 
 @router.get("/batch/stats", response_model=List[BatchMediaStats])
 def get_batch_media_stats(
     ids: str = Query(..., description="Comma-separated list of media IDs"),
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get like and comment stats for multiple media items at once"""
+    """Get like and comment stats for multiple media items at once.
+    Media the viewer may not open are left out."""
     try:
         media_ids = [int(id.strip()) for id in ids.split(",") if id.strip()]
     except ValueError:
@@ -97,8 +141,13 @@ def get_batch_media_stats(
     if len(media_ids) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 media IDs per request")
 
+    viewable_ids = get_viewable_media_ids(media_ids, current_user, db, share_token)
+
     results = []
     for media_id in media_ids:
+        if media_id not in viewable_ids:
+            continue
+
         # Get all likes for this media
         likes = db.query(MediaLike).filter(
             MediaLike.event_image_id == media_id
@@ -136,10 +185,12 @@ def get_batch_media_stats(
 @router.get("/batch/likes", response_model=List[BatchMediaLikeStats])
 def get_batch_media_likes(
     ids: str = Query(..., description="Comma-separated list of media IDs"),
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get like stats for multiple media items at once (for efficient loading)"""
+    """Get like stats for multiple media items at once (for efficient loading).
+    Media the viewer may not open are left out."""
     try:
         media_ids = [int(id.strip()) for id in ids.split(",") if id.strip()]
     except ValueError:
@@ -151,8 +202,13 @@ def get_batch_media_likes(
     if len(media_ids) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 media IDs per request")
 
+    viewable_ids = get_viewable_media_ids(media_ids, current_user, db, share_token)
+
     results = []
     for media_id in media_ids:
+        if media_id not in viewable_ids:
+            continue
+
         likes = db.query(MediaLike).filter(
             MediaLike.event_image_id == media_id
         ).all()
@@ -184,10 +240,8 @@ def like_media(
     if reaction_type not in REACTION_TYPES:
         reaction_type = 'heart'
 
-    # Check if media exists
-    media = db.query(EventImage).filter(EventImage.id == media_id).first()
-    if not media:
-        raise HTTPException(status_code=404, detail="Media not found")
+    # Check the media exists and the user may open its event
+    get_viewable_media_or_404(media_id, current_user, db)
 
     # Check if already liked
     existing_like = db.query(MediaLike).filter(
@@ -238,10 +292,13 @@ def unlike_media(
 @router.get("/{media_id}/likes", response_model=MediaLikeStats)
 def get_media_likes(
     media_id: int,
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get likes for a media item"""
+    """Get likes for a media item (only for viewers who may open its event)"""
+    get_viewable_media_or_404(media_id, current_user, db, share_token)
+
     # Get all likes
     likes = db.query(MediaLike).filter(
         MediaLike.event_image_id == media_id
@@ -296,10 +353,8 @@ def create_media_comment(
     db: Session = Depends(get_db)
 ):
     """Add a comment to a media item"""
-    # Check if media exists
-    media = db.query(EventImage).filter(EventImage.id == media_id).first()
-    if not media:
-        raise HTTPException(status_code=404, detail="Media not found")
+    # Check the media exists and the user may open its event
+    get_viewable_media_or_404(media_id, current_user, db)
 
     # Validate content
     if not comment_data.content or not comment_data.content.strip():
@@ -354,10 +409,14 @@ def create_media_comment(
 @router.get("/{media_id}/comments", response_model=List[MediaCommentResponse])
 def get_media_comments(
     media_id: int,
+    share_token: Optional[str] = None,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Get all comments for a media item with reaction data"""
+    """Get all comments for a media item with reaction data
+    (only for viewers who may open its event)"""
+    get_viewable_media_or_404(media_id, current_user, db, share_token)
+
     comments = db.query(MediaComment).filter(
         MediaComment.event_image_id == media_id
     ).order_by(MediaComment.created_at.asc()).all()
@@ -447,6 +506,9 @@ def react_to_media_comment(
     # Validate reaction type
     if reaction.reaction_type not in COMMENT_REACTION_TYPES:
         raise HTTPException(status_code=400, detail=f"Invalid reaction type. Must be one of: {COMMENT_REACTION_TYPES}")
+
+    # Check the user may open the media's event
+    get_viewable_media_or_404(media_id, current_user, db)
 
     # Check comment exists and belongs to this media
     comment = db.query(MediaComment).filter(

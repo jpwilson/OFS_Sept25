@@ -1797,10 +1797,11 @@ class ApiService {
     }
   }
 
-  async getBatchMediaStats(mediaIds) {
+  async getBatchMediaStats(mediaIds, shareToken = null) {
     try {
       if (!mediaIds || mediaIds.length === 0) return []
-      const response = await fetch(`${API_BASE}/media/batch/stats?ids=${mediaIds.join(',')}`, {
+      const qs = shareToken ? `&share_token=${encodeURIComponent(shareToken)}` : ''
+      const response = await fetch(`${API_BASE}/media/batch/stats?ids=${mediaIds.join(',')}${qs}`, {
         headers: await this.getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to fetch batch media stats')
@@ -1811,9 +1812,12 @@ class ApiService {
     }
   }
 
-  async getMediaComments(mediaId) {
+  async getMediaComments(mediaId, shareToken = null) {
     try {
-      const response = await fetch(`${API_BASE}/media/${mediaId}/comments`)
+      const qs = shareToken ? `?share_token=${encodeURIComponent(shareToken)}` : ''
+      const response = await fetch(`${API_BASE}/media/${mediaId}/comments${qs}`, {
+        headers: await this.getAuthHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch media comments')
       return await response.json()
     } catch (error) {
