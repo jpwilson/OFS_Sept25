@@ -187,8 +187,10 @@ async function lookScene(page, device) {
   if (device === 'phone') await page.click('[data-ui="tabbar"] button:has-text("You")')
   else await page.click('button[aria-label$="your menu"]')
   await page.waitForTimeout(450)
-  await shoot(page, device, device === 'phone' ? 'You sheet with "Use the previous look"' : 'Avatar menu with "Use the previous look"')
-  await page.getByText('Use the previous look', { exact: true }).click()
+  await shoot(page, device, device === 'phone' ? 'You sheet' : 'Avatar menu')
+  // The menu no longer offers the previous look (production release); ?look=classic still does.
+  await page.keyboard.press('Escape')
+  await page.goto(`${args.base}/feed?look=classic`)
   await settle(page)
   await shoot(page, device, 'Classic look, with the way back')
   await page.getByText('Back to the new look').click()

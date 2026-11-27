@@ -196,7 +196,7 @@ CSS variables live on `.ofsa` (never `:root`), prefix `--a-`, in `src/daylight/s
 
 ## The shell
 
-Phone: 52px top bar (wordmark, people search, bell) and a bottom tab bar (Stories, Map, New as a raised ink disc, Family, You) with safe-area padding. Family and You open bottom sheets (You holds Profile, Settings, plan, Notifications, What's new, FAQ, Send feedback, Install, Admin, **Use the previous look**, Log out). Desktop: 64px bar with Stories / Map / Family menu, search, bell, solid **New story** (opens the three choices: From photos, Write it yourself, Find stories in a big batch) and the avatar menu with the same items as You. Signed-out visitors (the public pages under the layout) get Log in and Start free. The shell mounts the existing `WelcomeModal`, `TrialBanner`, `Footer` and `FeedbackWidget` unchanged, keeps the demo-account banner and routes the `open-ai-create` event to `/create?from=photos`. `main` clips sideways overflow, so a classic page cannot scroll the whole app sideways.
+Phone: 52px top bar (wordmark, people search, bell) and a bottom tab bar (Stories, Map, New as a raised ink disc, Family, You) with safe-area padding. Family and You open bottom sheets (You holds Profile, Settings, plan, Notifications, What's new, FAQ, Send feedback, Install, Admin, Log out; "Use the previous look" was removed for the production release, and `?look=classic` still switches). Desktop: 64px bar with Stories / Map / Family menu, search, bell, solid **New story** (opens the three choices: From photos, Write it yourself, Find stories in a big batch) and the avatar menu with the same items as You. Signed-out visitors (the public pages under the layout) get Log in and Start free. The shell mounts the existing `WelcomeModal`, `TrialBanner`, `Footer` and `FeedbackWidget` unchanged, keeps the demo-account banner and routes the `open-ai-create` event to `/create?from=photos`. `main` clips sideways overflow, so a classic page cannot scroll the whole app sideways.
 
 ## Sample mode
 
@@ -239,7 +239,7 @@ VERCEL_ENV=production node scripts/daylight/variant.mjs       # must print class
 
 ## Known gaps and fragile spots
 
-- The classic Settings page still offers the Theme chooser inside the Daylight shell (the plan hides it; that needs either a Daylight Settings page or a scoped rule, decided at integration).
+- Until the new look has a dark mode (planned with the account pages), `ui/Root.jsx` keeps `<html data-theme="light">` while any Daylight page is on screen, `shell/hideAppearance.js` hides the classic Settings page's Appearance tab, and `shell/classicLight.module.css` gives the classic billing page (drawn dark in every theme) a light skin. All three are marked TEMPORARY.
 - In an `optin` build the Daylight base CSS (a few KB, all scoped under `.ofsa`) and the font-face rules ship in the main stylesheet, because the seams import `Root` statically. Fonts only download when Daylight renders.
 - The sample-build shim for a real phone (PLAN 5.6 point 3, `dev/sampleBoot.js`) is not built yet; `sampleApi.js` is pure so it can back one.
 - `vercel.json` serves `.mjs` (the MapLibre worker) with a JavaScript type by default; check the first preview's worker request.

@@ -16,7 +16,7 @@
 //   hideMedia, me (the signed-in user), onSignIn(), social (node), coverRef, authorFace
 // Every stop header and every located photo carries data-stop-id.
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { parseStory } from '../lib/storyBlocks.js'
+import { mediaKey, parseStory } from '../lib/storyBlocks.js'
 import { buildJourney } from '../lib/journey.js'
 import { useMediaStats } from '../lib/data.js'
 import { useToast } from '../../components/Toast.jsx'
@@ -29,6 +29,17 @@ import Comments from './Comments.jsx'
 import s from './StoryView.module.css'
 
 const Lightbox = lazy(() => import('./Lightbox.jsx'))
+
+/** Where the cover sits among the story's photos, or -1: the same path, else the same file
+ *  name (the two tests parseStory makes to match a photo to its event_images row). */
+function coverIndex(cover, media) {
+  if (!cover) return -1
+  const key = mediaKey(cover)
+  const file = key.split('/').pop() || ''
+  const byPath = media.findIndex((m) => m.kind === 'image' && mediaKey(m.src) === key)
+  if (byPath >= 0 || !file) return byPath
+  return media.findIndex((m) => m.kind === 'image' && (mediaKey(m.src).split('/').pop() || '') === file)
+}
 
 export default function StoryView({
   event, images, mode = 'read', extras, parsed: parsedIn, journey: journeyIn, activeStopId,
@@ -72,9 +83,20 @@ export default function StoryView({
   )
 
   // the lightbox shows every photo and clip, in story order
-  const [lb, setLb] = useState({ open: false, index: 0, loaded: false })
-  const openAt = useCallback((i) => setLb({ open: true, index: i, loaded: true }), [])
+  // (withCover: opened from a cover that is not one of the story's photos, so it leads the set)
+  const [lb, setLb] = useState({ open: false, index: 0, loaded: false, withCover: false })
+  const openAt = useCallback((i) => setLb({ open: true, index: i, loaded: true, withCover: false }), [])
   const openId = useCallback((id) => openAt(Math.max(0, parsed.media.findIndex((m) => m.id === id))), [parsed, openAt])
+  const coverUrl = event?.cover_image_url
+  const coverAt = useMemo(() => coverIndex(coverUrl, parsed.media), [coverUrl, parsed])
+  const openCover = useCallback(
+    () => (coverAt >= 0 ? openAt(coverAt) : setLb({ open: true, index: 0, loaded: true, withCover: true })),
+    [coverAt, openAt],
+  )
+  const lbMedia = useMemo(
+    () => (lb.withCover && coverUrl ? [{ id: 'cover', imageId: null, kind: 'image', src: coverUrl, poster: null, caption: '', alt: event?.title || '', w: null, h: null, lat: null, lng: null, ts: null }, ...parsed.media] : parsed.media),
+    [lb.withCover, coverUrl, parsed, event?.title],
+  )
 
   const ctx = useMemo(
     () => ({ stats: ms.stats, react: social_ ? react : null, canReact: read && !!me, open: openId, journey, onSignIn }),
@@ -115,6 +137,7 @@ export default function StoryView({
           onSignIn={onSignIn}
           coverRef={coverRef}
           authorFace={authorFace}
+          onOpenCover={openCover}
         />
         {afterHeader}
         <div className={s.layout} data-layout={layout}>
@@ -170,7 +193,7 @@ export default function StoryView({
           <Lightbox
             open={lb.open}
             index={lb.index}
-            media={parsed.media}
+            media={lbMedia}
             onClose={() => setLb((x) => ({ ...x, open: false }))}
             onIndex={(i) => setLb((x) => ({ ...x, index: i }))}
             stats={ms.stats}

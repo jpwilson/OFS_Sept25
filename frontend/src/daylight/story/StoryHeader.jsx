@@ -25,7 +25,7 @@ const tagName = (t) => t.tagged_user_display_name || t.tagged_user_username || t
 const tagLink = (t) => (t.tagged_user_id != null ? `/profile/${t.tagged_user_username}` : t.tag_profile_id != null ? `/tag-profile/${t.tag_profile_id}` : null)
 const tagFace = (t) => t.tagged_user_avatar_url || t.tag_profile_photo_url || null
 
-export default function StoryHeader({ event, mode, extras, isAuthor, authorItems, onShare, onComments, onContents, onSignIn, coverRef, authorFace }) {
+export default function StoryHeader({ event, mode, extras, isAuthor, authorItems, onShare, onComments, onContents, onSignIn, coverRef, authorFace, onOpenCover }) {
   const preview = mode === 'preview'
   const author = event.author_full_name || event.author_username || 'Someone'
   const first = firstName(event.author_full_name, event.author_username)
@@ -42,7 +42,13 @@ export default function StoryHeader({ event, mode, extras, isAuthor, authorItems
     <header className={s.head} data-ui="story-header" data-preview={preview || undefined}>
       {cover ? (
         <div className={s.coverWrap} ref={coverRef}>
-          <img className={s.cover} src={imageSrc(cover, 'medium')} srcSet={imageSrcSet(cover)} sizes="(min-width: 900px) 1240px, 100vw" alt="" fetchPriority="high" decoding="async" />
+          {onOpenCover ? (
+            <button type="button" className={s.coverBtn} onClick={onOpenCover} aria-label="Open the photos" data-ui="story-cover">
+              <img className={s.cover} src={imageSrc(cover, 'medium')} srcSet={imageSrcSet(cover)} sizes="(min-width: 900px) 1240px, 100vw" alt="" fetchPriority="high" decoding="async" />
+            </button>
+          ) : (
+            <img className={s.cover} src={imageSrc(cover, 'medium')} srcSet={imageSrcSet(cover)} sizes="(min-width: 900px) 1240px, 100vw" alt="" fetchPriority="high" decoding="async" />
+          )}
         </div>
       ) : (
         <div ref={coverRef} className={s.noCover} aria-hidden="true" />

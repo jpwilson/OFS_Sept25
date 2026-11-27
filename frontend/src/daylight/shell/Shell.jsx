@@ -19,7 +19,6 @@ import { Icon } from '../ui/Icon.jsx'
 import { Avatar } from '../ui/Avatar.jsx'
 import { Menu, MenuList } from '../ui/Menu.jsx'
 import { Sheet } from '../ui/Sheet.jsx'
-import { setLook } from '../lib/look.js'
 import { signOutHere } from '../auth/lib/client.js'
 import { useNotificationCounts } from '../lib/data.js'
 import { useDesktop } from '../lib/capability.js'
@@ -28,7 +27,9 @@ import { Pin } from '../../landing/close/Wordmark.jsx'
 import { ChromeContext, STORIES_RESELECT } from './chrome.js'
 import { NewChoices, NewSheet } from './NewMenu.jsx'
 import { SearchSheet } from './SearchSheet.jsx'
+import { useHideAppearance } from './hideAppearance.js'
 import s from './Shell.module.css'
+import light from './classicLight.module.css'
 
 const isInstalledPWA = () =>
   typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true)
@@ -57,7 +58,8 @@ function youItems({ user, isSuperuser, navigate, logout }) {
       : { label: 'Install the app', icon: 'download', onClick: () => window.dispatchEvent(new Event('show-install-prompt')) },
     isSuperuser ? { label: 'Admin', to: '/admin', icon: 'settings' } : null,
     { divider: true },
-    { label: 'Use the previous look', icon: 'swap', note: 'You can come back to this one any time', onClick: () => setLook('classic') },
+    // "Use the previous look" was removed for the production release; ?look=classic still
+    // works (lib/look.js) and a page that fails offers it (seam/shared.jsx).
     {
       label: 'Log out',
       icon: 'logout',
@@ -135,6 +137,7 @@ export default function Shell({ override }) {
   const onStories = onFeed && !onMap
   const onProfile = user && loc.pathname === `/profile/${user.username}`
   const onFamily = ['/family-tree', '/groups', '/tags', '/relationships'].includes(loc.pathname)
+  useHideAppearance(loc.pathname === '/settings')
   const canCreate = user && !isDemoAccount
   const homeTo = user ? '/feed' : '/'
 
@@ -250,7 +253,7 @@ export default function Shell({ override }) {
           </header>
         )}
 
-        <main id="ofsa-main" tabIndex={-1} className={s.main}>
+        <main id="ofsa-main" tabIndex={-1} className={loc.pathname === '/billing' ? `${s.main} ${light.billing}` : s.main}>
           {override || <Outlet />}
         </main>
 
