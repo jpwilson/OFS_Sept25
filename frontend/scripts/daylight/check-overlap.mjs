@@ -326,8 +326,9 @@ async function openScene(page, vp, scene) {
     await page.setInputFiles('[data-ui="photo-input"]', KIT_FILES)
     await page.waitForSelector('[data-ui="create-summary"]', { timeout: 30000 })
     await page.waitForTimeout(1200)
-  } else if (page.url().startsWith(args.base) && !/^\/__fx\//.test(new URL(page.url()).pathname)) {
-    // move inside the running app (a full load costs hundreds of module requests on the dev
+  } else if (page.url().startsWith(args.base) && !/^\/__fx\//.test(new URL(page.url()).pathname) && new URL(page.url()).pathname !== new URL(scene.path, args.base).pathname) {
+    // another page: move inside the running app (the same page loads afresh, so nothing the
+    // last scene opened on it stays open); (a full load costs hundreds of module requests on the dev
     // server); the router answers popstate like a Back
     await page.evaluate((p) => {
       history.pushState({}, '', p)
@@ -361,7 +362,7 @@ async function runViewport(vp) {
     const as = scene.as === undefined ? 'maya' : scene.as
     const page = await pageFor(as, scene.me)
     // a scene may leave a sheet open or the voice recorder running: start each from clean
-    await page.keyboard.press('Escape').catch(() => {})
+    for (let i = 0; i < 3; i++) await page.keyboard.press('Escape').catch(() => {})
     if (as === null) await page.evaluate(() => { try { localStorage.clear(); sessionStorage.clear() } catch {} }).catch(() => {})
     const wanted = replay ? replay.frames.filter((f) => f.scene === scene.name && f.vp === vp.key) : null
     if (replay && !wanted.length) continue
