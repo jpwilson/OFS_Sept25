@@ -86,7 +86,7 @@ export function world(st) {
   const person = (joined, { method, invitedBy = null, engage, legacy = false }) => {
     const id = nextId++
     const first = FIRST[(id * 7) % FIRST.length]
-    const last = LAST[(id * 11) % LAST.length]
+    const last = LAST[(id * 5 + Math.floor(id / 7)) % LAST.length]
     const username = `${first}${last}`.toLowerCase().slice(0, 10) + (id % 10)
     const u = {
       id, username, display_name: `${first} ${last}`, full_name: `${first} ${last}`, email: `${username}@example.test`, avatar_url: null,
@@ -223,7 +223,7 @@ const truthy = (v) => v === true || v === 'true' || v === '1'
 function people(st, mode, includeStaff) {
   const w = world(st)
   let users = w.users.filter((u) => includeStaff || !u.staff)
-  if (mode === 'empty') users = users.filter((u) => u.joined < SAMPLE_NOW - 400 * D)
+  if (mode === 'empty') users = [] // a site nobody has joined yet
   return { w, users, accounts: mode === 'empty' ? [] : w.accounts.filter((a) => !a.deleted) }
 }
 
