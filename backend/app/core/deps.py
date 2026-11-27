@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import or_, update
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from typing import Optional
@@ -12,16 +13,30 @@ from ..models.user import User
 security = HTTPBearer()
 
 
+LAST_LOGIN_EVERY = timedelta(hours=1)
+
+
 def _update_last_login(user: User, db: Session):
-    """Update user's last_login if it's been more than 1 hour since last update.
-    This prevents excessive DB writes on every API call."""
+    """Record "last seen" at most once an hour per user.
+
+    A conditional UPDATE, so parallel requests from one page load write once: only the
+    first finds last_login missing or older than an hour. Never logs the user."""
     now = datetime.utcnow()
-    if user.last_login is None or (now - user.last_login) > timedelta(hours=1):
-        try:
-            user.last_login = now
-            db.commit()
-        except Exception:
-            db.rollback()  # Don't let login tracking failures break auth
+    if user.last_login is not None and (now - user.last_login) <= LAST_LOGIN_EVERY:
+        return
+    try:
+        db.execute(
+            update(User)
+            .where(User.id == user.id,
+                   or_(User.last_login.is_(None), User.last_login < now - LAST_LOGIN_EVERY))
+            .values(last_login=now)
+            .execution_options(synchronize_session=False)
+        )
+        db.commit()
+    except Exception:
+        db.rollback()  # Don't let login tracking failures break auth
+
+
 security_optional = HTTPBearer(auto_error=False)
 
 def get_current_user(
