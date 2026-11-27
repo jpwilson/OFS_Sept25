@@ -10,6 +10,7 @@
 //   --device phone|desktop|both|ipad|ipad-land|all   default both; phone (390x844) is always
 //                      shot first; ipad is 820x1180, ipad-land 1180x820, all is the four
 //   --scene auth       the sign-in screens and their states (steps in src/daylight/auth/dev/scenes.mjs)
+//   --scene admin      the admin page, its tabs and states (src/daylight/admin/dev/scenes.mjs)
 //   --full             full-page shots       --wait <css>   wait for a selector before shooting
 //   --click <css>      click before shooting  --reduced     prefers-reduced-motion
 //   --focus N          press Tab N times and shoot the focused state
@@ -47,6 +48,8 @@ const SCENES = {
   spike: { routes: ['/feed?only=spike'], wait: '[data-map-state="idle"]', settle: 4000 }, // never full-page: resizing the viewport clears WebGL canvases
   look: { custom: lookScene },
   auth: { custom: (...a) => import('../../src/daylight/auth/dev/scenes.mjs').then((m) => m.authScene(...a)), signedOut: true },
+  // the admin page as a superuser; phone is shot at 393x680, the owner's iPhone in Chrome
+  admin: { custom: (...a) => import('../../src/daylight/admin/dev/scenes.mjs').then((m) => m.adminScene(...a)) },
 }
 const scene = args.scene ? SCENES[args.scene] : null
 if (args.scene && !scene) throw new Error(`unknown scene ${args.scene}; one of ${Object.keys(SCENES).join(', ')}`)

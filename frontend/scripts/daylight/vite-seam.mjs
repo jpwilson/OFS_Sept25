@@ -2,7 +2,7 @@
 //
 // Added to the Vite plugin list ONLY when the app look is not 'classic' (vite.config.js),
 // so a classic build never sees it. It:
-//   1. redirects thirteen imports made by src/App.jsx to src/daylight/seam/<Name>.jsx, and fails
+//   1. redirects fourteen imports made by src/App.jsx to src/daylight/seam/<Name>.jsx, and fails
 //      the build if any of them did not happen (no existing file under src/ is edited);
 //   2. in 'daylight' builds, rewrites index.html for a light page (theme colour, status bar,
 //      a Bricolage preload);
@@ -41,6 +41,7 @@ export const SEAMS = {
   './pages/DemoLogin': 'DemoLogin.jsx',
   // the family tree (docs/app/FAMILY.md)
   './pages/FamilyTree': 'FamilyTree.jsx',
+  './pages/AdminDashboard': 'AdminDashboard.jsx',
 }
 
 // Map chunks are large and only wanted when a map opens: never precached by the service

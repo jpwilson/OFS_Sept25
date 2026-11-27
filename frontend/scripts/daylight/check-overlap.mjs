@@ -203,7 +203,6 @@ const SCENES = [
   { name: 'tags', path: '/tags' },
   { name: 'sharing', path: '/relationships' },
   { name: 'my-feedback', path: '/my-feedback' },
-  { name: 'admin', path: '/admin' },
   { name: 'admin-users', path: '/admin/users' },
   // the family tree (docs/app/FAMILY.md): the Hartleys as Maya, then the other sample sets
   { name: 'family-tree', path: FAMILY, family: 'hartley', prep: familyTree },
@@ -217,6 +216,39 @@ const SCENES = [
   { name: 'family-error', path: FAMILY, family: 'error', prep: familyTree },
   { name: 'family-owner', path: FAMILY, family: 'owner-shape', as: 'nate', prep: familyTree },
   { name: 'family-owner-tag', path: `${FAMILY}?person=t:401`, family: 'owner-shape', as: 'nate', prep: familySheet },
+  // the admin page (docs/app/ADMIN-ANALYTICS.md); the sweep's member is a superuser
+  { name: 'admin', path: '/admin', settle: 900 },
+  { name: 'admin-chart-selected', path: '/admin', settle: 900, prep: async (page, h) => {
+    await h.scrollTo('[data-ui="chart-visitors"]', 0.2)
+    await page.waitForTimeout(300)
+    const box = await page.locator('[data-ui="chart-visitors"] [data-ui="chart-area"]').boundingBox()
+    if (h.desktop) await page.mouse.click(box.x + box.width * 0.8, box.y + box.height * 0.7)
+    else await page.touchscreen.tap(box.x + box.width * 0.8, box.y + box.height * 0.7)
+    await page.waitForFunction(() => /visitors/.test(document.querySelector('[data-ui="chart-visitors"] [data-ui="chart-readout"]')?.textContent || '') && /·/.test(document.querySelector('[data-ui="chart-visitors"] [data-ui="chart-readout"]')?.textContent || ''), null, { timeout: 8000 })
+  } },
+  { name: 'admin-members', path: '/admin?tab=members', settle: 900 },
+  { name: 'admin-filters', path: '/admin?tab=members', prep: async (page, h) => {
+    await h.tap('[data-ui="admin-filters-button"]')
+    await page.waitForSelector('[data-ui="admin-filter-sheet"]')
+    await page.waitForTimeout(600)
+  } },
+  { name: 'admin-unfinished', path: '/admin', prep: async (page, h) => {
+    await h.tap('[data-ui="admin-unfinished-link"]')
+    await page.waitForSelector('[data-ui="admin-unfinished"] li', { timeout: 10000 })
+    await page.waitForTimeout(600)
+  } },
+  { name: 'admin-tools', path: '/admin?tab=tools', settle: 1200 },
+  // visitors not set up: this page alone asks the sample for it, so viewports run side by side
+  { name: 'admin-visitors-setup', path: '/admin', me: 'posthog-off', prep: async (page, h) => {
+    await page.route('**/api/v1/admin/analytics/visitors?*', (route) => {
+      const u = new URL(route.request().url())
+      u.searchParams.set('__posthog', '0')
+      return route.continue({ url: u.toString() })
+    })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.waitForSelector('[data-ui="admin-visitors-setup"]', { timeout: 15000 })
+    await h.idle(600)
+  } },
   // signed out
   { name: 'login', path: '/login', as: null },
   { name: 'signup', path: '/login?signup=true', as: null },

@@ -12,6 +12,8 @@ from ..models.tag_profile_relationship import TagProfileRelationship
 from ..models.tag_profile_relationship_request import TagProfileRelationshipRequest
 from ..models.follow import Follow
 from ..models.event_tag import EventTag
+from ..models.family_note import FamilyNote
+from ..utils.family import clean_place, tag_dates
 from ..schemas.tag_profile import (
     TagProfileCreate,
     TagProfileUpdate,
@@ -84,6 +86,42 @@ def get_tag_profile_relationships(db: Session, tag_profile_id: int) -> List[TagP
     return result
 
 
+def tag_profile_response(db: Session, profile: TagProfile, creator: Optional[User],
+                         show_private: bool = True) -> TagProfileResponse:
+    """show_private=False hides the birth date, its precision, the birthplace and the
+    date of death (see can_see_birth_date)."""
+    def private(value):
+        return value if show_private else None
+
+    return TagProfileResponse(
+        id=profile.id,
+        name=profile.name,
+        relationship_to_creator=profile.relationship_to_creator,
+        photo_url=profile.photo_url,
+        birth_date=private(profile.birth_date),
+        birth_date_precision=private(profile.birth_date_precision),
+        birthplace=private(profile.birthplace),
+        died_on=private(profile.died_on),
+        died_on_precision=private(profile.died_on_precision),
+        created_by_id=profile.created_by_id,
+        created_by_username=creator.username if creator else None,
+        created_by_display_name=(creator.display_name or creator.full_name) if creator else None,
+        is_merged=profile.is_merged,
+        merged_user_id=profile.merged_user_id,
+        created_at=profile.created_at,
+        relationships=get_tag_profile_relationships(db, profile.id)
+    )
+
+
+def _merged_date(sent: dict, date_key: str, precision_key: str, old_date, old_precision):
+    """The (date, precision) after a partial update: a new date keeps the old precision
+    unless one is sent, and a null date clears both."""
+    if date_key in sent:
+        new_date = sent[date_key]
+        return new_date, (sent.get(precision_key, old_precision) if new_date else None)
+    return old_date, sent.get(precision_key, old_precision)
+
+
 @router.post("", response_model=TagProfileResponse)
 def create_tag_profile(
     profile: TagProfileCreate,
@@ -91,11 +129,17 @@ def create_tag_profile(
     db: Session = Depends(get_db)
 ):
     """Create a new tag profile for a non-user (pet, child, relative, etc.)"""
+    birth_date, birth_precision, died_on, died_precision = tag_dates(
+        profile.birth_date, profile.birth_date_precision, profile.died_on, profile.died_on_precision)
     db_profile = TagProfile(
         name=profile.name,
         relationship_to_creator=profile.relationship_to_creator,
         photo_url=profile.photo_url,
-        birth_date=profile.birth_date,
+        birth_date=birth_date,
+        birth_date_precision=birth_precision,
+        birthplace=clean_place(profile.birthplace),
+        died_on=died_on,
+        died_on_precision=died_precision,
         created_by_id=current_user.id
     )
     db.add(db_profile)
@@ -112,20 +156,7 @@ def create_tag_profile(
         db.add(initial_rel)
         db.commit()
 
-    return TagProfileResponse(
-        id=db_profile.id,
-        name=db_profile.name,
-        relationship_to_creator=db_profile.relationship_to_creator,
-        photo_url=db_profile.photo_url,
-        birth_date=db_profile.birth_date,
-        created_by_id=db_profile.created_by_id,
-        created_by_username=current_user.username,
-        created_by_display_name=current_user.display_name or current_user.full_name,
-        is_merged=db_profile.is_merged,
-        merged_user_id=db_profile.merged_user_id,
-        created_at=db_profile.created_at,
-        relationships=get_tag_profile_relationships(db, db_profile.id)
-    )
+    return tag_profile_response(db, db_profile, current_user)
 
 
 @router.get("/search", response_model=List[TagProfileSearchResult])
@@ -203,23 +234,7 @@ def get_my_tag_profiles(
         TagProfile.is_merged == False
     ).order_by(TagProfile.name).all()
 
-    return [
-        TagProfileResponse(
-            id=p.id,
-            name=p.name,
-            relationship_to_creator=p.relationship_to_creator,
-            photo_url=p.photo_url,
-            birth_date=p.birth_date,
-            created_by_id=p.created_by_id,
-            created_by_username=current_user.username,
-            created_by_display_name=current_user.display_name or current_user.full_name,
-            is_merged=p.is_merged,
-            merged_user_id=p.merged_user_id,
-            created_at=p.created_at,
-            relationships=get_tag_profile_relationships(db, p.id)
-        )
-        for p in profiles
-    ]
+    return [tag_profile_response(db, p, current_user) for p in profiles]
 
 
 @router.get("/{profile_id}", response_model=TagProfileResponse)
@@ -228,8 +243,8 @@ def get_tag_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get a tag profile by ID (members only; birth date only for the creator
-    and linked users)."""
+    """Get a tag profile by ID (members only; the birth date, birthplace and date of
+    death only for the creator and linked users)."""
     profile = db.query(TagProfile).filter(TagProfile.id == profile_id).first()
     if not profile:
         raise HTTPException(
@@ -239,20 +254,8 @@ def get_tag_profile(
 
     creator = db.query(User).filter(User.id == profile.created_by_id).first()
 
-    return TagProfileResponse(
-        id=profile.id,
-        name=profile.name,
-        relationship_to_creator=profile.relationship_to_creator,
-        photo_url=profile.photo_url,
-        birth_date=profile.birth_date if can_see_birth_date(profile, current_user, db) else None,
-        created_by_id=profile.created_by_id,
-        created_by_username=creator.username if creator else None,
-        created_by_display_name=creator.display_name or creator.full_name if creator else None,
-        is_merged=profile.is_merged,
-        merged_user_id=profile.merged_user_id,
-        created_at=profile.created_at,
-        relationships=get_tag_profile_relationships(db, profile.id)
-    )
+    return tag_profile_response(db, profile, creator,
+                                show_private=can_see_birth_date(profile, current_user, db))
 
 
 @router.get("/{profile_id}/events")
@@ -331,32 +334,30 @@ def update_tag_profile(
             detail="You can only update your own tag profiles"
         )
 
-    if profile_update.name is not None:
-        profile.name = profile_update.name
-    if profile_update.relationship_to_creator is not None:
-        profile.relationship_to_creator = profile_update.relationship_to_creator
-    if profile_update.photo_url is not None:
-        profile.photo_url = profile_update.photo_url
-    if profile_update.birth_date is not None:
-        profile.birth_date = profile_update.birth_date
+    # Only the fields sent; an explicit null clears (a date clears with its precision).
+    sent = profile_update.model_dump(exclude_unset=True)
+    if "name" in sent and sent["name"] is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="A name is needed"
+        )
+    birth_date, birth_precision = _merged_date(sent, "birth_date", "birth_date_precision",
+                                               profile.birth_date, profile.birth_date_precision)
+    died_on, died_precision = _merged_date(sent, "died_on", "died_on_precision",
+                                           profile.died_on, profile.died_on_precision)
+    (profile.birth_date, profile.birth_date_precision,
+     profile.died_on, profile.died_on_precision) = tag_dates(birth_date, birth_precision, died_on, died_precision)
+    if "birthplace" in sent:
+        profile.birthplace = clean_place(sent["birthplace"])
+    for field in ("name", "relationship_to_creator", "photo_url"):
+        if field in sent:
+            setattr(profile, field, sent[field])
 
     db.commit()
     db.refresh(profile)
 
-    return TagProfileResponse(
-        id=profile.id,
-        name=profile.name,
-        relationship_to_creator=profile.relationship_to_creator,
-        photo_url=profile.photo_url,
-        birth_date=profile.birth_date,
-        created_by_id=profile.created_by_id,
-        created_by_username=current_user.username,
-        created_by_display_name=current_user.display_name or current_user.full_name,
-        is_merged=profile.is_merged,
-        merged_user_id=profile.merged_user_id,
-        created_at=profile.created_at,
-        relationships=get_tag_profile_relationships(db, profile.id)
-    )
+    return tag_profile_response(db, profile, current_user)
+
 
 
 @router.delete("/{profile_id}")
@@ -379,6 +380,9 @@ def delete_tag_profile(
             detail="You can only delete your own tag profiles"
         )
 
+    # Explicitly, because SQLite (the tests) does not enforce the ON DELETE CASCADE.
+    db.query(FamilyNote).filter(FamilyNote.subject_tag_profile_id == profile.id) \
+        .delete(synchronize_session=False)
     db.delete(profile)
     db.commit()
 
@@ -765,6 +769,12 @@ def approve_claim(
             tag.tagged_user_id = claim.claimant_id
             tag.tag_profile_id = None
             tag.status = "accepted"  # Auto-accept since they claimed it
+
+    # The notes about the tag become notes about the member, in the same transaction;
+    # from now on the member's family reads them.
+    db.query(FamilyNote).filter(FamilyNote.subject_tag_profile_id == profile.id).update(
+        {FamilyNote.subject_user_id: claim.claimant_id, FamilyNote.subject_tag_profile_id: None},
+        synchronize_session=False)
 
     # Reject all other pending claims for this profile
     other_claims = db.query(TagProfileClaim).filter(
