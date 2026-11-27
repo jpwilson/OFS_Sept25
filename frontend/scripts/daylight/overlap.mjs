@@ -256,8 +256,10 @@ export function detectOverlap() {
     const scrollers = scrollersOf(t.el)
     const roomDown = scrollers.reduce((n, sc) => n + Math.max(0, sc.scrollHeight - sc.clientHeight - sc.scrollTop), 0)
     const roomUp = scrollers.reduce((n, sc) => n + Math.max(0, sc.scrollTop), 0)
-    const canDown = lb.top > r.height && roomDown >= r.bottom - lb.top - 1
-    const canUp = roomUp >= lb.bottom - r.top - 1 && r.bottom + (lb.bottom - r.top) <= VH
+    // a line of text must come out whole; a control taller than a finger, by a finger's height
+    const h = t.kind === 'control' ? Math.min(r.height, 44) : r.height
+    const canDown = lb.top > h && roomDown >= r.top + h - lb.top - 1
+    const canUp = roomUp >= lb.bottom - (r.bottom - h) - 1 && lb.bottom + h <= VH
     if (!side && !held && (canDown || canUp)) return null
     const below = (lb.top + lb.bottom) / 2 > VH / 2 // which half of the screen the bar keeps to
     return held ? 'a bar under another bar' : side ? 'under a side panel' : below ? 'under a bar below it, and no scrolling brings it out' : 'under a bar above it, and no scrolling brings it out'
