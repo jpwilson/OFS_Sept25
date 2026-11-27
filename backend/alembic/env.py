@@ -26,6 +26,8 @@ from app.models import (
 from app.models.custom_group import CustomGroup, CustomGroupMember
 from app.models.tag_profile_relationship import TagProfileRelationship
 from app.models.tag_profile_relationship_request import TagProfileRelationshipRequest
+from app.models.family_note import FamilyNote
+from app.models.member_details import MemberDetails
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
