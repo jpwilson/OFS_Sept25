@@ -21,6 +21,10 @@
 //                            top, 34px bottom on phones) and the status bar and home indicator drawn
 //                            as opaque bars over the page, so what lands under them is found.
 //                            Headless Chromium has no insets of its own.
+// The family tree's scenes (family: <set>) run after the rest, one set at a time with every
+// viewport on it, because the set and the signed-in person are the sample's own state, shared
+// by every page (src/daylight/family/sample.js): a sign-in or sign-up scene on another viewport
+// changes who is signed in. The sample is put back to the Hartleys and Maya after them.
 // Writes <vp>-<scene>-NN.jpg (findings outlined: pink the thing, orange what it collides with),
 // sheet-NN.jpg (labelled contact sheets), report.json. Exits 1 when anything collides.
 import fs from 'node:fs'
@@ -48,6 +52,7 @@ const TETONS = '/event/seven-days-in-the-tetons'
 
 // ---------------------------------------------------------------- scenes
 // {name, path, as: 'maya'|null (signed out), me: a key of ME (the member's account changed),
+//  family: a sample set of src/daylight/family/sample.js (run in the second phase),
 //  prep(page, h), wide: only >= 900, narrow: only < 900, maxW: only this wide or narrower,
 //  noSweep: look once where prep leaves it}
 // prep opens whatever a person would open; the sweep then scrolls whatever is on top.
@@ -63,6 +68,34 @@ const ME = {
   trialend: { subscription_status: 'trial', subscription_tier: 'free', trial_days_remaining: 0, trial_end_date: '2026-11-20T00:00:00' },
   trial: { subscription_status: 'trial', subscription_tier: 'free', trial_days_remaining: 12, is_within_first_5_days: false, trial_end_date: '2026-12-08T00:00:00' },
 }
+// the family tree: wait until it has grown (or the empty or error state is up), then open a sheet
+const grown = (page) => page.waitForSelector('[data-tree-state="grown"], [data-ui="family-empty"], [data-ui="empty-state"]', { timeout: 20000 })
+const familySheet = async (page, h) => {
+  await grown(page)
+  await page.waitForSelector('[aria-modal="true"]', { timeout: 10000 })
+  await h.idle(700)
+}
+const familyTree = async (page, h) => {
+  await grown(page)
+  await h.idle(700)
+}
+const FAMILY = '/family-tree'
+// notes and history on a person sheet (docs/app/FAMILY-NOTES.md): the block asks once it is near view
+const familyNotes = async (page, h) => {
+  await familySheet(page, h)
+  await page.locator('[data-ui="person-notes"]').scrollIntoViewIfNeeded()
+  await page.waitForSelector('[data-ui="person-notes"][data-state="ready"], [data-ui="person-notes"][data-state="error"], [data-ui="person-notes"][data-state="forbidden"]', { timeout: 10000 })
+  await h.idle(500)
+}
+const noteMenu = async (page, h) => {
+  await familyNotes(page, h)
+  await h.tap('[data-ui="person-notes"] [role="radio"]:has-text("Notes")')
+  await page.waitForTimeout(300)
+  await h.tap('[data-ui="note-menu"]')
+  await page.waitForSelector('[data-ui="menu"]')
+  await page.waitForTimeout(400)
+}
+const LONG_NOTE = 'She kept the ration books from 1953 in the biscuit tin with the buttons, and she would tell you about each one if you asked, '.repeat(9)
 const openYou = async (page, h) => (h.desktop ? h.tap('button[aria-label$="your menu"]') : h.tap('[data-ui="tabbar"] button:has-text("You")'))
 const SCENES = [
   { name: 'feed', path: '/feed' },
@@ -185,9 +218,68 @@ const SCENES = [
   { name: 'notifications', path: '/notifications' },
   { name: 'tags', path: '/tags' },
   { name: 'sharing', path: '/relationships' },
-  { name: 'family-tree', path: '/family-tree' },
   { name: 'my-feedback', path: '/my-feedback' },
   { name: 'admin-users', path: '/admin/users' },
+  // the family tree (docs/app/FAMILY.md): the Hartleys as Maya, then the other sample sets
+  { name: 'family-tree', path: FAMILY, family: 'hartley', prep: familyTree },
+  { name: 'family-person', path: `${FAMILY}?person=u:2`, family: 'hartley', prep: familySheet },
+  { name: 'family-tag', path: `${FAMILY}?person=t:41`, family: 'hartley', prep: familySheet },
+  { name: 'family-add', path: `${FAMILY}?add=1`, family: 'hartley', prep: familySheet },
+  { name: 'family-list', path: `${FAMILY}?view=list`, family: 'hartley', prep: async (page, h) => { await page.waitForSelector('[data-ui="family-list"]', { timeout: 20000 }); await h.idle(700) } },
+  { name: 'family-requests-tree', path: FAMILY, family: 'requests', prep: familyTree },
+  { name: 'family-requests', path: `${FAMILY}?requests=1`, family: 'requests', prep: familySheet },
+  { name: 'family-empty', path: FAMILY, family: 'empty', prep: familyTree },
+  { name: 'family-error', path: FAMILY, family: 'error', prep: familyTree },
+  { name: 'family-owner', path: FAMILY, family: 'owner-shape', as: 'nate', prep: familyTree },
+  { name: 'family-owner-tag', path: `${FAMILY}?person=t:401`, family: 'owner-shape', as: 'nate', prep: familySheet },
+  // notes, history and birthdays (docs/app/FAMILY-NOTES.md), with the Hartleys as Maya
+  { name: 'family-notes', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: familyNotes },
+  { name: 'family-notes-empty', path: `${FAMILY}?person=u:4`, family: 'hartley', prep: familyNotes },
+  { name: 'family-notes-error', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    // the server failing, for this page only (the set is shared by every viewport)
+    const fail = (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"detail":"Internal Server Error"}' })
+    await page.route('**/api/v1/family-notes?*', fail)
+    try {
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await familyNotes(page, h)
+      await page.waitForSelector('[data-ui="notes-error"]', { timeout: 10000 })
+    } finally {
+      await page.unroute('**/api/v1/family-notes?*', fail)
+    }
+  } },
+  { name: 'family-note-write', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    await familyNotes(page, h)
+    await h.tap('[data-ui="notes-write"]')
+    await page.waitForSelector('[data-ui="note-composer"]')
+    await h.tap('[data-ui="note-composer"] [role="radio"]:has-text("History")')
+    await page.fill('[data-ui="note-text"]', LONG_NOTE.slice(0, 3700))
+    await page.fill('[data-ui="date-year"]', '1953')
+    await page.locator('[data-ui="note-composer"]').evaluate((el) => el.scrollIntoView({ block: 'start' }))
+    await h.idle(400)
+  } },
+  { name: 'family-note-menu', path: `${FAMILY}?person=u:5`, family: 'hartley', noSweep: true, prep: noteMenu },
+  { name: 'family-note-delete', path: `${FAMILY}?person=u:5`, family: 'hartley', prep: async (page, h) => {
+    await noteMenu(page, h)
+    await h.tap(page.getByRole('menuitem', { name: 'Delete' }))
+    await page.waitForSelector('[data-ui="note-delete-confirm"]')
+    await page.waitForTimeout(600)
+  } },
+  { name: 'family-notes-demo', path: `${FAMILY}?person=u:5`, family: 'hartley', me: 'demo', prep: familyNotes },
+  { name: 'family-you-birthday', path: `${FAMILY}?person=u:1`, family: 'hartley', prep: async (page, h) => {
+    await familySheet(page, h)
+    await h.tap('[data-ui="your-birthday"]')
+    await page.waitForSelector('[data-ui="birthday-form"]')
+    await h.idle(400)
+  } },
+  { name: 'family-tag-edit', path: `${FAMILY}?person=t:41`, family: 'hartley', prep: async (page, h) => {
+    await familySheet(page, h)
+    await h.tap(page.getByRole('button', { name: 'Edit Biscuit' }))
+    await page.waitForSelector('[data-ui="tag-more-about"]')
+    if (!(await page.locator('[data-ui="tag-died"]').count())) await h.tap('[data-ui="tag-more-about"] button')
+    await page.waitForSelector('[data-ui="tag-died"]')
+    await page.locator('[data-ui="tag-more-about"]').evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await h.idle(400)
+  } },
   // the admin page (docs/app/ADMIN-ANALYTICS.md); the sweep's member is a superuser
   { name: 'admin', path: '/admin', settle: 900 },
   { name: 'admin-chart-selected', path: '/admin', settle: 900, prep: async (page, h) => {
@@ -420,10 +512,10 @@ async function frame(page, vp, scene, label, findings, n) {
   return path.relative(OUT, file)
 }
 
-async function runViewport(vp) {
+async function runViewport(vp, set = null) {
   const pages = {}
   const pageFor = async (as, me) => (pages[`${as || '-'}:${me || ''}`] ||= await newPage(vp, as, me))
-  for (const scene of scenes) {
+  for (const scene of scenes.filter((s) => (s.family || null) === set)) {
     const wide = vp.width >= 900
     if ((scene.wide && !wide) || (scene.narrow && wide) || (scene.maxW && vp.width > scene.maxW)) continue
     const as = scene.as === undefined ? 'maya' : scene.as
@@ -493,10 +585,26 @@ if (!args['no-reset']) {
 }
 
 // a few viewports at a time; each has its own signed-in and signed-out pages
-const queue = [...viewports]
-await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length) }, async () => {
-  while (queue.length) await runViewport(queue.shift())
-}))
+async function allViewports(set) {
+  const queue = [...viewports]
+  await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length) }, async () => {
+    while (queue.length) await runViewport(queue.shift(), set)
+  }))
+}
+await allViewports(null)
+
+// the family sets, one at a time: choose the set and the person on the server, then every viewport
+const familySets = [...new Set(scenes.filter((s) => s.family).map((s) => s.family))]
+for (const set of familySets) {
+  const as = scenes.find((s) => s.family === set).as || 'maya'
+  await fetch(`${args.base}/__fx/family?set=${set}&as=${as}`, { redirect: 'manual' }).catch(() => {})
+  await fetch(`${args.base}/__fx/viewer?as=${as}`).catch(() => {})
+  await allViewports(set)
+}
+if (familySets.length) {
+  await fetch(`${args.base}/__fx/family?set=hartley&as=maya`, { redirect: 'manual' }).catch(() => {})
+  await fetch(`${args.base}/__fx/viewer?as=maya`).catch(() => {})
+}
 
 // ---------------------------------------------------------------- contact sheet
 // Labelled contact sheets, 30 frames a page (one tall page runs past what Chromium can shoot):

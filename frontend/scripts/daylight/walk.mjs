@@ -440,6 +440,13 @@ for (const dev of devices) {
     await idle(900)
     await shot('profile', 'Your profile')
   })
+  // ---------------------------------------------------------------- the family tree
+  await step('family', async () => {
+    await page.goto(`${args.base}/family-tree`, { waitUntil: 'domcontentloaded' })
+    await page.waitForSelector('[data-tree-state="grown"], [data-ui="family-empty"], [data-ui="empty-state"]', { timeout: 20000 })
+    await idle(700)
+    await shot('family', 'Your family tree')
+  })
   report.published = published
   await ctx.close()
 

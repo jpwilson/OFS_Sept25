@@ -1,0 +1,272 @@
+/* The family tree page (owner: FAMILY). Family owns lime. Phone first: the band, any
+   requests, a toolbar, the tree, the shelf. iPad puts the toolbar in the band's row; desktop
+   adds Save image. */
+.page {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 44px;
+}
+
+/* ---- the lime band */
+.band {
+  background: var(--a-wash);
+  border-bottom: var(--a-keyline);
+}
+/* the band's text and the tree's frame share one column: up to 1240px wide, centred */
+.bandInner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: calc(var(--a-max) + 2 * var(--a-gutter));
+  margin-inline: auto;
+  padding: 16px max(var(--a-gutter), var(--a-safe-right)) 18px max(var(--a-gutter), var(--a-safe-left));
+}
+.titleBlock {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+.count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+}
+.bandActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.more {
+  background: var(--a-white);
+}
+.waiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 2px solid var(--a-ink);
+  border-radius: var(--a-r-pill);
+  background: var(--a-sun);
+  font-family: var(--a-font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--a-ink);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+.waiting::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+.waiting:hover {
+  background: var(--a-sun-deep);
+}
+
+/* ---- the body */
+.body {
+  width: 100%;
+  max-width: calc(var(--a-max) + 2 * var(--a-gutter));
+  margin-inline: auto;
+  padding: 16px max(12px, var(--a-safe-right)) 0 max(12px, var(--a-safe-left));
+  display: grid;
+  gap: 18px;
+}
+.body > * {
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toolbar .grow {
+  flex: 1;
+}
+.toolbar .waiting {
+  padding: 0 10px;
+  font-size: 13.5px;
+}
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  position: static;
+  justify-self: start;
+  padding: 8px 12px;
+  border: var(--a-keyline);
+  border-radius: 10px;
+  background: var(--a-white);
+  font-weight: 700;
+}
+.treeArea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.hint {
+  margin: 0 4px;
+  font-size: 13.5px;
+  color: var(--a-mute);
+}
+
+/* ---- the plan has ended: a positive card first */
+.plan {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 16px 18px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-wash-tint);
+}
+.planText {
+  flex: 1 1 240px;
+  display: grid;
+  gap: 4px;
+}
+.planText strong {
+  font-size: 18px;
+  font-weight: 800;
+}
+.planText span {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+/* ---- Friends and more */
+.shelf {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+.shelfHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.shelfHead span {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  color: var(--a-mute);
+}
+.shelfRow {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-inline: -12px;
+  padding: 4px 12px 10px;
+  scrollbar-width: none;
+}
+.shelfRow::-webkit-scrollbar {
+  display: none;
+}
+.friend {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 112px;
+  padding: 12px 6px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+.friend:hover {
+  background: var(--a-white);
+}
+.friendFace {
+  position: relative;
+}
+.friendName {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 16px;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.friendWord {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- loading: faces arriving in a 1, 2, 3 shape */
+.skeleton {
+  display: grid;
+  justify-items: center;
+  gap: 56px;
+  padding: 56px 16px 64px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-paper);
+}
+.skRow {
+  display: flex;
+  gap: 48px;
+}
+
+@media (min-width: 600px) {
+  .bandInner {
+    align-items: center;
+    padding-block: 22px 24px;
+  }
+  .body {
+    padding-inline: max(var(--a-gutter), 24px);
+    gap: 22px;
+  }
+  .shelfRow {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+@media (min-width: 900px) {
+  .bandInner {
+    padding-block: 28px 30px;
+  }
+  .body {
+    padding-top: 26px;
+  }
+}

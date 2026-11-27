@@ -1,0 +1,87 @@
+/* A face (owner: FAMILY): the landing's FamilyTree faces, sized in pixels by --fd. */
+.face {
+  --fk: max(2px, calc(var(--fd) * 0.03));
+  --fs: max(2px, calc(var(--fd) * 0.03));
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--fd);
+  height: var(--fd);
+  flex: none;
+  overflow: hidden;
+  border: var(--fk) solid var(--a-ink);
+  border-radius: 50%;
+  background: var(--a-white);
+  background-clip: padding-box;
+  box-shadow: var(--fs) var(--fs) 0 var(--a-ink);
+}
+/* initials sit on their own wash; a photo on white (a dashed keyline shows what is behind it) */
+.face[data-wash] {
+  background-color: var(--a-wash);
+}
+.face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.initials {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: calc(var(--fd) * 0.36);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--a-ink);
+}
+.you {
+  border-width: calc(var(--fk) + 1px);
+  box-shadow: var(--fs) var(--fs) 0 var(--a-ink), 0 0 0 calc(var(--fd) * 0.065) var(--a-lime);
+  overflow: hidden;
+}
+.tag {
+  border-style: dashed;
+  box-shadow: none;
+}
+.asked {
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.sticker {
+  position: absolute;
+  z-index: 3;
+  right: -16%;
+  top: -7%;
+  padding: 2px 7px 3px;
+  border: 2px solid var(--a-ink);
+  border-radius: var(--a-r-sticker);
+  box-shadow: 2px 2px 0 var(--a-ink);
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: var(--st, 13px);
+  line-height: 1;
+  white-space: nowrap;
+  rotate: 6deg;
+  pointer-events: none;
+}
+.st-you {
+  background: var(--a-lime);
+}
+.st-tag {
+  background: var(--a-white);
+  border-style: dashed;
+  box-shadow: none;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: calc(var(--st, 13px) * 0.86);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.st-asked {
+  background: var(--a-sun);
+  right: -22%;
+}

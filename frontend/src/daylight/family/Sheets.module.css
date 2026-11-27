@@ -1,0 +1,404 @@
+/* The family page's sheets (owner: FAMILY): a person, adding someone, requests, a tray. */
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 6px 0 14px;
+  text-align: center;
+}
+.heroFace {
+  position: relative;
+}
+.heroFace > span:last-child[aria-hidden] {
+  --st: 14px;
+}
+.heroName {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 26px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.heroWord {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 6px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-pill);
+  background: var(--a-lime-tint);
+  font-weight: 700;
+  font-size: 13px;
+}
+.status[data-kind='asked'] {
+  background: var(--a-sun-tint);
+}
+.status[data-kind='tag'] {
+  background: var(--a-white);
+  border-style: dashed;
+}
+.statusDot {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--a-lime);
+  border: 1.5px solid var(--a-ink);
+}
+.facts {
+  display: grid;
+  gap: 10px;
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  border: var(--a-hairline);
+  border-radius: 16px;
+  background: var(--a-paper);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.facts p {
+  margin: 0;
+}
+.actions {
+  display: grid;
+  gap: 10px;
+}
+.note {
+  margin: 14px 2px 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--a-mute);
+}
+.section {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.sectionHead {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-ink);
+}
+.error {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 2px solid var(--a-danger);
+  border-radius: 12px;
+  background: var(--a-white);
+  color: var(--a-ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+.done {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* ---- rows of people (lists, trays, the Add sheet) */
+.rows {
+  display: grid;
+  gap: 2px;
+  margin: 0 -8px;
+}
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+  cursor: pointer;
+}
+.row:hover {
+  background: var(--a-paper);
+}
+.row[aria-disabled='true'] {
+  cursor: default;
+}
+.row[aria-disabled='true']:hover {
+  background: transparent;
+}
+.rowText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.rowName {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowWord {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.rowHint {
+  font-size: 13.5px;
+  color: var(--a-mute);
+}
+.rowTag {
+  flex: none;
+  padding: 3px 9px;
+  border: 1.5px solid var(--a-ink);
+  border-radius: var(--a-r-pill);
+  background: var(--a-paper);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.rowTag[data-kind='in'] {
+  background: var(--a-lime-tint);
+}
+.rowTag[data-kind='waiting'] {
+  background: var(--a-sun-tint);
+}
+.rowTag[data-kind='asked'] {
+  background: var(--a-fizz-tint);
+}
+.rowIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 2px dashed var(--a-ink);
+  border-radius: 50%;
+}
+.rowLink {
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.chev {
+  flex: none;
+  color: var(--a-mute);
+}
+
+/* ---- choosing words */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.groupLabel {
+  margin: 10px 0 2px;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.moreWords {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  color: var(--a-ink);
+}
+.sentence {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--a-lime-tint);
+  border: 1.5px solid var(--a-ink);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.whoName {
+  font-weight: 800;
+  font-size: 19px;
+  line-height: 1.15;
+}
+.steps {
+  display: flex;
+  gap: 6px;
+  margin: -2px 0 12px;
+}
+.stepDot {
+  height: 6px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--a-line);
+}
+.stepDot[data-on] {
+  background: var(--a-ink);
+}
+
+/* ---- the photo picker in the tag form */
+.photoRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.photoButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.form {
+  display: grid;
+  gap: 16px;
+}
+.links {
+  display: grid;
+  gap: 6px;
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 6px 6px 12px;
+  border: var(--a-hairline);
+  border-radius: 14px;
+  background: var(--a-white);
+  font-size: 15px;
+}
+.link > span {
+  flex: 1;
+  min-width: 0;
+}
+.linkForm {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1.5px dashed var(--a-ink);
+  border-radius: 16px;
+}
+.select {
+  width: 100%;
+}
+
+/* ---- the person sheet's sections: to you, details, stories (notes and history will join them) */
+.block {
+  display: grid;
+  gap: 8px;
+  padding: 14px 0 16px;
+  border-top: var(--a-hairline);
+}
+.block:first-of-type {
+  border-top: 0;
+  padding-top: 4px;
+}
+.blockHead {
+  margin: 0;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.blockBody {
+  display: grid;
+  gap: 6px;
+  font-size: 15.5px;
+  line-height: 1.45;
+}
+.blockBody p {
+  margin: 0;
+}
+.story {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px;
+  margin: 0 -6px;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+.story:hover {
+  background: var(--a-paper);
+}
+.storyCover {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid var(--a-ink);
+  border-radius: 12px;
+  background: var(--a-paper-deep);
+  object-fit: cover;
+}
+.storyText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.storyTitle {
+  font-weight: 700;
+  font-size: 15.5px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.storyDate {
+  font-family: var(--a-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.allLink {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--a-ink);
+}

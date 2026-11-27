@@ -317,6 +317,24 @@ Built on `feat/family-tree` with the server branch merged in, because `sample.te
   Run them at every viewport, including 393×680, and with `--notch`.
 - **`docs/app/FAMILY.md`**: mark §10 as superseded by this file.
 
+## As built on the page (27 November 2026)
+
+Built on `feat/family-notes-page` (from `feat/family-tree`, PR #22, with the server on `main`). Everything in "Page" above is built. Shots: `frontend/shots/daylight-family/notes.jpg` (`node src/daylight/family/dev/shoot.mjs --scene notes`: a 393×680 iPhone and desktop). Choices the spec left open, and where the page differs:
+
+- **Layout fix (outside the spec).** With birthdays in the data, a member whose own age and every sibling's are known stands among them by age (`arrange.js` youByAge). `layout.js` placed only the siblings before you and dropped the younger ones from the tree. They now stand on your other side. Saving Ivy's birthday as older than Leo's showed it; `layout.test.js` covers it.
+- **Counts.** The API sends no totals, so the switch reads "History 3" or "Notes 10+" (what has arrived, and a plus while `has_more`).
+- **Entry points.** A small "Write" button in the block's header (when you and the server may write). Edit opens the same composer. After saving or cancelling, the sheet returns to the notes block, on the side just written to, with a short "Added to Ruth's history." line.
+- **Notes you wrote** show "You" as the author. History entries show the date column and the words only, as specified (no author line).
+- **The delete dialog** says "Delete this note?" for history entries too (the server calls both notes).
+- **403** shows the server's own sentence ("Only Ruth's family can see notes about Ruth.").
+- **An older server.** The first sheet shows the block's skeleton until `/family-notes` answers 404 "Not Found"; the block then goes, and no sheet asks again until the page reloads. Any other 404 (the person is gone) hides only that block. "Add your birthday" shows only when `/users/me` carries `birth_date_visibility`, so an older server never shows it.
+- **Paging.** "Show more" asks from the number of entries the server has given. An entry written on the page that sorts past them is kept aside until its page arrives, so nothing is skipped or shown twice.
+- **Editing** sends kind, body and both date fields; switching history to a note sends a null date.
+- **Your birthday** uses the phone's own date picker: a member's birthday is a full date on the server (no precision). The client refuses dates outside 1900 to today with the server's sentence. When it is kept to you, your sheet adds "Only you see your birthday."
+- **The tag form** refuses a birth or death date after today on the page (the server bounds neither); "died before born" is the server's 422, shown in its words. More about opens by itself when the tag has a birthplace or a death date.
+- **Demo accounts.** The page hides Write, Edit and Delete when the member is a demo account, as well as when the server says `can_write` / `can_edit` / `can_delete` are false.
+- **Sample.** A sample member whose `/users/me` says `is_demo_account` is refused like the server refuses a demo account. The sample's "today" is 26 November 2026 (the sweep's clock). Biscuit has a birthday (2019, a year) and a birthplace (Madison), so the tag form's More about has something in it. `viewOf()` takes an optional `detailsOf` for tests.
+
 ## Owner steps (Supabase → SQL editor)
 
 1. **Before.** Run `SELECT version_num FROM alembic_version;`. It must return `1b7097086e16`.

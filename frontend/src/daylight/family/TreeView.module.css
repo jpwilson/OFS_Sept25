@@ -1,0 +1,409 @@
+/* The drawn family tree (owner: FAMILY). The landing's FamilyTree.module.css, in pixels:
+   paper inside an ink keyline, ink lines over a wash-coloured branch, large round faces. */
+.wrap {
+  --beat: 420ms;
+  position: relative;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-paper);
+}
+
+/* ---- the control group: on the frame's top edge, then held on screen while the tree scrolls by */
+.controls {
+  position: sticky;
+  top: calc(var(--a-bar-h) + var(--a-safe-top) + 30px);
+  z-index: 6;
+  height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 14px;
+  pointer-events: none;
+}
+.controlsInner {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-pill);
+  box-shadow: var(--a-shadow-sm);
+  translate: 0 -50%;
+}
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: var(--a-target);
+  min-height: var(--a-target);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--a-r-pill);
+  background: transparent;
+  font-family: var(--a-font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--a-ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ctl:hover {
+  background: var(--a-paper);
+}
+.ctl[aria-pressed='true'] {
+  background: var(--a-lime-tint);
+}
+.ctl:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.ctl:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+
+/* ---- the sideways scroller and the canvas inside it */
+.scroller {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  border-radius: calc(var(--a-r-card) - 2px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--a-line-strong) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.sizer {
+  position: relative;
+  margin-inline: auto;
+}
+/* more of the tree this way: a soft paper fade at the frame's edge */
+.fade {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--a-ease);
+}
+.fadeL {
+  left: 0;
+  border-radius: calc(var(--a-r-card) - 2px) 0 0 calc(var(--a-r-card) - 2px);
+  background: linear-gradient(to right, var(--a-paper) 10%, rgba(244, 247, 251, 0));
+}
+.fadeR {
+  right: 0;
+  border-radius: 0 calc(var(--a-r-card) - 2px) calc(var(--a-r-card) - 2px) 0;
+  background: linear-gradient(to left, var(--a-paper) 10%, rgba(244, 247, 251, 0));
+}
+.wrap[data-more-left] .fadeL,
+.wrap[data-more-right] .fadeR {
+  opacity: 1;
+}
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.under {
+  fill: none;
+  stroke-width: calc(var(--under) * 1px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+.under[data-tone='fizz'] { stroke: var(--a-fizz); }
+.under[data-tone='azure'] { stroke: var(--a-azure); }
+.under[data-tone='zest'] { stroke: var(--a-zest); }
+.under[data-tone='lime'] { stroke: var(--a-lime); }
+.under[data-tone='violet'] { stroke: var(--a-violet); }
+.under[data-tone='tide'] { stroke: var(--a-tide); }
+.under[data-tone='sun'] { stroke: var(--a-sun); }
+.ink {
+  fill: none;
+  stroke: var(--a-ink);
+  stroke-width: calc(var(--ink-w) * 1px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.faint {
+  opacity: 0.42;
+}
+
+/* ---- a person */
+.node {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: var(--d);
+  height: var(--d);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  translate: -50% -50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.node:focus-visible {
+  outline: none;
+}
+.photoWrap {
+  position: relative;
+  display: block;
+  width: var(--d);
+  height: var(--d);
+  border-radius: 50%;
+  --st: calc(var(--name) * 0.66);
+}
+.node:focus-visible .photoWrap {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 6px;
+}
+.node:focus-visible .addDisc {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 6px;
+}
+.node:focus-visible .moreDisc {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 6px;
+}
+@media (hover: hover) {
+  .node:hover .photoWrap > span:first-child {
+    translate: -1px -1px;
+    box-shadow: calc(max(2px, var(--d) * 0.03) + 2px) calc(max(2px, var(--d) * 0.03) + 2px) 0 var(--a-ink);
+  }
+  .isYou:hover .photoWrap > span:first-child {
+    box-shadow: 5px 5px 0 var(--a-ink), 0 0 0 calc(var(--d) * 0.065) var(--a-lime);
+  }
+}
+.label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 6px);
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 2px 8px 3px;
+  border-radius: 8px;
+  background: var(--a-paper);
+  white-space: nowrap;
+  text-align: center;
+}
+.name {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: var(--name);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--a-ink);
+}
+.word {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--word);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.isAsked .photoWrap {
+  opacity: 0.6;
+}
+.isAsked .label {
+  opacity: 0.72;
+}
+
+/* ---- trays: relatives the drawing cannot place yet, in their generation's row */
+.tray {
+  position: absolute;
+  z-index: 1;
+  border-radius: 22px;
+  background: var(--a-paper-deep);
+}
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--word);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-ink);
+}
+.inTray .label {
+  background: transparent;
+}
+.more {
+  z-index: 2;
+}
+.moreDisc {
+  display: grid;
+  place-items: center;
+  width: var(--d);
+  height: var(--d);
+  border: 2px solid var(--a-ink);
+  border-radius: 50%;
+  background: var(--a-white);
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: calc(var(--d) * 0.3);
+  color: var(--a-ink);
+}
+
+/* ---- a confirmed relationship */
+.tick {
+  position: absolute;
+  z-index: 3;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: var(--a-keyline);
+  border-radius: 50%;
+  background: var(--a-lime);
+  color: var(--a-ink);
+}
+.compact .tick {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---- Add a relative */
+.addDisc {
+  display: grid;
+  place-items: center;
+  width: var(--d);
+  height: var(--d);
+  border: 3px dashed var(--a-ink);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--a-ink);
+}
+.compact .addDisc {
+  border-width: 2px;
+}
+@media (hover: hover) {
+  .add:hover .addDisc {
+    background: var(--a-lime-tint);
+  }
+}
+.addName {
+  white-space: normal;
+  width: 9ch;
+  font-size: calc(var(--name) * 0.86);
+}
+.add .label {
+  background: transparent;
+}
+
+/* ---- dev-only ?grow=N holds a step */
+[data-hidden] {
+  visibility: hidden;
+}
+
+/* ---- it grows: your unit, the row above, the row below, the rest, trays, then Add */
+.wrap[data-armed] .node,
+.wrap[data-armed] .tick {
+  opacity: 0;
+  scale: 0.5;
+}
+.wrap[data-armed] .tray {
+  opacity: 0;
+}
+.wrap[data-armed] .under,
+.wrap[data-armed] .ink:not(.dashed):not(.faint) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.wrap[data-armed] .dashed,
+.wrap[data-armed] .faint {
+  opacity: 0;
+}
+.wrap[data-armed][data-grown] .node,
+.wrap[data-armed][data-grown] .tick {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 260ms ease calc(var(--step) * var(--beat)),
+    scale 560ms var(--a-ease-pop) calc(var(--step) * var(--beat));
+}
+.wrap[data-armed][data-grown] .tray {
+  opacity: 1;
+  transition: opacity 360ms ease calc(var(--step) * var(--beat));
+}
+.wrap[data-armed][data-grown] .under,
+.wrap[data-armed][data-grown] .ink:not(.dashed):not(.faint) {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 520ms var(--a-ease) calc(var(--step) * var(--beat) + 120ms);
+}
+.wrap[data-armed][data-grown] .dashed {
+  opacity: 1;
+  transition: opacity 400ms ease calc(var(--step) * var(--beat) + 200ms);
+}
+.wrap[data-armed][data-grown] .faint {
+  opacity: 0.42;
+  transition: opacity 400ms ease calc(var(--step) * var(--beat) + 200ms);
+}
+
+/* a person who just joined pops in on their own */
+.pop {
+  animation: pop 620ms var(--a-ease-pop) both;
+}
+.popLine {
+  animation: fadeIn 520ms ease 160ms both;
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* reduced motion: never hidden, never animated (the shared rule shortens durations, not delays) */
+@media (prefers-reduced-motion: reduce) {
+  .wrap .node,
+  .wrap .tick,
+  .wrap .tray,
+  .wrap .under,
+  .wrap .ink {
+    opacity: 1 !important;
+    scale: 1 !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  .wrap .faint {
+    opacity: 0.42 !important;
+  }
+}

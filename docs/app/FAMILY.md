@@ -135,3 +135,47 @@ FAMILY owns `frontend/src/daylight/family/**` (page, `useFamily.js` store, `kin.
 
 - `GET /relationships/family`: confirmed relationships among your confirmed relatives. It fills the trays exactly and draws the landing's tree for real families. A privacy decision: Maya would learn that Kate and James confirmed each other.
 - Relationship requests in `/users/me/notification-counts`; `PATCH /relationships/{id}` to change a word; `GET /tag-profiles/linked` (tags others created that link to you); creating the relationship when a claim is approved; partner, half- and step-sibling words.
+
+## 9. As built (26 November 2026), and where it departs from the above
+
+Built on `app/daylight` in commit b9128dc. It has 64 unit tests, and its own shots are in `frontend/shots/daylight-family/` (git-ignored). Departures, all from the owner's notes after he saw the first tree:
+
+- **Sibling order (§2.4).** Siblings and children are ordered by age where birthdays are known, oldest on the left, then by first name. Where only some dates are known, the dated people take their age order among their own name places, so the tree never claims an undated person is older or younger. The viewer stands by age among their siblings only when every age is known and no in-law family stands to their right; otherwise they are rightmost, beside their partner. User birthdays are not in the API yet (see section 10), so siblings with accounts order by name for now.
+- **Panning (§3).** There is no background dragging. The frame scrolls, and ctrl/⌘ + wheel or a trackpad pinch zooms. Nothing can be moved.
+- **Opening zoom (§3).** The tree opens fitted when relation labels stay at 10px or more: 0.85 on phone, 0.83 on iPad and 0.77 on wide screens.
+- **Tall trees.** They scroll the viewer into view only as far as the tree's bottom edge.
+- **Person sheet (§5).** The sections are To you, Details, Stories (the latest 3, plus a link to all) and then actions. A code comment marks the slot for notes after Stories. The tag form has an optional Birthday.
+- **Sample sets (§6).** An `owner-shape` set (the owner's family shape, made-up names) and `GET /users/{username}/events` were added.
+- **The server since the security fixes (PR #13), brought in for the production release.** `sample.js` now keeps the server's current rules: every `/relationships` and `/tag-profiles` route needs sign-in except `/tag-profiles/{id}/events` (403 "Not authenticated", as FastAPI 0.109 answers); `GET /tag-profiles/{id}` returns `birth_date` only to the tag's creator and linked users; tag-link requests (`/me/tag-profile-relationship-requests`, its count, sent, approve and reject, and a member's own request) are resolved only by the other party, a creator's proposal being the one whose message starts "Proposed by "; and a person's or a tag's stories list only the stories the viewer may open. The page reads birthdays only from your own tags and from `/users/me`, so it never relies on one it may not see; the person sheet's empty Stories line says "Stories {name} shares with you show here." rather than implying they have none; the Add sheet counts only accepted follows (a withdrawn request stays on the server as `cancelled`).
+- **Overlap sweep.** `scripts/daylight/check-overlap.mjs` has family scenes (the tree with the Hartleys and the owner's shape, the person sheet for a member and a tag, Add, Requests, the list, empty and error). With a notch, the tree's sticky controls slid under the top bar; they and the scroll-into-view now clear the safe area.
+- **Known weak points.** On a phone, a mother with five children and a partner does not fit 356px at a readable size, so the siblings start one swipe to the left. Cousins, in-laws and nieces stay in trays until `GET /relationships/family` exists.
+
+## 10. Proposal awaiting the owner's approval: notes and history, birthdays
+
+**Superseded** by `docs/app/FAMILY-NOTES.md` (approved 27 November 2026; server in PR #21, page on `feat/family-notes-page`). Kept below as it was proposed.
+
+The owner asked (26 Nov 2026) that anyone in a family tree can add comments and history to each person, with richer attributes. This needs one Alembic revision (head is `1b7097086e16`), with the SQLAlchemy models updated alongside. Nothing is built until he approves.
+
+- **Table `family_notes`:**
+  - `id`;
+  - exactly one of `subject_user_id` (FK users) or `subject_tag_profile_id` (FK tag_profiles), enforced by a CHECK;
+  - `author_id` (FK users);
+  - `kind`: 'note' or 'history';
+  - `body`: Text, up to 4000 characters;
+  - `happened_on` (Date, nullable) and `happened_precision` ('day', 'month' or 'year', since families often know only a year);
+  - `created_at`, `updated_at` and `is_deleted`;
+  - indexes on the subject and author columns.
+  - When a tag is claimed (`merged_user_id`), its notes move to the user.
+- **Routes:**
+  - `GET /family-notes?user_id=|tag_profile_id=` (one query, skip and limit);
+  - `POST /family-notes`;
+  - `PATCH /family-notes/{id}` (the author only);
+  - `DELETE /family-notes/{id}`, a soft delete by the author, the subject user or the tag's creator.
+  - Every write refuses demo accounts.
+- **Who may read and write.** Only the "family of P" may read and add notes about P. The composer says who can read a note ("Ruth and her family on Our Family Socials").
+  - If P is a user: P, and everyone with an accepted `user_relationships` row with P.
+  - If P is a tag: its creator, the users linked through `tag_profile_relationships`, and the creator's accepted relatives.
+- **Attributes:**
+  - `users` gains `birth_date`, `birthplace` and `birth_date_visibility` (default 'relatives', never public). `RelationshipResponse` returns `other_user_birth_date` when visibility allows; the tree already reads it through `birthOf()` in `arrange.js`.
+  - `tag_profiles` gains `birthplace`, and optionally `died_on`.
+- **Small fix:** `PUT /tag-profiles/{id}` ignores a null `birth_date`, so a birthday cannot be cleared. Use exclude-unset semantics instead.
