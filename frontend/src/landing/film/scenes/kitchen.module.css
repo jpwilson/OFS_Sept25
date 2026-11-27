@@ -35,6 +35,13 @@
   right: 0;
   bottom: 6px;
 }
+/* on a phone the stage's name starts at the kitchen's left end, clear of Maya standing at its right */
+@media (max-aspect-ratio: 9/10) {
+  .level > span {
+    right: auto;
+    left: 0;
+  }
+}
 
 /* ---------- the story page ---------- */
 
@@ -360,6 +367,29 @@
   }
 }
 
+/* A short phone: the voice note, the page and the sticker are a column of px-sized type placed in
+   u, and the column no longer fits. The page hangs from its top edge under the voice note, its
+   type comes down to its smallest reading size, and the sticker hangs from the page's foot. */
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) and (max-height: 779.98px) {
+  .pageSlot.pageSlot {
+    --ay: 0%;
+    --y: 30.4;
+  }
+  .stickerSlot.stickerSlot {
+    --ay: 0%;
+    --y: 2.4;
+  }
+  .ptitle {
+    font-size: max(13px, calc(1.9 * var(--pu)));
+  }
+  .h {
+    font-size: max(11px, calc(1.5 * var(--pu)));
+  }
+  .sticker {
+    font-size: max(10.5px, calc(1.46 * var(--u)));
+  }
+}
+
 /* ---------- the ways in ---------- */
 .waysSlot {
   --pu: calc(var(--w) * var(--u) / 47);
@@ -408,6 +438,14 @@
   background: var(--l-ink);
   color: var(--l-white);
   box-shadow: 3px 3px 0 var(--l-white);
+}
+/* on a phone the ways in keep to the left gutter (where 844px of height puts them anyway), so on a
+   shorter screen their chips, set in px, do not run under the voice note */
+@media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
+  .waysSlot.waysSlot {
+    left: 14px;
+    transform: translate(0, calc(var(--y) * var(--u) * -1 - 50%));
+  }
 }
 @media (max-aspect-ratio: 9/10) {
   .ways {

@@ -240,7 +240,7 @@ export function World() {
       {WORLD_TRIPS.map((t) => {
         const tr = LW.trips[t.id]
         return (
-          <Air key={t.id} f={`world:pin-${t.id}`} a={{ d: { ...tr.pin.d, w: 3.4 }, m: { ...tr.pin.m, w: 2.6 }, z: 8 }} className={m.pinSlot} par={10}>
+          <Air key={t.id} f={`world:pin-${t.id}`} a={{ d: { ...tr.pin.d, w: 3.4 }, m: { ...tr.pin.m, w: 2.6 }, z: 8 }} className={m.pinSlot} par={10} data-name={tr.name}>
             {t.count ? (
               <span className={cx(m.cluster, m.clusterSm)}>
                 <b>{t.count}</b>

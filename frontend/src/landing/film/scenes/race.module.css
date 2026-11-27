@@ -49,7 +49,8 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 0 0.5em;
+  /* the group's name and its count can wrap onto two lines: keep the name's descenders off the count */
+  gap: 0.22em 0.5em;
   line-height: 1;
 }
 .name > b {

@@ -258,6 +258,12 @@
   height: calc(var(--wh) * var(--u));
   aspect-ratio: var(--ar);
 }
+/* on a phone the relative stands at the phone height layout.js gives them (who.hm), so the card's caption stays readable beside them */
+@media (max-aspect-ratio: 9/10) {
+  .postcard .who {
+    height: calc(var(--whm, var(--wh)) * var(--u));
+  }
+}
 .postcard .who > :where(img, span) {
   display: block;
   width: 100%;
@@ -401,6 +407,17 @@
     left: 50%;
     top: 100%;
     transform: translate(-50%, 3px);
+  }
+  .pinSlot[data-name='left'] .pinName {
+    left: auto;
+    right: 100%;
+    top: 50%;
+    transform: translate(-3px, -50%);
+  }
+  .pinSlot[data-name='right'] .pinName {
+    left: 100%;
+    top: 50%;
+    transform: translate(3px, -50%);
   }
   .pinName > span {
     font-size: 8px;
