@@ -33,6 +33,10 @@
   font-size: 14px;
   font-weight: 550;
 }
+/* a phone story's floating back button sits in the top-left corner, over the note's first words */
+:global(html.ofsa-on):has([data-ui='story-float']) .demo {
+  padding-inline: 68px;
+}
 .demo button {
   border: 0;
   background: none;
