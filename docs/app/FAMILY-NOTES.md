@@ -12,7 +12,7 @@ This record merges two independent plans. Where they disagreed, the director's c
 
 The order matters because the models carry new `tag_profiles` columns. Code that reaches production before the SQL makes every tag query fail with a 500. The schema change only adds things, so today's code keeps working once the SQL is in.
 
-## Schema: one Alembic revision, `down_revision = '1b7097086e16'` (the only head on `main`)
+## Schema: one Alembic revision, `c0c2591525d3`, with `down_revision = '1b7097086e16'` (the only head on `main`)
 
 Create the file with `alembic revision -m family_notes_and_birthdays`, with no autogenerate, and write the body by hand. Update the models in the same commit.
 
@@ -109,11 +109,11 @@ No database is contacted. Use the range forms below; a bare `head` replays every
 
 ```bash
 cd backend
-DATABASE_URL='postgresql://offline@localhost/offline' <venv>/bin/alembic upgrade 1b7097086e16:<rev> --sql > migrations/family_notes_and_birthdays.upgrade.sql
-DATABASE_URL='postgresql://offline@localhost/offline' <venv>/bin/alembic downgrade <rev>:1b7097086e16 --sql > migrations/family_notes_and_birthdays.downgrade.sql
+DATABASE_URL='postgresql://offline@localhost/offline' <venv>/bin/alembic upgrade 1b7097086e16:c0c2591525d3 --sql > migrations/family_notes_and_birthdays.upgrade.sql
+DATABASE_URL='postgresql://offline@localhost/offline' <venv>/bin/alembic downgrade c0c2591525d3:1b7097086e16 --sql > migrations/family_notes_and_birthdays.downgrade.sql
 ```
 
-Each file must be a single `BEGIN … COMMIT` that includes the `alembic_version` update. Add a short comment header saying "NOT APPLIED AUTOMATICALLY; paste into the Supabase SQL editor; see docs/app/FAMILY-NOTES.md".
+Each file must be a single `BEGIN … COMMIT` that includes the `alembic_version` update. Add a short comment header saying "NOT APPLIED AUTOMATICALLY; paste into the Supabase SQL editor; see docs/app/FAMILY-NOTES.md". The drift test compares everything after the header's first blank line with freshly generated SQL, so regenerate both files (and re-add the header) after any change to the revision.
 
 ## Who may read and write (`backend/app/utils/family.py`, new)
 
@@ -226,6 +226,16 @@ Schemas live in `backend/app/schemas/family_note.py`, using plain `field: type` 
 - **Drift guard:** the generated text equals the committed `.sql` files.
 - **Optional:** run on real Postgres only when `FAMILY_PG_URL` is set, refusing any URL containing `supabase`: upgrade, `compare_metadata` (no diff), downgrade.
 
+## As built on the server (for the page)
+
+The server branch follows the sections above. Where the spec left a choice open:
+
+- **PATCH dates.** A new `happened_on` keeps the note's old precision unless a precision is sent. A new precision alone re-normalises the old date. `happened_on: null`, or `happened_precision: null` sent alone, clears both.
+- **Tag PUT dates.** The same, with one difference: a `birth_date_precision` of null means an exact day, so `{"birth_date_precision": null}` keeps the date as a full day. `died_on` without a precision is stored as `'day'`. "Death before birth" compares at the coarser of the two precisions (born 10 June 1952, died 1952 is accepted).
+- **Birthday PUT.** `birth_date_visibility: null` returns 422 ("Choose who sees your birthday."), so a client bug can never widen who sees it. An empty or whitespace-only birthplace is stored as null.
+- **Error texts (detail strings the page can show):** "Only {name}'s family can see notes about {name}." (403), "Only the author can edit this note." (403), "Only the author or {name} can delete this note." (403), "Note not found" (404), "Write something first." and "Keep it to 4000 characters." (422), "Only history entries have a date", "A date precision needs a date.", "Choose a date between the year 1000 and today." (422), "That is a lot of notes at once. Try again in a few minutes." (429), "Choose a birthday between 1900 and today.", "A birthplace is one line.", "Keep the birthplace to 120 characters." (422), and for tags "A name is needed" and "The date of death is before the birth date." (422). Unknown enum values (`kind`, precision, `"public"`) are FastAPI's own 422 with a list `detail`.
+- **Flags.** `can_edit` and `can_delete` are false for demo accounts, like `can_write`.
+
 ## Page (`frontend/src/daylight/family/`)
 
 Built on `feat/family-tree` with the server branch merged in, because `sample.test.js` reads the server's schemas.
@@ -312,7 +322,7 @@ Built on `feat/family-tree` with the server branch merged in, because `sample.te
 1. **Before.** Run `SELECT version_num FROM alembic_version;`. It must return `1b7097086e16`.
 2. **Apply.** Paste the whole `backend/migrations/family_notes_and_birthdays.upgrade.sql` and press Run once. If it stops on a lock timeout, nothing was applied; run it again.
 3. **After.** Run these checks:
-   - The version is now `<rev>`.
+   - The version is now `c0c2591525d3`.
    - Both new tables have `relrowsecurity` true.
    - `has_table_privilege` is false for `anon` and `authenticated` on both new tables.
    - `tag_profiles` has the 4 new columns.
