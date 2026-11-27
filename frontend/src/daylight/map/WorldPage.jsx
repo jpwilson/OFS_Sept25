@@ -7,7 +7,8 @@
 // Defaults to "People I follow and me" (SPEC decision 9). Filters and the selected story
 // live in the query string; the camera is kept for the session, so Back returns to it.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useNavigationType, useSearchParams } from 'react-router-dom'
+import { useNavigate, useNavigationType, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import { imageSrc, useFeed, usePeople } from '../lib/data.js'
 import { dateRange } from '../lib/format.js'
 import { isLatLng } from '../lib/geo.js'
@@ -59,6 +60,13 @@ export default function WorldPage() {
   const navType = useNavigationType()
   const desktop = useDesktop()
   const page = useRef(null)
+  const navigate = useNavigate()
+  const { user, loading: authLoading } = useAuth() || {}
+
+  // Signed-out visitors go to the sign-in page and come back here, as the feed does.
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/login', { state: { from: '/feed?view=map', message: 'Please sign in to see your map' } })
+  }, [authLoading, user, navigate])
 
   useEffect(() => {
     loadAll()
