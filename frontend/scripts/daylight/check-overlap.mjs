@@ -108,9 +108,14 @@ const SCENES = [
   }, noSweep: true },
   { name: 'world', path: '/feed?view=map', settle: 1500 },
   { name: 'world-card', path: '/feed?view=map', settle: 1500, prep: async (page, h) => {
-    await h.tapMarker('[data-ui="map-cluster"]')
-    await h.idle(1200)
-    await h.tapMarker('[data-ui="map-pin"]').catch(() => h.tap('[data-ui="world-list"] [data-story] button'))
+    // a lone pin if one is in view, else open a group and take one of its pins; where the
+    // group's pins land under the map's own controls, the list or the carousel instead
+    const pin = () => h.tapMarker('[data-ui="map-pin"]')
+    await pin().catch(async () => {
+      await h.tapMarker('[data-ui="map-cluster"]')
+      await h.idle(1200)
+      await pin().catch(() => h.tap(h.desktop ? '[data-ui="world-list"] [data-story] button' : '[data-ui="world-carousel"] button'))
+    })
     await h.idle(1200)
   } },
   { name: 'create-picker', path: '/create?from=photos' },
