@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './LocationAutocomplete.module.css';
+import apiService from '../services/api';
 
 // Use same API URL logic as AuthContext
 const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
@@ -44,8 +45,11 @@ const LocationAutocomplete = ({ onSelect, placeholder = "Search for a location..
     // Set new timer
     debounceTimer.current = setTimeout(async () => {
       try {
+        // The geocoding proxy needs a signed-in user
+        const headers = await apiService.getAuthHeaders();
         const response = await fetch(
-          `${API_URL}/api/v1/geocoding/search?query=${encodeURIComponent(query)}&limit=5`
+          `${API_URL}/api/v1/geocoding/search?query=${encodeURIComponent(query)}&limit=5`,
+          { headers }
         );
 
         if (!response.ok) throw new Error('Search failed');

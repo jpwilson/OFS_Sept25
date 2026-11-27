@@ -415,6 +415,10 @@ function EditEvent() {
               order_index: index,
               alt_text: media.alt || null,
               media_type: media.type || 'image'
+            }).catch((error) => {
+              // The server only records this app's own media URLs; a caption on a
+              // pasted outside image is refused, which must not block the save.
+              console.warn('Caption not saved for', media.url, error)
             })
           }
         } else if (existingImage && existingImage.caption) {

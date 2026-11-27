@@ -456,7 +456,8 @@ class ApiService {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })
       },
-      body: JSON.stringify({ filename: `video.${ext}`, content_type: contentType })
+      // content_length is signed into the link: the upload must be exactly this size
+      body: JSON.stringify({ filename: `video.${ext}`, content_type: contentType, content_length: blob.size })
     })
     if (!presignRes.ok) {
       const error = await presignRes.json().catch(() => ({}))
