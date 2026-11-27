@@ -86,6 +86,40 @@ console.log(`  maplibre-gl JS   ${fmt(sum(libJs))}   ${libJs.join(', ')}`)
 console.log(`  maplibre worker  ${fmt(sum(worker))}   ${worker.join(', ')}`)
 console.log(`  maplibre CSS     ${fmt(sum(libCss))}   ${libCss.join(', ')}`)
 console.log(`  our map code     ${fmt(sum(ourMap))}   ${ourMap.length} chunks`)
+// ---------------------------------------------------------------- the family tree (docs/app/FAMILY.md section 7)
+// Nothing from React Flow or html-to-image may be reachable, statically or lazily, from
+// src/daylight/family/: they stay in package.json for the classic page behind ?look=classic.
+// Family chunks: by source path, or the page's own chunk (Rollup keys it "_FamilyPage-…" when
+// another family chunk imports it). Their static imports are followed all the way; lazy imports
+// only from family chunks themselves (the app's shared chunks lazily reach every page).
+const isFamily = (k) => /src\/daylight\/family\//.test(k) || /src\/daylight\/family\//.test(mf[k]?.src || '') || (mf[k]?.name === 'FamilyPage' && /\.js$/.test(mf[k]?.file || ''))
+const isClassicTree = (k) => /src\/(components\/FamilyTreeGraph|pages\/FamilyTree)\.jsx$/.test(k) || /node_modules\/(reactflow|@reactflow\/|html-to-image)\//.test(k)
+const flowCode = new Map()
+const carriesFlow = (k) => {
+  const file = mf[k]?.file
+  if (!file || !file.endsWith('.js')) return false
+  if (!flowCode.has(file)) {
+    const p = path.join(DIST, file)
+    const src = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : ''
+    flowCode.set(file, /react-flow__|html-to-image|reactflow/.test(src))
+  }
+  return flowCode.get(file)
+}
+function reach(key, seen = new Set()) {
+  if (seen.has(key) || !mf[key]) return seen
+  seen.add(key)
+  for (const i of mf[key].imports || []) reach(i, seen)
+  if (isFamily(key)) for (const i of mf[key].dynamicImports || []) reach(i, seen)
+  return seen
+}
+const familyKeys = Object.keys(mf).filter(isFamily)
+if (!familyKeys.length) failures.push('no src/daylight/family chunk in the manifest (is /family-tree seamed?)')
+for (const k of familyKeys) {
+  const bad = [...reach(k)].filter((x) => isClassicTree(x) || carriesFlow(x))
+  if (bad.length) failures.push(`${k} can reach the classic tree's libraries: ${bad.join(', ')}`)
+}
+const familyFiles = [...new Set(familyKeys.map((k) => mf[k].file))]
+console.log(`  family tree      ${fmt(sum(familyFiles.filter((f) => f.endsWith('.js'))))}   ${familyFiles.join(', ')}`)
 if (args.classic) {
   const c = path.resolve(args.classic)
   const html = fs.readFileSync(path.join(c, 'index.html'), 'utf8')
@@ -101,3 +135,4 @@ if (failures.length) {
   process.exit(1)
 }
 console.log('PASS: maplibre-gl is reachable only through the dynamic import in src/daylight/map/engine.js, and the service worker does not precache it')
+console.log('PASS: src/daylight/family/ reaches neither React Flow nor html-to-image')

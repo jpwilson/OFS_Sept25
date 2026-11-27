@@ -1,5 +1,5 @@
 // ?only=<pkg> isolation (owner: F0). Development and sample builds only.
-//   ?only=feed|story|map|create|auth   that package's pages render; every other Daylight page
+//   ?only=feed|story|map|create|auth|family   that package's pages render; every other Daylight page
 //                                 shows a labelled stub, so a half-written sibling cannot
 //                                 break your view
 //   ?only=ui                      the primitives sheet in the shell
@@ -9,7 +9,7 @@
 import { useLocation } from 'react-router-dom'
 
 export const ONLY_ENABLED = !!(import.meta.env.DEV || import.meta.env.VITE_DAYLIGHT_SAMPLE === '1')
-export const ONLY_PACKAGES = ['ui', 'spike', 'feed', 'story', 'map', 'create', 'auth']
+export const ONLY_PACKAGES = ['ui', 'spike', 'feed', 'story', 'map', 'create', 'auth', 'family']
 const KEY = 'ofs.only'
 
 export function readOnly(search) {

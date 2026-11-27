@@ -1,0 +1,78 @@
+/* The tree before anyone has joined (owner: FAMILY). */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 36px 20px 32px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-paper);
+  text-align: center;
+}
+.pair {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 54px;
+  padding: 18px 0 30px;
+}
+.pair::before {
+  content: '';
+  position: absolute;
+  left: 44px;
+  right: 44px;
+  top: calc(18px + 44px);
+  border-top: 3px dashed var(--a-ink);
+  opacity: 0.35;
+}
+.me,
+.add {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.me > span:first-child {
+  position: relative;
+}
+.me > span:first-child > span:last-child[aria-hidden] {
+  --st: 14px;
+}
+.name {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 86;
+  font-size: 18px;
+  line-height: 1;
+}
+.addDisc {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border: 3px dashed var(--a-ink);
+  border-radius: 50%;
+  background: var(--a-white);
+  color: var(--a-ink);
+  cursor: pointer;
+}
+.addDisc:hover {
+  background: var(--a-lime-tint);
+}
+.addDisc:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 4px;
+}
+.body {
+  max-width: 34ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+}

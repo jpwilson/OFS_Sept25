@@ -1,0 +1,185 @@
+/* The family as a list (owner: FAMILY). */
+.list {
+  display: grid;
+  gap: 18px;
+}
+.you {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.you:hover {
+  background: var(--a-paper);
+}
+.youFace {
+  position: relative;
+}
+.youFace > span:last-child[aria-hidden] {
+  --st: 12px;
+}
+.youText {
+  display: grid;
+  gap: 3px;
+}
+.youName {
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.15;
+}
+.youLine {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.search {
+  max-width: 460px;
+}
+.groups {
+  display: grid;
+  gap: 18px;
+}
+.group {
+  display: grid;
+  gap: 6px;
+}
+/* wide screens: the groups flow into two balanced columns, like a family directory */
+@media (min-width: 1000px) {
+  .groups {
+    display: block;
+    column-count: 2;
+    column-gap: 28px;
+  }
+  .group {
+    break-inside: avoid;
+    margin-bottom: 22px;
+  }
+}
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.n {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 7px;
+  border: 1.5px solid var(--a-ink);
+  border-radius: var(--a-r-pill);
+  background: var(--a-lime-tint);
+  font-family: var(--a-font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.rows {
+  display: grid;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+  overflow: hidden;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 10px 16px;
+  border: 0;
+  border-top: var(--a-hairline);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.row:first-child {
+  border-top: 0;
+}
+.row:hover {
+  background: var(--a-paper);
+}
+.row:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: -4px;
+}
+.text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.name {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.word {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.state {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1.5px solid var(--a-ink);
+  border-radius: var(--a-r-pill);
+  font-weight: 700;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.state[data-kind='ok'] {
+  background: var(--a-lime-tint);
+}
+.state[data-kind='tag'] {
+  border-style: dashed;
+  background: var(--a-white);
+}
+.state[data-kind='asked'],
+.state[data-kind='asking'] {
+  background: var(--a-sun-tint);
+}
+.chev {
+  flex: none;
+  color: var(--a-mute);
+}
+.none {
+  margin: 0;
+  padding: 18px;
+  border: 1.5px dashed var(--a-line-strong);
+  border-radius: var(--a-r-card);
+  color: var(--a-mute);
+  text-align: center;
+}
+@media (max-width: 599px) {
+  .state span {
+    display: none;
+  }
+}

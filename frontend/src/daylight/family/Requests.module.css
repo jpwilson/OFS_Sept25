@@ -1,0 +1,147 @@
+/* Requests to join your tree (owner: FAMILY): a sideways row of cards on a phone, two columns
+   on an iPad, up to three in a row on a desktop. */
+.strip {
+  display: grid;
+  gap: 10px;
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.title {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+}
+.seeAll {
+  border: 0;
+  background: none;
+  padding: 8px 0;
+  min-height: 40px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  color: var(--a-ink);
+}
+.cards {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin-inline: -12px;
+  padding: 2px 12px 8px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 12px;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.cards::-webkit-scrollbar {
+  display: none;
+}
+.card {
+  flex: 0 0 min(310px, 82%);
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: start;
+  padding: 14px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+}
+.card .face {
+  grid-row: span 2;
+}
+.says {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.25;
+}
+.words {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--a-mute);
+}
+.words b {
+  color: var(--a-ink);
+  font-weight: 700;
+}
+.buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.buttons > * {
+  flex: 1;
+}
+.done {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.err {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  color: var(--a-danger);
+  font-weight: 600;
+  font-size: 13.5px;
+}
+@media (min-width: 600px) {
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
+  .card {
+    flex: none;
+  }
+}
+@media (min-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* the sheet */
+.list {
+  display: grid;
+  gap: 12px;
+}
+.list .card {
+  flex: none;
+}
+.group + .group {
+  margin-top: 22px;
+}
+.groupHead {
+  margin: 0 0 10px;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+}
+.empty {
+  margin: 0;
+  color: var(--a-mute);
+  font-size: 15px;
+}
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
