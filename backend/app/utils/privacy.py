@@ -202,9 +202,12 @@ def filter_events_for_feed(
     if not viewer:
         return query.filter(Event.privacy_level == "public")
 
-    # Logged-in users: all events except private
+    # Logged-in users: all events except private, plus the viewer's own private
+    # events (a Private story must still appear in its author's own feed and profile).
     # Privacy gates for followers/close_family/custom_group applied at detail view
-    query = query.filter(Event.privacy_level != "private")
+    query = query.filter(
+        or_(Event.privacy_level != "private", Event.author_id == viewer.id)
+    )
 
     # Filter out events from muted users
     from ..models.user_mute import UserMute
