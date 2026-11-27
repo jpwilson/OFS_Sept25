@@ -24,3 +24,5 @@ from .tag_profile_relationship import TagProfileRelationship
 from .tag_profile_relationship_request import TagProfileRelationshipRequest
 from .feedback import Feedback
 from .app_setting import AppSetting
+from .family_note import FamilyNote
+from .member_details import MemberDetails

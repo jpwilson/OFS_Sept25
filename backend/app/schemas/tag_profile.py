@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from datetime import datetime, date
-from typing import Optional, List
+from typing import Optional, List, Literal
+
+
+DatePrecision = Literal["day", "month", "year"]
 
 
 class TagProfileBase(BaseModel):
@@ -8,6 +11,10 @@ class TagProfileBase(BaseModel):
     relationship_to_creator: Optional[str] = None
     photo_url: Optional[str] = None
     birth_date: Optional[date] = None
+    birth_date_precision: Optional[DatePrecision] = None
+    birthplace: Optional[str] = None
+    died_on: Optional[date] = None
+    died_on_precision: Optional[DatePrecision] = None
 
 
 class TagProfileCreate(TagProfileBase):
@@ -15,10 +22,15 @@ class TagProfileCreate(TagProfileBase):
 
 
 class TagProfileUpdate(BaseModel):
+    """Applies only the fields sent; an explicit null clears (except name)."""
     name: Optional[str] = None
     relationship_to_creator: Optional[str] = None
     photo_url: Optional[str] = None
     birth_date: Optional[date] = None
+    birth_date_precision: Optional[DatePrecision] = None
+    birthplace: Optional[str] = None
+    died_on: Optional[date] = None
+    died_on_precision: Optional[DatePrecision] = None
 
 
 # Tag Profile Relationship schemas

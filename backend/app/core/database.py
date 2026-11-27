@@ -61,4 +61,7 @@ def on_close(dbapi_conn, connection_record):
 # Log connection errors
 @event.listens_for(engine, "handle_error")
 def on_error(exception_context):
-    db_logger.error(f"DB error: {exception_context.original_exception}")
+    # The class and SQLSTATE only: a database message can quote row values (a failed CHECK
+    # prints the whole row, which can hold a family note or a birthday).
+    exc = exception_context.original_exception
+    db_logger.error(f"DB error: {type(exc).__name__} sqlstate={getattr(exc, 'pgcode', None)}")
