@@ -41,16 +41,14 @@
 }
 
 /* Short portrait screens: film/fit.js gives a chapter that does not fit between its copy and
-   its docks a lower floor and, if it must, a smaller unit (layout.js FIT). data-tight: the
-   readout row steps aside and the audience chip takes its place. */
-@media (max-aspect-ratio: 9/10) {
-  .scene[data-fit] {
-    --u: var(--fit-u);
-    --floor: var(--fit-floor);
-  }
-  .scene[data-fit] .copy {
-    --u: var(--u0);
-  }
+   its docks a new floor and, if it must, a smaller unit (layout.js FIT). data-tight (phones):
+   the readout row steps aside and the audience chip takes its place. */
+.scene[data-fit] {
+  --u: var(--fit-u);
+  --floor: var(--fit-floor);
+}
+.scene[data-fit] .copy {
+  --u: var(--u0);
 }
 @media (max-aspect-ratio: 9/10) and (max-width: 699.98px) {
   .scene[data-tight] .bl {
@@ -1023,6 +1021,15 @@
   .film:not([data-mode='pinned']) .bl,
   .film:not([data-mode='pinned']) .br {
     bottom: 28px;
+  }
+}
+
+/* ---------- a narrow landscape screen (a tablet on its side): each dock keeps its first readout
+   (and the right one its audience chip), so the docks stay clear of the rail between them ---------- */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1199.98px) {
+  .bl > [data-readout]:not(:first-child),
+  .br > [data-readout] {
+    display: none;
   }
 }
 

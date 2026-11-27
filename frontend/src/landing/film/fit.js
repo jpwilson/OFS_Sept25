@@ -4,8 +4,8 @@
 // height is short (a phone with its browser bars showing) the copy and the docks take a bigger
 // share of it and the art runs into them.
 //
-// fit() measures each chapter's art at rest and the room between the bottom of its copy and
-// whatever sits below each part of it (a dock, the rail). If the art does not sit inside that
+// fit() measures each chapter's art at rest and, column by column, the room between the bottom
+// of its copy and whatever sits below each part of it (a dock, the rail). If the art does not sit inside that
 // room it moves the floor (and the art with it) by the least that makes it fit. If the room is
 // too small, the scene first lets its readout row go (data-tight: the row of facts is hidden and
 // the audience chip takes its place) and only then shrinks its unit. The result is written on
@@ -65,18 +65,36 @@ function bottomBoxes(el, rail) {
 }
 
 /**
- * Where the floor may go, for the art as laid out now with its floor at floor0: low enough that
- * every part clears the copy (top), high enough that every part clears the boxes it shares
- * columns with. Returns [lo, hi]; the art fits when lo <= hi.
+ * The copy as boxes, one per block (its slate row, its headline, its sentence): top and bottom
+ * in scene px, columns (left, right) in page px. A part under a block's columns must clear its
+ * bottom; nothing of the art may rise above the copy's top (the nav and the counter are there).
  */
-function room(el, parts, floor0, top, boxes, H) {
+function copyBoxes(el, copy) {
+  const top0 = el.getBoundingClientRect().top
+  const out = []
+  for (const c of copy.children) {
+    const r = c.getBoundingClientRect()
+    if (!r.width) continue
+    out.push({ bottom: r.bottom - top0, left: r.left, right: r.right })
+  }
+  return { top: copy.offsetTop, bottom: Math.max(copy.offsetTop + copy.offsetHeight, ...out.map((b) => b.bottom)), blocks: out }
+}
+
+/**
+ * Where the floor may go, for the art as laid out now with its floor at floor0: low enough that
+ * every part under the copy's columns clears the copy, high enough that every part clears the
+ * boxes below it that share its columns. Returns [lo, hi]; the art fits when lo <= hi.
+ */
+function room(el, parts, floor0, copy, boxes, H) {
   const top0 = el.getBoundingClientRect().top
   let lo = -Infinity
   let hi = Infinity
   for (const n of parts) {
     const r = n.getBoundingClientRect()
     if (!r.width || !r.height) continue
-    lo = Math.max(lo, top + floor0 - (r.top - top0))
+    let below = copy.top
+    for (const b of copy.blocks) if (b.left < r.right && b.right > r.left) below = Math.max(below, b.bottom + GAP)
+    lo = Math.max(lo, below + floor0 - (r.top - top0))
     let limit = H
     for (const b of boxes) if (b.left < r.right && b.right > r.left) limit = Math.min(limit, b.top)
     hi = Math.min(hi, limit - GAP - (r.bottom - top0 - floor0))
@@ -92,6 +110,7 @@ function room(el, parts, floor0, top, boxes, H) {
  */
 export function fitScene(el, k, W, H, rail, rest = (fn) => fn()) {
   const { u: u0, kind } = stageUnit(W, H)
+  // a wide screen keeps its art beside the copy, not under it: it is left as designed
   const f = FIT[k] && kind !== 'd' ? FIT[k] : null
   const copy = f ? el.querySelector(`[data-f="${k}:copy"]`) : null
   el.removeAttribute('data-tight')
@@ -99,14 +118,17 @@ export function fitScene(el, k, W, H, rail, rest = (fn) => fn()) {
   if (!copy) return null
 
   const floor0 = (pick(STAGE[k], kind).floor / 100) * H
-  const top = copy.offsetTop + copy.offsetHeight + GAP
-  const parts = artParts(el, f.skip || [])
+  const box = copyBoxes(el, copy)
+  // where the copy ends, for parts that hang from it rather than from the floor (07 on a tablet)
+  el.style.setProperty('--copy-b', `${Math.round(box.bottom)}px`)
+  const skip = f.skip ? (Array.isArray(f.skip) ? f.skip : pick(f.skip, kind) || []) : []
+  const parts = artParts(el, skip)
   const readouts = !!el.querySelector(':scope > [data-f$=":bl"]')
   return rest(() => {
     // u: the unit to try; returns where the floor goes, or null if the art does not fit
     const tryUnit = (u) => {
       if (u < u0) setVars(el, u, floor0)
-      const [lo, hi] = room(el, parts, floor0, top, bottomBoxes(el, rail), H)
+      const [lo, hi] = room(el, parts, floor0, box, bottomBoxes(el, rail), H)
       return lo <= hi + 0.5 ? Math.min(Math.max(floor0, lo), hi) : null
     }
     let floor = tryUnit(u0)
@@ -133,7 +155,7 @@ export function fitScene(el, k, W, H, rail, rest = (fn) => fn()) {
       }
       if (!best) setVars(el, u0 * lo, floor0)
       u = u0 * (best ? best.s : lo)
-      floor = best ? best.at : Math.max(floor0, room(el, parts, floor0, top, [], H)[0])
+      floor = best ? best.at : Math.max(floor0, room(el, parts, floor0, box, [], H)[0])
     }
     if (u >= u0 && Math.abs(floor - floor0) < 0.5) {
       setVars(el, null)

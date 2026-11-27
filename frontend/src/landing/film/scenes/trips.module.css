@@ -89,6 +89,15 @@
   letter-spacing: 0.05em;
   padding: 3px 6px;
 }
+/* a narrower landscape screen draws the prints closer than their coordinates are wide: each
+   tag breaks onto two lines (latitude, longitude) within its own print */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1300px) {
+  .stopSlot .coord > span {
+    max-width: calc(var(--w) * var(--u));
+    white-space: normal;
+    text-align: center;
+  }
+}
 .shotSlot [data-part='caption'] {
   font-size: clamp(9px, calc(1.16 * var(--u)), 11.5px);
   letter-spacing: 0.08em;
@@ -258,10 +267,20 @@
   height: calc(var(--wh) * var(--u));
   aspect-ratio: var(--ar);
 }
-/* on a phone the relative stands at the phone height layout.js gives them (who.hm), so the card's caption stays readable beside them */
+/* on a phone the relative stands at the phone height layout.js gives them (who.hm), and the card's
+   caption wraps short of where they stand, so it stays readable beside them */
 @media (max-aspect-ratio: 9/10) {
   .postcard .who {
     height: calc(var(--whm, var(--wh)) * var(--u));
+  }
+  .postcard figure > figcaption {
+    padding-right: max(0px, calc((var(--whm, var(--wh)) * var(--ar) - 0.2 * var(--w)) * var(--u) - 4px));
+  }
+}
+@media (min-aspect-ratio: 9001/10000) {
+  .postcard figure > figcaption {
+    white-space: normal;
+    padding-right: max(0px, calc((var(--wh) * var(--ar) - 0.2 * var(--w)) * var(--u) - 4px));
   }
 }
 .postcard .who > :where(img, span) {
@@ -449,6 +468,15 @@
 /* Tetons has one readout too many for a tablet: the map layers are already said in chapter 01 */
 @media (max-width: 1300px) {
   .tetons [data-f='tetons:br'] > [data-readout] {
+    display: none;
+  }
+}
+
+/* A short landscape window: the route and its pins lie along the floor where the readouts in the
+   bottom left dock sit; in 01 and 02 those readouts step aside (the audience chip stays). */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 699.98px) {
+  :global([data-scene='coast']) > [data-f='coast:bl'],
+  :global([data-scene='tetons']) > [data-f='tetons:bl'] {
     display: none;
   }
 }

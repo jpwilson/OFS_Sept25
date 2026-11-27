@@ -276,9 +276,15 @@ export function World() {
         const c = LW.cards[p.who]
         const meta = getArt(p.art)
         return (
-          <Air key={p.who} f={`world:card-${p.who}`} a={{ d: c.d, m: c.m, z: 7 }} className={m.postcard} par={14}>
+          <Air
+            key={p.who}
+            f={`world:card-${p.who}`}
+            a={{ d: c.d, m: c.m, z: 7, vars: { '--wh': c.who.h, '--whm': c.who.hm, '--ar': meta.w / meta.h } }}
+            className={m.postcard}
+            par={14}
+          >
             <Photo art={p.photo} caption={p.place} sizes="(max-aspect-ratio: 9/10) 14vh, 10vw" />
-            <span className={m.who} style={{ '--wh': c.who.h, '--whm': c.who.hm, '--ar': meta.w / meta.h }}>
+            <span className={m.who}>
               <Cutout id={p.art} sizes="(max-aspect-ratio: 9/10) 6vh, 5vw" />
             </span>
             <span className={m.whoTag}>

@@ -37,7 +37,9 @@ function Marks({ who, name, heights, side }) {
   return (
     <div className={y.marks} data-side={side} data-f={`year:marks-${who}`} style={{ '--rh': Math.round((heights[heights.length - 1] + 0.06) * 1000) / 1000 }}>
       <i className={y.rail} />
-      <b className={y.who}>{name}</b>
+      <b className={y.who} data-f={`year:who-${who}`}>
+        {name}
+      </b>
       {heights.map((h, i) => (
         <span key={i} className={y.mark} data-f={`year:mk-${who}${i}`} data-col={col[i] || undefined} style={{ '--mh': h }}>
           <i />

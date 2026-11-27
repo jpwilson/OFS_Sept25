@@ -64,6 +64,18 @@ const ALLOW = [
     why: 'Chapter 05 in motion: the six prints fan out in front of the story page and dock into it one at a time as its sections are written. The fan is the choreography; at rest every print sits in its own slot.',
   },
   {
+    at: /^film:kitchen$/,
+    a: /^figcaption$/,
+    b: /^(img\.printImg|figure\.print|div\.paper|figcaption|span\.tag|b|img\.cutout)$/,
+    why: "Chapter 05 on a wide screen: the six prints fly in past Maya and are held as a fanned hand (with their count tag on top) until each docks into the page. Each print overlaps the next, so their captions are covered in turn, as in any fan of photographs.",
+  },
+  {
+    at: /^film:hero$/,
+    a: /^span\.canLabel$/,
+    b: /^(span\.canNote|i)$/,
+    why: "The hero's readout changes with the audience: the old value slides up and out of the plate as the new one slides in, passing its corner label for a moment. At rest the value sits clear of the label.",
+  },
+  {
     at: /^film:year$/,
     a: /^figcaption$/,
     b: /^img\.photoImg$/,

@@ -379,6 +379,57 @@
   }
 }
 
+/* A short tablet held upright: the left column cannot stack the copy, all eight categories and
+   two photographs above the readouts. The categories (the four this story uses, as on a phone)
+   and the two photographs, side by side, hang from the copy (fit.js writes --copy-b); the kids
+   and their chart keep the floor. */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) and (max-height: 999.98px) {
+  .tabs {
+    top: calc(var(--copy-b, 360px) + 12px);
+    width: calc(23 * var(--u));
+    gap: 6px;
+  }
+  .tab {
+    padding: 5px 9px 6px;
+    font-size: 12.5px;
+    box-shadow: 2px 2px 0 var(--l-ink);
+  }
+  .tabMinor {
+    display: none;
+  }
+  .photoSlot.photoSlot {
+    --w: 10.6;
+    top: calc(var(--copy-b, 360px) + 92px);
+    transform: translate(calc(var(--x) * var(--u) - 50%), 0) rotate(var(--r));
+  }
+  .photoSlot:has(> [data-f$='-0']) {
+    --x: -27.2;
+  }
+  .photoSlot:has(> [data-f$='-1']) {
+    --x: -16.2;
+  }
+  .photoSlot figcaption {
+    font-size: 12.5px;
+  }
+}
+
+/* a narrower landscape screen: the sentence keeps clear of Ivy's pencil marks, which stand just
+   right of the copy */
+@media (min-aspect-ratio: 9001/10000) and (max-width: 1100px) {
+  .yearCopy {
+    --body-w: 21em !important;
+  }
+}
+
+/* a short landscape window: the phone with the four views (and its toggle) stands a little
+   higher, so its caption clears the readouts in the corner below it */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 699.98px) {
+  :global([data-scene='year']) > :has(> [data-f='year:device']),
+  :global([data-scene='year']) > :has(> [data-f='year:toggle']) {
+    --y: calc(var(--yd) + 3);
+  }
+}
+
 /* one readout, two homes: see Year.jsx */
 @media (max-aspect-ratio: 9/10) {
   .landscapeOnly {

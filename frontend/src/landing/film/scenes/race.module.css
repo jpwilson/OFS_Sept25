@@ -110,6 +110,11 @@
   width: 1.1em;
   height: 1.1em;
 }
+/* a narrow panel (a short or narrow window): "can open it" wraps inside its own member instead of running into the next */
+.members li > span:last-child {
+  min-width: 0;
+  white-space: normal;
+}
 .note {
   font-size: max(13px, calc(var(--pp) * 0.033));
   line-height: 1.3;

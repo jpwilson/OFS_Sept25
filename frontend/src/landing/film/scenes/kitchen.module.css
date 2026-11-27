@@ -35,11 +35,13 @@
   right: 0;
   bottom: 6px;
 }
-/* on a phone the stage's name starts at the kitchen's left end, clear of Maya standing at its right */
+/* on a phone the stage's name starts at the kitchen's left end and wraps, clear of Maya standing at its right */
 @media (max-aspect-ratio: 9/10) {
   .level > span {
     right: auto;
     left: 0;
+    max-width: 9.5em;
+    white-space: normal;
   }
 }
 
@@ -387,6 +389,47 @@
   }
   .sticker {
     font-size: max(10.5px, calc(1.46 * var(--u)));
+  }
+}
+
+/* A tablet held upright: the page hangs from its top edge just under the voice note, and the
+   right dock keeps only the audience chip (its readout ran over the left dock's at 768px). */
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) {
+  .pageSlot.pageSlot {
+    --ay: 0%;
+    --y: 28.6;
+  }
+}
+@media (max-aspect-ratio: 9/10) and (min-width: 700px) and (max-width: 899.98px) {
+  :global([data-scene='kitchen']) > [data-f='kitchen:br'] > [data-readout] {
+    display: none;
+  }
+}
+
+/* The ways in sit at the top, right of the copy: the copy's slate row keeps to the copy's own
+   column (its eyebrow wraps under the slate) instead of running on under them. */
+.kitchenCopy > :first-child {
+  max-width: 100%;
+}
+/* A short landscape window: the page, set in px, would run from under the ways in at the top
+   to the readouts at the bottom. It keeps its headings and photos and lets the lines under each
+   heading and the chips under its title go, as it does on a phone. Shorter still, the ways in
+   (said again by the Modes readout) step aside: their chips, set in px, ran into the voice note
+   and up under the nav. */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 819.98px) {
+  .line,
+  .pchips {
+    display: none;
+  }
+}
+@media (min-aspect-ratio: 9001/10000) and (max-height: 759.98px) {
+  .waysSlot {
+    display: none;
+  }
+  /* the stage's name (the page's headings say it too) steps aside: at the top of the kitchen it
+     ran over the copy's last line */
+  .level > span {
+    display: none;
   }
 }
 

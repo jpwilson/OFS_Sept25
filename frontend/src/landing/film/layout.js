@@ -110,7 +110,8 @@ export const STAGE = {
 /**
  * Short portrait screens (film/fit.js): the chapters whose art is kept clear of their copy and
  * docks. fit.js measures the art itself; skip names a part that is not art (a frame around the
- * whole scene). A scene with no entry is left as designed.
+ * whole scene), for every layout or per layout ({ m, t }). A scene with no entry is left as
+ * designed.
  */
 export const FIT = {
   coast: {},
@@ -119,7 +120,8 @@ export const FIT = {
   wedding: {},
   kitchen: {},
   race: {},
-  year: {},
+  // on a short tablet the categories and the photographs hang from the copy (year.module.css), not the floor
+  year: { skip: { m: [], t: [...Array.from({ length: 8 }, (_, i) => `year:tab${i}`), ...Array.from({ length: 10 }, (_, i) => `year:photo${i >> 1}-${i & 1}`)] } },
   ours: { skip: ['ours:group', 'ours:print'] },
   app: {},
 }
@@ -349,7 +351,8 @@ export const WORLD = {
    */
   trips: {
     tetons: { pin: both(-110.7, 43.7), print: { d: { dx: -7.5, dy: -9.5, w: 10, r: -4 }, m: { dx: -3, dy: -7, w: 6.4, r: -4 } }, name: 'left' },
-    coast: { pin: both(-68.5, 44.3), print: { d: { dx: 8.5, dy: -9, w: 10, r: 4 }, m: { dx: 3.4, dy: -7, w: 6.4, r: 4 } }, name: 'right' },
+    // its print sits a little higher than the others, so its caption clears Grandpa Joe's name tag below it
+    coast: { pin: both(-68.5, 44.3), print: { d: { dx: 8.5, dy: -5.4, w: 10, r: 4 }, m: { dx: 3.4, dy: -7, w: 6.4, r: 4 } }, name: 'right' },
     maui: { pin: both(-156.7, 20.9), print: { d: { dx: 2, dy: -8.6, w: 10, r: 3 }, m: { dx: 1.4, dy: -6.4, w: 6.4, r: 3 } } },
   },
   /** The relatives' own stories: a pin, and a postcard with its author beside it. */
@@ -557,6 +560,8 @@ export function airVars(a) {
   if (a.m && a.m.ay != null) out['--aym'] = `${n(a.m.ay * 100)}%`
   if (a.t && a.t.ay != null) out['--ayt'] = `${n(a.t.ay * 100)}%`
   if (a.t) Object.assign(out, { '--xt': n(a.t.x), '--yt': n(a.t.y), '--wt': n(a.t.w), '--rt': `${a.t.r || 0}deg`, '--st': n(a.t.s != null ? a.t.s : 1) })
+  // vars: any other variables the slot's contents share
+  if (a.vars) Object.assign(out, a.vars)
   return out
 }
 

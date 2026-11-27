@@ -285,6 +285,11 @@
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
+/* Public's line already says "anyone with the link": its value stays one word (as on a phone),
+   clear of the plate's label in the corner */
+.canVal[data-v='public'] .canBig > i {
+  display: none;
+}
 .canBig > i {
   font-style: normal;
   font-size: 0.44em;

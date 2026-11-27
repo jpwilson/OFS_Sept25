@@ -43,6 +43,12 @@
 .anyone {
   text-align: center;
 }
+/* a short landscape window: the tags for anyone float a little lower, clear of the headline */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 699.98px) {
+  .anyone.anyone {
+    --y: calc(var(--yd) - 9);
+  }
+}
 :is(.scope, [data-mode='poster'] .scopeHero) .anyone {
   opacity: 0;
   transition: opacity 240ms ease;
