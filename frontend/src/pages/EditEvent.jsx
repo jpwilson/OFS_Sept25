@@ -14,7 +14,22 @@ import TagPicker from '../components/TagPicker'
 import CreateTagProfileModal from '../components/CreateTagProfileModal'
 import TagBadge from '../components/TagBadge'
 import { validateLocationCount } from '../utils/locationExtractor'
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 import styles from './CreateEvent.module.css'
+
+// Story HTML is untrusted (any member writes it). Parse it sanitized and into an
+// inert document, never into a live element: an <img onerror> there would run.
+function parseStoryHtml(html) {
+  return new DOMParser().parseFromString(sanitizeHtml(html || ''), 'text/html').body
+}
+
+// Only the author may open the edit page. The route is reachable by any id, and
+// the story's HTML is loaded into the editor, so check before using anything.
+function isStoryAuthor(event, user) {
+  if (!event || !user) return false
+  if (event.author_id != null && user.id != null) return event.author_id === user.id
+  return !!event.author_username && event.author_username === user.username
+}
 
 function EditEvent() {
   const { id } = useParams()
@@ -73,6 +88,11 @@ function EditEvent() {
         return
       }
 
+      if (!isStoryAuthor(event, user)) {
+        navigate(`/event/${event.slug || event.id || id}`, { replace: true })
+        return
+      }
+
       // Store the actual numeric event ID (URL param might be a slug)
       setEventNumericId(event.id)
 
@@ -80,7 +100,7 @@ function EditEvent() {
         title: event.title || '',
         short_title: event.short_title || '',
         summary: event.summary || '',
-        description: event.description || '',
+        description: sanitizeHtml(event.description || ''),
         start_date: event.start_date ? event.start_date.split('T')[0] : '',
         end_date: event.end_date ? event.end_date.split('T')[0] : '',
         location_name: event.location_name || '',
@@ -120,9 +140,7 @@ function EditEvent() {
         const getFilenameFromUrl = (url) => url?.split('/').pop()?.split('?')[0] || ''
 
         // Extract HTML image URLs from the loaded description
-        const tempDiv = document.createElement('div')
-        tempDiv.innerHTML = event.description || ''
-        const htmlImages = Array.from(tempDiv.querySelectorAll('img, video'))
+        const htmlImages = Array.from(parseStoryHtml(event.description).querySelectorAll('img, video'))
         const htmlUrls = htmlImages.map(el => el.src)
 
         // For each eventImage with a caption, find matching HTML URL
@@ -314,11 +332,8 @@ function EditEvent() {
   const extractMediaFromContent = () => {
     if (!formData.description) return []
 
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = formData.description
-
     // Get all media elements (images and videos) in document order
-    const mediaElements = tempDiv.querySelectorAll('img, video')
+    const mediaElements = parseStoryHtml(formData.description).querySelectorAll('img, video')
 
     return Array.from(mediaElements).map((element, index) => {
       const isVideo = element.tagName === 'VIDEO'
