@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from ..core.database import get_db
 from ..core.deps import get_current_user, require_not_demo
 from ..models.user import User
 from ..models.user_relationship import UserRelationship
 from ..models.follow import Follow
+from ..models.member_details import MemberDetails
 from ..schemas.user_relationship import (
     RelationshipPropose,
     RelationshipResponse,
@@ -41,6 +42,44 @@ def check_mutual_follow(db: Session, user_id_1: int, user_id_2: int) -> bool:
     ).first()
 
     return follow_1_to_2 is not None and follow_2_to_1 is not None
+
+
+def shared_birthday(rel: UserRelationship, details: Optional[MemberDetails]) -> tuple:
+    """(birth_date, birthplace) of the other person: only for an accepted relationship,
+    and only when they let relatives see it."""
+    if rel.status != "accepted" or details is None or details.birth_date_visibility != "relatives":
+        return None, None
+    return details.birth_date, details.birthplace
+
+
+def relationship_response(rel: UserRelationship, me_id: int, other: User,
+                          details: Optional[MemberDetails]) -> RelationshipResponse:
+    """Every RelationshipResponse is built here, from me_id's side of the relationship."""
+    if me_id == rel.user_a_id:
+        mine, theirs = rel.relationship_a_to_b, rel.relationship_b_to_a
+    else:
+        mine, theirs = rel.relationship_b_to_a, rel.relationship_a_to_b
+    birth_date, birthplace = shared_birthday(rel, details)
+    return RelationshipResponse(
+        id=rel.id,
+        other_user_id=other.id,
+        other_user_username=other.username,
+        other_user_display_name=other.display_name or other.full_name,
+        other_user_avatar_url=other.avatar_url,
+        my_relationship_to_them=mine,
+        their_relationship_to_me=theirs,
+        status=rel.status,
+        proposed_by_me=(rel.proposed_by_id == me_id),
+        created_at=rel.created_at,
+        accepted_at=rel.accepted_at,
+        other_user_birth_date=birth_date,
+        other_user_birthplace=birthplace,
+    )
+
+
+def details_if_accepted(db: Session, rel: UserRelationship, other_id: int) -> Optional[MemberDetails]:
+    """One primary-key lookup, and none at all unless the relationship is accepted."""
+    return db.get(MemberDetails, other_id) if rel.status == "accepted" else None
 
 
 @router.post("/propose", response_model=RelationshipResponse)
@@ -137,19 +176,7 @@ def propose_relationship(
     db.commit()
     db.refresh(relationship)
 
-    return RelationshipResponse(
-        id=relationship.id,
-        other_user_id=other_user.id,
-        other_user_username=other_user.username,
-        other_user_display_name=other_user.display_name or other_user.full_name,
-        other_user_avatar_url=other_user.avatar_url,
-        my_relationship_to_them=data.my_relationship_to_them,
-        their_relationship_to_me=data.their_relationship_to_me,
-        status=relationship.status,
-        proposed_by_me=True,
-        created_at=relationship.created_at,
-        accepted_at=relationship.accepted_at
-    )
+    return relationship_response(relationship, current_user.id, other_user, None)
 
 
 @router.get("/pending", response_model=List[RelationshipRequestResponse])
@@ -281,38 +308,17 @@ def get_my_relationships(
         UserRelationship.status == "accepted"
     ).order_by(UserRelationship.accepted_at.desc()).all()
 
-    results = []
-    for rel in relationships:
-        # Get the other user
-        other_user_id = rel.user_a_id if rel.user_b_id == current_user.id else rel.user_b_id
-        other_user = db.query(User).filter(User.id == other_user_id).first()
+    # Two IN queries for the other people and their details, not one query per row.
+    other_ids = [rel.get_other_user_id(current_user.id) for rel in relationships]
+    others = {u.id: u for u in db.query(User).filter(User.id.in_(other_ids)).all()} if other_ids else {}
+    details = {d.user_id: d for d in db.query(MemberDetails).filter(MemberDetails.user_id.in_(other_ids)).all()} \
+        if other_ids else {}
 
-        if not other_user:
-            continue
-
-        # Determine relationships from current user's perspective
-        if current_user.id == rel.user_a_id:
-            my_relationship_to_them = rel.relationship_a_to_b
-            their_relationship_to_me = rel.relationship_b_to_a
-        else:
-            my_relationship_to_them = rel.relationship_b_to_a
-            their_relationship_to_me = rel.relationship_a_to_b
-
-        results.append(RelationshipResponse(
-            id=rel.id,
-            other_user_id=other_user.id,
-            other_user_username=other_user.username,
-            other_user_display_name=other_user.display_name or other_user.full_name,
-            other_user_avatar_url=other_user.avatar_url,
-            my_relationship_to_them=my_relationship_to_them,
-            their_relationship_to_me=their_relationship_to_me,
-            status=rel.status,
-            proposed_by_me=(rel.proposed_by_id == current_user.id),
-            created_at=rel.created_at,
-            accepted_at=rel.accepted_at
-        ))
-
-    return results
+    return [
+        relationship_response(rel, current_user.id, others[other_id], details.get(other_id))
+        for rel, other_id in zip(relationships, other_ids)
+        if other_id in others
+    ]
 
 
 @router.get("/with/{user_id}", response_model=RelationshipResponse)
@@ -342,27 +348,8 @@ def get_relationship_with_user(
             detail="User not found"
         )
 
-    # Determine relationships from current user's perspective
-    if current_user.id == relationship.user_a_id:
-        my_relationship_to_them = relationship.relationship_a_to_b
-        their_relationship_to_me = relationship.relationship_b_to_a
-    else:
-        my_relationship_to_them = relationship.relationship_b_to_a
-        their_relationship_to_me = relationship.relationship_a_to_b
-
-    return RelationshipResponse(
-        id=relationship.id,
-        other_user_id=other_user.id,
-        other_user_username=other_user.username,
-        other_user_display_name=other_user.display_name or other_user.full_name,
-        other_user_avatar_url=other_user.avatar_url,
-        my_relationship_to_them=my_relationship_to_them,
-        their_relationship_to_me=their_relationship_to_me,
-        status=relationship.status,
-        proposed_by_me=(relationship.proposed_by_id == current_user.id),
-        created_at=relationship.created_at,
-        accepted_at=relationship.accepted_at
-    )
+    return relationship_response(relationship, current_user.id, other_user,
+                                 details_if_accepted(db, relationship, other_user.id))
 
 
 @router.post("/{relationship_id}/accept", response_model=RelationshipResponse)
@@ -411,26 +398,8 @@ def accept_relationship(
     other_user_id = relationship.user_a_id if relationship.user_b_id == current_user.id else relationship.user_b_id
     other_user = db.query(User).filter(User.id == other_user_id).first()
 
-    if current_user.id == relationship.user_a_id:
-        my_relationship_to_them = relationship.relationship_a_to_b
-        their_relationship_to_me = relationship.relationship_b_to_a
-    else:
-        my_relationship_to_them = relationship.relationship_b_to_a
-        their_relationship_to_me = relationship.relationship_a_to_b
-
-    return RelationshipResponse(
-        id=relationship.id,
-        other_user_id=other_user.id,
-        other_user_username=other_user.username,
-        other_user_display_name=other_user.display_name or other_user.full_name,
-        other_user_avatar_url=other_user.avatar_url,
-        my_relationship_to_them=my_relationship_to_them,
-        their_relationship_to_me=their_relationship_to_me,
-        status=relationship.status,
-        proposed_by_me=False,
-        created_at=relationship.created_at,
-        accepted_at=relationship.accepted_at
-    )
+    return relationship_response(relationship, current_user.id, other_user,
+                                 details_if_accepted(db, relationship, other_user.id))
 
 
 @router.post("/{relationship_id}/reject")

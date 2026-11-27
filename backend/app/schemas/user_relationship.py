@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 
@@ -44,6 +44,8 @@ class RelationshipResponse(BaseModel):
     proposed_by_me: bool
     created_at: datetime
     accepted_at: Optional[datetime] = None
+    other_user_birth_date: Optional[date] = None
+    other_user_birthplace: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -8,6 +8,8 @@ from ..core.deps import get_current_user, get_current_user_optional, require_not
 from ..models.user import User
 from ..models.follow import Follow
 from ..models.user_mute import UserMute
+from ..models.member_details import MemberDetails
+from ..utils.family import birthday_fields
 from ..services.email_service import send_follow_request_email, send_new_follower_email
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -112,6 +114,7 @@ def get_current_user_profile(
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
         "is_superuser": getattr(current_user, 'is_superuser', False) or False,
         "is_demo_account": getattr(current_user, 'is_demo_account', False) or False,
+        **birthday_fields(db.get(MemberDetails, current_user.id)),
         **({"demo_event_ids": [e.id for e in db.query(Event.id).filter(Event.is_demo_showcase == True).all()]} if getattr(current_user, 'is_demo_account', False) else {})
     }
 
