@@ -395,10 +395,17 @@ async function runViewport(vp) {
       if (replay) {
         await markScroller(page)
         for (const f of wanted) {
-          await page.evaluate(({ page: y, inner }) => {
+          await page.evaluate(({ page: y, inner, innerEnds }) => {
             window.scrollTo({ top: y, behavior: 'instant' })
             const s = document.querySelector('[data-overlap-scroller]')
             if (s) s.scrollTo({ top: inner, behavior: 'instant' })
+            // the frame was taken with every scroller on the screen at its end
+            if (innerEnds) {
+              for (const e of document.querySelectorAll('body *')) {
+                const st = getComputedStyle(e)
+                if ((st.overflowY === 'auto' || st.overflowY === 'scroll') && e.scrollHeight > e.clientHeight + 4 && !e.closest('.maplibregl-map')) e.scrollTo({ top: e.scrollHeight, behavior: 'instant' })
+              }
+            }
           }, f.at)
           await page.waitForTimeout(400)
           const res = await page.evaluate(detectOverlap)
