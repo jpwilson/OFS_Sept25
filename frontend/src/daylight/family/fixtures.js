@@ -375,6 +375,9 @@ export function relationshipRow(rec, viewer, dir) {
     proposed_by_me: rec.by === viewer,
     created_at: rec.created_at,
     accepted_at: rec.accepted_at ?? null,
+    // the server sends these only for an accepted relative whose birthday is for relatives (FAMILY-NOTES.md)
+    other_user_birth_date: null,
+    other_user_birthplace: null,
   }
 }
 
@@ -419,6 +422,10 @@ export function tagRow(tag, dir, photoUrl = (k) => k) {
     relationship_to_creator: tag.word ?? null,
     photo_url: tag.photo ? photoUrl(tag.photo) : null,
     birth_date: tag.birth_date ?? null,
+    birth_date_precision: tag.birth_date_precision ?? null,
+    birthplace: tag.birthplace ?? null,
+    died_on: tag.died_on ?? null,
+    died_on_precision: tag.died_on_precision ?? null,
     id: tag.id,
     created_by_id: by.id,
     created_by_username: by.username,
@@ -435,10 +442,10 @@ export function tagRow(tag, dir, photoUrl = (k) => k) {
 
 /** The production key lists, from backend/app/schemas (for the tests and the sample). */
 export const SCHEMA_KEYS = {
-  relationship: ['id', 'other_user_id', 'other_user_username', 'other_user_display_name', 'other_user_avatar_url', 'my_relationship_to_them', 'their_relationship_to_me', 'status', 'proposed_by_me', 'created_at', 'accepted_at'],
+  relationship: ['id', 'other_user_id', 'other_user_username', 'other_user_display_name', 'other_user_avatar_url', 'my_relationship_to_them', 'their_relationship_to_me', 'status', 'proposed_by_me', 'created_at', 'accepted_at', 'other_user_birth_date', 'other_user_birthplace'],
   pending: ['id', 'proposer_id', 'proposer_username', 'proposer_display_name', 'proposer_avatar_url', 'they_call_me', 'i_would_call_them', 'created_at'],
   sent: ['id', 'recipient_id', 'recipient_username', 'recipient_display_name', 'recipient_avatar_url', 'i_call_them', 'they_would_call_me', 'status', 'created_at'],
-  tag: ['name', 'relationship_to_creator', 'photo_url', 'birth_date', 'id', 'created_by_id', 'created_by_username', 'created_by_display_name', 'is_merged', 'merged_user_id', 'created_at', 'relationships'],
+  tag: ['name', 'relationship_to_creator', 'photo_url', 'birth_date', 'birth_date_precision', 'birthplace', 'died_on', 'died_on_precision', 'id', 'created_by_id', 'created_by_username', 'created_by_display_name', 'is_merged', 'merged_user_id', 'created_at', 'relationships'],
   tagLink: ['id', 'user_id', 'username', 'display_name', 'avatar_url', 'relationship_type', 'created_at'],
 }
 
