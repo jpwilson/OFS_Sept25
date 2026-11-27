@@ -21,6 +21,10 @@
 //                            top, 34px bottom on phones) and the status bar and home indicator drawn
 //                            as opaque bars over the page, so what lands under them is found.
 //                            Headless Chromium has no insets of its own.
+// The family tree's scenes with a sample set other than the Hartleys (family: <set>) run after
+// the rest, one set at a time with every viewport on it, because the set and the signed-in
+// person are the sample's own state, shared by every page (src/daylight/family/sample.js);
+// the sample is put back to the Hartleys and Maya after them.
 // Writes <vp>-<scene>-NN.jpg (findings outlined: pink the thing, orange what it collides with),
 // sheet-NN.jpg (labelled contact sheets), report.json. Exits 1 when anything collides.
 import fs from 'node:fs'
@@ -48,6 +52,7 @@ const TETONS = '/event/seven-days-in-the-tetons'
 
 // ---------------------------------------------------------------- scenes
 // {name, path, as: 'maya'|null (signed out), me: a key of ME (the member's account changed),
+//  family: a sample set of src/daylight/family/sample.js (run in the second phase),
 //  prep(page, h), wide: only >= 900, narrow: only < 900, maxW: only this wide or narrower,
 //  noSweep: look once where prep leaves it}
 // prep opens whatever a person would open; the sweep then scrolls whatever is on top.
@@ -63,6 +68,18 @@ const ME = {
   trialend: { subscription_status: 'trial', subscription_tier: 'free', trial_days_remaining: 0, trial_end_date: '2026-11-20T00:00:00' },
   trial: { subscription_status: 'trial', subscription_tier: 'free', trial_days_remaining: 12, is_within_first_5_days: false, trial_end_date: '2026-12-08T00:00:00' },
 }
+// the family tree: wait until it has grown (or the empty or error state is up), then open a sheet
+const grown = (page) => page.waitForSelector('[data-tree-state="grown"], [data-ui="family-empty"], [data-ui="empty-state"]', { timeout: 20000 })
+const familySheet = async (page, h) => {
+  await grown(page)
+  await page.waitForSelector('[aria-modal="true"]', { timeout: 10000 })
+  await h.idle(700)
+}
+const familyTree = async (page, h) => {
+  await grown(page)
+  await h.idle(700)
+}
+const FAMILY = '/family-tree'
 const openYou = async (page, h) => (h.desktop ? h.tap('button[aria-label$="your menu"]') : h.tap('[data-ui="tabbar"] button:has-text("You")'))
 const SCENES = [
   { name: 'feed', path: '/feed' },
@@ -185,10 +202,21 @@ const SCENES = [
   { name: 'notifications', path: '/notifications' },
   { name: 'tags', path: '/tags' },
   { name: 'sharing', path: '/relationships' },
-  { name: 'family-tree', path: '/family-tree' },
   { name: 'my-feedback', path: '/my-feedback' },
   { name: 'admin', path: '/admin' },
   { name: 'admin-users', path: '/admin/users' },
+  // the family tree (docs/app/FAMILY.md): the Hartleys as Maya, then the other sample sets
+  { name: 'family-tree', path: FAMILY, prep: familyTree },
+  { name: 'family-person', path: `${FAMILY}?person=u:2`, prep: familySheet },
+  { name: 'family-tag', path: `${FAMILY}?person=t:41`, prep: familySheet },
+  { name: 'family-add', path: `${FAMILY}?add=1`, prep: familySheet },
+  { name: 'family-list', path: `${FAMILY}?view=list`, prep: async (page, h) => { await page.waitForSelector('[data-ui="family-list"]', { timeout: 20000 }); await h.idle(700) } },
+  { name: 'family-requests-tree', path: FAMILY, family: 'requests', prep: familyTree },
+  { name: 'family-requests', path: `${FAMILY}?requests=1`, family: 'requests', prep: familySheet },
+  { name: 'family-empty', path: FAMILY, family: 'empty', prep: familyTree },
+  { name: 'family-error', path: FAMILY, family: 'error', prep: familyTree },
+  { name: 'family-owner', path: FAMILY, family: 'owner-shape', as: 'nate', prep: familyTree },
+  { name: 'family-owner-tag', path: `${FAMILY}?person=t:401`, family: 'owner-shape', as: 'nate', prep: familySheet },
   // signed out
   { name: 'login', path: '/login', as: null },
   { name: 'signup', path: '/login?signup=true', as: null },
@@ -388,10 +416,10 @@ async function frame(page, vp, scene, label, findings, n) {
   return path.relative(OUT, file)
 }
 
-async function runViewport(vp) {
+async function runViewport(vp, set = null) {
   const pages = {}
   const pageFor = async (as, me) => (pages[`${as || '-'}:${me || ''}`] ||= await newPage(vp, as, me))
-  for (const scene of scenes) {
+  for (const scene of scenes.filter((s) => (s.family || null) === set)) {
     const wide = vp.width >= 900
     if ((scene.wide && !wide) || (scene.narrow && wide) || (scene.maxW && vp.width > scene.maxW)) continue
     const as = scene.as === undefined ? 'maya' : scene.as
@@ -461,10 +489,26 @@ if (!args['no-reset']) {
 }
 
 // a few viewports at a time; each has its own signed-in and signed-out pages
-const queue = [...viewports]
-await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length) }, async () => {
-  while (queue.length) await runViewport(queue.shift())
-}))
+async function allViewports(set) {
+  const queue = [...viewports]
+  await Promise.all(Array.from({ length: Math.min(Number(args.jobs), queue.length) }, async () => {
+    while (queue.length) await runViewport(queue.shift(), set)
+  }))
+}
+await allViewports(null)
+
+// the family sets, one at a time: choose the set and the person on the server, then every viewport
+const familySets = [...new Set(scenes.filter((s) => s.family).map((s) => s.family))]
+for (const set of familySets) {
+  const as = scenes.find((s) => s.family === set).as || 'maya'
+  await fetch(`${args.base}/__fx/family?set=${set}&as=${as}`, { redirect: 'manual' }).catch(() => {})
+  await fetch(`${args.base}/__fx/viewer?as=${as}`).catch(() => {})
+  await allViewports(set)
+}
+if (familySets.length) {
+  await fetch(`${args.base}/__fx/family?set=hartley&as=maya`, { redirect: 'manual' }).catch(() => {})
+  await fetch(`${args.base}/__fx/viewer?as=maya`).catch(() => {})
+}
 
 // ---------------------------------------------------------------- contact sheet
 // Labelled contact sheets, 30 frames a page (one tall page runs past what Chromium can shoot):
