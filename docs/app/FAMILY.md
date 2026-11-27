@@ -152,6 +152,8 @@ Built on `app/daylight` in commit b9128dc. It has 64 unit tests, and its own sho
 
 ## 10. Proposal awaiting the owner's approval: notes and history, birthdays
 
+**Superseded** by `docs/app/FAMILY-NOTES.md` (approved 27 November 2026; server in PR #21, page on `feat/family-notes-page`). Kept below as it was proposed.
+
 The owner asked (26 Nov 2026) that anyone in a family tree can add comments and history to each person, with richer attributes. This needs one Alembic revision (head is `1b7097086e16`), with the SQLAlchemy models updated alongside. Nothing is built until he approves.
 
 - **Table `family_notes`:**
