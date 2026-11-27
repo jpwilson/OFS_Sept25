@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { arrange, relationsOf, shortName, cmpPeople, orderSiblings, birthOf } from './arrange.js'
-import { HARTLEYS, LARGE, OWNER, viewOf, truthLinks, keyOfId, egoWords, idOf } from './fixtures.js'
+import { HARTLEYS, LARGE, OWNER, MEMBER_DETAILS, viewOf, truthLinks, keyOfId, egoWords, idOf } from './fixtures.js'
 
 const VIEWERS = ['maya', 'tom', 'ivy', 'leo', 'ruth', 'joe', 'kate', 'marcus', 'finn']
 const view = (truth, who, links = false) => {
@@ -416,4 +416,18 @@ test('you stand by age among your siblings when every age is known and no in-law
   assert.deepEqual(order(arrange({ me: ME, relationships: sibs })), ['Zed', 'Amy', 'you'], 'your age unknown: you stay at the end, siblings by age')
   const withInLaws = [...sibs, rel(5, 'Sam Kane', 'wife'), rel(6, 'Ida Kane', 'mother-in-law')]
   assert.deepEqual(order(arrange({ me: meDated, relationships: withInLaws })), ['Zed', 'Amy', 'you'], 'beside your partner when their family stands to your right')
+})
+
+test('members with other_user_birth_date stand by age; a sibling who keeps it to themself (only_me) falls back to name order', () => {
+  const dated = (who) => arrange(viewOf(HARTLEYS, who, undefined, (k) => MEMBER_DETAILS[k] || null))
+  const kids = (s, group) => group.children.map((c) => (c === 'LINE' ? 'you' : s.people.get(c.blood).first))
+  // Maya: Leo (2012) is older than Ivy (2015), so he stands first; by name it would be Ivy
+  assert.deepEqual(kids(arrange(view(HARTLEYS, 'maya')), arrange(view(HARTLEYS, 'maya')).root.core.groups[0]), ['Ivy', 'Leo', 'Biscuit'], 'without birthdays: by name')
+  const maya = dated('maya')
+  assert.deepEqual(kids(maya, maya.root.core.groups[0]), ['Leo', 'Ivy', 'Biscuit'])
+  assert.equal(maya.people.get(U(4)).birth, '2012-05-14')
+  // Ruth: Tom shares his birthday, Kate keeps hers to herself: one known age is no order, so by name
+  const ruth = dated('ruth')
+  assert.equal(ruth.people.get(U(7)).birth, null, "the server never sends Kate's")
+  assert.deepEqual(kids(ruth, ruth.root.core.groups[0]), ['Kate', 'Tom'])
 })

@@ -7,6 +7,7 @@
 //   truthLinks(truth, viewer)       facts among the viewer's relatives (what Stage 2 would add)
 //   seedPairs(truth) / seedTags(truth)   the records the sample server keeps
 //   relationshipRow, sentRow, pendingRow, tagRow   production-shaped rows from those records
+//   MEMBER_DETAILS, seedNotes(truth, set)   birthdays and the notes and history the sample keeps
 //   idOf(truth, key) -> 'u:1' | 't:41'
 //
 // Finn is Kate and James's son (decided in FAMILY.md, so the app agrees with the landing).
@@ -29,7 +30,7 @@ export const HARTLEYS = {
     kate: U(7, 'Kate Hartley', 'f', { avatar: 'kate' }),
     marcus: U(8, 'James Reed', 'm', { avatar: 'marcus', username: 'james' }),
     finn: U(9, 'Finn Hartley', 'm', { avatar: 'finn' }),
-    biscuit: T(41, 'Biscuit', null, 'maya', { pet: true, avatar: 'biscuit', created: '2026-01-10T10:00:00Z' }),
+    biscuit: T(41, 'Biscuit', null, 'maya', { pet: true, avatar: 'biscuit', created: '2026-01-10T10:00:00Z', birth: '2019-01-01', birthPrecision: 'year', birthplace: 'Madison' }),
   },
   spouses: [['maya', 'tom'], ['kate', 'marcus']],
   parents: [
@@ -348,7 +349,8 @@ export function seedTags(truth) {
     for (const o of g.owners(key).filter(isUser)) links.push({ id: linkId++, user: o, word: 'pet' })
     for (const [u, w] of p.extraLinks || []) links.push({ id: linkId++, user: u, word: w })
     out.push({
-      id: p.tag, key, name: p.name, photo: p.avatar || null, birth_date: p.birth || null, word, by: p.by,
+      id: p.tag, key, name: p.name, photo: p.avatar || null, birth_date: p.birth || null, birth_date_precision: p.birthPrecision || null,
+      birthplace: p.birthplace || null, died_on: p.died || null, died_on_precision: p.died ? p.diedPrecision || 'day' : null, word, by: p.by,
       created_at: p.created || '2026-01-10T10:00:00Z', links,
     })
   }
@@ -359,10 +361,16 @@ export function seedTags(truth) {
 // `dir(key)` -> {id, username, full_name, display_name, avatar_url} (the sample's users).
 const shown = (u) => u.display_name || u.full_name || u.username
 
-/** GET /relationships and /relationships/with/{id} (RelationshipResponse), for `viewer`. */
-export function relationshipRow(rec, viewer, dir) {
+/**
+ * GET /relationships and /relationships/with/{id} (RelationshipResponse), for `viewer`.
+ * `detailsOf(key)` -> the other person's member_details or null: their birthday and birthplace
+ * are sent only for an accepted relationship, and only when they let relatives see them.
+ */
+export function relationshipRow(rec, viewer, dir, detailsOf = () => null) {
   const mine = rec.a === viewer
   const other = dir(mine ? rec.b : rec.a)
+  const d = rec.status === 'accepted' ? detailsOf(mine ? rec.b : rec.a) : null
+  const shared = d && d.birth_date_visibility === 'relatives' ? d : null
   return {
     id: rec.id,
     other_user_id: other.id,
@@ -375,9 +383,8 @@ export function relationshipRow(rec, viewer, dir) {
     proposed_by_me: rec.by === viewer,
     created_at: rec.created_at,
     accepted_at: rec.accepted_at ?? null,
-    // the server sends these only for an accepted relative whose birthday is for relatives (FAMILY-NOTES.md)
-    other_user_birth_date: null,
-    other_user_birthplace: null,
+    other_user_birth_date: shared?.birth_date ?? null,
+    other_user_birthplace: shared?.birthplace ?? null,
   }
 }
 
@@ -447,6 +454,67 @@ export const SCHEMA_KEYS = {
   sent: ['id', 'recipient_id', 'recipient_username', 'recipient_display_name', 'recipient_avatar_url', 'i_call_them', 'they_would_call_me', 'status', 'created_at'],
   tag: ['name', 'relationship_to_creator', 'photo_url', 'birth_date', 'birth_date_precision', 'birthplace', 'died_on', 'died_on_precision', 'id', 'created_by_id', 'created_by_username', 'created_by_display_name', 'is_merged', 'merged_user_id', 'created_at', 'relationships'],
   tagLink: ['id', 'user_id', 'username', 'display_name', 'avatar_url', 'relationship_type', 'created_at'],
+  // backend/app/schemas/family_note.py
+  noteAuthor: ['id', 'username', 'display_name', 'avatar_url'],
+  note: ['id', 'subject_user_id', 'subject_tag_profile_id', 'kind', 'body', 'happened_on', 'happened_precision', 'author', 'created_at', 'edited_at', 'can_edit', 'can_delete'],
+  notePage: ['items', 'has_more'],
+  notes: ['subject_user_id', 'subject_tag_profile_id', 'can_write', 'history', 'notes'],
+  details: ['birth_date', 'birthplace', 'birth_date_visibility'],
+}
+
+// ---------------------------------------------------------------- birthdays, notes and history
+/**
+ * The Hartleys' own birthdays (member_details), by cast key. Leo is older than Ivy, so Maya's
+ * children stand Leo, Ivy (by name it would be Ivy first). Kate keeps hers to herself
+ * (only_me), so in Ruth's tree her children stand by name. James has never saved one.
+ */
+export const MEMBER_DETAILS = {
+  maya: { birth_date: '1985-07-19', birthplace: 'Madison', birth_date_visibility: 'relatives' },
+  tom: { birth_date: '1983-02-11', birthplace: 'Boston', birth_date_visibility: 'relatives' },
+  ruth: { birth_date: '1952-03-03', birthplace: 'Cork', birth_date_visibility: 'relatives' },
+  joe: { birth_date: '1954-10-30', birthplace: 'Chicago', birth_date_visibility: 'relatives' },
+  kate: { birth_date: '1987-05-22', birthplace: 'Boston', birth_date_visibility: 'only_me' },
+  leo: { birth_date: '2012-05-14', birthplace: 'Madison', birth_date_visibility: 'relatives' },
+  ivy: { birth_date: '2015-09-02', birthplace: 'Madison', birth_date_visibility: 'relatives' },
+  finn: { birth_date: '2016-08-08', birthplace: null, birth_date_visibility: 'relatives' },
+}
+
+const N = (id, about, by, kind, body, created, extra = {}) => ({ id, about, by, kind, body, on: null, precision: null, created_at: created, edited_at: null, ...extra })
+/** Notes and history in the Hartley sample: Ruth has both, Biscuit one note, Leo none. */
+const HARTLEY_NOTES = [
+  N(8001, 'ruth', 'tom', 'history', 'Born in Cork, the youngest of five.', '2026-10-02T19:20:00', { on: '1952-01-01', precision: 'year' }),
+  N(8002, 'ruth', 'kate', 'history', "Married Bill at St. Finbarr's, in the rain. Everyone still says it was the best day of that summer.", '2026-10-05T08:40:00', { on: '1974-06-01', precision: 'month' }),
+  N(8003, 'ruth', 'maya', 'history', 'Taught every one of the grandchildren to swim at Lake Mendota.', '2026-11-14T21:05:00'),
+  N(8004, 'ruth', 'kate', 'note', 'The recipe for brown bread is in the green tin on the top shelf. Ask before you take it down.', '2026-11-02T18:10:00'),
+  N(8005, 'ruth', 'tom', 'note', 'She still has the letters Dad sent from Boston in 1973.\nAsk her about the one with the drawing of the harbor.', '2026-11-19T20:30:00', { edited_at: '2026-11-19T20:41:00' }),
+  N(8006, 'ruth', 'maya', 'note', "Ruth's laugh carries across a whole restaurant. Finn has it too, and the two of them together are something to hear.", '2026-11-24T12:15:00'),
+  N(8007, 'biscuit', 'tom', 'note', 'Biscuit has learned to open the back door. Lock it at night.', '2026-11-10T07:50:00'),
+]
+const MANY_WORDS = [
+  'Sunday lunch ran until the light went.', 'She kept every school photo in one shoebox.', 'The garden had more mint than anyone could use.',
+  'Knows every word of the old songs, and sings them a little sharp on purpose.', 'Never once missed a recital.', 'The kettle was always on before you were through the door.',
+]
+/** The notes-many set: a long run of each, for Show more. */
+function manyNotes() {
+  const out = []
+  let id = 8100
+  for (let i = 0; i < 23; i++) {
+    const day = String(1 + (i % 25)).padStart(2, '0')
+    out.push(N(id++, 'ruth', ['tom', 'kate', 'maya', 'joe'][i % 4], 'note', `${MANY_WORDS[i % MANY_WORDS.length]} (${i + 1})`, `2026-${i < 12 ? '09' : '10'}-${day}T10:${String(i).padStart(2, '0')}:00`))
+  }
+  for (let i = 0; i < 14; i++) {
+    const year = 1955 + i * 4
+    out.push(N(id++, 'ruth', ['tom', 'kate', 'maya'][i % 3], 'history', `${MANY_WORDS[(i + 2) % MANY_WORDS.length]} (${year})`, `2026-08-${String(1 + i).padStart(2, '0')}T09:00:00`, { on: `${year}-01-01`, precision: 'year' }))
+  }
+  return out
+}
+
+/** The notes and history records a sample set starts with (only the Hartleys have any). */
+export function seedNotes(truth, set = 'hartley') {
+  if (truth.key !== 'hartley' && truth.key !== 'large') return []
+  const all = set === 'notes-many' ? [...HARTLEY_NOTES, ...manyNotes()] : HARTLEY_NOTES
+  // the subject: a member (by cast key) or a tag (by tag id), never both
+  return all.map(({ about, ...n }) => ({ ...n, user: truth.people[about].tag != null ? null : about, tag: truth.people[about].tag ?? null }))
 }
 
 /** A plain directory for tests and previews: the truth's own people as users. */
@@ -458,12 +526,16 @@ export function truthDirectory(truth, avatarUrl = (k) => `/__fx/avatar/${k}.webp
   }
 }
 
-/** Everything arrange needs for `viewer`, built from the truth (tests and the preview). */
-export function viewOf(truth, viewer, dir = truthDirectory(truth)) {
+/**
+ * Everything arrange needs for `viewer`, built from the truth (tests and the preview).
+ * `detailsOf(key)` adds birthdays as the server shares them (MEMBER_DETAILS, say).
+ */
+export function viewOf(truth, viewer, dir = truthDirectory(truth), detailsOf = () => null) {
   const me = dir(viewer)
+  const mine = detailsOf(viewer)
   return {
-    me: { id: me.id, username: me.username, full_name: me.full_name, display_name: me.display_name, avatar_url: me.avatar_url },
-    relationships: seedPairs(truth).filter((r) => r.a === viewer || r.b === viewer).map((r) => relationshipRow(r, viewer, dir)),
+    me: { id: me.id, username: me.username, full_name: me.full_name, display_name: me.display_name, avatar_url: me.avatar_url, ...(mine ? { birth_date: mine.birth_date } : {}) },
+    relationships: seedPairs(truth).filter((r) => r.a === viewer || r.b === viewer).map((r) => relationshipRow(r, viewer, dir, detailsOf)),
     tags: seedTags(truth).filter((t) => t.by === viewer).map((t) => tagRow(t, dir)),
   }
 }

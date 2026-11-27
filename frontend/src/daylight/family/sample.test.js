@@ -34,7 +34,7 @@ function freshState(viewer = 'maya') {
   const me = Object.fromEntries(Object.keys(users).map((k) => [k, { ...users[k], can_access_content: true, subscription_status: 'active' }]))
   return { db: { users, profiles, me, routes: {}, following: FOLLOWING_KEYS, followers: FOLLOWER_KEYS }, viewer }
 }
-const ask = (state, method, p, body) => answer({ method, path: p, query: {}, body, auth: 'Bearer sample' }, state, helpers)
+const ask = (state, method, p, body, query = {}) => answer({ method, path: p, query, body, auth: 'Bearer sample' }, state, helpers)
 const askSignedOut = (state, method, p, body) => answer({ method, path: p, query: {}, body, auth: '' }, state, helpers)
 
 test('row keys match the production schemas exactly', () => {
@@ -43,6 +43,11 @@ test('row keys match the production schemas exactly', () => {
   assert.deepEqual(SCHEMA_KEYS.sent, fields('user_relationship.py', 'RelationshipSentResponse'))
   assert.deepEqual(SCHEMA_KEYS.tag, fields('tag_profile.py', 'TagProfileResponse'))
   assert.deepEqual(SCHEMA_KEYS.tagLink, fields('tag_profile.py', 'TagProfileRelationshipResponse'))
+  assert.deepEqual(SCHEMA_KEYS.noteAuthor, fields('family_note.py', 'FamilyNoteAuthor'))
+  assert.deepEqual(SCHEMA_KEYS.note, fields('family_note.py', 'FamilyNoteResponse'))
+  assert.deepEqual(SCHEMA_KEYS.notePage, fields('family_note.py', 'FamilyNotePage'))
+  assert.deepEqual(SCHEMA_KEYS.notes, fields('family_note.py', 'FamilyNotesResponse'))
+  assert.deepEqual(SCHEMA_KEYS.details, fields('family_note.py', 'FamilyDetailsResponse'))
   const st = freshState()
   fixturePage({ path: '/__fx/family', query: { set: 'requests' } }, st)
   const keys = (rows) => rows.map((r) => Object.keys(r).sort().join(','))
@@ -60,6 +65,16 @@ test('row keys match the production schemas exactly', () => {
   st.viewer = 'joe'
   same(ask(st, 'GET', '/me/tag-profile-relationship-requests').json, fields('tag_profile.py', 'TagProfileRelationshipRequestResponse'))
   same(ask(st, 'GET', '/me/tag-profile-relationship-requests/sent').json, fields('tag_profile.py', 'TagProfileRelationshipRequestSentResponse'))
+  // notes, history and birthdays, in the server's field order
+  st.viewer = 'maya'
+  const order = (o) => Object.keys(o)
+  const list = ask(st, 'GET', '/family-notes', undefined, { user_id: '5' }).json
+  assert.deepEqual(order(list), SCHEMA_KEYS.notes)
+  assert.deepEqual(order(list.history), SCHEMA_KEYS.notePage)
+  assert.deepEqual(order(list.notes.items[0]), SCHEMA_KEYS.note)
+  assert.deepEqual(order(list.notes.items[0].author), SCHEMA_KEYS.noteAuthor)
+  assert.deepEqual(order(ask(st, 'PUT', '/users/me/family-details', { birthplace: 'Madison' }).json), SCHEMA_KEYS.details)
+  assert.deepEqual(order(ask(st, 'POST', '/family-notes', { user_id: 5, body: 'x' }).json), SCHEMA_KEYS.note)
 })
 
 test("Maya's sample: eight relationships, Biscuit linked to Maya and Tom as 'pet', 35 types", () => {
@@ -144,10 +159,11 @@ test('tags: create, edit (the creator link keeps its word), link and unlink', ()
   assert.equal(edited.relationship_to_creator, 'pet')
   assert.equal(edited.relationships[0].relationship_type, 'dog', 'production does not rewrite the link')
   assert.equal(edited.photo_url, '/x.jpg')
-  // a birthday, as the API keeps it: set or changed, and a null leaves it alone
+  // a birthday: set, changed, and (since FAMILY-NOTES) an explicit null clears it
   assert.equal(ask(st, 'POST', '/tag-profiles', { name: 'Bea', relationship_to_creator: 'daughter', birth_date: '2018-03-04' }).json.birth_date, '2018-03-04')
   assert.equal(ask(st, 'PUT', `/tag-profiles/${t.id}`, { birth_date: '2021-05-06' }).json.birth_date, '2021-05-06')
-  assert.equal(ask(st, 'PUT', `/tag-profiles/${t.id}`, { birth_date: null }).json.birth_date, '2021-05-06')
+  assert.equal(ask(st, 'PUT', `/tag-profiles/${t.id}`, { name: 'Pip' }).json.birth_date, '2021-05-06', 'a field not sent is kept')
+  assert.equal(ask(st, 'PUT', `/tag-profiles/${t.id}`, { birth_date: null }).json.birth_date, null)
   const self = ask(st, 'POST', `/tag-profiles/${t.id}/relationships`, { user_id: USERS.maya.id, relationship_type: 'pet' })
   assert.equal(self.status, 400, 'already linked to you')
   const other = ask(st, 'POST', `/tag-profiles/${t.id}/relationships`, { user_id: USERS.tom.id, relationship_type: 'pet' }).json
@@ -258,4 +274,209 @@ test('the server since the security fixes: sign-in, birthdays, who resolves a re
   st.viewer = 'jordan'
   familyOf(st)
   assert.deepEqual(ids(ask(st, 'GET', '/users/tom/events')), [1], 'someone Tom has no audience for')
+})
+
+// ---------------------------------------------------------------- notes, history and birthdays (FAMILY-NOTES.md)
+const RUTH = { user_id: '5' }
+const notesOf = (st, query) => ask(st, 'GET', '/family-notes', undefined, query)
+
+test("notes: Ruth's family reads them, in the server's orders, with the server's flags", () => {
+  const st = freshState()
+  const r = notesOf(st, RUTH).json
+  assert.equal(r.subject_user_id, 5)
+  assert.equal(r.subject_tag_profile_id, null)
+  assert.equal(r.can_write, true)
+  // history: 1952 (a year), June 1974 (a month), then the undated entry
+  assert.deepEqual(r.history.items.map((n) => [n.happened_on, n.happened_precision]), [['1952-01-01', 'year'], ['1974-06-01', 'month'], [null, null]])
+  assert.equal(r.history.has_more, false)
+  // notes: newest first, by Maya, Tom (edited) and Kate
+  assert.deepEqual(r.notes.items.map((n) => n.author.username), ['maya', 'tom', 'kate'])
+  assert.ok(r.notes.items[1].edited_at)
+  assert.deepEqual(r.notes.items.map((n) => [n.can_edit, n.can_delete]), [[true, true], [false, false], [false, false]], "only Maya's own")
+  // with kind, the other page is null
+  const only = notesOf(st, { ...RUTH, kind: 'history' }).json
+  assert.equal(only.notes, null)
+  assert.equal(only.history.items.length, 3)
+  // Ruth may delete any note about her, and edit only her own
+  st.viewer = 'ruth'
+  assert.deepEqual(notesOf(st, RUTH).json.notes.items.map((n) => [n.can_edit, n.can_delete]), [[false, true], [false, true], [false, true]])
+  // a friend counts as family; a stranger does not; somebody nobody wrote about has none
+  st.viewer = 'maya'
+  assert.deepEqual(notesOf(st, { user_id: '4' }).json.notes, { items: [], has_more: false }, 'Leo: none')
+  st.viewer = 'priya'
+  familyOf(st).pairs.push({ id: 1, a: 'priya', b: 'ruth', aToB: 'friend', bToA: 'friend', status: 'accepted', by: 'priya', created_at: '2026-01-01T00:00:00', accepted_at: '2026-01-01T00:00:00' })
+  assert.equal(notesOf(st, RUTH).status, 200, 'a friend')
+  st.viewer = 'sam'
+  assert.deepEqual(notesOf(st, RUTH), { status: 403, json: { detail: "Only Ruth Hartley's family can see notes about Ruth Hartley." } })
+  assert.equal(notesOf(st, { user_id: '4040' }).status, 404)
+  assert.equal(notesOf(st, {}).status, 422)
+  assert.equal(notesOf(st, { user_id: '5', tag_profile_id: '41' }).json.detail, 'Give either user_id or tag_profile_id.')
+  assert.ok(Array.isArray(notesOf(st, { ...RUTH, limit: '51' }).json.detail), "limit 51 is FastAPI's own 422")
+  assert.equal(notesOf(st, { ...RUTH, kind: 'diary' }).status, 422)
+  assert.equal(askSignedOut(st, 'GET', '/family-notes').status, 403)
+})
+
+test("notes on a tag: Biscuit's creator, linked users and the creator's relatives", () => {
+  const st = freshState()
+  const tag = { tag_profile_id: '41' }
+  const r = notesOf(st, tag).json
+  assert.equal(r.subject_tag_profile_id, 41)
+  assert.deepEqual(r.notes.items.map((n) => [n.author.username, n.can_edit, n.can_delete]), [['tom', false, true]], "Maya created Biscuit: she may delete Tom's note")
+  st.viewer = 'tom'
+  assert.deepEqual(notesOf(st, tag).json.notes.items.map((n) => [n.can_edit, n.can_delete]), [[true, true]], 'linked, and the author')
+  st.viewer = 'ruth'
+  assert.equal(notesOf(st, tag).status, 200, "the creator's relative")
+  st.viewer = 'sam'
+  assert.equal(notesOf(st, tag).json.detail, "Only Biscuit's family can see notes about Biscuit.")
+  assert.equal(notesOf(st, { tag_profile_id: '4242' }).json.detail, 'Tag profile not found')
+})
+
+test('writing: dates, cleaning, editing and deleting, with the server\'s words', () => {
+  const st = freshState()
+  const post = (b) => ask(st, 'POST', '/family-notes', { user_id: 5, ...b })
+  // a history entry with only a year, stored at YYYY-01-01
+  const y = post({ kind: 'history', body: 'Moved to Madison.', happened_on: '1979-08-17', happened_precision: 'year' })
+  assert.equal(y.status, 201)
+  assert.deepEqual([y.json.happened_on, y.json.happened_precision, y.json.can_edit, y.json.can_delete], ['1979-01-01', 'year', true, true])
+  assert.equal(post({ kind: 'history', body: 'x', happened_on: '1979-08-17' }).json.happened_precision, 'day', 'no precision: a full day')
+  assert.equal(post({ kind: 'history', body: 'x', happened_on: '1974-06-20', happened_precision: 'month' }).json.happened_on, '1974-06-01')
+  const order = notesOf(st, { ...RUTH, kind: 'history' }).json.history.items.map((n) => n.happened_on)
+  assert.deepEqual(order, ['1952-01-01', '1974-06-01', '1974-06-01', '1979-01-01', '1979-08-17', null])
+  // every 422
+  assert.equal(post({ body: 'x', happened_on: '1979-01-01' }).json.detail, 'Only history entries have a date')
+  assert.equal(post({ kind: 'history', body: 'x', happened_precision: 'year' }).json.detail, 'A date precision needs a date.')
+  assert.equal(post({ kind: 'history', body: 'x', happened_on: '0999-12-31' }).json.detail, 'Choose a date between the year 1000 and today.')
+  assert.equal(post({ kind: 'history', body: 'x', happened_on: '2026-11-28' }).json.detail, 'Choose a date between the year 1000 and today.')
+  assert.equal(post({ kind: 'history', body: 'x', happened_on: '2026-11-27' }).status, 201, 'today + 1 day')
+  assert.equal(post({ body: '   \n ' }).json.detail, 'Write something first.')
+  assert.equal(post({ body: 'a'.repeat(4001) }).json.detail, 'Keep it to 4000 characters.')
+  assert.equal(post({ body: 'a'.repeat(4000) }).status, 201)
+  assert.ok(Array.isArray(post({ kind: 'diary', body: 'x' }).json.detail))
+  assert.ok(Array.isArray(post({ kind: 'history', body: 'x', happened_on: '1979-02-30' }).json.detail))
+  // cleaned before it is counted, stored as written: never HTML
+  const clean = post({ body: '  <b>Bold</b>\r\n\r\n\r\n\r\nnext‮ line\u0007 👨‍👩‍👧  ' }).json
+  assert.equal(clean.body, '<b>Bold</b>\n\nnext line 👨‍👩‍👧')
+  // the 31st note in ten minutes
+  st.viewer = 'kate'
+  for (let i = 0; i < 30; i++) assert.equal(post({ body: `n${i}` }).status, 201)
+  assert.deepEqual(post({ body: 'one more' }), { status: 429, json: { detail: 'That is a lot of notes at once. Try again in a few minutes.' } })
+  // editing: the author only; the date rules on the merged result
+  st.viewer = 'maya'
+  const patch = (id, b) => ask(st, 'PATCH', `/family-notes/${id}`, b)
+  assert.equal(patch(8005, { body: 'mine now' }).json.detail, 'Only the author can edit this note.')
+  const e1 = patch(y.json.id, { happened_on: '1980-05-05' }).json
+  assert.deepEqual([e1.happened_on, e1.happened_precision], ['1980-01-01', 'year'], 'a new date keeps the old precision')
+  assert.ok(e1.edited_at)
+  const e2 = patch(y.json.id, { happened_on: '1980-05-05', happened_precision: 'day' }).json
+  assert.deepEqual([e2.happened_on, e2.happened_precision], ['1980-05-05', 'day'])
+  const e3 = patch(y.json.id, { happened_precision: 'month' }).json
+  assert.deepEqual([e3.happened_on, e3.happened_precision], ['1980-05-01', 'month'], 'a new precision alone re-normalises the old date')
+  assert.deepEqual([patch(y.json.id, { happened_precision: null }).json.happened_on], [null], 'a null precision alone clears both')
+  assert.equal(patch(y.json.id, { kind: 'note', happened_on: '1980-05-05' }).json.detail, 'Only history entries have a date')
+  assert.equal(patch(y.json.id, { kind: 'note', happened_on: null, body: ' now a note ' }).json.body, 'now a note')
+  assert.equal(patch(y.json.id, { kind: null }).json.detail, 'Choose note or history.')
+  assert.equal(patch(y.json.id, { body: null }).json.detail, 'Write something first.')
+  assert.equal(patch(424242, { body: 'x' }).json.detail, 'Note not found')
+  // deleting: the author, Ruth herself; another relative 403; someone outside Ruth's family 404
+  assert.equal(ask(st, 'DELETE', '/family-notes/8005').json.detail, 'Only the author or Ruth Hartley can delete this note.')
+  st.viewer = 'joe'
+  assert.equal(ask(st, 'DELETE', '/family-notes/8005').status, 404, "Maya's father is not on Ruth's tree")
+  st.viewer = 'sam'
+  assert.equal(ask(st, 'DELETE', '/family-notes/8005').status, 404)
+  st.viewer = 'ruth'
+  assert.deepEqual(ask(st, 'DELETE', '/family-notes/8005').json, { message: 'Note deleted' })
+  st.viewer = 'maya'
+  assert.equal(ask(st, 'DELETE', `/family-notes/${y.json.id}`).status, 200)
+  assert.equal(ask(st, 'DELETE', `/family-notes/${y.json.id}`).status, 404)
+})
+
+test('demo accounts read with can_write false and are refused every write', () => {
+  const st = freshState()
+  st.db.me.maya.is_demo_account = true
+  const r = notesOf(st, RUTH).json
+  assert.equal(r.can_write, false)
+  assert.ok(r.notes.items.every((n) => !n.can_edit && !n.can_delete))
+  const refused = 'Demo accounts cannot perform this action. Sign up for your own account!'
+  assert.equal(ask(st, 'POST', '/family-notes', { user_id: 5, body: 'x' }).json.detail, refused)
+  assert.equal(ask(st, 'PATCH', '/family-notes/8006', { body: 'x' }).status, 403)
+  assert.equal(ask(st, 'DELETE', '/family-notes/8006').status, 403)
+  assert.equal(ask(st, 'PUT', '/users/me/family-details', { birthplace: 'x' }).json.detail, refused)
+})
+
+test('the paging set, the error set, and an empty family', () => {
+  const st = freshState()
+  fixturePage({ path: '/__fx/family', query: { set: 'notes-many' } }, st)
+  const first = notesOf(st, RUTH).json
+  assert.deepEqual([first.notes.items.length, first.notes.has_more, first.history.items.length, first.history.has_more], [10, true, 10, true])
+  const ids = []
+  for (let skip = 0; ; skip += 10) {
+    const page = notesOf(st, { ...RUTH, kind: 'note', skip: String(skip) }).json.notes
+    ids.push(...page.items.map((n) => n.id))
+    if (!page.has_more) break
+  }
+  assert.equal(ids.length, 26)
+  assert.equal(new Set(ids).size, 26)
+  fixturePage({ path: '/__fx/family', query: { set: 'notes-error' } }, st)
+  assert.equal(notesOf(st, RUTH).status, 500)
+  fixturePage({ path: '/__fx/family', query: { set: 'empty' } }, st)
+  assert.equal(notesOf(st, RUTH).status, 403, 'nobody is related in the empty set')
+})
+
+test("birthdays: your own on /users/me and PUT, your relatives' in their rows when they share them", () => {
+  const st = freshState()
+  st.db.routes = {}
+  const me = ask(st, 'GET', '/users/me').json
+  assert.deepEqual([me.birth_date, me.birthplace, me.birth_date_visibility], ['1985-07-19', 'Madison', 'relatives'])
+  const rows = Object.fromEntries(ask(st, 'GET', '/relationships').json.map((r) => [r.other_user_username, r]))
+  assert.deepEqual([rows.ruth.other_user_birth_date, rows.ruth.other_user_birthplace], ['1952-03-03', 'Cork'])
+  assert.deepEqual([rows.kate.other_user_birth_date, rows.kate.other_user_birthplace], [null, null], 'Kate keeps hers to herself')
+  assert.equal(rows.marcus?.other_user_birth_date ?? rows.james?.other_user_birth_date, null, 'James never saved one')
+  // Leo is older than Ivy: by age, Leo stands first
+  assert.ok(rows.leo.other_user_birth_date < rows.ivy.other_user_birth_date)
+  // PUT applies only the fields sent; null clears; never "public"
+  const put = (b) => ask(st, 'PUT', '/users/me/family-details', b)
+  assert.deepEqual(put({ birthplace: '  Madison, Wisconsin ' }).json, { birth_date: '1985-07-19', birthplace: 'Madison, Wisconsin', birth_date_visibility: 'relatives' })
+  assert.deepEqual(put({ birth_date_visibility: 'only_me' }).json.birth_date_visibility, 'only_me')
+  st.viewer = 'tom'
+  assert.equal(ask(st, 'GET', '/relationships').json.find((r) => r.other_user_username === 'maya').other_user_birth_date, null, 'only_me hides it from Tom')
+  st.viewer = 'maya'
+  assert.deepEqual(put({ birth_date: null, birthplace: null }).json, { birth_date: null, birthplace: null, birth_date_visibility: 'only_me' })
+  assert.equal(put({ birth_date_visibility: null }).json.detail, 'Choose who sees your birthday.')
+  assert.ok(Array.isArray(put({ birth_date_visibility: 'public' }).json.detail))
+  assert.equal(put({ birth_date: '2026-11-27' }).json.detail, 'Choose a birthday between 1900 and today.')
+  assert.equal(put({ birth_date: '1899-12-31' }).json.detail, 'Choose a birthday between 1900 and today.')
+  assert.equal(put({ birthplace: 'a\nb' }).json.detail, 'A birthplace is one line.')
+  assert.equal(put({ birthplace: 'a'.repeat(121) }).json.detail, 'Keep the birthplace to 120 characters.')
+  assert.equal(put({ birthplace: '   ' }).json.birthplace, null, 'an empty birthplace is none')
+  // someone who never saved one
+  st.viewer = 'marcus' in st.db.users ? 'marcus' : 'james'
+  const fresh = ask(st, 'GET', '/users/me').json
+  assert.deepEqual([fresh.birth_date, fresh.birthplace, fresh.birth_date_visibility], [null, null, 'relatives'])
+  assert.equal(askSignedOut(st, 'PUT', '/users/me/family-details', {}).status, 403)
+})
+
+test('tag profiles: the new fields, applied only when sent, gated like the birth date', () => {
+  const st = freshState()
+  const t = ask(st, 'POST', '/tag-profiles', { name: 'Ivy Rose', relationship_to_creator: 'grandmother', birth_date: '1931-05-20', birth_date_precision: 'year', birthplace: 'Galway', died_on: '2019-03-02', died_on_precision: 'year' }).json
+  assert.deepEqual([t.birth_date, t.birth_date_precision, t.birthplace, t.died_on, t.died_on_precision], ['1931-01-01', 'year', 'Galway', '2019-01-01', 'year'])
+  const put = (b) => ask(st, 'PUT', `/tag-profiles/${t.id}`, b)
+  assert.equal(put({ birthplace: null }).json.birthplace, null)
+  assert.equal(put({ name: 'Ivy' }).json.birth_date_precision, 'year', 'a field not sent is kept')
+  assert.deepEqual([put({ birth_date: '1931-05-20' }).json.birth_date, put({}).json.birth_date_precision], ['1931-01-01', 'year'], 'a new date keeps the old precision')
+  assert.deepEqual([put({ birth_date_precision: null }).json.birth_date, put({}).json.birth_date_precision], ['1931-01-01', null], 'null precision: an exact day')
+  assert.equal(put({ died_on: '2019-06-14', died_on_precision: null }).json.died_on_precision, 'day', 'a death date without a precision is a day')
+  assert.equal(put({ died_on: '1930-01-01' }).json.detail, 'The date of death is before the birth date.')
+  assert.equal(put({ died_on: '1931-01-01', died_on_precision: 'year' }).status, 200, 'the same year at the coarser precision')
+  assert.equal(put({ name: null }).json.detail, 'A name is needed')
+  assert.equal(put({ relationship_to_creator: null, photo_url: null }).json.relationship_to_creator, null)
+  assert.equal(put({ died_on: null }).json.died_on_precision, null, 'a null date clears its precision')
+  // gated: the creator and linked users only
+  put({ birthplace: 'Galway', died_on: '2019-01-01', died_on_precision: 'year' })
+  st.viewer = 'joe'
+  const seen = ask(st, 'GET', `/tag-profiles/${t.id}`).json
+  assert.deepEqual([seen.birth_date, seen.birth_date_precision, seen.birthplace, seen.died_on, seen.died_on_precision], [null, null, null, null, null])
+  // the seed: Biscuit was born in 2019 (a year), in Madison
+  st.viewer = 'maya'
+  const biscuit = ask(st, 'GET', '/tag-profiles/mine').json.find((x) => x.id === 41)
+  assert.deepEqual([biscuit.birth_date, biscuit.birth_date_precision, biscuit.birthplace], ['2019-01-01', 'year', 'Madison'])
 })
