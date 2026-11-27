@@ -60,7 +60,9 @@ function usePageChrome(title, wash) {
 
 export function AuthHead({ before, mark, after = '', id }) {
   const glue = after.match(/^[.,:;!?]+/)?.[0] || ''
-  const rest = after.slice(glue.length)
+  const tail = after.slice(glue.length)
+  // Words after the sticker need a space ("a way in."); glued punctuation does not.
+  const rest = tail && !/^\s/.test(tail) ? ` ${tail}` : tail
   return (
     <h1 className={s.head} id={id} data-ui="auth-head">
       {before ? `${before} ` : null}
