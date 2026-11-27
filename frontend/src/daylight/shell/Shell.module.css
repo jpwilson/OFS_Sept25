@@ -20,9 +20,10 @@
   top: 12px;
 }
 
+/* The demo note scrolls away with the page: held at the top it lay over the sticky top bar
+   (the wordmark, search and the bell) and the story's own bar, which also hold at the top. */
 .demo {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: calc(var(--a-z-bar) + 1);
   padding: 8px 16px;
   background: var(--a-lime);
@@ -176,6 +177,14 @@
 .tabSpacer {
   flex: none;
   height: calc(var(--a-tab-h) + var(--a-safe-bottom));
+}
+/* A phone story brings its own bottom bar in place of the tab bar (66px: 52px row, 6px above
+   and below, the 2px keyline) and no spacer comes with it: the footer's last row (the social
+   links) lay under that bar at the end of the page. The footer clears it instead. */
+@media (max-width: 899px) {
+  :global(html.ofsa-on):has([data-ui='story-bottombar']) .footer > :first-child {
+    padding-bottom: calc(32px + 66px + var(--a-safe-bottom));
+  }
 }
 
 /* The classic help button (FeedbackWidget's floating "?", z-index 9998 in its own module) is
