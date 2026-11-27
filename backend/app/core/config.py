@@ -60,6 +60,13 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENROUTER_API_KEY: str = ""
 
+    # Admin analytics (docs/app/ADMIN-ANALYTICS.md). The personal key is read on the
+    # server only and must never get a VITE_ name. Scope: Query: Read, one project.
+    POSTHOG_PERSONAL_API_KEY: str = ""
+    POSTHOG_PROJECT_ID: str = ""
+    POSTHOG_API_HOST: str = "https://us.posthog.com"
+    ANALYTICS_TZ: str = "America/Chicago"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

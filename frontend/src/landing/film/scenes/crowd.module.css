@@ -43,6 +43,12 @@
 .anyone {
   text-align: center;
 }
+/* a short landscape window: the tags for anyone float a little lower, clear of the headline */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 699.98px) {
+  .anyone.anyone {
+    --y: calc(var(--yd) - 9);
+  }
+}
 :is(.scope, [data-mode='poster'] .scopeHero) .anyone {
   opacity: 0;
   transition: opacity 240ms ease;
@@ -125,7 +131,7 @@
 
 /* ---- the first paint with script on: the film is about to open on Private, so the
         server-rendered poster already shows it (no crowd to drop when the script arrives) ---- */
-@media (prefers-reduced-motion: no-preference) and (min-height: 560px) {
+@media (prefers-reduced-motion: no-preference) and (min-height: 650px), (prefers-reduced-motion: no-preference) and (min-height: 560px) and (min-width: 700px) {
   html[data-boot='landing'] [data-mode='poster']:not([data-settled]) .scopeHero .who [data-rise] {
     transform: translateY(106%);
     transition: none;

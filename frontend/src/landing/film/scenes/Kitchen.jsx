@@ -162,7 +162,7 @@ export function Kitchen({ id }) {
         </Sticker>
       </Air>
 
-      <Copy k="kitchen" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} headSize={6.9} breakAfter="reno?" bodyWidth={30} />
+      <Copy k="kitchen" slate={C.story.title} title={C.story.place} eyebrow={C.eyebrow} head={C.head} body={C.body} headSize={6.9} breakAfter="reno?" bodyWidth={30} className={t.kitchenCopy} />
       <Counter k="kitchen" />
 
       <Dock f="kitchen:bl" side="bl">

@@ -19,14 +19,29 @@ const photoArt = (p) => (hasArt(p.art) || !p.fallback ? p.art : p.fallback)
 /** The categories a phone shows (the four the five ages use); wider screens show all eight. */
 const USED = new Set(YEARS.flatMap((s) => s.photos.map((p) => p.category)))
 
+/** Marks closer than this (adult heights) are too close for their numbers on a phone: every other one steps out. */
+const CLOSE = 0.05
+
+/** Which marks carry their number one step further out (data-col), so close marks do not print over each other. */
+function columns(heights) {
+  const col = []
+  heights.forEach((h, i) => {
+    col[i] = i > 0 && h - heights[i - 1] < CLOSE && !col[i - 1] ? 1 : 0
+  })
+  return col
+}
+
 /** One column of pencil marks: a child's height at each age. */
 function Marks({ who, name, heights, side }) {
+  const col = columns(heights)
   return (
     <div className={y.marks} data-side={side} data-f={`year:marks-${who}`} style={{ '--rh': Math.round((heights[heights.length - 1] + 0.06) * 1000) / 1000 }}>
       <i className={y.rail} />
-      <b className={y.who}>{name}</b>
+      <b className={y.who} data-f={`year:who-${who}`}>
+        {name}
+      </b>
       {heights.map((h, i) => (
-        <span key={i} className={y.mark} data-f={`year:mk-${who}${i}`} style={{ '--mh': h }}>
+        <span key={i} className={y.mark} data-f={`year:mk-${who}${i}`} data-col={col[i] || undefined} style={{ '--mh': h }}>
           <i />
           <b>{YEARS[i][who]}</b>
         </span>

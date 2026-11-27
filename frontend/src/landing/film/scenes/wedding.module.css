@@ -193,3 +193,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* A short landscape window: the right column (the wall, the clip and the lightbox, two comment
+   cards) is taller than the room above the readouts. The captions on the wall, the clip and the
+   lightbox step aside as on a phone, the second card sits a little higher, and below 760px it
+   steps aside too (the first card still shows the comments). */
+@media (min-aspect-ratio: 9001/10000) and (max-height: 819.98px) {
+  .wallSlot figcaption,
+  .video > figcaption,
+  .shotSlot [data-part='caption'] {
+    display: none;
+  }
+  .commentSlot:has(> [data-f='wedding:c1']) {
+    --y: 9.7;
+  }
+}
+@media (min-aspect-ratio: 9001/10000) and (max-height: 759.98px) {
+  .commentSlot:has(> [data-f='wedding:c1']) {
+    display: none;
+  }
+}

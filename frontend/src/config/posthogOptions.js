@@ -1,5 +1,7 @@
 // PostHog initialisation options, shared by the app (context/PostHogContext.jsx) and the
-// standalone landing (landing/lib/analytics.js). Moved here unchanged; edit in one place.
+// standalone landing (landing/lib/analytics.js). Edit in one place.
+import { posthogBeforeSend } from './posthogPrivacy.js'
+
 export const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY || 'phc_o34s8vv6TWjzDemdh39CAW8d4R52qFzVt2RZCnQEEKqx'
 export const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com'
 
@@ -34,10 +36,14 @@ export function posthogOptions(posthogHost = POSTHOG_HOST) {
     
     // Advanced privacy
     property_blacklist: [
-      '$current_url', // We'll send sanitized URLs
       '$screen_height',
       '$screen_width',
     ],
+
+    // Every URL-like property ($current_url, $pathname, $referrer, $initial_*, ...)
+    // loses its query string and hash, and token / id path segments are masked,
+    // right before the event is sent. See config/posthogPrivacy.js.
+    before_send: posthogBeforeSend,
     
     // Bot filtering
     advanced_disable_decide: false, // Allow PostHog to identify bots

@@ -9,7 +9,7 @@ import uuid
 
 from .core.config import settings
 from .core.database import engine, Base
-from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin, ai_creator, ai_public
+from .api import auth, events, users, comments, likes, upload, locations, geocoding, custom_groups, share_links, stripe_api, email_api, invitations, media_engagement, tag_profiles, event_tags, relationships, feedback, admin, admin_analytics, ai_creator, ai_public
 
 # Configure logging for Vercel (stdout capture)
 logging.basicConfig(
@@ -134,6 +134,7 @@ app.include_router(event_tags.search_router, prefix=settings.API_V1_STR, tags=["
 app.include_router(relationships.router, prefix=settings.API_V1_STR, tags=["relationships"])
 app.include_router(feedback.router, prefix=settings.API_V1_STR, tags=["feedback"])
 app.include_router(admin.router, prefix=settings.API_V1_STR, tags=["admin"])
+app.include_router(admin_analytics.router, prefix=settings.API_V1_STR, tags=["admin-analytics"])
 app.include_router(ai_creator.router, prefix=settings.API_V1_STR, tags=["ai-creator"])
 app.include_router(ai_public.router, prefix=settings.API_V1_STR, tags=["ai-public"])
 

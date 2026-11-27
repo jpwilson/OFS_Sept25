@@ -133,7 +133,8 @@ function Stepper({ mounted }) {
 }
 
 export function Anatomy() {
-  const mode = usePinMode('(min-width: 761px)')
+  // a window under 700px tall cannot hold the copy, a part and the rail of stops at once: it reads the story as a flow
+  const mode = usePinMode('(min-width: 761px) and (min-height: 700px)')
   const mounted = useMounted()
   const pinned = mode === 'pin'
   const [exploded, setExploded] = useState(false)

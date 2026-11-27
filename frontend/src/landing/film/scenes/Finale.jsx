@@ -94,7 +94,15 @@ export function App({ id }) {
 
       {/* the other screens, fanned out behind the feed */}
       {A.fan.map((x, i) => (
-        <Air key={x.id} f={`app:r${i}`} a={{ ...LA.fan[i], z: 4 }} className={f.fanSlot} par={12}>
+        <Air
+          key={x.id}
+          f={`app:r${i}`}
+          a={{ ...LA.fan[i], z: 4 }}
+          className={f.fanSlot}
+          par={12}
+          data-tag-d={LA.fan[i].d && LA.fan[i].d.tag}
+          data-tag-m={LA.fan[i].m && LA.fan[i].m.tag}
+        >
           <span className={f.fanTag}>
             <Tag solid>{x.label}</Tag>
           </span>

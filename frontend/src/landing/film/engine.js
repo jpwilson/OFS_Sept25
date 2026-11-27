@@ -9,8 +9,15 @@ import { clamp, easeOutCubic, lerp, win } from '../lib/math.js'
 import { scrollToY } from '../lib/scroll.js'
 import { BEATS, MEASURE } from './beats.js'
 import { back, bump, drop, f1, f3, floodEase, settle, w } from './ease.js'
+import { fit, stageUnit } from './fit.js'
 import { STAGE, pick } from './layout.js'
 import * as T from './timeline.js'
+
+/** A transparent pixel: what a parked image shows until it is given back (see holdBack). */
+/** Below this stage height a phone's hero cannot stack readout, switch, buttons and note under the people. */
+const HERO_SHORT = 860
+
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 // ---- a cached element: only touches the DOM when a value really changed -------------------
 class N {
@@ -140,6 +147,8 @@ export class FilmEngine {
     this.W = 0
     this.H = 0
     this.u = 1
+    this.u0 = 1
+    this.us = {}
     this.cx = 0
     this.phone = false
     this.Rmax = 1
@@ -196,9 +205,13 @@ export class FilmEngine {
         const src = img.getAttribute('src')
         const srcset = img.getAttribute('srcset')
         if (!src) return
-        list.push({ img, src, srcset })
+        // Parked as an empty picture of the same proportions: with no src at all a browser draws the
+        // alt text in its place, at the wrong size, and the layout (and fit.js) would measure that.
+        const ar = !img.style.aspectRatio && img.getAttribute('width') && img.getAttribute('height')
+        if (ar) img.style.aspectRatio = `${img.getAttribute('width')} / ${img.getAttribute('height')}`
+        list.push({ img, src, srcset, ar })
         img.removeAttribute('srcset')
-        img.removeAttribute('src')
+        img.setAttribute('src', BLANK)
       })
       this.parked[k] = list
     })
@@ -208,10 +221,11 @@ export class FilmEngine {
     const list = this.parked && this.parked[k]
     if (!list) return
     this.parked[k] = null
-    list.forEach(({ img, src, srcset }) => {
+    list.forEach(({ img, src, srcset, ar }) => {
       // a cut-out this screen does not use (the other layout's) stays lazy
       if (srcset) img.setAttribute('srcset', srcset)
       img.setAttribute('src', src)
+      if (ar) img.style.aspectRatio = ''
       if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') return
       img.loading = 'eager'
       const ready = () => img.decode && img.decode().catch(() => undefined)
@@ -338,9 +352,29 @@ export class FilmEngine {
     this.phone = W / H <= 0.9 // portrait: a phone or a tablet held upright
     this.tablet = this.phone && W >= 700
     this.k = this.tablet ? 't' : this.phone ? 'm' : 'd'
-    this.u = this.tablet ? Math.min(H / 85, W * 0.0172) : this.phone ? Math.min(H / 100, W * 0.0216) : Math.min(H / 100, W * 0.00625)
+    this.u = stageUnit(W, H).u
+    this.u0 = this.u
+    // A phone shorter than the hero's stack: the audience readout waits for the sub line to step
+    // aside, then takes the place of the buttons (hero.module.css, [data-short]).
+    this.short = this.phone && !this.tablet && H < HERO_SHORT
+    if (this.scenes.hero) this.scenes.hero.root.attr('data-short', this.short)
     this.cx = W / 2
     for (const key of T.ORDER) this.fy[key] = (pick(STAGE[key], this.k).floor / 100) * H
+    // a short portrait screen: some chapters get their own unit and floor (fit.js)
+    this.us = {}
+    try {
+      const refit = fit(this.pin, (fn) => {
+        let r
+        this.atPoster(() => (r = fn()))
+        return r
+      })
+      for (const key of Object.keys(refit)) {
+        this.us[key] = refit[key].u
+        this.fy[key] = refit[key].floor
+      }
+    } catch (err) {
+      console.warn('[film] fit failed', err)
+    }
     this.Rmax = Math.hypot(W / 2, H) + 0.06 * H
     // Positions that depend on layout are read here, never in the frame loop.
     try {
@@ -357,6 +391,16 @@ export class FilmEngine {
     const r = el.getBoundingClientRect()
     return { x: r.left - p.left + r.width / 2, y: r.top - p.top + r.height / 2, w: r.width, h: r.height }
   }
+  /** Run fn with the unit of scene k (a refitted scene has its own, see fit.js). */
+  inScene(k, fn) {
+    this.u = this.us[k] || this.u0
+    try {
+      return fn()
+    } finally {
+      this.u = this.u0
+    }
+  }
+
   /** Run fn with the poster showing (inline transforms off), then mark everything dirty. */
   atPoster(fn) {
     const saved = []
@@ -414,7 +458,7 @@ export class FilmEngine {
     this.floods(S)
     for (const k of T.ORDER) {
       const sc = this.scenes[k]
-      if (sc && sc.live && BEATS[k]) BEATS[k](this, S)
+      if (sc && sc.live && BEATS[k]) this.inScene(k, () => BEATS[k](this, S))
     }
     this.hud(S)
   }

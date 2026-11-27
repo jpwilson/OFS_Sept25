@@ -49,7 +49,8 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 0 0.5em;
+  /* the group's name and its count can wrap onto two lines: keep the name's descenders off the count */
+  gap: 0.22em 0.5em;
   line-height: 1;
 }
 .name > b {
@@ -108,6 +109,11 @@
 .members svg {
   width: 1.1em;
   height: 1.1em;
+}
+/* a narrow panel (a short or narrow window): "can open it" wraps inside its own member instead of running into the next */
+.members li > span:last-child {
+  min-width: 0;
+  white-space: normal;
 }
 .note {
   font-size: max(13px, calc(var(--pp) * 0.033));

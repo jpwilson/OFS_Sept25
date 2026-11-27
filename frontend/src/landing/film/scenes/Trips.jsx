@@ -240,7 +240,7 @@ export function World() {
       {WORLD_TRIPS.map((t) => {
         const tr = LW.trips[t.id]
         return (
-          <Air key={t.id} f={`world:pin-${t.id}`} a={{ d: { ...tr.pin.d, w: 3.4 }, m: { ...tr.pin.m, w: 2.6 }, z: 8 }} className={m.pinSlot} par={10}>
+          <Air key={t.id} f={`world:pin-${t.id}`} a={{ d: { ...tr.pin.d, w: 3.4 }, m: { ...tr.pin.m, w: 2.6 }, z: 8 }} className={m.pinSlot} par={10} data-name={tr.name}>
             {t.count ? (
               <span className={cx(m.cluster, m.clusterSm)}>
                 <b>{t.count}</b>
@@ -276,9 +276,15 @@ export function World() {
         const c = LW.cards[p.who]
         const meta = getArt(p.art)
         return (
-          <Air key={p.who} f={`world:card-${p.who}`} a={{ d: c.d, m: c.m, z: 7 }} className={m.postcard} par={14}>
+          <Air
+            key={p.who}
+            f={`world:card-${p.who}`}
+            a={{ d: c.d, m: c.m, z: 7, vars: { '--wh': c.who.h, '--whm': c.who.hm, '--ar': meta.w / meta.h } }}
+            className={m.postcard}
+            par={14}
+          >
             <Photo art={p.photo} caption={p.place} sizes="(max-aspect-ratio: 9/10) 14vh, 10vw" />
-            <span className={m.who} style={{ '--wh': c.who.h, '--whm': c.who.hm, '--ar': meta.w / meta.h }}>
+            <span className={m.who}>
               <Cutout id={p.art} sizes="(max-aspect-ratio: 9/10) 6vh, 5vw" />
             </span>
             <span className={m.whoTag}>
