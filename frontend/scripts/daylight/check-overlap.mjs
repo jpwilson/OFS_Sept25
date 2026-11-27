@@ -16,6 +16,7 @@
 //                            scroll, so a before and an after sheet line up
 //   --jobs 3                 viewports checked at once
 //   --shots 4                frames kept per scene and viewport
+//   --no-reset               leave the sample as it is (by default it is reset first)
 //   --notch                  an iPhone added to the home screen: the safe-area insets set (47px
 //                            top, 34px bottom on phones) and the status bar and home indicator drawn
 //                            as opaque bars over the page, so what lands under them is found.
@@ -37,7 +38,7 @@ const { chromium } = requirePw('playwright')
 const args = { base: 'http://127.0.0.1:5371', vp: '360x540,375x560,393x680,390x750,430x800,768x900,1024x700', only: null, out: 'run', replay: null, jobs: 3, shots: 4 }
 for (let i = 2; i < process.argv.length; i++) {
   const k = process.argv[i].replace(/^--/, '')
-  if (k === 'list' || k === 'notch') args[k] = true
+  if (k === 'list' || k === 'notch' || k === 'no-reset') args[k] = true
   else args[k] = process.argv[++i]
 }
 const TILE_HOSTS = new Set(['tiles.openfreemap.org', 'tiles.mapterhorn.com'])
@@ -50,6 +51,11 @@ const TETONS = '/event/seven-days-in-the-tetons'
 //  prep(page, h), wide: only >= 900, narrow: only < 900, maxW: only this wide or narrower,
 //  noSweep: look once where prep leaves it}
 // prep opens whatever a person would open; the sweep then scrolls whatever is on top.
+// one at a time across the viewports run at once: two password resets asked for together in
+// the stub do not both come back (a sample quirk, not the app's)
+let queue1 = Promise.resolve()
+const one = (fn) => (queue1 = queue1.then(fn, fn))
+
 // what the member's account says, for the banners the sample member never sees
 const ME = {
   demo: { is_demo_account: true },
@@ -187,16 +193,22 @@ const SCENES = [
   { name: 'login', path: '/login', as: null },
   { name: 'signup', path: '/login?signup=true', as: null },
   { name: 'reset', path: '/reset-password', as: null },
-  { name: 'reset-new', path: '/reset-password', as: null, prep: async (page, h) => {
+  { name: 'reset-new', path: '/reset-password', as: null, prep: (page, h) => one(async () => {
     // one member per viewport: the sample limits how often one address asks
-    const who = ['tom', 'ruth', 'joe', 'kate', 'marcus', 'finn', 'priya', 'sam', 'deb'][h.index % 9]
+    const who = ['joe', 'kate', 'marcus', 'finn', 'priya', 'sam', 'deb', 'leo', 'ivy'][h.index % 9]
     await page.fill('[data-ui="email"]', `${who}@example.test`)
     await page.click('[data-ui="send-link"]')
-    await page.getByText(/on its way|Send it again/).first().waitFor({ timeout: 12000 })
-    await page.goto(`${args.base}/__fx/inbox?go=verify&kind=recovery&to=${who}@example.test`)
-    await page.waitForSelector('[data-ui="new-password"]', { timeout: 12000 })
+    await page.waitForFunction(() => /on its way|Send it again/.test(document.body.innerText), null, { timeout: 12000 }).catch(async () => { throw new Error(`no confirmation: ${page.url()} ${(await page.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 160)}`) })
+    // the stub inbox can lag the request a moment: look again
+    for (let i = 0; ; i++) {
+      await page.goto(`${args.base}/__fx/inbox?go=verify&kind=recovery&to=${who}@example.test`)
+      const ok = await page.waitForSelector('[data-ui="new-password"]', { timeout: 5000 }).then(() => true, () => false)
+      if (ok) break
+      if (i === 3) throw new Error(`no reset link for ${who}: ${page.url()}`)
+      await page.waitForTimeout(1500)
+    }
     await h.idle(500)
-  } },
+  }) },
   { name: 'invite-link', path: '/join/tom-link', as: null },
   { name: 'invite-email', path: '/join/tom-email', as: null },
   { name: 'invite-used', path: '/join/used-invite', as: null },
@@ -442,9 +454,11 @@ async function runViewport(vp) {
   for (const p of Object.values(pages)) await p.context().close()
 }
 
-// a fresh sample, as the walk starts from
-await fetch(`${args.base}/__fx/reset`).catch(() => {})
-await fetch(`${args.base}/api/v1/__create/sample/reset`).catch(() => {})
+// a fresh sample, as the walk starts from (--no-reset leaves it, for a server something else is using)
+if (!args['no-reset']) {
+  await fetch(`${args.base}/__fx/reset`).catch(() => {})
+  await fetch(`${args.base}/api/v1/__create/sample/reset`).catch(() => {})
+}
 
 // a few viewports at a time; each has its own signed-in and signed-out pages
 const queue = [...viewports]
