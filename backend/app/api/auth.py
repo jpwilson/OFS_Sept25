@@ -437,11 +437,14 @@ def validate_invite_token(token: str, db: Session = Depends(get_db)):
         Follow.status == "accepted"
     ).count()
 
-    # Get inviter's recent events (up to 3, most recent first)
+    # Get inviter's recent events (up to 3, most recent first).
+    # This endpoint is public, so only stories an invited person could open once
+    # they join (Public or Followers) may appear here.
     recent_events_query = db.query(Event).filter(
         Event.author_id == inviter.id,
         Event.is_published == True,
-        Event.is_deleted == False
+        Event.is_deleted == False,
+        Event.privacy_level.in_(["public", "followers"])
     ).order_by(Event.start_date.desc()).limit(3).all()
 
     recent_events = [
