@@ -48,5 +48,8 @@
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^5.4.11",
     "vite-plugin-pwa": "^1.2.0"
+  },
+  "overrides": {
+    "prosemirror-view": "1.42.9"
   }
 }
