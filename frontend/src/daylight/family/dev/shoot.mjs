@@ -5,7 +5,9 @@
 //   node src/daylight/family/dev/shoot.mjs [--base http://127.0.0.1:5338] [--scene tree,person|all] [--device phone,desktop|all]
 //
 // Scenes: tree growing reduced list person tag add requests empty large viewers preview error
-//         lapsed keyboard export classic owner
+//         lapsed keyboard export classic owner notes (docs/app/FAMILY-NOTES.md: the notes section,
+//         the composer, the delete dialog, your birthday, the tag form's More about; on the
+//         iPhone the owner checks with, 393x680, and desktop)
 // Writes frontend/shots/daylight-family/<scene>/<NN>-<device>-<name>.jpg, a labelled contact
 // sheet per scene (frontend/shots/daylight-family/<scene>.jpg, phone first) and report.json.
 // Like capture.mjs: signs in through the sample (/__fx/family?set=…&as=…), blocks service
@@ -26,12 +28,13 @@ for (let i = 2; i < process.argv.length; i++) args[process.argv[i].replace(/^--/
 const NOW = new Date('2026-11-26T12:00:00')
 const VIEWPORTS = {
   phone: { width: 390, height: 844 },
+  iphone: { width: 393, height: 680 }, // an iPhone in Chrome, once its bars are counted
   ipad: { width: 820, height: 1180 },
   'ipad-land': { width: 1180, height: 820 },
   desktop: { width: 1440, height: 900 },
 }
-const ALL_DEVICES = Object.keys(VIEWPORTS)
-const devices = args.device === 'all' ? ALL_DEVICES : args.device.split(',')
+const ALL_DEVICES = Object.keys(VIEWPORTS).filter((d) => d !== 'iphone') // iphone: the scenes that name it
+const devices = args.device === 'all' ? Object.keys(VIEWPORTS) : args.device.split(',')
 const ROOT = path.join(FRONTEND, 'shots', 'daylight-family')
 fs.mkdirSync(ROOT, { recursive: true })
 const report = { base: args.base, scenes: {}, errors: [], unanswered: [], sideways: [], hosts: {}, aborted: {} }
@@ -40,7 +43,7 @@ const bump = (o, k) => (o[k] = (o[k] || 0) + 1)
 const browser = await chromium.launch({ headless: true, args: ['--mute-audio'] })
 
 async function context(device, { reduced = false } = {}) {
-  const phone = device === 'phone'
+  const phone = device === 'phone' || device === 'iphone'
   const ctx = await browser.newContext({
     viewport: VIEWPORTS[device],
     deviceScaleFactor: 2,
@@ -71,6 +74,7 @@ async function context(device, { reduced = false } = {}) {
     const t = m.text()
     if (/Failed to load resource: net::ERR_FAILED/.test(t)) return
     if (/Failed to load resource: the server responded with a status of 500/.test(t)) return // the error set, on purpose
+    if (/status of 404/.test(t) && current?.scene === 'notes') return // the older server the notes scene plays, on purpose
     report.errors.push(`${device} console: ${t.slice(0, 200)}`)
   })
   page.on('response', async (res) => {
@@ -352,13 +356,108 @@ const SCENES = {
     await settle(page)
     await shot(page, device, 'owner-list', 'The same family as a list')
   },
+  async notes(page, device) {
+    const notesReady = async () => {
+      await page.waitForSelector('[data-ui="person-notes"]', { timeout: 10000 })
+      await page.locator('[data-ui="person-notes"]').scrollIntoViewIfNeeded()
+      await page.waitForSelector('[data-ui="person-notes"][data-state="ready"], [data-ui="person-notes"][data-state="error"]', { timeout: 10000 })
+      await page.waitForTimeout(400)
+    }
+    const toTop = (sel) => page.locator(sel).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
+    await open(page)
+    await settle(page)
+    // Ruth: history (a year, a month, undated) and notes by Tom, Kate and Maya
+    await tapNode(page, 'u:5')
+    await sheetOpen(page)
+    await notesReady()
+    await toTop('[data-ui="person-notes"]')
+    await page.waitForTimeout(300)
+    await shot(page, device, 'ruth-history', "Ruth's notes and history: the History side")
+    await page.locator('[data-ui="person-notes"] [role="radio"]', { hasText: 'Notes' }).click()
+    await page.waitForTimeout(300)
+    await toTop('[data-ui="person-notes"]')
+    await shot(page, device, 'ruth-notes', 'The Notes side: who wrote it, when, Edited')
+    await page.locator('[data-ui="note-menu"]').first().click()
+    await page.waitForSelector('[data-ui="menu"]')
+    await page.waitForTimeout(300)
+    await shot(page, device, 'note-menu', 'Your own note: Edit and Delete')
+    await page.getByRole('menuitem', { name: 'Delete' }).click()
+    await page.waitForTimeout(600)
+    await shot(page, device, 'delete', 'Delete this note?')
+    await page.getByRole('button', { name: 'Keep' }).click()
+    await page.waitForTimeout(500)
+    // the composer: a note, then history with only a year
+    await page.locator('[data-ui="notes-write"]').click()
+    await page.waitForSelector('[data-ui="note-composer"]')
+    await page.locator('[data-ui="note-text"]').fill('She sang in the choir at St. Finbarr\'s every Christmas until she was eighty.\nAsk her for the one about the organist.')
+    await page.waitForTimeout(300)
+    await shot(page, device, 'composer-note', 'Write about Ruth: a note')
+    await page.locator('[data-ui="note-composer"] [role="radio"]', { hasText: 'History' }).click()
+    await page.locator('[data-ui="date-year"]').fill('1979')
+    await page.waitForTimeout(300)
+    await shot(page, device, 'composer-history', 'History with only a year')
+    await page.locator('[data-ui="note-save"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await shot(page, device, 'composer-history-end', 'Who can read it, and Save')
+    await page.locator('[data-ui="note-save"]').click()
+    await notesReady()
+    await toTop('[data-ui="person-notes"]')
+    await page.waitForTimeout(300)
+    await shot(page, device, 'saved', 'Saved: 1979 takes its place in the history')
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    // Leo: nothing yet
+    await tapNode(page, 'u:4')
+    await sheetOpen(page)
+    await notesReady()
+    await shot(page, device, 'leo-empty', 'Leo: nothing written yet')
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    // your own sheet: your birthday
+    await tapNode(page, 'u:1')
+    await sheetOpen(page)
+    await page.locator('[data-ui="your-birthday"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await shot(page, device, 'you', 'Your sheet: born, and Change your birthday')
+    await page.locator('[data-ui="your-birthday"]').click()
+    await page.waitForSelector('[data-ui="birthday-form"]')
+    await page.waitForTimeout(400)
+    await shot(page, device, 'birthday', 'Your birthday: never public')
+    await page.locator('[data-ui="birthday-save"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await shot(page, device, 'birthday-end', 'Your birthday: Save, Cancel, Remove')
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    // Biscuit's tag form, More about open
+    await tapNode(page, 't:41')
+    await sheetOpen(page)
+    await page.getByRole('button', { name: 'Edit Biscuit' }).click()
+    await page.waitForSelector('[data-ui="tag-birthday"]')
+    await page.locator('[data-ui="tag-birthday"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await shot(page, device, 'tag-birthday', 'Editing Biscuit: a birthday where a year is enough')
+    await page.locator('[data-ui="tag-died"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await shot(page, device, 'tag-more', 'More about Biscuit: birthplace and died')
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(400)
+    // an older server answers 404: the section is not there at all
+    await page.route('**/api/v1/family-notes?*', (r) => r.fulfill({ status: 404, contentType: 'application/json', body: '{"detail":"Not Found"}' }))
+    await page.goto(`${args.base}/family-tree?person=u:6`, { waitUntil: 'domcontentloaded' })
+    await settle(page)
+    await sheetOpen(page)
+    await page.locator('[data-ui="person-actions"]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1500)
+    if (await page.locator('[data-ui="person-notes"]').count()) report.errors.push(`${device}: the notes section shows on a 404`)
+    await shot(page, device, 'old-server', 'An older server (404): no notes section')
+  },
   async classic(page, device) {
     await open(page, { to: '/family-tree?look=classic' })
     await page.waitForTimeout(2500)
     await shot(page, device, 'classic', '/family-tree?look=classic (the previous page)')
   },
 }
-const DEVICES_FOR = { export: ['phone', 'desktop'], classic: ['phone', 'desktop'] }
+const DEVICES_FOR = { export: ['phone', 'desktop'], classic: ['phone', 'desktop'], notes: ['iphone', 'desktop'] }
 
 const scenes = args.scene === 'all' ? Object.keys(SCENES) : args.scene.split(',')
 for (const scene of scenes) {
@@ -387,8 +486,8 @@ await fetch(`${args.base}/__fx/reset`).catch(() => {})
 async function contactSheet(scene, shots) {
   if (!shots.length) return
   const b = await chromium.launch({ headless: true })
-  const width = { phone: 300, ipad: 380, 'ipad-land': 520, desktop: 620 }
-  const byDevice = ALL_DEVICES.map((d) => [d, shots.filter((x) => x.device === d)]).filter(([, l]) => l.length)
+  const width = { phone: 300, iphone: 300, ipad: 380, 'ipad-land': 520, desktop: 620 }
+  const byDevice = Object.keys(VIEWPORTS).map((d) => [d, shots.filter((x) => x.device === d)]).filter(([, l]) => l.length)
   const html = `<!doctype html><html><body style="margin:0;background:#F4F7FB;font:13px Menlo,monospace;color:#101B3B">
   <div style="padding:16px 16px 4px;font-weight:700">daylight-family · ${scene} · ${shots.length} shots · phone first</div>
   ${byDevice.map(([d, list]) => `<div style="display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px">${list.map((x) => {
