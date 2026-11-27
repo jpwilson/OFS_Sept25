@@ -242,9 +242,12 @@ export function detectOverlap() {
   // t lies under a fixed or sticky bar (layer) it is not on: can scrolling bring it out? Down:
   // it rises past the bar's top edge. Up: it sinks past the bar's bottom edge and is still on
   // the screen. Room is what its scrollers have left. Returns why not, or null.
-  const stuckUnder = (t, layer) => {
+  const stuckUnder = (t, layer, part) => {
     const r = t.r
-    const lb = layer.getBoundingClientRect()
+    // the bar, with whatever of it stands out of its box (the tab bar's raised New disc)
+    const box = layer.getBoundingClientRect()
+    const pb = part ? part.getBoundingClientRect() : box
+    const lb = { top: Math.min(box.top, pb.top), bottom: Math.max(box.bottom, pb.bottom), height: box.height }
     const side = lb.height > VH * 0.8 // a side panel: scrolling up or down never clears it
     // itself on a bar held in place (fixed, or sticky and resting at its offset): one bar on
     // another, and scrolling cannot part them while they are held
@@ -267,7 +270,7 @@ export function detectOverlap() {
     const barC = lc && !lc.contains(a.el) ? lc : null
     if (!barA && !barC) return true
     if (barA && barC) return heldInPlace(barA) && heldInPlace(barC)
-    return barA ? !!stuckUnder(c, barA) : !!stuckUnder(a, barC)
+    return barA ? !!stuckUnder(c, barA, a.el) : !!stuckUnder(a, barC, c.el)
   }
   // one box wholly inside the other: a button floating on a photo, a label on its own tile,
   // the show-password button inside its field. Placed there on purpose.
@@ -344,7 +347,7 @@ export function detectOverlap() {
     if (seenCover.has(key)) continue
     seenCover.add(key)
     if (layer && !layer.contains(t.el)) {
-      const note = stuckUnder(t, layer)
+      const note = stuckUnder(t, layer, hit)
       if (note) push('hidden', t, null, { by: desc(layer, ''), rb: rectOf(layer.getBoundingClientRect()), note })
     } else if (!layer || layer.contains(t.el)) {
       push('covered', t, null, { by: desc(hit, ''), rb: rectOf(hit.getBoundingClientRect()) })
