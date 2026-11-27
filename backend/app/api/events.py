@@ -228,6 +228,9 @@ def build_event_dict(event):
         "event_images": images  # Include event_images with captions
     }
 
+MAX_EVENTS_PAGE = 100
+
+
 @router.get("", response_model=List[EventResponse])
 def get_events(
     skip: int = 0,
@@ -237,9 +240,12 @@ def get_events(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_optional)
 ):
+    # Cap the page size (the frontends ask for 100 at a time)
+    limit = max(0, min(limit, MAX_EVENTS_PAGE))
+
     try:
         from sqlalchemy.orm import selectinload
-        from ..utils.privacy import filter_events_for_feed
+        from ..utils.privacy import filter_events_for_feed, audience_filter, active_author_filter
 
         print(f"[EVENTS] Fetching events with skip={skip}, limit={limit}, category={category}, order_by={order_by}, user={current_user.username if current_user else 'anonymous'}")
 
@@ -254,16 +260,15 @@ def get_events(
         is_demo = current_user and getattr(current_user, 'is_demo_account', False)
 
         if is_demo:
-            # Demo user sees ALL published events (feed looks populated)
-            # Only exclude private events
-            query = query.filter(Event.privacy_level != "private")
+            # Demo user sees showcase stories (whatever their audience) and
+            # public stories: the same rule can_view_event() applies to them
+            query = active_author_filter(query, current_user).filter(audience_filter(current_user, db))
         else:
             # Normal users: exclude seed data users
             DEMO_USER_IDS = [1, 2, 3]
             query = query.filter(~Event.author_id.in_(DEMO_USER_IDS))
 
-            # Apply feed-level privacy filtering
-            # Detail-level privacy is handled by can_view_event() in get_event endpoint
+            # Only stories the viewer may open (same rule as can_view_event)
             query = filter_events_for_feed(query, current_user, db)
 
         # Apply category filter if provided
