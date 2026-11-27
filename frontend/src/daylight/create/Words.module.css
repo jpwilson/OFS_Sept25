@@ -1,0 +1,240 @@
+.words {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+}
+.notice p {
+  margin: 0;
+  line-height: 1.45;
+}
+.notice > svg {
+  margin-top: 2px;
+}
+.nTitle {
+  font-weight: 800;
+  font-size: 17px;
+  margin-bottom: 2px !important;
+}
+.nActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+.cost {
+  font-size: 13px;
+  color: var(--a-mute);
+}
+.warn {
+  background: var(--a-zest-tint);
+}
+.fresh {
+  background: var(--a-sun-tint);
+}
+/* "Written by AI…": a quiet line, so the story stays the first thing on the screen */
+.quiet {
+  gap: 10px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--a-line-strong);
+  border-radius: 14px;
+  background: var(--a-lime-tint);
+  font-size: 13.5px;
+}
+.quiet p {
+  line-height: 1.38;
+}
+.quiet > svg {
+  width: 17px;
+  height: 17px;
+}
+
+.card {
+  background: var(--a-white);
+  border: 1.5px solid var(--a-line-strong);
+  border-radius: var(--a-r-card);
+  padding: 14px 16px;
+  min-width: 0;
+}
+.word {
+  border: var(--a-keyline);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cardHead > :nth-child(2) {
+  flex: 1;
+}
+.badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--a-wash);
+  border: 1.5px solid var(--a-ink);
+}
+.remove {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px -10px 0;
+  border: 0;
+  background: none;
+  color: var(--a-mute);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.remove:hover {
+  color: var(--a-ink);
+  background: var(--a-paper);
+}
+.edit,
+.answer {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 -10px;
+  width: calc(100% + 20px);
+  font-family: var(--a-font-story);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--a-ink);
+  background: transparent;
+  resize: vertical;
+}
+.edit:focus,
+.answer:focus {
+  outline: none;
+  background: var(--a-paper);
+  box-shadow: inset 0 0 0 2px var(--a-ink);
+}
+.answer {
+  font-family: var(--a-font-ui);
+  font-size: 16px;
+  background: var(--a-paper);
+  margin: 0;
+  width: 100%;
+  min-height: 64px;
+}
+.working {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--a-mute);
+  font-size: 14px;
+}
+.failed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.failed p,
+.err {
+  margin: 0;
+  color: var(--a-danger);
+  font-size: 14px;
+}
+
+.qHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+.questions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.who {
+  grid-column: 1 / -1;
+}
+.q {
+  display: grid;
+  gap: 10px;
+}
+.question {
+  margin: 0;
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.25;
+}
+.qFoot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.small {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid var(--a-ink);
+  border-radius: var(--a-r-pill);
+  background: var(--a-fizz-tint);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--a-ink);
+  cursor: pointer;
+}
+.small:disabled {
+  opacity: 0.5;
+}
+.small:focus-visible,
+.remove:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+.by {
+  margin-left: auto;
+  font-family: var(--a-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.ask {
+  background: var(--a-paper);
+  border-style: dashed;
+}
+.askBody {
+  margin: 0;
+  font-size: 14px;
+  color: var(--a-mute);
+  line-height: 1.4;
+}
+
+/* phone: one column inside the sheet */
+.stack {
+  grid-template-columns: 1fr;
+}

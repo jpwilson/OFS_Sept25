@@ -1,0 +1,2931 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 112,
+  "slug": "kate-and-marcus-get-married",
+  "title": "Kate and Marcus get married"
+ },
+ "title": "Kate and Marcus get married",
+ "product": {
+  "id": "hc-10x8",
+  "sku": "BKPH_HCIW_STD_10.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "10 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 720,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-11200": {
+   "src": "__ORIGIN__/landing/img/cover-wedding.28409989.webp",
+   "px": {
+    "w": 1200,
+    "h": 750
+   },
+   "sizeFrom": "measured",
+   "caption": "Down the aisle and out through the petals. Mr. and Mrs., at last."
+  },
+  "img-11201": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-ready.ba07cde2.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Hairpins, coffee and one very serious flower girl."
+  },
+  "img-11202": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-aisle.33fa2a03.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Ivy, moments before she threw the whole basket at Grandpa Joe."
+  },
+  "img-11203": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-vows.ed384f21.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Under the arch Ruth spent three days building."
+  },
+  "img-11204": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-family.eb7dafb1.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Everyone, looking the same way, just this once."
+  },
+  "img-11205": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-speech.b740825e.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Tom gets to the part about the mailbox."
+  },
+  "img-11207": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-dance.fd299265.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Grandpa Joe and his best dance partner."
+  },
+  "img-11208": {
+   "src": "__ORIGIN__/landing/img/photo-wedding-sparklers.2a81c49b.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Off to Italy."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1603.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1495.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1603.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   },
+   "spine": {
+    "x": 792,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 811.152,
+    "y": 54,
+    "w": 738,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 756,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 811.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "front": {
+    "x": 847.152,
+    "y": 72,
+    "w": 684,
+    "h": 558
+   },
+   "spine": {
+    "x": 796.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-11200",
+   "ppi": 150
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 893.65,
+    "y": 86.5,
+    "w": 596,
+    "h": 380,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 891.15,
+    "y": 84,
+    "w": 596,
+    "h": 380,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-11200",
+    "x": 901.15,
+    "y": 94,
+    "w": 576,
+    "h": 360,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1200,
+     "h": 750
+    },
+    "ppi": 150,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 1002.27,
+    "y": 514,
+    "text": "Kate and Marcus get married",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 373.76,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 1152.5,
+    "y": 537.5,
+    "text": "MAY 16, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 73.3,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 273.78,
+    "y": 266.96,
+    "text": "An old red barn, a flower girl with a strong arm,",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 280.45
+   },
+   {
+    "type": "text",
+    "x": 315.03,
+    "y": 285.96,
+    "text": "and a speech practiced on the dog.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 197.94
+   },
+   {
+    "type": "circle",
+    "cx": 352.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 357.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 363.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 373.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 417.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 397.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 396.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 399.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 441.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Kate and Marcus get married",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 500.08,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 90,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 105,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 120,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "MAY 16, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 73.3,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "HUDSON VALLEY, NEW YORK",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 141.5,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "An old red barn, a flower girl with a strong arm, and a speech",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 301.93
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 352.16,
+     "text": "practiced on the dog.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 102.86
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY MAYA HARTLEY",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 141.5,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "getting-ready",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Getting ready",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 199.87,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "Kate has been my sister-in-law for twelve years and my friend",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.8
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "for longer than that, so when she asked me to be the one who",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 301.58
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "wrote this up, I said yes before she had finished the sentence.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.45
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "Here it is, Kate. You can fix my spelling later.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 220.9
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 267.6,
+     "text": "They got married on a Saturday in May at an old red barn in the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.03
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 282.6,
+     "text": "Hudson Valley, with an orchard on one side and a field of long",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.97
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 297.6,
+     "text": "grass on the other. The morning was all hairpins and coffee. Ivy",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.55
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 312.6,
+     "text": "had been made official flower girl and took the job very",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 273.62
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 327.6,
+     "text": "seriously, which mostly meant sitting very still in her flower",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.09
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 342.6,
+     "text": "crown and watching every single pin go in.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 212.67
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 10,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "getting-ready",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11201"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11201",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Hairpins, coffee and one very serious flower girl.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 192.2
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-aisle",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#FFDDF2"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 66.62,
+     "text": "02",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The aisle",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 128.02,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "The aisle was mown into the grass that morning, between rows",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.6
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "of borrowed chairs. Ivy went first, scattering petals in perfectly",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 314.29
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "even handfuls, as practiced, and then forgot the plan halfway",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.73
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "and threw the whole basket at Grandpa Joe. Everyone turned",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.94
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 260.1,
+     "text": "round to watch. Nobody minded.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 164.75
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 5,
+    "ends": true
+   }
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-aisle",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11202"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11202",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Ivy, moments before she threw the whole basket at Grandpa Joe.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 257.26
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "5",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-vows",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#F1FBD0"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.92,
+     "y": 66.62,
+     "text": "03",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.17
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The vows",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 138.11,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "They wrote their own. Marcus promised to always let Kate have",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.12
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "the window seat. Kate promised to learn which way round the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "dishwasher goes. Then they both got serious for about a minute,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.54
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "under an arch of white flowers that Ruth had spent three days",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.36
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 260.1,
+     "text": "building, and there was not a dry eye in the field. Finn, fourteen",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.82
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 275.1,
+     "text": "and very grown up in a borrowed suit, handed over the rings",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.8
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 290.1,
+     "text": "without dropping either one, and then looked enormously",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 289.11
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 305.1,
+     "text": "relieved.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 43.79
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 8,
+    "ends": true
+   }
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-vows",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11203"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11203",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Under the arch Ruth spent three days building.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 186.21
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "7",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-vows",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "Then they walked back down the aisle through a storm of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 285.11
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "petals, and the whole family lined up in front of the barn for the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.41
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "one photo where everybody is looking the same way.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 259.71
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 3,
+    "ends": true
+   }
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-vows",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11204"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11204",
+     "x": 84.19,
+     "y": 64.36,
+     "w": 578.62,
+     "h": 433.98,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 180,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 84.19,
+     "y": 511.14,
+     "text": "Everyone, looking the same way, just this once.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 186.8
+    },
+    {
+     "type": "text",
+     "x": 688.5,
+     "y": 565,
+     "text": "9",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-speeches",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 738,
+     "h": 163,
+     "fill": "#FFE5CC"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.59,
+     "y": 66.62,
+     "text": "04",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The speeches",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 203.19,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 200.1,
+     "text": "Tom gave the brother-of-the-bride speech. He had practiced it",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.31
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 215.1,
+     "text": "on me nine times and on the dog twice. It had a story about Kate",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.02
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 230.1,
+     "text": "driving the family car into a mailbox when she was seventeen,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.72
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 245.1,
+     "text": "which she has never admitted, and a list of all the boyfriends",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 260.1,
+     "text": "Tom had not approved of before Marcus, which was long. Kate",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 309.63
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 275.1,
+     "text": "laughed so hard she had to cover her face.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 206.21
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 6,
+    "ends": true
+   }
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-speeches",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11205"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11205",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Tom gets to the part about the mailbox.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 156.48
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "11",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-speeches",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "Marcus filmed his own wedding speeches, of course. Here is the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.56
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "bit everyone has asked for.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 131.6
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "12",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 2,
+    "ends": true
+   }
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "the-dancing",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#ECE5FF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.12,
+     "y": 82.92,
+     "text": "05",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.77
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "The dancing",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 239.62,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-dancing",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "Grandpa Joe is seventy this year and is still the best dancer in",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.15
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "any room. He danced with every single person there, oldest to",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.54
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "youngest, and finished with Ivy, who stood on his shoes for the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.29
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 101.1,
+     "text": "whole song.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 59.77
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "14",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-dancing",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11207"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11207",
+     "x": 54,
+     "y": 45.34,
+     "w": 639,
+     "h": 479.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 163,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 537.4,
+     "text": "Grandpa Joe and his best dance partner.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 160.04
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "15",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-dancing",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 205,
+     "y": 56.1,
+     "text": "The band played until midnight. Ruth and her sister took over",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.11
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 71.1,
+     "text": "the floor for one song and would not give it back. Finn, who had",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.83
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 86.1,
+     "text": "sworn he would not dance under any circumstances, was",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 281.66
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 101.1,
+     "text": "spotted dancing under several circumstances. Biscuit, who was",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.85
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 116.1,
+     "text": "not invited, appeared at nine o’clock having escaped from the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.45
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 131.1,
+     "text": "car, and was allowed to stay on the condition that he did not eat",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.39
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 146.1,
+     "text": "the cake. He ate some of the cake.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 165.64
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 168.6,
+     "text": "At the end of the night we all lined the path with sparklers and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.97
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 183.6,
+     "text": "Kate and Marcus ran through the middle, laughing, out to the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.73
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 198.6,
+     "text": "car and off to Italy. Leo, who was supposed to be asleep, waved",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.12
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 213.6,
+     "text": "his sparkler like a lightsaber the whole time.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 220.01
+    },
+    {
+     "type": "text",
+     "x": 205,
+     "y": 236.1,
+     "text": "Congratulations, you two. We love you.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 195.29
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "16",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 12,
+    "ends": true
+   }
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-dancing",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11208"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11208",
+     "x": 84.19,
+     "y": 64.36,
+     "w": 578.62,
+     "h": 433.98,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 180,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 84.19,
+     "y": 511.14,
+     "text": "Off to Italy.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 43.84
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "17",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11200"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11200",
+     "x": 76.79,
+     "y": 95.58,
+     "w": 575.42,
+     "h": 359.64,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 750
+     },
+     "ppi": 150,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 76.79,
+     "y": 468.02,
+     "text": "Down the aisle and out through the petals. Mr. and Mrs., at last.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 249.18
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "18",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "people",
+   "template": "people",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 263.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 261.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 246.87,
+     "y": 228.73,
+     "text": "MH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 29.25
+    },
+    {
+     "type": "text",
+     "x": 229.1,
+     "y": 271,
+     "text": "Maya Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 64.8
+    },
+    {
+     "type": "circle",
+     "cx": 375.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 373.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 361.11,
+     "y": 228.73,
+     "text": "KH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 24.77
+    },
+    {
+     "type": "text",
+     "x": 343.4,
+     "y": 271,
+     "text": "Kate Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 60.2
+    },
+    {
+     "type": "circle",
+     "cx": 487.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 485.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 471.24,
+     "y": 228.73,
+     "text": "MR",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 28.52
+    },
+    {
+     "type": "text",
+     "x": 453.81,
+     "y": 271,
+     "text": "Marcus Reed",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 63.38
+    },
+    {
+     "type": "circle",
+     "cx": 263.5,
+     "cy": 333,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 261.5,
+     "cy": 331,
+     "r": 28,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 252.53,
+     "y": 336.73,
+     "text": "IH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 17.93
+    },
+    {
+     "type": "text",
+     "x": 235.26,
+     "y": 379,
+     "text": "Ivy Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 52.49
+    },
+    {
+     "type": "circle",
+     "cx": 375.5,
+     "cy": 333,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 373.5,
+     "cy": 331,
+     "r": 28,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 361.95,
+     "y": 336.73,
+     "text": "FH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 23.11
+    },
+    {
+     "type": "text",
+     "x": 343.97,
+     "y": 379,
+     "text": "Finn Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 59.07
+    },
+    {
+     "type": "circle",
+     "cx": 487.5,
+     "cy": 333,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 485.5,
+     "cy": 331,
+     "r": 28,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 476.21,
+     "y": 336.73,
+     "text": "JR",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 18.58
+    },
+    {
+     "type": "text",
+     "x": 461.63,
+     "y": 379,
+     "text": "Joe Russo",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 47.74
+    },
+    {
+     "type": "text",
+     "x": 683.4,
+     "y": 565,
+     "text": "19",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 738,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 720,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 738,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 684,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 639,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 297.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 303.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 309.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 320.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 368.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 346.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 344.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 348.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 393.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 238.52,
+     "y": 524.4,
+     "text": "Made from “Kate and Marcus get married”, a story by Maya Hartley.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 251.96
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "getting-ready",
+   "kind": "chapter",
+   "title": "Getting ready",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 3
+  },
+  {
+   "id": "the-aisle",
+   "kind": "chapter",
+   "title": "The aisle",
+   "label": null,
+   "firstPage": 4,
+   "lastPage": 5
+  },
+  {
+   "id": "the-vows",
+   "kind": "chapter",
+   "title": "The vows",
+   "label": null,
+   "firstPage": 6,
+   "lastPage": 9
+  },
+  {
+   "id": "the-speeches",
+   "kind": "chapter",
+   "title": "The speeches",
+   "label": null,
+   "firstPage": 10,
+   "lastPage": 12
+  },
+  {
+   "id": "the-dancing",
+   "kind": "chapter",
+   "title": "The dancing",
+   "label": null,
+   "firstPage": 13,
+   "lastPage": 17
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 18,
+   "lastPage": 18
+  }
+ ],
+ "notices": [
+  {
+   "code": "videos",
+   "count": 1,
+   "message": "A video in this story is not in the book."
+  }
+ ],
+ "edits": {
+  "size": "hc-10x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "colophon": 1,
+   "framed": 8,
+   "opener": 1,
+   "opener-text": 4,
+   "people": 1,
+   "text": 4,
+   "title": 1
+  },
+  "minPpi": 150,
+  "measure": 319,
+  "contentBox": {
+   "w": 639,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}

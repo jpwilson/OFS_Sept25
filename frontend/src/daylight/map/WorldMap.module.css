@@ -1,0 +1,123 @@
+/* The world map fills its parent. Offsets for a sheet, a panel or a pill come from
+   --world-top / --world-bottom (set by the page; they move while a sheet is dragged). */
+.world {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  isolation: isolate;
+  /* the stage the sticker globe sits on: paper, with a faint instrument grid */
+  background-color: var(--a-paper);
+  background-image: radial-gradient(circle, rgba(16, 27, 59, 0.13) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-position: 11px 11px;
+}
+.canvas {
+  position: absolute;
+  inset: 0;
+  /* its own stacking context: a raised pin never climbs over the controls */
+  z-index: 0;
+}
+/* MapLibre's own .maplibregl-map sets position: relative; two classes keep the host sized */
+.canvas .host {
+  position: absolute;
+  inset: 0;
+}
+.canvas :global(.maplibregl-canvas) {
+  outline: none;
+}
+.canvas:focus-within :global(.maplibregl-canvas:focus-visible) {
+  outline: 2px solid var(--a-ink);
+  outline-offset: -4px;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: 600 15px/1 var(--a-font-ui);
+  color: var(--a-ink);
+  pointer-events: none;
+}
+.shape {
+  position: absolute;
+  top: calc(var(--world-top, 0px) + 16px);
+  right: 16px;
+  z-index: 2;
+}
+.controls {
+  position: absolute;
+  top: calc(var(--world-top, 0px) + 76px);
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+.world[data-level='lite'] .controls {
+  top: calc(var(--world-top, 0px) + 16px);
+}
+.foot {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(var(--world-bottom, 0px) + 8px);
+  z-index: 1;
+  display: flex;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+.dock {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--world-bottom, 0px) + 40px);
+  z-index: 3;
+  transform: translateX(-50%);
+}
+@media (max-width: 899px) {
+  /* touch: pinch to zoom, so the zoom buttons go. Globe or Flat sits beside the filter
+     pill; "show every story" sits in thumb reach, riding above the sheet */
+  .zoom {
+    display: none;
+  }
+  .shape {
+    top: 12px;
+    right: 12px;
+  }
+  .controls,
+  .world[data-level='lite'] .controls {
+    top: auto;
+    bottom: calc(var(--world-bottom, 0px) + 12px);
+    right: 12px;
+  }
+  .foot {
+    left: 6px;
+    right: 64px;
+  }
+}
+
+/* ---------------------------------------------------------------- static level */
+.static {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.staticHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.why {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  color: var(--a-mute);
+  font-size: 15px;
+}

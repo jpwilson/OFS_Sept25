@@ -1,0 +1,250 @@
+.page {
+  background: var(--a-white);
+  min-height: 100%;
+  padding-bottom: 72px;
+}
+.wrap {
+  padding-top: 24px;
+}
+@media (max-width: 899px) {
+  .wrap {
+    padding-inline: 20px;
+    padding-top: 0;
+  }
+  .page {
+    /* clear the story's own bottom bar */
+    padding-bottom: calc(84px + var(--a-safe-bottom));
+  }
+}
+.shareRoot {
+  min-height: 100svh;
+  background: var(--a-white);
+}
+
+/* ---- the desktop journey panel: fills the sticky aside's height */
+.panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.panel > * {
+  flex: 1;
+  min-height: 0;
+}
+/* a story with a journey takes the room to its right on wide screens: the reading column
+   stays 680px and the map panel grows to 720px (StoryView's split layout gives it the rest) */
+@media (min-width: 900px) {
+  .wrap:has([data-layout='split']) {
+    max-width: calc(680px + 56px + 720px + 2 * var(--a-gutter));
+  }
+}
+
+/* ---- the phone journey card */
+.journeyCard {
+  margin-top: 24px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+  overflow: hidden;
+}
+.jcHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px 12px;
+  border-bottom: var(--a-keyline);
+  background: var(--a-azure-tint);
+}
+.jcTitle {
+  margin: 0;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+.jcMeta {
+  font-size: 12px;
+  color: var(--a-ink);
+}
+.jcMap {
+  position: relative;
+  pointer-events: none;
+}
+.jcMap > :first-child {
+  pointer-events: none;
+}
+.jcHit {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.jcHit:focus-visible {
+  outline-offset: -4px;
+}
+.jcBtns {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: var(--a-keyline);
+}
+.jcPlay {
+  flex: 1;
+}
+
+.mapSheet {
+  height: 100%;
+}
+
+/* ---- sign-in sheet, dialogs */
+.signin {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.signinText,
+.dialogText {
+  margin: 0;
+  color: var(--a-ink-soft);
+  line-height: 1.5;
+}
+.signinBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dialogErr {
+  margin: 12px 0 0;
+  color: var(--a-danger);
+  font-weight: 600;
+}
+.error {
+  margin-block: 48px;
+}
+
+/* ---- share mode */
+.note {
+  background: var(--a-sun-tint);
+  border-bottom: var(--a-keyline);
+}
+.noteInner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: var(--a-max);
+  margin-inline: auto;
+  padding: 6px 8px 6px var(--a-gutter);
+}
+.noteText {
+  flex: 1;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.noteClose {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--a-ink);
+  cursor: pointer;
+}
+.prompt {
+  position: relative;
+  margin-top: 56px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-wash-tint);
+  box-shadow: var(--a-shadow);
+  overflow: hidden;
+  scroll-margin-top: calc(var(--a-bar-h) + 16px);
+}
+.promptBody {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 680px;
+}
+.promptText {
+  margin: 0;
+  font-family: var(--a-font-story);
+  font-size: 17.5px;
+  line-height: 1.55;
+}
+.promptBtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+@media (max-width: 599px) {
+  .promptBody {
+    padding: 22px 18px;
+  }
+  .promptBtns > * {
+    flex: 1 1 100%;
+  }
+}
+
+/* ---- loading */
+.skel {
+  padding-block: 24px 48px;
+  display: flex;
+  flex-direction: column;
+}
+.skCover {
+  display: block;
+  background: var(--a-paper-deep);
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  height: auto !important;
+}
+.skText {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 36px;
+  max-width: 760px;
+}
+.skBy {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+.skByText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skActs {
+  display: flex;
+  gap: 8px;
+}
+.skBody {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 28px;
+}
+@media (max-width: 899px) {
+  .skel {
+    padding: 0 20px 32px;
+  }
+  .skCover {
+    margin-inline: -20px;
+    aspect-ratio: 4 / 5;
+    max-height: 72svh;
+  }
+  .skText {
+    padding-top: 24px;
+  }
+}

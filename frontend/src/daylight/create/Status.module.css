@@ -1,0 +1,128 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.jobs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.job {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 12px 5px 9px;
+  border-radius: var(--a-r-pill);
+  border: 1.5px solid var(--a-line-strong);
+  background: var(--a-white);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--a-ink);
+}
+.icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex: none;
+}
+.busy {
+  border-color: var(--a-ink);
+}
+.busy .icon {
+  color: var(--a-ink);
+}
+.done {
+  border-color: transparent;
+  background: var(--a-lime-tint);
+}
+.done .icon {
+  background: var(--a-lime);
+  color: var(--a-ink);
+}
+.bad {
+  border-color: var(--a-danger);
+  background: #fff1f3;
+}
+.bad .icon {
+  color: var(--a-danger);
+}
+.idle .icon {
+  color: var(--a-mute);
+}
+.text {
+  font-variant-numeric: tabular-nums;
+}
+.act {
+  appearance: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--a-ink);
+  padding: 6px 2px;
+  margin: -6px -2px;
+  cursor: pointer;
+}
+.meter {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-mute);
+  white-space: nowrap;
+}
+.pips {
+  display: inline-flex;
+  gap: 3px;
+}
+.pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1.5px solid var(--a-line-strong);
+}
+.pip.on {
+  background: var(--a-ink);
+  border-color: var(--a-ink);
+}
+
+/* phone: one scrolling line under the bar */
+.compact {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--a-gutter));
+  padding-inline: var(--a-gutter);
+}
+.compact::-webkit-scrollbar {
+  display: none;
+}
+.compact .jobs {
+  flex-wrap: nowrap;
+  flex: none;
+}
+.compact .meter {
+  flex: none;
+  padding-right: var(--a-gutter);
+}
+.compact .job {
+  font-size: 13px;
+  min-height: 32px;
+}

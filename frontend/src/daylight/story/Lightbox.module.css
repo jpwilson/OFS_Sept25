@@ -1,0 +1,314 @@
+/* The lightbox lives in the .ofsa overlay root, so Daylight tokens apply. */
+.lb :global(.yarl__container) {
+  padding: calc(64px + var(--a-safe-top)) 0 calc(var(--foot-h, 112px) + var(--a-safe-bottom));
+}
+.lb :global(.yarl__slide) {
+  padding: 0 16px;
+}
+.lb :global(.yarl__slide_image) {
+  border: var(--a-keyline);
+  border-radius: 14px;
+  background: var(--a-white);
+}
+.lb :global(.yarl__navigation_prev),
+.lb :global(.yarl__navigation_next) {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin: 0 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  color: var(--a-ink);
+  filter: none;
+}
+.lb :global(.yarl__navigation_prev):hover,
+.lb :global(.yarl__navigation_next):hover {
+  box-shadow: var(--a-shadow-sm);
+}
+.lb :global(.yarl__navigation_prev):disabled,
+.lb :global(.yarl__navigation_next):disabled {
+  opacity: 0;
+}
+@media (max-width: 899px) {
+  .lb :global(.yarl__navigation_prev),
+  .lb :global(.yarl__navigation_next) {
+    display: none;
+  }
+  .lb :global(.yarl__slide) {
+    padding: 0;
+  }
+  .lb :global(.yarl__slide_image) {
+    border-radius: 0;
+    border-width: 2px 0;
+  }
+}
+
+.top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(10px + var(--a-safe-top)) 12px 10px 20px;
+  z-index: 2;
+}
+.count {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: var(--a-r-pill);
+  background: var(--a-white);
+  border: var(--a-keyline);
+}
+.close {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  color: var(--a-ink);
+  cursor: pointer;
+}
+.close:hover {
+  box-shadow: var(--a-shadow-sm);
+}
+
+.foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 14px max(20px, var(--a-safe-left)) calc(14px + var(--a-safe-bottom));
+  max-width: 980px;
+  margin-inline: auto;
+  min-height: 96px;
+}
+.footText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.where {
+  margin: 0;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.caption {
+  margin: 0;
+  font-family: var(--a-font-story);
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--a-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.footActs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: none;
+}
+.talk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--a-r-pill);
+  border: var(--a-keyline);
+  background: var(--a-white);
+  color: var(--a-ink);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.talk:hover {
+  box-shadow: var(--a-shadow-sm);
+}
+@media (max-width: 599px) {
+  .foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .footActs {
+    justify-content: flex-start;
+  }
+  .lb :global(.yarl__container) {
+    --foot-h: 150px;
+  }
+}
+
+/* ---------------------------------------------------------------- phone (599px and under)
+   The photo across the width at the top, its place and caption right under it (they swipe
+   with it), and one bar at the bottom: react, comment, the count and close. */
+.lbPhone :global(.yarl__container) {
+  padding: calc(10px + var(--a-safe-top)) 0 calc(142px + var(--a-safe-bottom));
+}
+/* the photo and its words stand together as one piece, a little above the middle of the space
+   the strip and the bar leave (a tall photo fills it) */
+.lbPhone :global(.yarl__slide) {
+  flex-direction: column;
+  justify-content: safe center;
+  align-items: stretch;
+  padding: 0 0 7svh;
+}
+/* the zoom wrapper takes the photo's height, not the slide's, so the words sit right under it */
+.lbPhone :global(.yarl__slide_wrapper) {
+  flex: none;
+  height: auto;
+}
+.lbPhone :global(.yarl__slide_image) {
+  max-width: 100% !important;
+  max-height: 58svh !important;
+  border-radius: 0;
+  border-width: 2px 0;
+}
+/* zoomed in: the photo has the screen */
+.lbPhone :global(.yarl__slide_wrapper_interactive) + .info {
+  visibility: hidden;
+}
+.lbPhone :global(.yarl__toolbar) {
+  display: none;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 20px 8px;
+  text-align: left;
+}
+.info .caption {
+  font-size: 17px;
+  -webkit-line-clamp: 8;
+}
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 72px;
+  padding: 12px max(14px, var(--a-safe-right)) calc(12px + var(--a-safe-bottom)) max(14px, var(--a-safe-left));
+  background: var(--a-white);
+  border-top: var(--a-keyline);
+}
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* every photo of the story, above the bar: tap one to go to it */
+.film {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(72px + var(--a-safe-bottom));
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.film::-webkit-scrollbar {
+  display: none;
+}
+.filmThumb {
+  position: relative;
+  flex: none;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 2px solid var(--a-ink);
+  border-radius: 10px;
+  background: var(--a-paper-deep);
+  overflow: hidden;
+  opacity: 0.62;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--a-ink);
+  transition: opacity var(--a-dur) var(--a-ease), transform var(--a-dur) var(--a-ease);
+}
+.filmThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.filmThumb[aria-current] {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px var(--a-white), 0 0 0 4px var(--a-ink);
+}
+.filmThumb:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+
+.sheetHead {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: var(--a-keyline);
+  flex: none;
+}
+.sheetCap {
+  margin: 0;
+  font-family: var(--a-font-story);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--a-mute);
+}
+.wait {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--a-mute);
+}
+.err {
+  color: var(--a-danger);
+  font-weight: 600;
+}
+.err button {
+  font-weight: 700;
+  text-decoration: underline;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+:global(html.ofsa-on.ofsa-lb) button[aria-label='Help menu'] {
+  visibility: hidden;
+}

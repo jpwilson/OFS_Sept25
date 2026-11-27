@@ -1,0 +1,116 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100svh - var(--a-bar-h) - var(--a-bottom-clear) - 80px);
+  padding: 32px 20px 48px;
+}
+.card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  box-shadow: var(--a-shadow-lg);
+  overflow: hidden;
+}
+.card[data-wash='paper'] {
+  --a-wash: var(--a-paper-deep);
+}
+.band {
+  position: relative;
+  height: 148px;
+  background: var(--a-wash);
+  border-bottom: var(--a-keyline);
+  background-image: radial-gradient(rgba(16, 27, 59, 0.13) 1.4px, transparent 1.6px);
+  background-size: 16px 16px;
+}
+.emblem {
+  position: absolute;
+  left: 32px;
+  bottom: -40px;
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  box-shadow: var(--a-shadow);
+  transform: rotate(-5deg);
+  color: var(--a-ink);
+}
+.face {
+  position: absolute;
+  left: 104px;
+  bottom: -26px;
+  transform: rotate(4deg);
+  border-radius: 50%;
+  box-shadow: var(--a-shadow-sm);
+}
+.text {
+  padding: 64px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.by {
+  margin: 0;
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.title {
+  margin: 0;
+}
+.body {
+  margin: 0;
+  font-family: var(--a-font-story);
+  font-size: 17.5px;
+  line-height: 1.55;
+  color: var(--a-ink-soft);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.sent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--a-lime-tint);
+  border: var(--a-keyline);
+  font-weight: 650;
+}
+.err {
+  margin: 0;
+  color: var(--a-danger);
+  font-weight: 600;
+}
+@media (max-width: 599px) {
+  .page {
+    padding: 20px 16px 32px;
+    place-items: start center;
+  }
+  .text {
+    padding: 60px 22px 24px;
+  }
+  .band {
+    height: 120px;
+  }
+  .emblem {
+    left: 22px;
+  }
+  .face {
+    left: 94px;
+  }
+  .actions > * {
+    flex: 1 1 100%;
+  }
+}

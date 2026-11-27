@@ -1,0 +1,2077 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 104,
+  "slug": "ivy-turns-nine",
+  "title": "Ivy turns nine"
+ },
+ "title": "Ivy turns nine",
+ "product": {
+  "id": "hc-8x8",
+  "sku": "BKPH_HCIW_STD_8.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "8 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 576,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-10400": {
+   "src": "__ORIGIN__/landing/img/cover-birthday.ff3e0b7f.webp",
+   "px": {
+    "w": 1200,
+    "h": 750
+   },
+   "sizeFrom": "measured",
+   "caption": "Nine candles, one go. Grandpa Joe in the crown he would not take off."
+  },
+  "img-10401": {
+   "src": "__ORIGIN__/landing/img/photo-year-rocket.b88e1ca0.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Ground control to Leo."
+  },
+  "img-10402": {
+   "src": "__ORIGIN__/landing/img/photo-year-gala.487035e2.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Fifty meters backstroke, won by a fingernail."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1315.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1207.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1315.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   },
+   "spine": {
+    "x": 648,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 667.152,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 612,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 667.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "front": {
+    "x": 703.152,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "spine": {
+    "x": 652.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-10400",
+   "ppi": 172
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 715.65,
+    "y": 86.5,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 713.15,
+    "y": 84,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-10400",
+    "x": 723.15,
+    "y": 94,
+    "w": 500,
+    "h": 312.5,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1200,
+     "h": 750
+    },
+    "ppi": 172,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 886.15,
+    "y": 466.5,
+    "text": "Ivy turns nine",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 174.01,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 921,
+    "y": 490,
+    "text": "NOVEMBER 14, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 104.3,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 192.19,
+    "y": 266.96,
+    "text": "A swimming-pool cake, nine candles and a wish she",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 299.61
+   },
+   {
+    "type": "text",
+    "x": 285.64,
+    "y": 285.96,
+    "text": "will not tell Biscuit.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 112.72
+   },
+   {
+    "type": "circle",
+    "cx": 280.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 285.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 291.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 301.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 345.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 325.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 324.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 327.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 369.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Ivy turns nine",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 232.88,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "NOVEMBER 14, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 104.3,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "MADISON, WISCONSIN",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 110.5,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "A swimming-pool cake, nine candles and a wish she will not tell",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 311.23
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 352.16,
+     "text": "Biscuit.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 37.66
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY MAYA HARTLEY",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 141.5,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-party",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The party",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 140.36,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "Ivy is nine. She wanted a small party, “just family”, and then",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.3
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "sent us a list of who counted as family, which included her swim",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.87
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "coach and the lady from the bakery. We negotiated.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 254.11
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 252.6,
+     "text": "In the end it was the grandparents, Kate and Marcus and Finn,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.55
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 267.6,
+     "text": "and a cake shaped like a swimming pool that I made at eleven",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 302.83
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 282.6,
+     "text": "o’clock the night before. The water was blue frosting. The",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 285.66
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 297.6,
+     "text": "swimmers were gummy bears. Tom ate the lifeguard.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 264.68
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 330.54,
+     "text": "Nine candles",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 89.78
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 345.6,
+     "text": "Grandpa Joe wore a paper crown for the entire afternoon and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 304.4
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 360.6,
+     "text": "refused to take it off for the photos, or for the drive home. She",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.68
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 375.6,
+     "text": "blew out all nine candles in one go and then announced she",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.85
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 390.6,
+     "text": "would not be telling anyone the wish, “not even Biscuit”.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 280.83
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 12,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "the-year-she-was-eight",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFDDF2",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.28,
+     "y": 82.92,
+     "text": "02",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.43
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "The year she was eight",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 449.96,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-year-she-was-eight",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "Looking back, eight was a big year. She built a rocket in the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 292.07
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "backyard out of the boxes from the new kitchen, and took Leo to",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 317.86
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "the moon in it most weekends.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 152.04
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "4",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 3,
+    "ends": true
+   }
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-year-she-was-eight",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10401"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10401",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Ground control to Leo.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 88.58
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "5",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-year-she-was-eight",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "And in July she won her first swim meet race, fifty meters",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 286.96
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "backstroke, by about the length of a fingernail. She keeps the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 301.96
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "trophy on her windowsill, facing out, so the street can see it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "6",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 3,
+    "ends": true
+   }
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "photo-text",
+   "template": "photo-text",
+   "section": "the-year-she-was-eight",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10402"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10402",
+     "x": 54,
+     "y": 45,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 429.06,
+     "text": "Fifty meters backstroke, won by a fingernail.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 176.68
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 521.1,
+     "text": "Happy birthday, Ivy. We love you to the moon and back, by",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 290.55
+    },
+    {
+     "type": "text",
+     "x": 142,
+     "y": 536.1,
+     "text": "rocket.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 35.5
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "7",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 2,
+    "from": 0,
+    "to": 2,
+    "ends": true
+   }
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10400"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10400",
+     "x": 45,
+     "y": 116.69,
+     "w": 495,
+     "h": 309.38,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 750
+     },
+     "ppi": 174,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 438.87,
+     "text": "Nine candles, one go. Grandpa Joe in the crown he would not take off.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 275.48
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "people",
+   "template": "people",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 117.88,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 115.88,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 98.12,
+     "y": 274.36,
+     "text": "MH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 35.52
+    },
+    {
+     "type": "text",
+     "x": 83.48,
+     "y": 321.4,
+     "text": "Maya Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 64.8
+    },
+    {
+     "type": "circle",
+     "cx": 241.63,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 239.63,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 228.74,
+     "y": 274.36,
+     "text": "IH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 21.78
+    },
+    {
+     "type": "text",
+     "x": 213.38,
+     "y": 321.4,
+     "text": "Ivy Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 52.49
+    },
+    {
+     "type": "circle",
+     "cx": 365.38,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 363.38,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 352.1,
+     "y": 274.36,
+     "text": "JR",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 22.56
+    },
+    {
+     "type": "text",
+     "x": 339.51,
+     "y": 321.4,
+     "text": "Joe Russo",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 47.74
+    },
+    {
+     "type": "circle",
+     "cx": 489.13,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 487.13,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 474.07,
+     "y": 274.36,
+     "text": "LH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 26.12
+    },
+    {
+     "type": "text",
+     "x": 459.63,
+     "y": 321.4,
+     "text": "Leo Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 54.99
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "19",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 225.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 231.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 237.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 248.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 296.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 274.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 272.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 276.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 321.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 195.58,
+     "y": 524.4,
+     "text": "Made from “Ivy turns nine”, a story by Maya Hartley.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 193.84
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "the-party",
+   "kind": "chapter",
+   "title": "The party",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 2
+  },
+  {
+   "id": "the-year-she-was-eight",
+   "kind": "chapter",
+   "title": "The year she was eight",
+   "label": null,
+   "firstPage": 3,
+   "lastPage": 7
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 8,
+   "lastPage": 8
+  }
+ ],
+ "notices": [
+  {
+   "code": "slim",
+   "message": "This story makes a slim book. Add another story, or give each photo its own page."
+  }
+ ],
+ "edits": {
+  "size": "hc-8x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "blank": 10,
+   "colophon": 1,
+   "framed": 2,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "photo-text": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 174,
+  "measure": 319,
+  "contentBox": {
+   "w": 495,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}

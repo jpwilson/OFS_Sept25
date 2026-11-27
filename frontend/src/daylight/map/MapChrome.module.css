@@ -1,0 +1,112 @@
+/* ---------------------------------------------------------------- attribution */
+.attrib {
+  margin: 0;
+  padding: 3px 8px;
+  max-width: 100%;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--a-ink);
+  font: 500 10.5px/1.35 var(--a-font-ui);
+  letter-spacing: 0.01em;
+  pointer-events: auto;
+}
+.attrib a {
+  color: inherit;
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .attrib a:hover {
+    text-decoration: underline;
+  }
+}
+@media (max-width: 480px) {
+  .attrib {
+    font-size: 10px;
+    letter-spacing: 0;
+    padding-inline: 6px;
+  }
+}
+
+/* ---------------------------------------------------------------- controls */
+.stack {
+  display: inline-flex;
+  flex-direction: column;
+  border: var(--a-keyline);
+  border-radius: 14px;
+  background: var(--a-white);
+  box-shadow: var(--a-shadow-sm);
+  overflow: hidden;
+  pointer-events: auto;
+}
+.row {
+  flex-direction: row;
+}
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: var(--a-white);
+  color: var(--a-ink);
+  font: 650 14px/1 var(--a-font-ui);
+  cursor: pointer;
+  transition: background-color var(--a-dur) var(--a-ease), color var(--a-dur) var(--a-ease);
+}
+.wide {
+  width: auto;
+  padding: 0 14px;
+}
+.stack > .btn + .btn {
+  border-top: 2px solid var(--a-ink);
+}
+.row > .btn + .btn {
+  border-top: 0;
+  border-left: 2px solid var(--a-ink);
+}
+.btn[aria-pressed='true'],
+.btn[aria-checked='true'] {
+  background: var(--a-ink);
+  color: var(--a-white);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: -5px;
+}
+.btn[aria-pressed='true']:focus-visible,
+.btn[aria-checked='true']:focus-visible {
+  outline-color: var(--a-white);
+}
+@media (hover: hover) {
+  .btn:not(:disabled):not([aria-pressed='true']):not([aria-checked='true']):hover {
+    background: var(--a-azure-tint);
+  }
+}
+/* a lone floating button */
+.btn.solo {
+  border: var(--a-keyline);
+  border-radius: 14px;
+  box-shadow: var(--a-shadow-sm);
+}
+@media (max-width: 899px) {
+  .switch .btn span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .switch .btn {
+    width: 44px;
+    padding: 0;
+  }
+}

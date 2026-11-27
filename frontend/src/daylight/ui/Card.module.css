@@ -1,0 +1,55 @@
+.card {
+  position: relative;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-white);
+  color: var(--a-ink);
+  min-width: 0;
+}
+.paper {
+  background: var(--a-paper);
+}
+.wash {
+  background: var(--a-wash);
+}
+.pad-md {
+  padding: 20px;
+}
+.pad-sm {
+  padding: 12px;
+}
+.pad-none {
+  padding: 0;
+  overflow: hidden;
+}
+.interactive {
+  transition: transform var(--a-dur) var(--a-ease), box-shadow var(--a-dur) var(--a-ease);
+}
+@media (hover: hover) {
+  .interactive:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--a-shadow);
+  }
+}
+.interactive:focus-within {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--a-shadow);
+}
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 1;
+}
+.link:focus-visible {
+  outline: none;
+}
+.interactive:has(.link:focus-visible) {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 3px;
+}

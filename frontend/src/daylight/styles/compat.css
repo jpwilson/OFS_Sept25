@@ -1,0 +1,37 @@
+/* The classic-variable bridge (owner: F0). PLAN-DAYLIGHT 1, "Light and dark".
+   Inside .ofsa (and on html.ofsa-on, for anything a classic component portals to <body>)
+   the classic variables take Daylight values, so the pages that are not redesigned
+   (Settings, Sharing, Family tree, Billing, Notifications...) re-skin without edits.
+   html.ofsa-on is (0,1,1) and beats both :root and [data-theme='light'] on <html>.
+   Stored theme preferences are left untouched; switching back to classic restores them. */
+
+.ofsa,
+html.ofsa-on {
+  --bg-primary: #f4f7fb;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e3e9f2;
+  --bg-elevated: #ffffff;
+  --text-primary: #101b3b;
+  --text-secondary: rgba(16, 27, 59, 0.74);
+  --text-tertiary: rgba(16, 27, 59, 0.62);
+  --border-color: rgba(16, 27, 59, 0.16);
+  --border-light: rgba(16, 27, 59, 0.26);
+  --overlay-bg: rgba(244, 247, 251, 0.96);
+  --input-bg: #ffffff;
+  --hover-bg: #e3e9f2;
+
+  --accent: #101b3b;
+  --accent-hover: #24315a;
+  --accent-purple: #8f6cf5;
+  --ai-accent: #6a55d6;
+
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg-hover: #ffffff;
+  --glass-bg-active: #d8edff;
+  --glass-border: rgba(16, 27, 59, 0.16);
+  --glass-border-hover: rgba(16, 27, 59, 0.32);
+  --glass-border-active: #101b3b;
+  --glass-blur: 0px;
+  --glass-shadow: 0 1px 0 rgba(16, 27, 59, 0.06);
+  --glass-shadow-active: 3px 3px 0 #101b3b;
+}

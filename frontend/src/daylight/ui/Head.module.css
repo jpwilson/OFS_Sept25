@@ -1,0 +1,32 @@
+.head {
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-stretch: 90%;
+  letter-spacing: var(--a-track-head);
+  color: var(--a-ink);
+  text-wrap: balance;
+}
+.page {
+  font-size: var(--a-size-page);
+  line-height: 1.02;
+}
+.story {
+  font-size: var(--a-size-story-title);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+.lead {
+  font-size: var(--a-size-lead);
+  line-height: 1.05;
+}
+.card {
+  font-size: var(--a-size-card);
+  line-height: 1.15;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  font-stretch: 95%;
+}
+.section {
+  font-size: 22px;
+  line-height: 1.1;
+}

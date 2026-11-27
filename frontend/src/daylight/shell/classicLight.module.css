@@ -1,0 +1,46 @@
+/* TEMPORARY, until /billing is redesigned or the new look gains a dark mode: a light skin for
+   the classic Plan and billing page (pages/Billing.module.css), which is drawn dark in every
+   theme, so it does not turn into a dark page under the light app bar. Billing.jsx and its
+   CSS stay untouched; the page's CSS-module classes are matched by their local name
+   ("_statusCard_<hash>_<line>" in dev and in builds), only inside main while on /billing. */
+.billing :global([class*='_container_']) {
+  background: transparent;
+}
+.billing :global(:is([class*='_statusCard_'], [class*='_priceCard_'], [class*='_planDetailsCard_'], [class*='_paymentHistoryCard_'], [class*='_billingSettingsCard_'], [class*='_lifetimeCard_'], [class*='_faqItem_'])) {
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+}
+.billing :global(:is([class*='_billingToggle_'], [class*='_paymentRow_'])) {
+  background: var(--a-paper);
+}
+.billing :global([class*='_billingToggle_']) {
+  border: 2px solid var(--a-line);
+}
+/* words drawn white or light grey for a dark page: ink, and the muted ink for the quiet ones */
+.billing :global(:is([class*='_statusHeader_'] h2, [class*='_priceHeader_'] h3, [class*='_price_'], [class*='_faqSection_'] h2, [class*='_faqItem_'] h3, [class*='_lifetimeHeader_'] h3, [class*='_planDetailsCard_'] h2, [class*='_planDetailValue_'], [class*='_paymentHistoryHeader_'] h2, [class*='_billingSettingsCard_'] h2, [class*='_settingLabel_'], [class*='_canceledMessage_'] strong, [class*='_paymentRow_'])) {
+  color: var(--a-ink);
+}
+.billing :global(:is([class*='_statusContent_'], [class*='_statusSubtext_'], [class*='_period_'], [class*='_monthlyBreakdown_'], [class*='_features_'] li, [class*='_guarantee_'], [class*='_troubleshootNote_'], [class*='_faqItem_'] p, [class*='_canceledMessage_'] p, [class*='_lifetimeDescription_'], [class*='_planDetailLabel_'], [class*='_trialNotice_'], [class*='_loadingText_'], [class*='_emptyText_'], [class*='_paymentTableHeader_'], [class*='_settingDescription_'], [class*='_toggleOption_']:not([class*='_active_']))) {
+  color: var(--a-mute);
+}
+.billing :global([class*='_successMessage_'] strong) {
+  color: #1f7a45;
+}
+.billing :global([class*='_successMessage_'] p) {
+  color: var(--a-ink);
+}
+.billing :global([class*='_errorMessage_'] p) {
+  color: var(--a-danger);
+}
+.billing :global([class*='_couponInput_']) {
+  background: var(--a-white);
+  color: var(--a-ink);
+  border: 2px solid var(--a-line-strong);
+}
+.billing :global(:is([class*='_paymentTableHeader_'], [class*='_paymentActions_'])) {
+  border-color: var(--a-line);
+}
+.billing :global([class*='_toggleButton_']:not([class*='_toggleOn_'])) {
+  background: var(--a-line-strong);
+}

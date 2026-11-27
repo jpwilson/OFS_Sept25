@@ -1,0 +1,2716 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 102,
+  "slug": "dads-first-marathon",
+  "title": "Dad’s first marathon"
+ },
+ "title": "Dad’s first marathon",
+ "product": {
+  "id": "hc-8x8",
+  "sku": "BKPH_HCIW_STD_8.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "8 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 576,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-10200": {
+   "src": "__ORIGIN__/landing/img/cover-marathon.81ac08a4.webp",
+   "px": {
+    "w": 1200,
+    "h": 750
+   },
+   "sizeFrom": "measured",
+   "caption": "The finish. I remembered I had arms."
+  },
+  "img-10201": {
+   "src": "__ORIGIN__/landing/img/photo-race-start.25387329.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Half past seven, the start corral, Sam pretending he is not nervous."
+  },
+  "img-10202": {
+   "src": "__ORIGIN__/landing/img/photo-race-mile20.01698626.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Mile twenty. The wall is real."
+  },
+  "img-10203": {
+   "src": "__ORIGIN__/landing/img/photo-race-kids.16e0729b.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Mile twenty-two. The star sign. Mom with the thermos."
+  },
+  "img-10205": {
+   "src": "__ORIGIN__/landing/img/photo-race-hug.e3435c4e.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Space blanket, terrible smell, best hug."
+  },
+  "img-10206": {
+   "src": "__ORIGIN__/landing/img/photo-race-chips.03ebc49c.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Every basket of fries in the building."
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1315.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1207.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1315.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   },
+   "spine": {
+    "x": 648,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 667.152,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 612,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 667.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "front": {
+    "x": 703.152,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "spine": {
+    "x": 652.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-10200",
+   "ppi": 172
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 715.65,
+    "y": 86.5,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 713.15,
+    "y": 84,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-10200",
+    "x": 723.15,
+    "y": 94,
+    "w": 500,
+    "h": 312.5,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1200,
+     "h": 750
+    },
+    "ppi": 172,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 841.61,
+    "y": 466.5,
+    "text": "Dad’s first marathon",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 263.08,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 924.1,
+    "y": 490,
+    "text": "OCTOBER 11, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 98.1,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 215.15,
+    "y": 266.96,
+    "text": "Eighteen weeks of training, one wall at mile",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 253.71
+   },
+   {
+    "type": "text",
+    "x": 238.2,
+    "y": 285.96,
+    "text": "twenty, and a sign with a star on it.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 207.61
+   },
+   {
+    "type": "circle",
+    "cx": 280.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 285.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 291.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 301.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 345.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 325.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 324.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 327.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 369.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Dad’s first marathon",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 352.04,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 90,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 105,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "OCTOBER 11, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 98.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "GRANT PARK, CHICAGO",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 116.7,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "Eighteen weeks of training, one wall at mile twenty, and a sign",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 308.22
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 352.16,
+     "text": "with a star on it.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 82.13
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY TOM HARTLEY",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 135.3,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-start",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The start",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 132.58,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "A year ago I could not run for a bus. I know that because I tried,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.86
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "and the driver watched me in his mirror, and drove off. Sam",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 297.57
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "from run club said I should sign up for the marathon, and I",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 291.66
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 245.1,
+     "text": "laughed, and then he made me do it on his phone at the bar",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 291.34
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 260.1,
+     "text": "before I could change my mind.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 156.59
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 282.6,
+     "text": "Eighteen weeks of training later, we were standing in a corral in",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.97
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 297.6,
+     "text": "Grant Park at half past seven in the morning with forty",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 272.34
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 312.6,
+     "text": "thousand other people and a man dressed as a banana.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 268.61
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 8,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-start",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10201"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10201",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Half past seven, the start corral, Sam pretending he is not nervous.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 264.88
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-start",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 59.04,
+     "text": "The plan",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 58.81
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 74.1,
+     "text": "The plan was to go out slowly, stay with Sam until halfway, and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 311.73
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 89.1,
+     "text": "then hold on. Deb, who has run more marathons than I have",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 299.2
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 104.1,
+     "text": "had hot dinners, said the plan was fine, that the plan always",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 296.33
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 119.1,
+     "text": "goes wrong at mile twenty, that this is normal, and that I should",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.87
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 134.1,
+     "text": "eat a gummy bear when it does.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 155.34
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "4",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 6,
+    "ends": true
+   }
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "the-wall",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFDDF2",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.28,
+     "y": 82.92,
+     "text": "02",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.43
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "The wall",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 160.09,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-wall",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "At mile twenty, the plan went wrong. My legs just stopped being",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.43
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "legs. They became two separate things that happened to be",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 291.3
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "attached to me and had their own opinions. I grabbed a cup of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.91
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "water from a volunteer, poured most of it down my shirt, and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 116.1,
+     "text": "walked for a bit.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 80.5
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "6",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 5,
+    "ends": true
+   }
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-wall",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10202"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10202",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Mile twenty. The wall is real.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 110.73
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "7",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-wall",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "I ate a gummy bear. It did not help. I ate another one. It did not",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 310.05
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "help either, but by then I had started running again, mostly out",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.07
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "of embarrassment, because a woman who looked about eighty",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.08
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 101.1,
+     "text": "had just gone past me, and she was waving.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 213.68
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "the-people-who-came",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#F1FBD0",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.14,
+     "y": 82.92,
+     "text": "03",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.72
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "The people who came",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 429.82,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-people-who-came",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "Here is the part nobody tells you. The crowd does half the work.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.59
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "Every mile there are strangers shouting your name off your bib,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 315.16
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "and they mean it, and it is the most extraordinary thing.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 278.64
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 108.6,
+     "text": "And then at mile twenty-two there were people who were not",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.03
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 123.6,
+     "text": "strangers.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 50.34
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 156.54,
+     "text": "The star sign",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 88.73
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 171.6,
+     "text": "Ivy and Leo had made a sign the night before. It said nothing.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 303.46
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 186.6,
+     "text": "Leo had argued for GO DAD and Ivy had argued for something",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.95
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 201.6,
+     "text": "longer, and in the end they compromised on a very large drawn",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.02
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 216.6,
+     "text": "star, colored in, which they held up together and shook. Mom",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 305.32
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 231.6,
+     "text": "was behind them with a thermos. I cried. I am not ashamed of",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.94
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 246.6,
+     "text": "it.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 10.93
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "10",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 12,
+    "ends": true
+   }
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-people-who-came",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10203"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10203",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Mile twenty-two. The star sign. Mom with the thermos.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 216.17
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "11",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "the-finish",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#FFE5CC"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 53.59,
+     "y": 66.62,
+     "text": "04",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 16.81
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "The finish",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 141.8,
+     "tracking": -0.5
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 200.1,
+     "text": "The last mile goes on for about a week. Then you turn the",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 283.73
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 215.1,
+     "text": "corner onto the final stretch, and there it is, and you remember",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.77
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 230.1,
+     "text": "that you have arms and you put them up. Marcus filmed the last",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 316.02
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 245.1,
+     "text": "stretch from the barrier. You can hear Leo shouting the whole",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 306.45
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 260.1,
+     "text": "way.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 22.61
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 282.6,
+     "text": "Four hours, forty-one minutes and some seconds. I do not care",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 308.84
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 297.6,
+     "text": "about the seconds. Maya found me in the space-blanket area,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 300.67
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 312.6,
+     "text": "and held on, and said I smelled terrible, and did not let go.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 286.64
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 8,
+    "ends": true
+   }
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-finish",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10205"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10205",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Space blanket, terrible smell, best hug.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 152.77
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "13",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "the-finish",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 59.04,
+     "text": "Fries",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 34.44
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 74.1,
+     "text": "Afterwards we went to a diner around the corner, all of us and",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.1
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 89.1,
+     "text": "Sam, medals on, and ordered every basket of fries they had. Sam",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.74
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 104.1,
+     "text": "is already talking about next year. I have told him no about four",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.86
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 119.1,
+     "text": "times, which, as everyone in my family knows, means yes.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 288.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "14",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 5,
+    "ends": true
+   }
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "the-finish",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10206"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10206",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Every basket of fries in the building.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 142.69
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "15",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-10200"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-10200",
+     "x": 45,
+     "y": 116.69,
+     "w": 495,
+     "h": 309.38,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 750
+     },
+     "ppi": 174,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 438.87,
+     "text": "The finish. I remembered I had arms.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 144.16
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "16",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "people",
+   "template": "people",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 191.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 189.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 178.14,
+     "y": 228.73,
+     "text": "TH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 22.72
+    },
+    {
+     "type": "text",
+     "x": 160.3,
+     "y": 271,
+     "text": "Tom Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 58.4
+    },
+    {
+     "type": "circle",
+     "cx": 303.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 301.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 291.37,
+     "y": 228.73,
+     "text": "SL",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 20.26
+    },
+    {
+     "type": "text",
+     "x": 282.53,
+     "y": 271,
+     "text": "Sam Lin",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 37.93
+    },
+    {
+     "type": "circle",
+     "cx": 415.5,
+     "cy": 225,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 413.5,
+     "cy": 223,
+     "r": 28,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 404.53,
+     "y": 228.73,
+     "text": "IH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 17.93
+    },
+    {
+     "type": "text",
+     "x": 387.26,
+     "y": 271,
+     "text": "Ivy Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 52.49
+    },
+    {
+     "type": "circle",
+     "cx": 247.5,
+     "cy": 333,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 245.5,
+     "cy": 331,
+     "r": 28,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 234.75,
+     "y": 336.73,
+     "text": "LH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 21.51
+    },
+    {
+     "type": "text",
+     "x": 218.01,
+     "y": 379,
+     "text": "Leo Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 54.99
+    },
+    {
+     "type": "circle",
+     "cx": 359.5,
+     "cy": 333,
+     "r": 28,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 357.5,
+     "cy": 331,
+     "r": 28,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 345.19,
+     "y": 336.73,
+     "text": "RH",
+     "font": "heading",
+     "size": 17.36,
+     "color": "#101B3B",
+     "w": 24.62
+    },
+    {
+     "type": "text",
+     "x": 326.99,
+     "y": 379,
+     "text": "Ruth Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 61.02
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "19",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 225.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 231.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 237.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 248.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 296.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 274.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 272.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 276.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 321.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 185.55,
+     "y": 524.4,
+     "text": "Made from “Dad’s first marathon”, a story by Tom Hartley.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 213.9
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "the-start",
+   "kind": "chapter",
+   "title": "The start",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 4
+  },
+  {
+   "id": "the-wall",
+   "kind": "chapter",
+   "title": "The wall",
+   "label": null,
+   "firstPage": 5,
+   "lastPage": 8
+  },
+  {
+   "id": "the-people-who-came",
+   "kind": "chapter",
+   "title": "The people who came",
+   "label": null,
+   "firstPage": 9,
+   "lastPage": 11
+  },
+  {
+   "id": "the-finish",
+   "kind": "chapter",
+   "title": "The finish",
+   "label": null,
+   "firstPage": 12,
+   "lastPage": 15
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 16,
+   "lastPage": 16
+  }
+ ],
+ "notices": [
+  {
+   "code": "slim",
+   "message": "This story makes a slim book. Add another story, or give each photo its own page."
+  },
+  {
+   "code": "videos",
+   "count": 1,
+   "message": "A video in this story is not in the book."
+  }
+ ],
+ "edits": {
+  "size": "hc-8x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "blank": 2,
+   "colophon": 1,
+   "framed": 6,
+   "opener": 2,
+   "opener-text": 2,
+   "people": 1,
+   "text": 5,
+   "title": 1
+  },
+  "minPpi": 174,
+  "measure": 319,
+  "contentBox": {
+   "w": 495,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}

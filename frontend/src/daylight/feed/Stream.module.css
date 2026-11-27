@@ -1,0 +1,134 @@
+.stream {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+.section {
+  min-width: 0;
+}
+
+/* the sticky month label: a paper band under the top bar */
+.head {
+  position: sticky;
+  top: calc(var(--a-bar-h) + var(--a-safe-top) + 2px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-inline: calc(-1 * var(--a-gutter));
+  padding: 10px var(--a-gutter) 10px;
+  margin-bottom: 4px;
+  background: color-mix(in srgb, var(--a-paper) 94%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-ink);
+}
+.count {
+  color: var(--a-mute);
+  white-space: nowrap;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--a-wash, var(--a-paper-deep));
+  box-shadow: 0 0 0 2px var(--a-ink);
+}
+.only {
+  margin-left: auto;
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  min-height: 32px;
+  font-weight: 650;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.only::after {
+  content: '';
+  position: absolute;
+  inset: -6px -4px;
+}
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.item {
+  min-width: 0;
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .item:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 900px) {
+  .stream {
+    gap: 44px;
+  }
+  .head {
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-block: 14px 12px;
+    margin-bottom: 6px;
+  }
+  .label {
+    font-size: 13px;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .item {
+    grid-column: span 4;
+  }
+  .n1 .item,
+  .inPair .item {
+    grid-column: 1 / -1;
+  }
+  .n2 .item:first-child {
+    grid-column: span 8;
+  }
+  .n3 .item:first-child {
+    grid-column: 1 / span 8;
+    grid-row: 1 / span 2;
+  }
+  .n3 .item:nth-child(2),
+  .n3 .item:nth-child(3) {
+    grid-column: 9 / span 4;
+  }
+}

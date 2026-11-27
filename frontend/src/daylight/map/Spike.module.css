@@ -1,0 +1,58 @@
+.grid {
+  display: grid;
+  gap: 20px;
+}
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.stage {
+  position: relative;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  overflow: hidden;
+  background: var(--a-paper);
+}
+.stage[data-stage='globe'] {
+  background: radial-gradient(ellipse 46% 7% at 50% 92%, rgba(16, 27, 59, 0.12) 0 99%, transparent 100%), var(--a-paper);
+}
+.map {
+  width: 100%;
+  height: min(62vh, 520px);
+}
+.cap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 14px;
+}
+.timing {
+  width: 100%;
+  font-size: 12px;
+}
+.pin {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--a-ink);
+  box-shadow: 0 0 0 3px var(--a-white), 3px 3px 0 3px var(--a-ink);
+  background: var(--a-tide) center / cover no-repeat;
+  cursor: pointer;
+  padding: 0;
+}
+.map :global(.maplibregl-ctrl-group) {
+  border: var(--a-keyline);
+  border-radius: 12px;
+  box-shadow: var(--a-shadow-sm);
+}
+.map :global(.maplibregl-ctrl-attrib) {
+  font-family: var(--a-font-ui);
+  font-size: 11px;
+}

@@ -1,0 +1,212 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  color: var(--a-ink);
+  font-family: var(--a-font-ui);
+  text-align: left;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.n {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--a-ink);
+  background: var(--a-white);
+  box-shadow: inset 0 0 0 3.5px var(--day);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.nDot {
+  width: 18px;
+  height: 18px;
+  margin: 0 8px;
+  background: var(--day);
+  box-shadow: none;
+}
+.names {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.name {
+  font-weight: 800;
+  font-size: 19px;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* the day and, set apart in ink, the time on the watch there; they wrap as two whole pieces */
+.when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px 10px;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.when span {
+  white-space: nowrap;
+}
+.time {
+  color: var(--a-ink);
+}
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+/* --stop-photo: the print's width (the dock makes it larger when the panel has room) */
+.photos {
+  --w: var(--stop-photo, 112px);
+  position: relative;
+  flex: none;
+  width: var(--w);
+  height: calc(var(--w) * 0.75);
+}
+.photos[data-count='2'] {
+  width: calc(var(--w) + 12px);
+}
+.photos[data-count='3'] {
+  width: calc(var(--w) + 24px);
+}
+/* a small stack of prints; the one in front is the one the caption belongs to */
+.photo {
+  position: absolute;
+  top: 0;
+  left: calc(var(--i) * 12px);
+  width: var(--w);
+  height: calc(var(--w) * 0.75);
+  object-fit: cover;
+  border: 3px solid var(--a-white);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--a-ink);
+  background: var(--a-paper-deep);
+  transform: rotate(calc((var(--i) - 1) * 2.2deg));
+  opacity: 0.92;
+  transition: transform 320ms var(--a-ease-pop), opacity 200ms;
+}
+.photo[data-front] {
+  z-index: 1;
+  opacity: 1;
+  transform: rotate(-1.2deg) scale(1.03);
+  box-shadow: 0 0 0 2px var(--a-ink), 3px 3px 0 2px var(--a-ink);
+}
+.caption {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  line-height: 1.38;
+  color: var(--a-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  animation: fade 260ms ease both;
+}
+.compact {
+  gap: 8px;
+}
+.compact .name {
+  font-size: 17px;
+}
+.compact .n {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+.compact .photos,
+.compact .photos[data-count] {
+  width: 92px;
+  height: 69px;
+}
+.compact .photo {
+  left: 0;
+  width: 92px;
+  height: 69px;
+  transform: none;
+  opacity: 0;
+}
+.compact .photo[data-front] {
+  opacity: 1;
+  transform: rotate(-1.2deg);
+  box-shadow: 0 0 0 2px var(--a-ink), 2px 2px 0 2px var(--a-ink);
+}
+.compact .caption {
+  font-size: 13.5px;
+  -webkit-line-clamp: 3;
+}
+/* ---- line: the desktop panel's dock. One row: number, place and time, a photo strip, Play */
+.line {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.line .names {
+  flex: 1 1 auto;
+}
+.line .name {
+  font-size: 17px;
+}
+.line .when span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.strip {
+  display: flex;
+  flex: none;
+  gap: 5px;
+}
+.thumb {
+  width: 46px;
+  height: 36px;
+  object-fit: cover;
+  border: 2px solid var(--a-ink);
+  border-radius: 7px;
+  background: var(--a-paper-deep);
+  transition: transform 220ms var(--a-ease-pop), box-shadow 220ms var(--a-ease);
+}
+/* playback: the photo whose turn it is */
+.thumb[data-front] {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 var(--a-ink);
+}
+/* a narrow panel (the creation rail, a small window): one photo, so the place keeps its name */
+@container jstage (max-width: 539px) {
+  .line {
+    gap: 10px;
+  }
+  .strip .thumb:nth-child(n + 2) {
+    display: none;
+  }
+  .thumb {
+    width: 42px;
+    height: 34px;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    transition: opacity 200ms;
+  }
+}

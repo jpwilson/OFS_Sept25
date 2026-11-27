@@ -1,0 +1,92 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--a-r-button);
+  border: var(--a-keyline);
+  font-family: var(--a-font-ui);
+  font-weight: 650;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: transform var(--a-dur) var(--a-ease), box-shadow var(--a-dur) var(--a-ease), background-color var(--a-dur) var(--a-ease);
+}
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.solid {
+  background: var(--a-ink);
+  color: var(--a-white);
+}
+.ghost {
+  background: var(--a-white);
+  color: var(--a-ink);
+}
+.quiet {
+  background: transparent;
+  color: var(--a-ink);
+  border-color: transparent;
+}
+.danger {
+  background: var(--a-white);
+  color: var(--a-danger);
+  border-color: var(--a-danger);
+}
+.btn[data-wash] {
+  background: var(--a-wash);
+  color: var(--a-ink);
+}
+@media (hover: hover) {
+  .solid:not(:disabled):hover,
+  .ghost:not(:disabled):hover,
+  .btn[data-wash]:not(:disabled):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--a-shadow);
+  }
+  .solid:not(:disabled):hover {
+    box-shadow: 4px 4px 0 var(--a-wash, var(--a-tide));
+  }
+  .quiet:not(:disabled):hover {
+    background: var(--a-paper-deep);
+  }
+}
+.btn:not(:disabled):active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+.sm {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+/* keep a 44px hit area on the small size */
+.sm::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+.lg {
+  min-height: 52px;
+  padding: 0 24px;
+  font-size: 17px;
+}
+.full {
+  width: 100%;
+}
+.busy {
+  cursor: progress;
+}

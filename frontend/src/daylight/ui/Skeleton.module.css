@@ -1,0 +1,15 @@
+.sk {
+  display: block;
+  background: var(--a-paper-deep);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+.lines {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+@keyframes breathe {
+  50% {
+    opacity: 0.55;
+  }
+}

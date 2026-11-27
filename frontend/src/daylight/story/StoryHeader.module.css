@@ -1,0 +1,333 @@
+.head {
+  display: flex;
+  flex-direction: column;
+}
+.coverWrap {
+  position: relative;
+  overflow: hidden;
+  background: var(--a-paper-deep);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  aspect-ratio: 21 / 9;
+}
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the cover opens the lightbox; the wrap clips, so the focus ring sits inside the photo */
+.coverBtn {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .coverBtn {
+    cursor: zoom-in;
+  }
+}
+.coverWrap .coverBtn:focus-visible {
+  outline: none;
+}
+.coverBtn:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px solid var(--a-ink);
+  border-radius: var(--a-r-button);
+  box-shadow: 0 0 0 3px var(--a-white), inset 0 0 0 3px var(--a-white);
+  pointer-events: none;
+}
+.noCover {
+  height: 8px;
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  padding-top: 36px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  min-height: 24px;
+}
+.eyebrow:empty {
+  display: none;
+}
+.cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--a-font-mono);
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+}
+.catDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--a-wash);
+  border: 2px solid var(--a-ink);
+}
+.draft {
+  font-family: var(--a-font-mono);
+  font-size: 11px;
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 2px solid var(--a-ink);
+  border-radius: var(--a-r-sticker);
+  background: var(--a-sun);
+  transform: rotate(-2deg);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-size: var(--a-size-story-title);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  max-width: 18ch;
+  overflow-wrap: break-word;
+}
+.title[data-long] {
+  font-size: clamp(30px, 3.4vw, 50px);
+  line-height: 1.02;
+  max-width: 24ch;
+}
+.summary {
+  margin: 18px 0 0;
+  max-width: 640px;
+  font-family: var(--a-font-story);
+  font-style: italic;
+  font-size: clamp(19px, 1.6vw, 22px);
+  line-height: 1.45;
+  color: var(--a-ink-soft);
+  text-wrap: pretty;
+}
+
+.byline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: 28px;
+  padding: 14px 0;
+  border-top: var(--a-keyline);
+  border-bottom: 1px solid var(--a-line);
+}
+.author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--a-ink);
+  border-radius: 12px;
+  min-height: 44px;
+}
+.author:hover .authorName {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.authorText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.authorName {
+  font-weight: 750;
+  font-size: 16.5px;
+}
+.when {
+  font-size: 13px;
+  color: var(--a-mute);
+  margin-top: 2px;
+}
+.facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.facts li :global(svg) {
+  color: var(--a-mute);
+}
+
+.people {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--a-line);
+}
+.withLabel {
+  font-size: var(--a-size-label);
+  letter-spacing: var(--a-track-label);
+  text-transform: uppercase;
+  color: var(--a-mute);
+  flex: none;
+}
+.tagList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 3px 12px 3px 3px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-pill);
+  background: var(--a-white);
+  color: var(--a-ink);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  position: relative;
+}
+.tag::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+a.tag:hover {
+  box-shadow: var(--a-shadow-sm);
+  transform: translate(-1px, -1px);
+}
+.tagPending {
+  border-style: dashed;
+}
+.pending {
+  font-family: var(--a-font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--a-mute);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 16px;
+}
+.act {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-pill);
+  background: var(--a-white);
+  color: var(--a-ink);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform var(--a-dur) var(--a-ease), box-shadow var(--a-dur) var(--a-ease);
+}
+.act:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--a-shadow-sm);
+}
+.grow {
+  flex: 1;
+}
+
+@media (max-width: 899px) {
+  .head {
+    margin-inline: calc(var(--bleed, 20px) * -1);
+  }
+  .coverWrap {
+    border-width: 0 0 2px;
+    border-radius: 0;
+    aspect-ratio: 4 / 5;
+    max-height: 72svh;
+    width: 100%;
+  }
+  .noCover {
+    height: calc(64px + var(--a-safe-top));
+  }
+  .text {
+    padding: 24px var(--bleed, 20px) 0;
+  }
+  .title {
+    font-size: clamp(34px, 10vw, 44px);
+    max-width: none;
+  }
+  .title[data-long] {
+    font-size: clamp(28px, 8vw, 34px);
+    line-height: 1.04;
+  }
+  .summary {
+    font-size: 18.5px;
+    margin-top: 14px;
+  }
+  .byline {
+    margin-top: 22px;
+    gap: 10px;
+  }
+  .facts {
+    font-size: 14px;
+    gap: 4px 14px;
+  }
+  .people {
+    align-items: flex-start;
+  }
+  .withLabel {
+    padding-top: 10px;
+  }
+  .deskOnly {
+    display: none;
+  }
+  .act span {
+    white-space: nowrap;
+  }
+  /* the creation flow's preview: a shorter cover and a tighter head, so the title and the
+     start of the first day are on the first screen with the summary above them */
+  .head[data-preview] .coverWrap {
+    aspect-ratio: 2 / 1;
+    max-height: 30svh;
+  }
+  .head[data-preview] .text {
+    padding-top: 14px;
+  }
+  .head[data-preview] .eyebrow {
+    margin-bottom: 8px;
+  }
+  .head[data-preview] .title {
+    font-size: clamp(29px, 8.4vw, 35px);
+  }
+  .head[data-preview] .byline {
+    margin-top: 12px;
+    padding: 6px 0;
+  }
+  .head[data-preview] .facts {
+    display: none;
+  }
+}

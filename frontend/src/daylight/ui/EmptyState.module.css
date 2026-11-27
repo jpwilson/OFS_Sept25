@@ -1,0 +1,39 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 40px 24px;
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  background: var(--a-wash-tint);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: var(--a-keyline);
+  background: var(--a-wash);
+  margin-bottom: 4px;
+}
+.title {
+  max-width: 28ch;
+}
+.body {
+  max-width: 44ch;
+  color: var(--a-mute);
+  font-size: 15px;
+}
+.action {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.error {
+  background: var(--a-white);
+}

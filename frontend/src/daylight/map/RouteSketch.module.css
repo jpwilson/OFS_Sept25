@@ -1,0 +1,14 @@
+.sketch {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hit {
+  cursor: pointer;
+}
+.hit:focus-visible {
+  outline: none;
+}
+.hit:focus-visible circle:nth-child(2) {
+  stroke-width: 4;
+}

@@ -1,0 +1,476 @@
+/* The door (owner: AUTH). Phone first; then iPad portrait; then iPad landscape and desktop.
+   Text on every wash is ink. Decorative layers (floor, ghost, cast) are absolutely placed in
+   grid areas so they never size the page: the words and the card do. */
+
+.stage {
+  --cast-h: clamp(170px, 56vw, 232px);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: 'bar' 'words' 'door';
+  background: var(--a-wash);
+  color: var(--a-ink);
+  overflow-x: clip;
+  isolation: isolate;
+  transition: background-color 420ms var(--a-ease);
+}
+
+/* ------------------------------------------------------------------ the room */
+.floor {
+  position: absolute;
+  grid-row: 3 / -1;
+  grid-column: 1 / -1;
+  inset: 0;
+  background: var(--a-wash-deep);
+  z-index: 0;
+  transition: background-color 420ms var(--a-ease);
+}
+/* The ghost word stands behind the people on an iPad and a desktop. A phone has no room for
+   it whole: tucked under the card it read as cut-off text, so a phone shows none. */
+.ghost {
+  display: none;
+  position: absolute;
+  grid-row: 2 / 3;
+  grid-column: 1 / -1;
+  left: -0.04em;
+  bottom: -0.4em;
+  z-index: 0;
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-variation-settings: 'wdth' 75;
+  font-size: clamp(120px, 38vw, 160px);
+  line-height: 0.8;
+  letter-spacing: -0.045em;
+  text-transform: lowercase;
+  color: var(--a-wash-deep);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  animation: ghostIn 900ms var(--a-ease) both;
+  transition: color 420ms var(--a-ease);
+}
+
+/* ------------------------------------------------------------------ bar */
+.bar {
+  grid-area: bar;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: calc(8px + var(--a-safe-top)) 12px 4px;
+}
+.wordmark {
+  /* the landing lockup reads --l-* tokens: bridge the ones Daylight does not */
+  --l-tide: var(--a-tide);
+  --l-zest: var(--a-zest);
+  --l-fizz: var(--a-fizz);
+  --l-font-display: var(--a-font-ui);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px 0 10px;
+  margin-right: auto;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-pill);
+  box-shadow: var(--a-shadow-sm);
+  color: var(--a-ink);
+  text-decoration: none;
+}
+.lockup {
+  font-size: 17px !important;
+}
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ------------------------------------------------------------------ words */
+.words {
+  grid-area: words;
+  position: relative;
+  z-index: 2;
+  min-height: var(--cast-h);
+  padding: 14px calc(var(--cast-h) * var(--phone-w, 0.7) + 4px) 34px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+.head {
+  margin: 0;
+  font-family: var(--a-font-ui);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(31px, 10.4vw, 44px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.head :global(.a-nowrap) {
+  display: inline-block;
+  margin-top: 0.08em;
+}
+.sub {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 1.42;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ the cast */
+.cast {
+  position: absolute;
+  grid-row: 2 / 3;
+  grid-column: 1 / -1;
+  inset: 0 10px 0 auto;
+  width: calc(var(--cast-h) * var(--phone-w, 0.7) + 8px);
+  container-type: size;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.fig {
+  position: relative;
+  flex: none;
+  height: calc(var(--h) * 100cqh);
+  aspect-ratio: var(--ratio);
+  margin-inline: -2%;
+  animation: pop 720ms var(--a-ease-pop) both;
+  animation-delay: calc(140ms + var(--i) * 90ms);
+}
+.fig:not([data-phone]) {
+  display: none;
+}
+.fig img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translateY(calc(var(--below) * 100%));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.fig[data-prop] img {
+  transform: translateY(calc(var(--lift) * -100%));
+}
+.contact {
+  position: absolute;
+  left: calc(var(--ax, 0.5) * 100%);
+  bottom: 0;
+  width: 78%;
+  height: 7%;
+  min-height: 8px;
+  transform: translate(-50%, 45%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(16, 27, 59, 0.34), rgba(16, 27, 59, 0.12) 60%, transparent);
+}
+.decorSlot {
+  display: contents;
+}
+
+/* ------------------------------------------------------------------ the door (the card) */
+.door {
+  grid-area: door;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px calc(40px + var(--a-safe-bottom));
+  outline: none;
+}
+.card {
+  width: 100%;
+  max-width: 480px;
+  margin-top: -6px;
+  padding: 20px 18px 18px;
+  background: var(--a-white);
+  border: var(--a-keyline);
+  border-radius: var(--a-r-card);
+  box-shadow: var(--a-shadow-lg);
+  animation: rise 520ms var(--a-ease) both;
+}
+.below {
+  width: 100%;
+  max-width: 480px;
+}
+.small {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(10px + var(--a-safe-bottom));
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--a-ink);
+  opacity: 0.72;
+}
+
+/* ------------------------------------------------------------------ keyboard open on a phone */
+.stage[data-kb] .cast,
+.stage[data-kb] .ghost,
+.stage[data-kb] .sub {
+  display: none;
+}
+.stage[data-kb] .words {
+  min-height: 0;
+  padding: 6px 16px 14px;
+}
+.stage[data-kb] .head {
+  font-size: 28px;
+}
+@media (max-width: 699px) and (max-height: 560px) {
+  .cast,
+  .ghost,
+  .sub {
+    display: none;
+  }
+  .words {
+    min-height: 0;
+    padding: 6px 16px 14px;
+  }
+  .head {
+    font-size: 28px;
+  }
+  .small {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ iPad portrait */
+@media (min-width: 700px) and (orientation: portrait) {
+  .stage {
+    /* the family is the picture: as tall as the card below it still fits on the screen */
+    --cast-h: min(38svh, 450px);
+    --card-w: 540px;
+    grid-template-rows: auto auto var(--cast-h) 1fr;
+    grid-template-areas: 'bar' 'words' 'cast' 'door';
+  }
+  .bar {
+    min-height: 84px;
+    padding: calc(20px + var(--a-safe-top)) 40px 8px;
+  }
+  .wordmark {
+    min-height: 50px;
+    padding: 0 20px 0 12px;
+  }
+  .lockup {
+    font-size: 19px !important;
+  }
+  .words {
+    min-height: 0;
+    padding: 20px 48px 0;
+    gap: 12px;
+  }
+  .head {
+    font-size: clamp(56px, 8.6vw, 76px);
+    line-height: 0.95;
+  }
+  .sub {
+    font-size: 19px;
+    max-width: 40ch;
+  }
+  .ghost {
+    display: block;
+    grid-row: 3 / 4;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -0.12em;
+    font-size: min(36vw, 300px);
+    animation-name: ghostInCentre;
+  }
+  .floor {
+    grid-row: 4 / -1;
+  }
+  .cast {
+    grid-row: 3 / 4;
+    inset: 0 32px -14px;
+    width: auto;
+    justify-content: center;
+  }
+  .fig,
+  .fig:not([data-phone]) {
+    display: block;
+    height: calc(var(--h) * min(100cqh, 100cqw / var(--all-w)));
+  }
+  .door {
+    padding: 0 40px calc(56px + var(--a-safe-bottom));
+  }
+  .card {
+    max-width: var(--card-w);
+    margin-top: -22px;
+    padding: 28px 32px 26px;
+  }
+  .below {
+    max-width: var(--card-w);
+  }
+}
+
+/* ------------------------------------------------------------------ iPad landscape, desktop */
+@media (min-width: 900px) and (orientation: landscape) {
+  .stage {
+    --card-w: clamp(400px, 31vw, 448px);
+    --floor: 21svh;
+    --gx: clamp(28px, 4.2vw, 72px);
+    grid-template-columns: minmax(0, 1fr) var(--card-w);
+    grid-template-rows: auto auto minmax(200px, 1fr) var(--floor);
+    grid-template-areas: 'bar bar' 'words door' 'cast door' 'floor door';
+    column-gap: clamp(24px, 3.6vw, 64px);
+    padding-inline: var(--gx);
+  }
+  .floor {
+    grid-area: auto;
+    inset: auto 0 0 0;
+    height: var(--floor);
+  }
+  .bar {
+    min-height: 92px;
+    padding: calc(22px + var(--a-safe-top)) 0 0;
+  }
+  .wordmark {
+    min-height: 52px;
+    padding: 0 22px 0 12px;
+  }
+  .lockup {
+    font-size: 20px !important;
+  }
+  .words {
+    min-height: 0;
+    padding: clamp(16px, 4svh, 44px) 0 8px;
+    gap: 16px;
+  }
+  .head {
+    font-size: clamp(54px, 6.1vw, 100px);
+    line-height: 0.93;
+  }
+  .sub {
+    font-size: clamp(17px, 1.35vw, 20px);
+    max-width: 38ch;
+  }
+  .ghost {
+    display: block;
+    grid-area: cast;
+    left: -0.03em;
+    bottom: -0.12em;
+    font-size: clamp(190px, 23vw, 400px);
+  }
+  .cast {
+    grid-area: cast;
+    inset: 8px auto calc(var(--floor) * -0.38) 0;
+    width: 100%;
+    justify-content: flex-end;
+    padding-right: 1%;
+  }
+  .fig,
+  .fig:not([data-phone]) {
+    display: block;
+    height: calc(var(--h) * min(100cqh, 98cqw / var(--all-w)));
+  }
+  /* the card stands beside the family, centred on the wall: a short card (opening the door,
+     a password form, an error) no longer leaves the top right empty above it */
+  .door {
+    grid-area: 2 / 2 / 5 / 3;
+    justify-content: safe center;
+    padding: 40px 0 calc(var(--floor) * 0.36);
+  }
+  .card {
+    max-width: none;
+    margin-top: 24px;
+    padding: 30px 30px 26px;
+  }
+  .below {
+    max-width: none;
+  }
+}
+@media (min-width: 900px) and (orientation: landscape) and (max-height: 620px) {
+  .cast,
+  .ghost {
+    display: none;
+  }
+  .stage {
+    grid-template-rows: auto auto 1fr 24px;
+  }
+}
+
+/* ------------------------------------------------------------------ motion */
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(18%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ghostIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ghostInCentre {
+  from {
+    opacity: 0;
+    transform: translateX(-54%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fig,
+  .card,
+  .ghost {
+    animation: none;
+  }
+  .stage,
+  .floor,
+  .ghost {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ page level, while mounted */
+:global(html.ofsa-on.ofsa-auth),
+:global(html.ofsa-on.ofsa-auth body) {
+  background: var(--auth-floor, #0fb8b1);
+}
+:global(html.ofsa-auth[data-auth-wash='tide']) { --auth-floor: #0fb8b1; }
+:global(html.ofsa-auth[data-auth-wash='sun']) { --auth-floor: #f2c21c; }
+:global(html.ofsa-auth[data-auth-wash='azure']) { --auth-floor: #1f93f0; }
+:global(html.ofsa-auth[data-auth-wash='fizz']) { --auth-floor: #f247af; }
+:global(html.ofsa-auth[data-auth-wash='lime']) { --auth-floor: #aedb1c; }
+:global(html.ofsa-auth[data-auth-wash='zest']) { --auth-floor: #f27405; }
+:global(html.ofsa-auth[data-auth-wash='violet']) { --auth-floor: #8f6cf5; }
+/* The app-wide install banner (components/InstallPrompt) stays off the sign-in screens. */
+:global(html.ofsa-auth [class^='_banner_']:has(img[src='/icons/icon-192x192.png'])) {
+  display: none !important;
+}

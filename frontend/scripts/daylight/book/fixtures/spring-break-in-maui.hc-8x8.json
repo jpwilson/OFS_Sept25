@@ -1,0 +1,2102 @@
+{
+ "format": "ofs-book-display-list",
+ "version": 1,
+ "engine": "1.0.0",
+ "units": "pt",
+ "origin": "top-left of each page's media (bleed) box, y down",
+ "story": {
+  "id": 111,
+  "slug": "spring-break-in-maui",
+  "title": "Spring break in Maui"
+ },
+ "title": "Spring break in Maui",
+ "product": {
+  "id": "hc-8x8",
+  "sku": "BKPH_HCIW_STD_8.000x8.000IN_80C_MT_40_100T_DUL_44",
+  "label": "8 × 8 in hardcover",
+  "binding": "hardcover",
+  "trim": {
+   "w": 576,
+   "h": 576
+  },
+  "bleed": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 9,
+   "outside": 9
+  },
+  "safe": {
+   "top": 9,
+   "bottom": 9,
+   "inside": 27,
+   "outside": 9
+  },
+  "catalog": {
+   "catalogGeneratedAt": "2026-10-14T23:37:58.646Z",
+   "fetchedAt": "2026-11-26",
+   "source": "https://products.api.rpiprint.com/catalog/v1/products.json"
+  }
+ },
+ "pageCount": 20,
+ "limits": {
+  "min": 20,
+  "max": 120,
+  "step": 2
+ },
+ "fonts": {
+  "story": {
+   "file": "Literata-Regular.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/Literata-Regular.ttf"
+  },
+  "story-italic": {
+   "file": "Literata-Italic.ttf",
+   "family": "Literata",
+   "weight": 400,
+   "style": "italic",
+   "url": "/book/fonts/Literata-Italic.ttf"
+  },
+  "ui": {
+   "file": "BricolageGrotesque12pt-Regular.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-Regular.ttf"
+  },
+  "ui-semibold": {
+   "file": "BricolageGrotesque12pt-SemiBold.ttf",
+   "family": "Bricolage Grotesque 12pt",
+   "weight": 600,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque12pt-SemiBold.ttf"
+  },
+  "heading": {
+   "file": "BricolageGrotesque-ExtraBold.ttf",
+   "family": "Bricolage Grotesque",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque-ExtraBold.ttf"
+  },
+  "display": {
+   "file": "BricolageGrotesque96pt-ExtraBold.ttf",
+   "family": "Bricolage Grotesque 96pt",
+   "weight": 800,
+   "style": "normal",
+   "url": "/book/fonts/BricolageGrotesque96pt-ExtraBold.ttf"
+  },
+  "mono": {
+   "file": "DMMono-Regular.ttf",
+   "family": "DM Mono",
+   "weight": 400,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Regular.ttf"
+  },
+  "mono-medium": {
+   "file": "DMMono-Medium.ttf",
+   "family": "DM Mono",
+   "weight": 500,
+   "style": "normal",
+   "url": "/book/fonts/DMMono-Medium.ttf"
+  }
+ },
+ "images": {
+  "img-11100": {
+   "src": "__ORIGIN__/landing/img/cover-maui.ff7ad955.webp",
+   "px": {
+    "w": 1200,
+    "h": 750
+   },
+   "sizeFrom": "measured",
+   "caption": "Ka’anapali Beach and the volcano Leo built."
+  },
+  "img-11101": {
+   "src": "__ORIGIN__/landing/img/photo-maui-snorkel.c9e33935.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Turtle spotters."
+  },
+  "img-11102": {
+   "src": "__ORIGIN__/landing/img/photo-maui-shave-ice.cb5c4072.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Rainbow shave ice, every flavor at once."
+  },
+  "img-11103": {
+   "src": "__ORIGIN__/landing/img/photo-maui-sunrise.7708f85b.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": "Sunrise above the clouds. Leo slept through the best bit."
+  },
+  "m0": {
+   "src": "__ORIGIN__/landing/img/photo-maui-beach.12766639.webp",
+   "px": {
+    "w": 1448,
+    "h": 1086
+   },
+   "sizeFrom": "measured",
+   "caption": ""
+  }
+ },
+ "cover": {
+  "style": "framed",
+  "size": {
+   "w": 1315.152,
+   "h": 702
+  },
+  "trim": {
+   "x": 54,
+   "y": 54,
+   "w": 1207.152,
+   "h": 594
+  },
+  "bleed": {
+   "x": 0,
+   "y": 0,
+   "w": 1315.152,
+   "h": 702
+  },
+  "wrap": {
+   "top": 54,
+   "left": 54,
+   "right": 54,
+   "bottom": 54
+  },
+  "panels": {
+   "back": {
+    "x": 54,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   },
+   "spine": {
+    "x": 648,
+    "y": 54,
+    "w": 19.152,
+    "h": 594
+   },
+   "front": {
+    "x": 667.152,
+    "y": 54,
+    "w": 594,
+    "h": 594
+   }
+  },
+  "hinge": [
+   {
+    "x": 612,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   },
+   {
+    "x": 667.152,
+    "y": 54,
+    "w": 36,
+    "h": 594
+   }
+  ],
+  "safe": {
+   "back": {
+    "x": 72,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "front": {
+    "x": 703.152,
+    "y": 72,
+    "w": 540,
+    "h": 558
+   },
+   "spine": {
+    "x": 652.5,
+    "y": 72,
+    "w": 10.152000000000001,
+    "h": 558
+   }
+  },
+  "spineWidth": 19.152,
+  "spineText": false,
+  "background": "#D8EDFF",
+  "photo": {
+   "id": "img-11100",
+   "ppi": 172
+  },
+  "items": [
+   {
+    "type": "rect",
+    "x": 715.65,
+    "y": 86.5,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#101B3B",
+    "r": 3
+   },
+   {
+    "type": "rect",
+    "x": 713.15,
+    "y": 84,
+    "w": 520,
+    "h": 332.5,
+    "fill": "#FFFFFF",
+    "r": 3,
+    "stroke": "#101B3B",
+    "strokeWidth": 1.25
+   },
+   {
+    "type": "image",
+    "ref": "img-11100",
+    "x": 723.15,
+    "y": 94,
+    "w": 500,
+    "h": 312.5,
+    "crop": {
+     "x": 0,
+     "y": 0,
+     "w": 1200,
+     "h": 750
+    },
+    "ppi": 172,
+    "frame": "mat",
+    "floor": 150
+   },
+   {
+    "type": "text",
+    "x": 842.12,
+    "y": 466.5,
+    "text": "Spring break in Maui",
+    "font": "display",
+    "size": 30,
+    "color": "#101B3B",
+    "w": 262.06,
+    "tracking": -0.5
+   },
+   {
+    "type": "text",
+    "x": 914.8,
+    "y": 490,
+    "text": "MARCH 21 – 28, 2026",
+    "font": "mono-medium",
+    "size": 8.5,
+    "color": "#101B3B",
+    "w": 116.7,
+    "tracking": 1.1
+   },
+   {
+    "type": "text",
+    "x": 200.55,
+    "y": 266.96,
+    "text": "From minus four in Madison to a sea turtle every",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 282.89
+   },
+   {
+    "type": "text",
+    "x": 314.44,
+    "y": 285.96,
+    "text": "morning.",
+    "font": "story-italic",
+    "size": 13,
+    "color": "#101B3B",
+    "w": 55.12
+   },
+   {
+    "type": "circle",
+    "cx": 280.28,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#19CFC7",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 285.83,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF8A1F",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "circle",
+    "cx": 291.37,
+    "cy": 596.04,
+    "r": 4.62,
+    "fill": "#FF62C4",
+    "stroke": "#101B3B",
+    "strokeWidth": 0.9
+   },
+   {
+    "type": "text",
+    "x": 301.99,
+    "y": 600,
+    "text": "Our ",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 22.33
+   },
+   {
+    "type": "group",
+    "rotate": -2,
+    "ox": 345.56,
+    "oy": 596.68,
+    "items": [
+     {
+      "type": "rect",
+      "x": 325.52,
+      "y": 591.17,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#101B3B",
+      "r": 2.5
+     },
+     {
+      "type": "rect",
+      "x": 324.32,
+      "y": 589.97,
+      "w": 42.47,
+      "h": 14.42,
+      "fill": "#FFFFFF",
+      "r": 2.5,
+      "stroke": "#101B3B",
+      "strokeWidth": 0.9
+     },
+     {
+      "type": "text",
+      "x": 327.4,
+      "y": 600,
+      "text": "Family",
+      "font": "heading",
+      "size": 11,
+      "color": "#101B3B",
+      "w": 36.31
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "x": 369.24,
+    "y": 600,
+    "text": "Socials",
+    "font": "heading",
+    "size": 11,
+    "color": "#101B3B",
+    "w": 39.09
+   }
+  ]
+ },
+ "pages": [
+  {
+   "index": 0,
+   "number": 1,
+   "side": "right",
+   "kind": "title",
+   "template": "title",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 227.36,
+     "text": "Spring break in Maui",
+     "font": "display",
+     "size": 40,
+     "color": "#101B3B",
+     "w": 350.68,
+     "tracking": -0.6
+    },
+    {
+     "type": "circle",
+     "cx": 60,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "circle",
+     "cx": 75,
+     "cy": 259.36,
+     "r": 6,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 285.36,
+     "text": "MARCH 21 – 28, 2026",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 116.7,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 299.36,
+     "text": "KA'ANAPALI, MAUI",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 98.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 336.16,
+     "text": "From minus four in Madison to a sea turtle every morning.",
+     "font": "story-italic",
+     "size": 11,
+     "color": "#101B3B",
+     "w": 288.1
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 536,
+     "text": "A STORY BY MAYA HARTLEY",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 141.5,
+     "tracking": 1.1
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 1,
+   "number": 2,
+   "side": "left",
+   "kind": "opener-text",
+   "template": "opener-text",
+   "section": "spring-break",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 594,
+     "h": 163,
+     "fill": "#D8EDFF"
+    },
+    {
+     "type": "circle",
+     "cx": 63.8,
+     "cy": 63.8,
+     "r": 17,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 62,
+     "cy": 62,
+     "r": 17,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 55.71,
+     "y": 66.62,
+     "text": "01",
+     "font": "display",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 12.57
+    },
+    {
+     "type": "text",
+     "x": 93,
+     "y": 65,
+     "text": "SUNDAY, MARCH 22",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 98.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 128.2,
+     "text": "Spring break",
+     "font": "display",
+     "size": 34,
+     "color": "#101B3B",
+     "w": 188.1,
+     "tracking": -0.5
+    },
+    {
+     "type": "circle",
+     "cx": 136,
+     "cy": 196.8,
+     "r": 3,
+     "fill": "#3AA8FF",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.75
+    },
+    {
+     "type": "text",
+     "x": 144,
+     "y": 199.5,
+     "text": "KA'ANAPALI BEACH · 10:00 AM",
+     "font": "mono-medium",
+     "size": 7.5,
+     "color": "#101B3B",
+     "w": 144.9,
+     "tracking": 0.9
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 217.1,
+     "text": "It was minus four in Madison when we left and eighty-two when",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 318.63
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 232.1,
+     "text": "we landed, and nobody has ever taken off a winter coat faster",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 301.64
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 247.1,
+     "text": "than Leo did in that parking lot. We stayed a week at Ka’anapali",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 312.81
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 262.1,
+     "text": "Beach, which is long and golden and has a sea turtle every",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 285.18
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 277.1,
+     "text": "morning if you are patient.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 134.04
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 6,
+    "ends": true
+   }
+  },
+  {
+   "index": 2,
+   "number": 3,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "spring-break",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "m0"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "m0",
+     "x": 54,
+     "y": 96.97,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "3",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 3,
+   "number": 4,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "spring-break",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 59.04,
+     "text": "Under the water",
+     "font": "heading",
+     "size": 14,
+     "color": "#101B3B",
+     "w": 112.56
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 74.1,
+     "text": "Ivy snorkeled every single day. On the third day she saw a turtle",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.87
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 89.1,
+     "text": "up close and came out of the water so excited she could not say",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 307.2
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 104.1,
+     "text": "the word turtle.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 79.24
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "4",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 1,
+    "from": 0,
+    "to": 4,
+    "ends": true
+   }
+  },
+  {
+   "index": 4,
+   "number": 5,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "spring-break",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11101"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11101",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Turtle spotters.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 60.86
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "5",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 5,
+   "number": 6,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "spring-break",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11102"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11102",
+     "x": 45,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 180
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 474.76,
+     "text": "Rainbow shave ice, every flavor at once.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 158.45
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "6",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 6,
+   "number": 7,
+   "side": "right",
+   "kind": "opener",
+   "template": "opener",
+   "section": "above-the-clouds",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFDDF2",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 85.8,
+     "cy": 76.8,
+     "r": 30,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 84,
+     "cy": 75,
+     "r": 30,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 70.28,
+     "y": 82.92,
+     "text": "02",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 27.43
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 309.65,
+     "text": "Above the clouds",
+     "font": "display",
+     "size": 46,
+     "color": "#101B3B",
+     "w": 340.82,
+     "tracking": -0.8
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 7,
+   "number": 8,
+   "side": "left",
+   "kind": "text",
+   "template": "text",
+   "section": "above-the-clouds",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 133,
+     "y": 56.1,
+     "text": "On the last morning we drove up the volcano in the dark,",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 282.43
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 71.1,
+     "text": "wrapped in hotel blankets, and watched the sun come up over a",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 313.74
+    },
+    {
+     "type": "text",
+     "x": 133,
+     "y": 86.1,
+     "text": "sea of clouds. Leo fell asleep halfway through. It still counts.",
+     "font": "story",
+     "size": 10.5,
+     "color": "#101B3B",
+     "w": 298.38
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "8",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": {
+    "unit": 0,
+    "from": 0,
+    "to": 3,
+    "ends": true
+   }
+  },
+  {
+   "index": 8,
+   "number": 9,
+   "side": "right",
+   "kind": "photos",
+   "template": "framed",
+   "section": "above-the-clouds",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11103"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11103",
+     "x": 54,
+     "y": 90.7,
+     "w": 495,
+     "h": 371.26,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1448,
+      "h": 1086
+     },
+     "ppi": 210,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 54,
+     "y": 474.76,
+     "text": "Sunrise above the clouds. Leo slept through the best bit.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 224.12
+    },
+    {
+     "type": "text",
+     "x": 544.5,
+     "y": 565,
+     "text": "9",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 4.5,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 9,
+   "number": 10,
+   "side": "left",
+   "kind": "photos",
+   "template": "framed",
+   "section": "more-photos",
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [
+    "img-11100"
+   ],
+   "items": [
+    {
+     "type": "image",
+     "ref": "img-11100",
+     "x": 45,
+     "y": 116.69,
+     "w": 495,
+     "h": 309.38,
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 750
+     },
+     "ppi": 174,
+     "frame": "plain",
+     "floor": 150
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 438.87,
+     "text": "Ka’anapali Beach and the volcano Leo built.",
+     "font": "ui",
+     "size": 8.5,
+     "color": "#454D66",
+     "w": 171.04
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 31,
+     "text": "MORE PHOTOS",
+     "font": "mono-medium",
+     "size": 8.5,
+     "color": "#101B3B",
+     "w": 67.1,
+     "tracking": 1.1
+    },
+    {
+     "type": "text",
+     "x": 45,
+     "y": 565,
+     "text": "10",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 10,
+   "number": 11,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 11,
+   "number": 12,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 12,
+   "number": 13,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 13,
+   "number": 14,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 14,
+   "number": 15,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 15,
+   "number": 16,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 16,
+   "number": 17,
+   "side": "right",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 17,
+   "number": 18,
+   "side": "left",
+   "kind": "blank",
+   "template": "blank",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [],
+   "text": null
+  },
+  {
+   "index": 18,
+   "number": 19,
+   "side": "right",
+   "kind": "people",
+   "template": "people",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 36,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 54,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": true,
+   "photos": [],
+   "items": [
+    {
+     "type": "text",
+     "x": 54,
+     "y": 64.2,
+     "text": "Who was there",
+     "font": "display",
+     "size": 24,
+     "color": "#101B3B",
+     "w": 156.65,
+     "tracking": -0.3
+    },
+    {
+     "type": "circle",
+     "cx": 117.88,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 115.88,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 98.12,
+     "y": 274.36,
+     "text": "MH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 35.52
+    },
+    {
+     "type": "text",
+     "x": 83.48,
+     "y": 321.4,
+     "text": "Maya Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 64.8
+    },
+    {
+     "type": "circle",
+     "cx": 241.63,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 239.63,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#A98BFF",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 225.83,
+     "y": 274.36,
+     "text": "TH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 27.59
+    },
+    {
+     "type": "text",
+     "x": 210.43,
+     "y": 321.4,
+     "text": "Tom Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 58.4
+    },
+    {
+     "type": "circle",
+     "cx": 365.38,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 363.38,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 352.49,
+     "y": 274.36,
+     "text": "IH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 21.78
+    },
+    {
+     "type": "text",
+     "x": 337.13,
+     "y": 321.4,
+     "text": "Ivy Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 52.49
+    },
+    {
+     "type": "circle",
+     "cx": 489.13,
+     "cy": 269.4,
+     "r": 34,
+     "fill": "#101B3B"
+    },
+    {
+     "type": "circle",
+     "cx": 487.13,
+     "cy": 267.4,
+     "r": 34,
+     "fill": "#C6F135",
+     "stroke": "#101B3B",
+     "strokeWidth": 1.25
+    },
+    {
+     "type": "text",
+     "x": 474.07,
+     "y": 274.36,
+     "text": "LH",
+     "font": "heading",
+     "size": 21.08,
+     "color": "#101B3B",
+     "w": 26.12
+    },
+    {
+     "type": "text",
+     "x": 459.63,
+     "y": 321.4,
+     "text": "Leo Hartley",
+     "font": "ui-semibold",
+     "size": 10,
+     "color": "#101B3B",
+     "w": 54.99
+    },
+    {
+     "type": "text",
+     "x": 539.4,
+     "y": 565,
+     "text": "19",
+     "font": "mono",
+     "size": 7.5,
+     "color": "#6B7285",
+     "w": 9.6,
+     "tracking": 0.6
+    }
+   ],
+   "text": null
+  },
+  {
+   "index": 19,
+   "number": 20,
+   "side": "left",
+   "kind": "colophon",
+   "template": "colophon",
+   "section": null,
+   "size": {
+    "w": 594,
+    "h": 594
+   },
+   "trim": {
+    "x": 9,
+    "y": 9,
+    "w": 576,
+    "h": 576
+   },
+   "bleed": {
+    "x": 0,
+    "y": 0,
+    "w": 594,
+    "h": 594
+   },
+   "safe": {
+    "x": 18,
+    "y": 18,
+    "w": 540,
+    "h": 558
+   },
+   "content": {
+    "x": 45,
+    "y": 45,
+    "w": 495,
+    "h": 495
+   },
+   "background": "#FFFFFF",
+   "folio": false,
+   "photos": [],
+   "items": [
+    {
+     "type": "circle",
+     "cx": 225.44,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#19CFC7",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 231.49,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF8A1F",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "circle",
+     "cx": 237.54,
+     "cy": 495.68,
+     "r": 5.04,
+     "fill": "#FF62C4",
+     "stroke": "#101B3B",
+     "strokeWidth": 0.9
+    },
+    {
+     "type": "text",
+     "x": 248.58,
+     "y": 500,
+     "text": "Our ",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 24.36
+    },
+    {
+     "type": "group",
+     "rotate": -2,
+     "ox": 296.11,
+     "oy": 496.38,
+     "items": [
+      {
+       "type": "rect",
+       "x": 274.14,
+       "y": 490.26,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#101B3B",
+       "r": 2.5
+      },
+      {
+       "type": "rect",
+       "x": 272.94,
+       "y": 489.06,
+       "w": 46.33,
+       "h": 15.64,
+       "fill": "#FFFFFF",
+       "r": 2.5,
+       "stroke": "#101B3B",
+       "strokeWidth": 0.9
+      },
+      {
+       "type": "text",
+       "x": 276.3,
+       "y": 500,
+       "text": "Family",
+       "font": "heading",
+       "size": 12,
+       "color": "#101B3B",
+       "w": 39.61
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "x": 321.95,
+     "y": 500,
+     "text": "Socials",
+     "font": "heading",
+     "size": 12,
+     "color": "#101B3B",
+     "w": 42.65
+    },
+    {
+     "type": "text",
+     "x": 182.47,
+     "y": 524.4,
+     "text": "Made from “Spring break in Maui”, a story by Maya Hartley.",
+     "font": "ui",
+     "size": 8,
+     "color": "#6B7285",
+     "w": 220.06
+    }
+   ],
+   "text": null
+  }
+ ],
+ "sections": [
+  {
+   "id": "spring-break",
+   "kind": "chapter",
+   "title": "Spring break",
+   "label": null,
+   "firstPage": 2,
+   "lastPage": 6
+  },
+  {
+   "id": "above-the-clouds",
+   "kind": "chapter",
+   "title": "Above the clouds",
+   "label": null,
+   "firstPage": 7,
+   "lastPage": 9
+  },
+  {
+   "id": "more-photos",
+   "kind": "more",
+   "title": "More photos",
+   "label": null,
+   "firstPage": 10,
+   "lastPage": 10
+  }
+ ],
+ "notices": [
+  {
+   "code": "slim",
+   "message": "This story makes a slim book. Add another story, or give each photo its own page."
+  }
+ ],
+ "edits": {
+  "size": "hc-8x8",
+  "applied": [],
+  "ignored": []
+ },
+ "stats": {
+  "templates": {
+   "blank": 8,
+   "colophon": 1,
+   "framed": 5,
+   "opener": 1,
+   "opener-text": 1,
+   "people": 1,
+   "text": 2,
+   "title": 1
+  },
+  "minPpi": 174,
+  "measure": 319,
+  "contentBox": {
+   "w": 495,
+   "h": 495
+  },
+  "margins": {
+   "top": 36,
+   "bottom": 45,
+   "outside": 36,
+   "inside": 45
+  }
+ }
+}
